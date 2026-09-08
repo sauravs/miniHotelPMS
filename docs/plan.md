@@ -14,7 +14,7 @@ Execution tracker. **Update the status table as slices close.** Design rationale
 | 2 | MiniHotel provider (structured) | ☑ | ☑ | — | ☑ | ☑ | **done** — PR #4 |
 | 3 | Evidence, references & budget | ☑ | ☑ | — | ☑ | ☑ | **done** — PR #5 |
 | 4 | Evaluator — record level | ☑ | ☑ | ☑ | ☑ | ☑ | **done** — PR #6 |
-| 5 | Evaluator — population level | ☑ | ☑ | ☑ | ☐ | ☐ | **in review** |
+| 5 | Evaluator — population level | ☑ | ☑ | ☑ | ☑ | ☑ | **done** — PR #7 |
 | 6 | Runner, coverage, readiness, store | ☐ | ☐ | ☐ | ☐ | ☐ | not started |
 | 7 | Second provider — DemoPMS | ☐ | ☐ | ☐ | ☐ | ☐ | not started |
 | 8 | Scheduling & freshness | ☐ | ☐ | — | ☐ | ☐ | not started |
