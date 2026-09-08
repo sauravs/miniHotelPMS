@@ -1,0 +1,105 @@
+{
+  "control_id": "checkout_unrefunded_credit",
+  "version": 2,
+  "source_control": "6",
+  "name": "Checkout With An Unrefunded Credit",
+  "natural_language": "A reservation cannot be closed while the hotel still owes the guest a refund.",
+  "entity": "reservation",
+  "population": {
+    "description": "Reservations that reached checked-out status in the last 24 hours. Bounding this set matters: the folio endpoint is one call per reservation.",
+    "provider_query": {
+      "minihotel": {
+        "endpoint": "GetReservationKey",
+        "filters": {
+          "DepartureDate": {
+            "From": "today-1d",
+            "To": "today"
+          },
+          "BookingSearch": {
+            "Status": "OUT"
+          }
+        },
+        "then": [
+          "GetReservationBalance once per reservation in the population"
+        ],
+        "call_cost": "1 + N where N is checkouts in the window, NOT total reservations - this is why the population query exists (R1)"
+      }
+    }
+  },
+  "references": [],
+  "scope": [
+    {
+      "field": "reservation.status",
+      "operator": "equals",
+      "value": "checked_out"
+    }
+  ],
+  "exceptions": [],
+  "assertion": {
+    "mode": "all",
+    "predicates": [
+      {
+        "field": "folio.balance_due",
+        "operator": "gte",
+        "value": 0,
+        "note": "A negative balance means the guest overpaid and is owed a refund. Observed live: reservation 007004348 departed at -490.75 ILS."
+      }
+    ]
+  },
+  "required_evidence": [
+    {
+      "field": "reservation.status",
+      "source": "pms",
+      "resolvable": true
+    },
+    {
+      "field": "reservation.departure_date",
+      "source": "pms",
+      "resolvable": true
+    },
+    {
+      "field": "folio.balance_due",
+      "source": "pms",
+      "resolvable": true
+    },
+    {
+      "field": "folio.currency",
+      "source": "pms",
+      "resolvable": true
+    },
+    {
+      "field": "reservation.currency",
+      "source": "pms",
+      "resolvable": true,
+      "note": "needed only to detect the currency split; the comparison itself is against 0 so no FX is required"
+    }
+  ],
+  "execution": {
+    "mode": "daily",
+    "rationale": "Type D in control_rule_architecture.docx section 8 - inherently a review queue rather than a real-time alert. Lower urgency than money owed, which is exactly why the two controls were separated (D8)."
+  },
+  "freshness_requirement": {
+    "maximum_age": "24h",
+    "rationale": "A credit owed to a departed guest is a liability to settle, not a debt to chase before they leave the country. Daily is enough."
+  },
+  "unknown_conditions": [
+    {
+      "when": "the GetReservationBalance call fails or returns no folio",
+      "reason": "balance not established"
+    },
+    {
+      "when": "any rule variant compares folio.balance_due against reservation.total_amount",
+      "reason": "folio.currency and reservation.currency differ (ILS vs USD observed live) and MiniHotel supplies no exchange rate. Comparing them without an FX source is invalid.",
+      "risk": "R9"
+    }
+  ],
+  "action": {
+    "type": "notify",
+    "severity": "medium",
+    "audience": "finance"
+  },
+  "caveats": [
+    "Asserts against literal zero, so it is currency-safe by construction (R9).",
+    "Question 2.2 for MiniHotel is open: we infer that a negative TotalDebit is an overpayment. If the vendor says it is an accounting artefact instead, this control is wrong and should be withdrawn rather than reinterpreted."
+  ]
+}

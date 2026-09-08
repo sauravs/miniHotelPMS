@@ -1,0 +1,146 @@
+{
+  "control_id": "room_assignment_type_validity",
+  "version": 2,
+  "source_control": "1a-1c",
+  "name": "Room Assignment Validity - Room Exists and Type Is Allowed",
+  "natural_language": "A reservation may only be assigned to a room that exists and whose type is one the hotel has defined, and the reservation's room type must match the room's actual type.",
+  "entity": "stay",
+  "population": {
+    "description": "Non-cancelled reservations with an assigned room, staying or arriving from today onward.",
+    "provider_query": {
+      "minihotel": {
+        "endpoint": "GetReservationKey",
+        "filters": {
+          "ArrivalDate": {
+            "From": "today",
+            "To": "today+90d"
+          }
+        },
+        "then": [
+          "getRooms (all rooms, 1 call)",
+          "getRoomTypes (1 call)"
+        ],
+        "call_cost": "O(1) - three bulk calls regardless of hotel size"
+      }
+    }
+  },
+  "references": [
+    {
+      "entity": "room",
+      "kind": "lookup",
+      "local_field": "stay.room_number",
+      "remote_field": "room.number",
+      "note": "The room master, fetched once per run. v1 had no way to express this join, so room.type resolved to UNKNOWN for all 111 stays (F1)."
+    },
+    {
+      "entity": "room_type",
+      "kind": "set",
+      "field": "room_type.code",
+      "note": "Every defined room-type code. A set rather than a lookup because 1b asks whether the room's type is ONE OF the defined types."
+    }
+  ],
+  "scope": [
+    {
+      "field": "reservation.status",
+      "operator": "not_equals",
+      "value": "cancelled"
+    },
+    {
+      "field": "stay.room_number",
+      "operator": "exists"
+    }
+  ],
+  "exceptions": [],
+  "assertion": {
+    "mode": "all",
+    "predicates": [
+      {
+        "field": "room.number",
+        "operator": "reference_exists",
+        "note": "1a - the assigned room exists in the room master. Stated explicitly rather than inferred from a failed join, so it appears in the evidence table."
+      },
+      {
+        "field": "room.type",
+        "operator": "in",
+        "compare_to": "room_type.code",
+        "note": "1b - the room's own type is a defined type. CASE-INSENSITIVE (R13). This is the check that found rooms 9900/9901/9902 carrying type 'Double', which getRoomTypes does not define - a real latent defect in live data (R11)."
+      },
+      {
+        "field": "stay.room_type",
+        "operator": "matches_ignore_case",
+        "compare_to": "room.type",
+        "note": "1c - the reservation's booked type agrees with the room's actual type. CASE-INSENSITIVE: ARI says EXECUTIVE, the room-type master says Executive, and they are the same type (R13)."
+      }
+    ]
+  },
+  "required_evidence": [
+    {
+      "field": "stay.room_number",
+      "source": "pms",
+      "resolvable": true
+    },
+    {
+      "field": "stay.room_type",
+      "source": "pms",
+      "resolvable": true
+    },
+    {
+      "field": "room.number",
+      "source": "pms",
+      "resolvable": true
+    },
+    {
+      "field": "room.type",
+      "source": "pms",
+      "resolvable": true
+    },
+    {
+      "field": "room_type.code",
+      "source": "pms",
+      "resolvable": true
+    },
+    {
+      "field": "reservation.status",
+      "source": "pms",
+      "resolvable": true,
+      "note": "status is used to exclude cancelled reservations from scope"
+    }
+  ],
+  "execution": {
+    "mode": "event",
+    "events": [
+      "reservation.created",
+      "reservation.updated"
+    ],
+    "fallback": {
+      "mode": "periodic",
+      "minimum_interval": "24h",
+      "rationale": "room and room-type configuration can change without emitting a reservation event"
+    },
+    "rationale": "Type A. The assignment changes only when a reservation changes; MiniHotel publishes the needed webhooks."
+  },
+  "freshness_requirement": {
+    "maximum_age": "1h",
+    "rationale": "Misassignment is guest-facing but not minute-critical; the room master changes rarely."
+  },
+  "unknown_conditions": [
+    {
+      "when": "getRooms or getRoomTypes call fails",
+      "reason": "cannot establish the room or type master, so neither 1a nor 1b can be decided"
+    },
+    {
+      "when": "stay.room_type is empty",
+      "reason": "1c cannot be evaluated; 1a and 1b still can",
+      "risk": "R13"
+    }
+  ],
+  "action": {
+    "type": "notify",
+    "severity": "medium",
+    "audience": "front_office_manager"
+  },
+  "caveats": [
+    "Room type codes differ in CASE across MiniHotel endpoints (ARI returns EXECUTIVE, getRoomTypes returns Executive). All comparisons must casefold - R13.",
+    "This control fires on real data: sandbox rooms 9900/9901/9902 carry type 'Double', which the master does not define - R11. Needs a triage path, not just an alert."
+  ]
+}

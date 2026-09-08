@@ -1,0 +1,136 @@
+{
+  "control_id": "room_assignment_active_room",
+  "version": 2,
+  "source_control": "1d",
+  "name": "Room Assignment Validity - Room Is Active",
+  "natural_language": "A reservation must not be assigned to a room that is out of service on the stay dates.",
+  "entity": "stay",
+  "population": {
+    "description": "Non-cancelled reservations with an assigned room arriving from today onward, joined to rooms that have a closed window set.",
+    "provider_query": {
+      "minihotel": {
+        "endpoint": "GetReservationKey",
+        "filters": {
+          "ArrivalDate": {
+            "From": "today",
+            "To": "today+90d"
+          }
+        },
+        "then": [
+          "getRooms (all rooms, 1 call)"
+        ],
+        "call_cost": "O(1)"
+      }
+    }
+  },
+  "references": [
+    {
+      "entity": "room",
+      "kind": "lookup",
+      "local_field": "stay.room_number",
+      "remote_field": "room.number"
+    }
+  ],
+  "scope": [
+    {
+      "field": "reservation.status",
+      "operator": "not_equals",
+      "value": "cancelled"
+    },
+    {
+      "field": "stay.room_number",
+      "operator": "exists"
+    },
+    {
+      "field": "room.closed_from",
+      "operator": "exists"
+    }
+  ],
+  "exceptions": [],
+  "assertion": {
+    "mode": "none",
+    "predicates": [
+      {
+        "field": "reservation.arrival_date",
+        "operator": "within",
+        "interval": {
+          "start": "room.closed_from",
+          "end": "room.closed_to"
+        },
+        "note": "Violation when the arrival falls inside the room's out-of-service window. v1 expressed this as `within` over a value object and never implemented the operator, so every record came back UNKNOWN (F2)."
+      }
+    ]
+  },
+  "required_evidence": [
+    {
+      "field": "stay.room_number",
+      "source": "pms",
+      "resolvable": true
+    },
+    {
+      "field": "reservation.arrival_date",
+      "source": "pms",
+      "resolvable": true
+    },
+    {
+      "field": "room.closed_from",
+      "source": "pms",
+      "resolvable": true,
+      "note": "never observed populated in sandbox"
+    },
+    {
+      "field": "room.closed_to",
+      "source": "pms",
+      "resolvable": true,
+      "note": "never observed populated in sandbox"
+    },
+    {
+      "field": "reservation.status",
+      "source": "pms",
+      "resolvable": true,
+      "note": "scope filter"
+    },
+    {
+      "field": "room.number",
+      "source": "pms",
+      "resolvable": true
+    }
+  ],
+  "execution": {
+    "mode": "event",
+    "events": [
+      "reservation.created",
+      "reservation.updated"
+    ],
+    "fallback": {
+      "mode": "periodic",
+      "minimum_interval": "6h",
+      "rationale": "a room can be taken out of service without any reservation event being emitted - this is the doc's Type C case"
+    },
+    "rationale": "Type A where possible, Type C underneath. Unlike 1a-1c the ROOM side can change silently, so periodic re-checking is mandatory, not just a fallback."
+  },
+  "freshness_requirement": {
+    "maximum_age": "30m",
+    "rationale": "Guest-facing: an arriving guest sent to an unusable room is an immediate operational failure."
+  },
+  "unknown_conditions": [
+    {
+      "when": "room.closed_from or room.closed_to is populated but does not parse as yyyyMMdd",
+      "reason": "the date format is assumed from documentation and has never been observed; a misparse would silently PASS",
+      "risk": "R2"
+    },
+    {
+      "when": "getRooms call fails",
+      "reason": "out-of-service state unknown"
+    }
+  ],
+  "action": {
+    "type": "notify",
+    "severity": "high",
+    "audience": "front_office_manager"
+  },
+  "caveats": [
+    "UNPROVEN. All 28 sandbox rooms return both closed-date fields empty, so this assertion has never executed against real data.",
+    "Only ONE closed window per room is representable (confirmed structurally - the field is not inside an ArrayOf wrapper). A PASS therefore means 'no evidence of closure', not 'proven open'."
+  ]
+}

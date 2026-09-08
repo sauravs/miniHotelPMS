@@ -1,0 +1,399 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Control IR, version 2",
+  "description": "The representation a natural-language control compiles to. Contains NO PMS-specific identifiers - only canonical field names from canonical_fields.json. Logic (references/scope/exceptions/assertion) and execution (trigger/freshness) are separate objects, per control_rule_architecture.docx section 4. Changes from v1: `references` makes a join to property-wide data DECLARATIVE rather than hoped-for (review finding F1); `assertion.group_by` makes an aggregate assertion well-defined (F2); a predicate's right-hand side may name a tenant setting, so a rule no longer carries a placeholder like '<hotel-nominated rate codes>' inside an otherwise executable IR.",
+  "type": "object",
+  "required": [
+    "control_id",
+    "version",
+    "name",
+    "source_control",
+    "natural_language",
+    "entity",
+    "population",
+    "references",
+    "scope",
+    "exceptions",
+    "assertion",
+    "required_evidence",
+    "execution",
+    "freshness_requirement",
+    "unknown_conditions",
+    "action"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "control_id": {
+      "type": "string",
+      "pattern": "^[a-z0-9_]+$"
+    },
+    "version": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "source_control": {
+      "type": "string",
+      "description": "Row id in Hotel Controls.docx and the feasibility workbook. Two IRs may share one row: control 6 is split into money-owed and unrefunded-credit."
+    },
+    "natural_language": {
+      "type": "string",
+      "minLength": 1,
+      "description": "The sentence this rule came from, carried as data and shown on screen next to the verdict, so the chain 'rule as written -> answer -> evidence' is visible."
+    },
+    "entity": {
+      "enum": [
+        "reservation",
+        "stay",
+        "room",
+        "folio",
+        "occupancy"
+      ],
+      "description": "What one record IS. A reservation holds several room stays with different rooms, types and rates, so `stay` is a distinct entity - controls 1, 4 and 9 evaluate per stay."
+    },
+    "population": {
+      "type": "object",
+      "description": "The BOUNDED set of records to look at, before any evidence is fetched. Not an IF statement (control_rule_architecture.docx section 24). It exists because a folio costs one call per reservation and there is no bulk journal endpoint (R1).",
+      "required": [
+        "description",
+        "provider_query"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "description": {
+          "type": "string"
+        },
+        "provider_query": {
+          "type": "object",
+          "description": "Per-provider query, keyed by provider name. Opaque data to every layer above the provider adapter, which resolves relative dates like 'today-1d' through the property clock and passes the rest through unchanged.",
+          "minProperties": 1
+        }
+      }
+    },
+    "references": {
+      "type": "array",
+      "description": "Property-wide data this control must join against. Fetched ONCE per run, not once per record - the difference between one extra call and N of them. A key that does not match resolves to UNKNOWN: a join never invents a match, because wrong evidence behind a right-looking verdict is the worst thing this engine can produce.",
+      "items": {
+        "type": "object",
+        "required": [
+          "entity",
+          "kind"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "entity": {
+            "enum": [
+              "reservation",
+              "stay",
+              "room",
+              "room_type",
+              "folio",
+              "occupancy",
+              "rate_plan"
+            ]
+          },
+          "kind": {
+            "enum": [
+              "lookup",
+              "collection",
+              "set"
+            ],
+            "description": "'lookup' joins ONE remote record by key, making its fields resolvable for the record under evaluation (a stay's assigned room). 'collection' joins EVERY remote record matching the key (a room's occupancy segments) - the reverse direction, which control 2 needs because it starts from the room side. 'set' collects every value of one field across the whole referenced response, for membership tests (all defined room-type codes)."
+          },
+          "local_field": {
+            "type": "string",
+            "description": "lookup and collection only: the canonical field on the record under evaluation that carries the key"
+          },
+          "remote_field": {
+            "type": "string",
+            "description": "lookup and collection only: the canonical field on the referenced records that the key matches"
+          },
+          "field": {
+            "type": "string",
+            "description": "set only: the canonical field whose values form the set"
+          },
+          "source": {
+            "enum": [
+              "pms",
+              "tenant"
+            ],
+            "default": "pms",
+            "description": "'tenant' means the hotel supplies this as configuration rather than the PMS - the answer to R13 for control 9."
+          },
+          "note": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "scope": {
+      "type": "array",
+      "description": "Does this control apply to this record at all? A record failing scope is EXCLUDED, which is NOT a pass.",
+      "items": {
+        "$ref": "#/definitions/predicate"
+      }
+    },
+    "exceptions": {
+      "type": "array",
+      "description": "Is this record exempt? Evaluated after scope. A record matching an exception is EXCLUDED.",
+      "items": {
+        "$ref": "#/definitions/predicate"
+      }
+    },
+    "assertion": {
+      "type": "object",
+      "description": "What must be true. `all`/`any`/`none` judge one record at a time; `aggregate` judges a GROUP of records and therefore requires group_by.",
+      "required": [
+        "mode",
+        "predicates"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "mode": {
+          "enum": [
+            "all",
+            "any",
+            "none",
+            "aggregate"
+          ]
+        },
+        "group_by": {
+          "type": "string",
+          "description": "Canonical field to group records by. REQUIRED when mode is 'aggregate' and forbidden otherwise. v1 declared aggregate assertions without it, which is why duplicate detection could never be evaluated (F2)."
+        },
+        "predicates": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/definitions/predicate"
+          }
+        }
+      }
+    },
+    "required_evidence": {
+      "type": "array",
+      "minItems": 1,
+      "description": "Every canonical field this control needs. Anything used in references, scope, exceptions or the assertion MUST appear here - the validator enforces it, which is what stops a rule quietly answering about a field nobody planned to fetch.",
+      "items": {
+        "type": "object",
+        "required": [
+          "field",
+          "source"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "field": {
+            "type": "string"
+          },
+          "source": {
+            "enum": [
+              "pms",
+              "housekeeping",
+              "finance",
+              "transport",
+              "tenant",
+              "external"
+            ],
+            "description": "Which system holds this. Drives the readiness report: 'control readiness, 1 of 2 evidence sources connected'."
+          },
+          "resolvable": {
+            "type": "boolean"
+          },
+          "note": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "execution": {
+      "type": "object",
+      "description": "WHEN to evaluate. Deliberately separate from the logic: the rule does not care whether we check every five minutes or once a day (control_rule_architecture.docx section 4).",
+      "required": [
+        "mode"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "mode": {
+          "enum": [
+            "event",
+            "scheduled",
+            "periodic",
+            "daily"
+          ]
+        },
+        "events": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "minimum_interval": {
+          "type": "string"
+        },
+        "before_event": {
+          "type": "object",
+          "description": "Semantic schedule - 'before_event(arrival, 24h)' - rather than a wall-clock time. The execution engine decides when that actually means.",
+          "additionalProperties": false,
+          "properties": {
+            "event": {
+              "type": "string"
+            },
+            "lead_time": {
+              "type": "string"
+            }
+          }
+        },
+        "fallback": {
+          "type": "object"
+        },
+        "rationale": {
+          "type": "string"
+        }
+      }
+    },
+    "freshness_requirement": {
+      "type": "object",
+      "required": [
+        "maximum_age"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "maximum_age": {
+          "type": "string"
+        },
+        "rationale": {
+          "type": "string"
+        }
+      }
+    },
+    "unknown_conditions": {
+      "type": "array",
+      "minItems": 1,
+      "description": "The ways this control can legitimately fail to answer. A control that cannot say when it is unable to answer is incompletely specified.",
+      "items": {
+        "type": "object",
+        "required": [
+          "when",
+          "reason"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "when": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "risk": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "action": {
+      "type": "object",
+      "required": [
+        "type",
+        "severity"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "enum": [
+            "notify",
+            "dashboard",
+            "report"
+          ]
+        },
+        "severity": {
+          "enum": [
+            "low",
+            "medium",
+            "high"
+          ]
+        },
+        "audience": {
+          "type": "string"
+        }
+      }
+    },
+    "caveats": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "definitions": {
+    "predicate": {
+      "type": "object",
+      "required": [
+        "field",
+        "operator"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "field": {
+          "type": "string",
+          "description": "MUST be a name declared in canonical_fields.json. This is the guard rail control_rule_architecture.docx section 17 asks for: a compiler emitting a rule about a field nobody defined is stopped here, naming the missing vocabulary."
+        },
+        "operator": {
+          "enum": [
+            "equals",
+            "not_equals",
+            "in",
+            "not_in",
+            "exists",
+            "not_exists",
+            "lt",
+            "lte",
+            "gt",
+            "gte",
+            "matches_ignore_case",
+            "within",
+            "not_within",
+            "reference_exists",
+            "reference_missing",
+            "count_lte",
+            "no_overlap"
+          ],
+          "description": "Record-level: equals..matches_ignore_case. Interval: within/not_within, which need `interval`. Join: reference_exists/reference_missing. Aggregate (mode 'aggregate' only): count_lte, no_overlap."
+        },
+        "value": {
+          "description": "A literal. Mutually exclusive with compare_to and tenant_setting."
+        },
+        "compare_to": {
+          "type": "string",
+          "description": "Another canonical field, for field-to-field comparison."
+        },
+        "tenant_setting": {
+          "type": "string",
+          "description": "A named list or map supplied by the hotel rather than the PMS. Replaces v1's placeholder literals, which sat inside otherwise executable rules."
+        },
+        "interval": {
+          "type": "object",
+          "description": "For within/not_within/no_overlap: the two canonical fields bounding a date range.",
+          "required": [
+            "start",
+            "end"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "start": {
+              "type": "string"
+            },
+            "end": {
+              "type": "string"
+            }
+          }
+        },
+        "note": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

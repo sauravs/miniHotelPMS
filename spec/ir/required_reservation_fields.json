@@ -1,0 +1,115 @@
+{
+  "control_id": "required_reservation_fields",
+  "version": 2,
+  "source_control": "15",
+  "name": "Required Reservation Fields",
+  "natural_language": "Every reservation on a given rate must record the guest's email, phone and identification number.",
+  "entity": "reservation",
+  "population": {
+    "description": "Non-cancelled reservations on the rate codes the hotel nominates, arriving from today onward.",
+    "provider_query": {
+      "minihotel": {
+        "endpoint": "GetReservationKey",
+        "filters": {
+          "ArrivalDate": {
+            "From": "today",
+            "To": "today+90d"
+          },
+          "IncludeRoomPrices": true
+        },
+        "call_cost": "O(1) - IncludeRoomPrices is required or rate_code is absent and scope cannot be resolved"
+      }
+    }
+  },
+  "references": [],
+  "scope": [
+    {
+      "field": "reservation.status",
+      "operator": "not_equals",
+      "value": "cancelled"
+    },
+    {
+      "field": "stay.rate_code",
+      "operator": "in",
+      "tenant_setting": "nominated_rate_codes",
+      "note": "Which rate categories carry the requirement is the HOTEL's policy, not the provider's data. v1 carried the literal placeholder ['<hotel-nominated rate codes>'] inside an otherwise executable rule; it is now tenant configuration, and an empty list excludes every record honestly."
+    }
+  ],
+  "exceptions": [],
+  "assertion": {
+    "mode": "all",
+    "predicates": [
+      {
+        "field": "reservation.guest.email",
+        "operator": "exists"
+      },
+      {
+        "field": "reservation.guest.phone",
+        "operator": "exists"
+      },
+      {
+        "field": "reservation.guest.id_number",
+        "operator": "exists"
+      }
+    ]
+  },
+  "required_evidence": [
+    {
+      "field": "stay.rate_code",
+      "source": "pms",
+      "resolvable": true
+    },
+    {
+      "field": "reservation.guest.email",
+      "source": "pms",
+      "resolvable": true
+    },
+    {
+      "field": "reservation.guest.phone",
+      "source": "pms",
+      "resolvable": true
+    },
+    {
+      "field": "reservation.guest.id_number",
+      "source": "pms",
+      "resolvable": true
+    },
+    {
+      "field": "reservation.status",
+      "source": "pms",
+      "resolvable": true,
+      "note": "scope filter"
+    }
+  ],
+  "execution": {
+    "mode": "event",
+    "events": [
+      "reservation.created",
+      "reservation.updated"
+    ],
+    "fallback": {
+      "mode": "daily"
+    },
+    "rationale": "Type A. Guest details change only through reservation events."
+  },
+  "freshness_requirement": {
+    "maximum_age": "4h",
+    "rationale": "Usually a compliance or registration requirement with a deadline at check-in, not immediate."
+  },
+  "unknown_conditions": [
+    {
+      "when": "stay.rate_code is empty",
+      "reason": "cannot determine whether the reservation is in scope, so neither PASS nor FAIL is justified",
+      "risk": "R13"
+    }
+  ],
+  "action": {
+    "type": "notify",
+    "severity": "medium",
+    "audience": "front_office_manager"
+  },
+  "caveats": [
+    "The company half of the original control is NOT expressible: MiniHotel has no company or corporate account entity anywhere in its API. Only guest and payment fields can be asserted.",
+    "Payment card fields are masked/tokenised, so presence can be asserted but never validity."
+  ]
+}

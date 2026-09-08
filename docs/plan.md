@@ -10,7 +10,7 @@ Execution tracker. **Update the status table as slices close.** Design rationale
 | # | Slice | Unit | Integ | E2E | CI | PR | State |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | 0 | Foundation, kernel & CI | ☑ | — | — | ☑ | ☑ | **done** — PR #1 |
-| 1 | Spec layer & validator | ☐ | ☐ | — | ☐ | ☐ | not started |
+| 1 | Spec layer & validator | ☑ | ☑ | — | ☐ | ☐ | **in review** |
 | 2 | MiniHotel provider (structured) | ☐ | ☐ | — | ☐ | ☐ | not started |
 | 3 | Evidence, references & budget | ☐ | ☐ | — | ☐ | ☐ | not started |
 | 4 | Evaluator — record level | ☐ | ☐ | ☐ | ☐ | ☐ | not started |
@@ -116,23 +116,23 @@ Migrate v1's 52-field registry and 10 IRs, **split control 6 into two**, and mak
 configuration data instead of module constants (F12, resolves v1 open question 1.4).
 
 **Unit tests**
-- [ ] An IR referencing a canonical field nobody declared is **rejected**, naming the field
-- [ ] A field used in scope/exceptions/assertion but not declared in `required_evidence` is rejected
-- [ ] An IR naming an unknown operator or assertion mode is rejected
-- [ ] A tenant config with an unmapped-by-design status code loads; the code resolves UNKNOWN (A5)
-- [ ] A tenant timezone that is not an IANA zone is rejected
-- [ ] The doc's own example — *"All VIP arrivals should have an assigned room that is clean by 2 PM"* —
+- [x] An IR referencing a canonical field nobody declared is **rejected**, naming the field
+- [x] A field used in scope/exceptions/assertion but not declared in `required_evidence` is rejected
+- [x] An IR naming an unknown operator or assertion mode is rejected
+- [x] A tenant config with an unmapped-by-design status code loads; the code resolves UNKNOWN (A5)
+- [x] A tenant timezone that is not an IANA zone is rejected
+- [x] The doc's own example — *"All VIP arrivals should have an assigned room that is clean by 2 PM"* —
       is rejected naming `reservation.vip` and `room.housekeeping_status_at` (§17 gate)
 
 **Integration tests**
-- [ ] All 11 IRs are schema-valid and reference only declared vocabulary
-- [ ] Every canonical field is either mapped by at least one provider or explicitly marked
+- [x] All 11 IRs are schema-valid and reference only declared vocabulary
+- [x] Every canonical field is either mapped by at least one provider or explicitly marked
       unresolvable with a reason (`rate_plan.permitted_room_types`, R13)
 
 **Gate**
-- [ ] `validate_spec` passes and reports its check count
-- [ ] 11 IRs load; the two control-6 halves assert `lte 0` and `gte 0` respectively
-- [ ] No status map, department map or timezone remains in Python source
+- [x] `validate_spec` passes and reports its check count — **592 checks**
+- [x] 11 IRs load; the two control-6 halves assert `lte 0` and `gte 0` respectively
+- [x] No status map, department map or timezone remains in Python source
 
 ---
 

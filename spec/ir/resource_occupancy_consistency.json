@@ -1,0 +1,110 @@
+{
+  "control_id": "resource_occupancy_consistency",
+  "version": 2,
+  "source_control": "20",
+  "name": "Resource Occupancy Consistency",
+  "natural_language": "A room must not be occupied by two overlapping reservations at the same time.",
+  "entity": "occupancy",
+  "population": {
+    "description": "The occupancy map for a short rolling window. MiniHotel asks integrators not to query wide date ranges, so this runs in small windows rather than as a full-horizon sweep.",
+    "provider_query": {
+      "minihotel": {
+        "endpoint": "RoomStatusInquiry",
+        "filters": {
+          "DateRange": {
+            "from": "today",
+            "to": "today+7d"
+          }
+        },
+        "call_cost": "O(1) per window - one call returns rooms and reservations together"
+      }
+    }
+  },
+  "references": [],
+  "scope": [
+    {
+      "field": "occupancy.status",
+      "operator": "not_equals",
+      "value": "cancelled"
+    }
+  ],
+  "exceptions": [],
+  "assertion": {
+    "mode": "aggregate",
+    "group_by": "occupancy.room_number",
+    "predicates": [
+      {
+        "field": "occupancy.reservation_id",
+        "operator": "no_overlap",
+        "interval": {
+          "start": "occupancy.from",
+          "end": "occupancy.to"
+        },
+        "note": "Within one room, no two DISTINCT reservations may hold overlapping date segments. v1 wrote this as `occupancy.from overlaps occupancy.to`, which compares a record's own start against its own end and cannot express the question at all (F2)."
+      }
+    ]
+  },
+  "required_evidence": [
+    {
+      "field": "occupancy.room_number",
+      "source": "pms",
+      "resolvable": true
+    },
+    {
+      "field": "occupancy.reservation_id",
+      "source": "pms",
+      "resolvable": true
+    },
+    {
+      "field": "occupancy.from",
+      "source": "pms",
+      "resolvable": true
+    },
+    {
+      "field": "occupancy.to",
+      "source": "pms",
+      "resolvable": true
+    },
+    {
+      "field": "occupancy.status",
+      "source": "pms",
+      "resolvable": true
+    }
+  ],
+  "execution": {
+    "mode": "event",
+    "events": [
+      "room.occupancy_updated"
+    ],
+    "fallback": {
+      "mode": "periodic",
+      "minimum_interval": "1h"
+    },
+    "rationale": "Type A. MiniHotel publishes a dedicated room-occupancy-updated webhook, so this is one of the few controls that can genuinely run in the doc's REAL-TIME mode."
+  },
+  "freshness_requirement": {
+    "maximum_age": "30m",
+    "rationale": "A double-booked room is discovered at the front desk with a guest standing there. This is the most time-critical control in the set."
+  },
+  "unknown_conditions": [
+    {
+      "when": "the queried window exceeds what MiniHotel permits without prior agreement",
+      "reason": "the call may be refused or throttled, leaving occupancy unestablished",
+      "risk": "R8"
+    },
+    {
+      "when": "occupancy.status cannot be normalised",
+      "reason": "per-tenant status codes",
+      "risk": "A5"
+    }
+  ],
+  "action": {
+    "type": "notify",
+    "severity": "high",
+    "audience": "front_office_manager"
+  },
+  "caveats": [
+    "A single reservation may legitimately appear MULTIPLE times on the same room with different date segments. Confirmed live: reservation 007003204 occupies room 303 across both 10-11 Aug and 15-16 Aug. Overlap detection must compare segments between DISTINCT reservations, and must not treat a repeated reservation number as a double-booking.",
+    "Checked-out and cancelled reservations are excluded from this endpoint's response, which helps overlap detection but makes historical reconstruction impossible from this source."
+  ]
+}

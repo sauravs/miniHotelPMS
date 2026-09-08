@@ -1,0 +1,118 @@
+{
+  "control_id": "inactive_room_future_stay",
+  "version": 2,
+  "source_control": "13",
+  "name": "Inactive Room Assigned to Future Stay",
+  "natural_language": "No future reservation may reference a room that is inactive or decommissioned.",
+  "entity": "stay",
+  "population": {
+    "description": "Non-cancelled reservations arriving from today onward, joined against the full room master.",
+    "provider_query": {
+      "minihotel": {
+        "endpoint": "getRooms",
+        "filters": {},
+        "then": [
+          "GetReservationKey with ArrivalDate from today forward"
+        ],
+        "call_cost": "O(1) - two bulk calls"
+      }
+    }
+  },
+  "references": [
+    {
+      "entity": "room",
+      "kind": "lookup",
+      "local_field": "stay.room_number",
+      "remote_field": "room.number"
+    }
+  ],
+  "scope": [
+    {
+      "field": "reservation.status",
+      "operator": "not_equals",
+      "value": "cancelled"
+    },
+    {
+      "field": "reservation.arrival_date",
+      "operator": "gte",
+      "value": "today"
+    },
+    {
+      "field": "stay.room_number",
+      "operator": "exists"
+    }
+  ],
+  "exceptions": [],
+  "assertion": {
+    "mode": "all",
+    "predicates": [
+      {
+        "field": "room.number",
+        "operator": "reference_exists",
+        "note": "The assigned room still exists in the room master."
+      },
+      {
+        "field": "room.closed_from",
+        "operator": "not_exists",
+        "note": "...and is not out of service."
+      }
+    ]
+  },
+  "required_evidence": [
+    {
+      "field": "stay.room_number",
+      "source": "pms",
+      "resolvable": true
+    },
+    {
+      "field": "reservation.arrival_date",
+      "source": "pms",
+      "resolvable": true
+    },
+    {
+      "field": "room.number",
+      "source": "pms",
+      "resolvable": true
+    },
+    {
+      "field": "room.closed_from",
+      "source": "pms",
+      "resolvable": true
+    },
+    {
+      "field": "reservation.status",
+      "source": "pms",
+      "resolvable": true,
+      "note": "scope filter"
+    }
+  ],
+  "execution": {
+    "mode": "periodic",
+    "minimum_interval": "6h",
+    "rationale": "Type C, and the architecture doc's own worked example for this mode. A room can be decommissioned with no reservation event emitted, so events alone would miss it."
+  },
+  "freshness_requirement": {
+    "maximum_age": "24h",
+    "rationale": "Concerns future stays; there is time to react. The doc explicitly rates this class low-urgency."
+  },
+  "unknown_conditions": [
+    {
+      "when": "getRooms call fails",
+      "reason": "cannot establish which rooms exist"
+    },
+    {
+      "when": "a room is absent from getRooms",
+      "reason": "absence is the signal, but it cannot be distinguished from a room that was never visible to this integration user. Note R6 was investigated and unmapped rooms ARE still returned, so this is unlikely - but it is not guaranteed for every tenant.",
+      "risk": "R6"
+    }
+  ],
+  "action": {
+    "type": "notify",
+    "severity": "medium",
+    "audience": "front_office_manager"
+  },
+  "caveats": [
+    "MiniHotel has no explicit active/inactive flag. 'Inactive' is inferred from absence from the room master or presence of a closed window.",
+    "Room numbers are not always numeric - one sandbox room is named 'Nemanja'. Do not assume integer keys."
+  ]
+}

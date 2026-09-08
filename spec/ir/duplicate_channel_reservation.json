@@ -1,0 +1,107 @@
+{
+  "control_id": "duplicate_channel_reservation",
+  "version": 2,
+  "source_control": "14",
+  "name": "Duplicate Channel Reservation",
+  "natural_language": "Two active reservations must not share the same channel confirmation number.",
+  "entity": "reservation",
+  "population": {
+    "description": "Reservations created or arriving in the window that carry a channel confirmation number, excluding cancelled ones.",
+    "provider_query": {
+      "minihotel": {
+        "endpoint": "GetReservationKey",
+        "filters": {
+          "CreateDate": {
+            "From": "today-30d",
+            "To": "today"
+          }
+        },
+        "call_cost": "O(1) - a single bulk call, then grouped in memory"
+      }
+    }
+  },
+  "references": [],
+  "scope": [
+    {
+      "field": "reservation.status",
+      "operator": "not_equals",
+      "value": "cancelled"
+    },
+    {
+      "field": "reservation.channel_confirmation_id",
+      "operator": "exists"
+    }
+  ],
+  "exceptions": [
+    {
+      "field": "reservation.channel_confirmation_id",
+      "operator": "not_exists",
+      "note": "Direct bookings carry no channel confirmation number. 7 of 11 sandbox bookings are in this class - without this exception they would all group together and every direct booking would be reported as a duplicate of every other."
+    }
+  ],
+  "assertion": {
+    "mode": "aggregate",
+    "group_by": "reservation.channel_confirmation_id",
+    "predicates": [
+      {
+        "field": "reservation.id",
+        "operator": "count_lte",
+        "value": 1,
+        "note": "At most one ACTIVE reservation per channel confirmation number. Cancelled records are removed by scope before grouping, and records whose confirmation id is not_applicable are never grouped at all - without both, every direct booking would be reported as a duplicate of every other (R7)."
+      }
+    ]
+  },
+  "required_evidence": [
+    {
+      "field": "reservation.channel_confirmation_id",
+      "source": "pms",
+      "resolvable": true
+    },
+    {
+      "field": "reservation.status",
+      "source": "pms",
+      "resolvable": true
+    },
+    {
+      "field": "reservation.id",
+      "source": "pms",
+      "resolvable": true
+    },
+    {
+      "field": "reservation.channel",
+      "source": "pms",
+      "resolvable": true
+    }
+  ],
+  "execution": {
+    "mode": "event",
+    "events": [
+      "reservation.created"
+    ],
+    "fallback": {
+      "mode": "periodic",
+      "minimum_interval": "1h"
+    },
+    "rationale": "Type A. A duplicate can only appear when a reservation is created."
+  },
+  "freshness_requirement": {
+    "maximum_age": "1h",
+    "rationale": "A duplicate blocks sellable inventory, so it costs money for as long as it persists."
+  },
+  "unknown_conditions": [
+    {
+      "when": "reservation.status cannot be normalised to active vs cancelled",
+      "reason": "status codes are per-tenant customisable; without a tenant map, superseded reservations cannot be filtered out",
+      "risk": "A5"
+    }
+  ],
+  "action": {
+    "type": "notify",
+    "severity": "high",
+    "audience": "reservations"
+  },
+  "caveats": [
+    "MiniHotel processes an OTA MODIFICATION as cancel + recreate, reusing the same channel confirmation number with a new internal id. Confirmed live: 'test0000000N1' is shared by 007003206 (cancelled) and 007003207 (active). Excluding cancelled reservations is therefore mandatory, not optional - otherwise every guest who ever changed a booking is reported as a duplicate.",
+    "Two exclusions are required, not one: cancelled status AND null confirmation number."
+  ]
+}

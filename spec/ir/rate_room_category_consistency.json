@@ -1,0 +1,131 @@
+{
+  "control_id": "rate_room_category_consistency",
+  "version": 2,
+  "source_control": "9",
+  "name": "Rate / Room-Category Consistency",
+  "natural_language": "A reservation using a given rate may only be sold in the room categories that rate permits.",
+  "entity": "stay",
+  "population": {
+    "description": "Non-cancelled reservations with a rate code and an assigned room type.",
+    "provider_query": {
+      "minihotel": {
+        "endpoint": "GetReservationKey",
+        "filters": {
+          "ArrivalDate": {
+            "From": "today",
+            "To": "today+90d"
+          },
+          "IncludeRoomPrices": true
+        },
+        "then": [
+          "BulkARI once per rate code - BUT SEE unknown_conditions, this lookup does not work"
+        ],
+        "call_cost": "1 + R where R is distinct rate codes"
+      }
+    }
+  },
+  "references": [
+    {
+      "entity": "rate_plan",
+      "kind": "lookup",
+      "local_field": "stay.rate_code",
+      "remote_field": "rate_plan.code",
+      "source": "tenant",
+      "note": "R13 - a reservation's rate code and the Bulk ARI price-list code are different key spaces, so MiniHotel cannot resolve this at all. The hotel supplies the mapping as configuration, or the control returns UNKNOWN saying exactly that. This is the 'connect this to enable the control' path, working as designed."
+    }
+  ],
+  "scope": [
+    {
+      "field": "reservation.status",
+      "operator": "not_equals",
+      "value": "cancelled"
+    },
+    {
+      "field": "stay.rate_code",
+      "operator": "exists"
+    }
+  ],
+  "exceptions": [],
+  "assertion": {
+    "mode": "all",
+    "predicates": [
+      {
+        "field": "stay.room_type",
+        "operator": "in",
+        "compare_to": "rate_plan.permitted_room_types",
+        "note": "CASE-INSENSITIVE (R13)"
+      }
+    ]
+  },
+  "required_evidence": [
+    {
+      "field": "stay.rate_code",
+      "source": "pms",
+      "resolvable": true
+    },
+    {
+      "field": "stay.room_type",
+      "source": "pms",
+      "resolvable": true
+    },
+    {
+      "field": "rate_plan.permitted_room_types",
+      "source": "pms",
+      "resolvable": false,
+      "note": "NOT RESOLVABLE. This is the evidence gap that makes the control return UNKNOWN."
+    },
+    {
+      "field": "reservation.status",
+      "source": "pms",
+      "resolvable": true,
+      "note": "scope filter"
+    },
+    {
+      "field": "rate_plan.code",
+      "source": "tenant",
+      "note": "R13 - MiniHotel cannot resolve a rate code to a rate plan, so the hotel supplies the mapping or this control answers UNKNOWN with that reason",
+      "resolvable": false
+    }
+  ],
+  "execution": {
+    "mode": "event",
+    "events": [
+      "reservation.created",
+      "reservation.updated"
+    ],
+    "fallback": {
+      "mode": "daily"
+    },
+    "rationale": "Type A in principle. Moot until the evidence gap is closed."
+  },
+  "freshness_requirement": {
+    "maximum_age": "24h",
+    "rationale": "Commercial rather than operational; no guest-facing urgency."
+  },
+  "unknown_conditions": [
+    {
+      "when": "always, on MiniHotel, today",
+      "reason": "rate_plan.permitted_room_types cannot be resolved. Passing a reservation's rate code ('Tourist-BB') to Bulk ARI returns 'ERR 309: The price list is not defined'. Only price-list codes ('USD') are accepted - a different key space. The control therefore returns UNKNOWN for every reservation until the hotel supplies a rate-plan to room-category mapping, or MiniHotel exposes one.",
+      "risk": "R13"
+    },
+    {
+      "when": "stay.rate_code is empty",
+      "reason": "observed empty on several live stays - cannot determine which rate applies",
+      "risk": "R13"
+    },
+    {
+      "when": "the permitted-type list is taken from Bulk ARI",
+      "reason": "ARI returns only types mapped to the querying integration user (5 of 9 defined), so legitimate categories would appear not-permitted",
+      "risk": "R6"
+    }
+  ],
+  "action": {
+    "type": "notify",
+    "severity": "medium",
+    "audience": "revenue_manager"
+  },
+  "caveats": [
+    "DOWNGRADED from Yes to Partial on 2026-09-04 after calling Bulk ARI for the first time. The join this control assumed does not exist.",
+    "This is the clearest demonstration of the architecture's UNKNOWN state doing real work: the control is well-formed, the assertion is correct, and the engine still cannot answer it because one piece of evidence is unavailable. The correct product response is the doc's section 15 - tell the customer what to connect, rather than silently passing or failing."
+  ]
+}
