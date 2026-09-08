@@ -25,8 +25,9 @@ jobs:
           python-version: ${{ matrix.python-version }}
 
       - name: Install dev dependencies
-        # The engine needs none. These are the test runner and the coverage tool.
-        run: python -m pip install --require-hashes=false -r requirements-dev.txt
+        # The engine needs none. These are the test runner and the coverage tool, and
+        # they are pinned exactly so a CI green means the same thing next month.
+        run: python -m pip install -r requirements-dev.txt
 
       - name: Run the suite
         # PYTHONDONTWRITEBYTECODE is not hygiene, it is a correctness gate. v1
