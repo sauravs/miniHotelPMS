@@ -20,6 +20,19 @@
           "getRooms (all rooms, 1 call)"
         ],
         "call_cost": "O(1)"
+      },
+      "demopms": {
+        "endpoint": "bookings",
+        "filters": {
+          "arrival": {
+            "from": "today",
+            "to": "today+90d"
+          }
+        },
+        "then": [
+          "rooms (all rooms, 1 call)"
+        ],
+        "call_cost": "O(1) - two bulk calls regardless of hotel size"
       }
     }
   },

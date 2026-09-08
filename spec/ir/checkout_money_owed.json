@@ -23,6 +23,20 @@
           "GetReservationBalance once per reservation in the population"
         ],
         "call_cost": "1 + N where N is checkouts in the window, NOT total reservations - this is why the population query exists (R1)"
+      },
+      "demopms": {
+        "endpoint": "bookings",
+        "filters": {
+          "departure": {
+            "from": "today-1d",
+            "to": "today"
+          },
+          "state": "DEPARTED"
+        },
+        "then": [
+          "ledger once per booking in the population"
+        ],
+        "call_cost": "1 + N where N is checkouts in the window, NOT total bookings. The cost shape is the same as the other provider's and for the same reason: a ledger takes one booking per call and there is no bulk journal endpoint (R1)"
       }
     }
   },

@@ -1,0 +1,30 @@
+{
+  "schema": "demopms/v1",
+  "endpoint": "ledger",
+  "ledger": {
+    "booking_ref": "007003199",
+    "balance": {
+      "amount": "3262.5",
+      "currency": "ILS"
+    },
+    "charged": {
+      "amount": "3262.5",
+      "currency": "ILS"
+    },
+    "paid": {
+      "amount": "0",
+      "currency": "ILS"
+    },
+    "postings": [
+      {
+        "category": "ROOM_REVENUE",
+        "direction": "CHARGE",
+        "value": {
+          "amount": "3262.5",
+          "currency": "ILS"
+        },
+        "posted_on": "28 Aug 2024"
+      }
+    ]
+  }
+}

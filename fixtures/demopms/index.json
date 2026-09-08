@@ -1,0 +1,149 @@
+{
+  "provider": "demopms",
+  "source": "transcoded from fixtures/minihotel/ by tools/transcode_demopms.py",
+  "note": "FICTIONAL BY CONSTRUCTION, AND THE SAME HOTEL. Every record here is a re-encoding of a real captured MiniHotel response - the same reservations, rooms, folios and occupancy segments, in a wire format with deliberately different quirks. Nothing was invented and nothing was filled in: the folios that were never captured are still missing, the statuses nobody can name are still unnameable, and the rooms with no configured capacity are still unconfigured. `is_synthetic` is True on every run over this evidence, because a run over records this repository produced must say so.",
+  "rebuild": "python3 -m tools.transcode_demopms --check",
+  "captures": {
+    "demo2024": {
+      "label": "the original feasibility probe",
+      "as_of": "2024-09-01",
+      "transcoded_from": "the sandbox2024 MiniHotel capture, 2026-09-01"
+    },
+    "demo2026": {
+      "label": "the checkout probe",
+      "as_of": "2026-07-08",
+      "transcoded_from": "the sandbox2026 MiniHotel capture, 2026-09-08"
+    }
+  },
+  "responses": [
+    {
+      "file": "room-types.json",
+      "endpoint": "room-types",
+      "request": {},
+      "captures": [
+        "demo2024",
+        "demo2026"
+      ],
+      "transcoded_from": "1_getRoomTypes.xml",
+      "note": "The room-type master. NOT re-probed since the sandbox moved on - open question 1.2."
+    },
+    {
+      "file": "rooms.json",
+      "endpoint": "rooms",
+      "request": {},
+      "captures": [
+        "demo2024",
+        "demo2026"
+      ],
+      "transcoded_from": "2_getRooms_all.xml",
+      "note": "28 rooms. 23 report adult capacity 0, meaning unconfigured (R12); all 28 return an empty closed-date window, so the out-of-service mechanism has never been observed working (open question 2.4); rooms 9900/9901/9902 carry a type getRoomTypes does not define (R11). NOT re-probed - open question 1.2."
+    },
+    {
+      "file": "bookings_2024-08.json",
+      "endpoint": "bookings",
+      "request": {
+        "arrival": {
+          "from": "2024-08-01",
+          "to": "2024-08-31"
+        },
+        "include_prices": true
+      },
+      "captures": [
+        "demo2024"
+      ],
+      "transcoded_from": "3_GetReservationKey.xml",
+      "note": "11 bookings, queried by ARRIVAL. That filter is why 'the sandbox has no checked-out reservation' looked true for a week: a reservation that departed in the window but arrived outside it never appears."
+    },
+    {
+      "file": "occupancy.json",
+      "endpoint": "occupancy",
+      "request": {
+        "window": {
+          "from": "2024-08-14",
+          "to": "2024-08-21"
+        }
+      },
+      "captures": [
+        "demo2024",
+        "demo2026"
+      ],
+      "transcoded_from": "4_RoomStatus.xml",
+      "note": "Rooms and reservations as SIBLING lists, with one reservation appearing as several date segments. There is no single block per occupancy record, which is why occupancy is assembled by a declared projection rather than cut out."
+    },
+    {
+      "file": "bookings_2026-07.json",
+      "endpoint": "bookings",
+      "request": {
+        "departure": {
+          "from": "2026-07-01",
+          "to": "2026-08-09"
+        }
+      },
+      "captures": [
+        "demo2026"
+      ],
+      "transcoded_from": "9_departures_2026-07.xml",
+      "note": "138 reservations, seven of them checked out. The body of evidence the checkout controls actually run against."
+    },
+    {
+      "file": "ledger_007003199.json",
+      "endpoint": "ledger",
+      "request": {
+        "booking_ref": "007003199"
+      },
+      "captures": [
+        "demo2024"
+      ],
+      "transcoded_from": "5_balance_007003199.xml",
+      "note": "THE R9 fixture. This folio reports 3262.5 ILS while its own reservation reports 870 USD, and no exchange rate exists anywhere in the API."
+    },
+    {
+      "file": "ledger_007003204.json",
+      "endpoint": "ledger",
+      "request": {
+        "booking_ref": "007003204"
+      },
+      "captures": [
+        "demo2024"
+      ],
+      "transcoded_from": "5_balance_007003204.xml",
+      "note": ""
+    },
+    {
+      "file": "ledger_007004348.json",
+      "endpoint": "ledger",
+      "request": {
+        "booking_ref": "007004348"
+      },
+      "captures": [
+        "demo2026"
+      ],
+      "transcoded_from": "5_balance_007004348.xml",
+      "note": "Departed at -490.75 ILS: the guest OVERPAID and the hotel owes a refund. v1 reported this as an outstanding balance; decision D8 split control 6 in two because of it."
+    },
+    {
+      "file": "ledger_007004351.json",
+      "endpoint": "ledger",
+      "request": {
+        "booking_ref": "007004351"
+      },
+      "captures": [
+        "demo2026"
+      ],
+      "transcoded_from": "5_balance_007004351.xml",
+      "note": "Departed at 0 ILS - a settled folio, and the control's genuine PASS."
+    },
+    {
+      "file": "ledger_007004354.json",
+      "endpoint": "ledger",
+      "request": {
+        "booking_ref": "007004354"
+      },
+      "captures": [
+        "demo2026"
+      ],
+      "transcoded_from": "5_balance_007004354.xml",
+      "note": ""
+    }
+  ]
+}

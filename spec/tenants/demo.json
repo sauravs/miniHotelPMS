@@ -1,0 +1,31 @@
+{
+  "tenant_id": "demo",
+  "name": "The same hotel, on DemoPMS",
+  "provider": "demopms",
+
+  "timezone": "Asia/Jerusalem",
+  "note": "THE SAME PROPERTY AS `sandbox`, ONBOARDED ONTO THE OTHER PROVIDER. Its evidence is the same 138 reservations, 28 rooms, five folios and two occupancy segments, transcoded into DemoPMS's wire format by tools/transcode_demopms.py. Everything in this file that could differ from sandbox.json does so ONLY because the provider's raw vocabulary differs - and everything that could be made more generous is deliberately not, because a demo hotel that knew more than the real one would make success criterion 7 pass by being a different hotel.",
+
+  "call_budget": 101,
+  "call_budget_note": "Identical to sandbox. This provider has the same cost shape - one call per ledger, no bulk journal endpoint (R1) - which is not a coincidence: a second provider without that constraint would leave the whole population-query design untested.",
+
+  "status_map": {
+    "BOOKED": "confirmed",
+    "IN_HOUSE": "checked_in",
+    "DEPARTED": "checked_out",
+    "VOID": "cancelled"
+  },
+  "status_map_note": "The same four canonical statuses the sandbox property has established, in this provider's spelling. A5 is a fact about hotels rather than about either API: every PMS in this class lets a property customise its codes, so the map belongs to the property on both.",
+
+  "known_unmapped_statuses": ["PROV4", "HOLD", "NOPAY"],
+  "known_unmapped_statuses_note": "The transcodings of OK4, WL and LWP. They stay unmapped here for exactly the reason they are unmapped on sandbox: nobody has told us what they mean, and they cover one in five of every reservation this hotel has. Mapping them here to make the demo look better would be inventing knowledge about a hotel, which is the one thing this repository does not do - and it would break criterion 7 by making the two providers disagree.",
+
+  "department_map": {},
+  "department_map_note": "Ships EMPTY, as sandbox does. There is no provider-wide vocabulary for posting categories on any PMS, so every folio department is UNKNOWN until a hotel supplies its own. That drives 'connect your finance mapping to enable this control' rather than a wrong verdict, identically on both providers.",
+
+  "settings": {
+    "nominated_rate_codes": [],
+    "rate_plan_permitted_room_types": {}
+  },
+  "settings_note": "Empty, as sandbox is. These are things only the hotel can supply, and it is the same hotel - so `required_reservation_fields` excludes every record here too, and `rate_room_category_consistency` answers UNKNOWN. Filling them in on this side alone would be the fictional provider quietly outperforming the real one."
+}

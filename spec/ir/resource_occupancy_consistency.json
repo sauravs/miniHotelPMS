@@ -17,6 +17,17 @@
           }
         },
         "call_cost": "O(1) per window - one call returns rooms and reservations together"
+      },
+      "demopms": {
+        "endpoint": "occupancy",
+        "filters": {
+          "window": {
+            "from": "today",
+            "to": "today+7d"
+          }
+        },
+        "then": [],
+        "call_cost": "1"
       }
     }
   },

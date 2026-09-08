@@ -17,6 +17,17 @@
           }
         },
         "call_cost": "O(1) - a single bulk call, then grouped in memory"
+      },
+      "demopms": {
+        "endpoint": "bookings",
+        "filters": {
+          "created": {
+            "from": "today-30d",
+            "to": "today"
+          }
+        },
+        "then": [],
+        "call_cost": "1 - the whole population arrives in one response"
       }
     }
   },

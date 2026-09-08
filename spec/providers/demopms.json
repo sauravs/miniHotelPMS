@@ -1,0 +1,391 @@
+{
+  "provider": "demopms",
+  "version": 1,
+  "verified_against": "fixtures/demopms/, transcoded from the MiniHotel captures by tools/transcode_demopms.py",
+  "note": "DemoPMS is FICTIONAL and speaks JSON. It exists to prove that the canonical boundary holds - that a second PMS is an adapter plus this file, and not a change to any rule. Its quirks were chosen to be DIFFERENT from the real provider's rather than convenient: one date format carrying a month name instead of three numeric ones; an out-of-band sentinel for 'never configured' instead of an overloaded 0; money as one self-describing object instead of an amount and a currency in different parts of the response; occupancy nested inside its room instead of listed beside it; real JSON booleans; and a status vocabulary of its own. A second adapter that shared the first one's quirks would be the same adapter twice and would test nothing.",
+  "unmapped_note": "rate_plan.code and rate_plan.permitted_room_types are deliberately NOT mapped. Both are declared unresolvable in the registry (R13), and giving the fictional provider an endpoint the real one does not have would make it look better for reasons that are invention. The control that needs them answers UNKNOWN on both, from the tenant-supplied reference, and says so.",
+  "mappings": [
+    {
+      "canonical": "reservation.id",
+      "endpoint": "bookings",
+      "path": "bookings[].booking_ref",
+      "probe": "bookings_2024-08.json",
+      "transform": null
+    },
+    {
+      "canonical": "reservation.status",
+      "endpoint": "bookings",
+      "path": "bookings[].state",
+      "probe": "bookings_2024-08.json",
+      "transform": "tenant_status_map",
+      "notes": "A5 - this provider's codes are its own (BOOKED/IN_HOUSE/DEPARTED/VOID), and a property may add more. The RULE is shared with every provider; the vocabulary is not"
+    },
+    {
+      "canonical": "reservation.arrival_date",
+      "endpoint": "bookings",
+      "path": "bookings[].arrival.date",
+      "probe": "bookings_2024-08.json",
+      "transform": "date_dmy_to_iso",
+      "notes": "R2 - one date format, `08 Jul 2026`, carrying a month NAME so it cannot be misread as either of the other provider's numeric ones"
+    },
+    {
+      "canonical": "reservation.arrival_time",
+      "endpoint": "bookings",
+      "path": "bookings[].arrival.time",
+      "probe": "bookings_2024-08.json",
+      "transform": null
+    },
+    {
+      "canonical": "reservation.departure_date",
+      "endpoint": "bookings",
+      "path": "bookings[].departure.date",
+      "probe": "bookings_2024-08.json",
+      "transform": "date_dmy_to_iso"
+    },
+    {
+      "canonical": "reservation.created_at",
+      "endpoint": "bookings",
+      "path": "bookings[].created_on",
+      "probe": "bookings_2024-08.json",
+      "transform": "date_dmy_to_iso",
+      "notes": "R3 - date only here too, so the canonical field means the same thing on both providers"
+    },
+    {
+      "canonical": "reservation.channel_confirmation_id",
+      "endpoint": "bookings",
+      "path": "bookings[].origin.external_ref",
+      "probe": "bookings_2024-08.json",
+      "transform": null,
+      "notes": "R7 - null or absent on a direct booking, which resolves NOT_APPLICABLE rather than empty"
+    },
+    {
+      "canonical": "reservation.channel",
+      "endpoint": "bookings",
+      "path": "bookings[].origin.channel",
+      "probe": "bookings_2024-08.json",
+      "transform": null
+    },
+    {
+      "canonical": "reservation.total_amount",
+      "endpoint": "bookings",
+      "path": "bookings[].total",
+      "probe": "bookings_2024-08.json",
+      "transform": "money_object",
+      "notes": "R9 - the path addresses the money OBJECT, not the amount inside it. Currency travels with the amount on this provider, which is the whole quirk"
+    },
+    {
+      "canonical": "reservation.currency",
+      "endpoint": "bookings",
+      "path": "bookings[].total.currency",
+      "probe": "bookings_2024-08.json",
+      "transform": null,
+      "notes": "R9 - still declared separately, because a control that wants to SHOW the currency needs to name it"
+    },
+    {
+      "canonical": "reservation.is_group",
+      "endpoint": "bookings",
+      "path": "bookings[].group_booking",
+      "probe": "bookings_2024-08.json",
+      "transform": "json_bool"
+    },
+    {
+      "canonical": "reservation.guest_count.adults",
+      "endpoint": "bookings",
+      "path": "bookings[].occupants.adults",
+      "probe": "bookings_2024-08.json",
+      "transform": "to_int"
+    },
+    {
+      "canonical": "reservation.guest_count.children",
+      "endpoint": "bookings",
+      "path": "bookings[].occupants.children",
+      "probe": "bookings_2024-08.json",
+      "transform": "to_int"
+    },
+    {
+      "canonical": "reservation.guest_count.babies",
+      "endpoint": "bookings",
+      "path": "bookings[].occupants.babies",
+      "probe": "bookings_2024-08.json",
+      "transform": "to_int"
+    },
+    {
+      "canonical": "reservation.guest_count.youth",
+      "endpoint": "bookings",
+      "path": "bookings[].occupants.youth",
+      "probe": "bookings_2024-08.json",
+      "transform": "to_int",
+      "notes": "R12 - no matching room capacity exists on either provider"
+    },
+    {
+      "canonical": "reservation.guest.given_name",
+      "endpoint": "bookings",
+      "path": "bookings[].guest.first_name",
+      "probe": "bookings_2024-08.json",
+      "transform": null
+    },
+    {
+      "canonical": "reservation.guest.surname",
+      "endpoint": "bookings",
+      "path": "bookings[].guest.last_name",
+      "probe": "bookings_2024-08.json",
+      "transform": null
+    },
+    {
+      "canonical": "reservation.guest.email",
+      "endpoint": "bookings",
+      "path": "bookings[].guest.email",
+      "probe": "bookings_2024-08.json",
+      "transform": null,
+      "notes": "absence is the signal control 15 tests for, so null and absent must both resolve known(False)"
+    },
+    {
+      "canonical": "reservation.guest.phone",
+      "endpoint": "bookings",
+      "path": "bookings[].guest.phone",
+      "probe": "bookings_2024-08.json",
+      "transform": null
+    },
+    {
+      "canonical": "reservation.guest.id_number",
+      "endpoint": "bookings",
+      "path": "bookings[].guest.document_id",
+      "probe": "bookings_2024-08.json",
+      "transform": null
+    },
+    {
+      "canonical": "reservation.guest.country",
+      "endpoint": "bookings",
+      "path": "bookings[].guest.country",
+      "probe": "bookings_2024-08.json",
+      "transform": null
+    },
+    {
+      "canonical": "reservation.guest.payment_card_present",
+      "endpoint": "bookings",
+      "path": "bookings[].guest.card_last4",
+      "probe": "bookings_2024-08.json",
+      "transform": "presence_bool",
+      "notes": "masked at source - presence is the only fact available, never validity"
+    },
+    {
+      "canonical": "stay.room_number",
+      "endpoint": "bookings",
+      "path": "bookings[].stays[].room_no",
+      "probe": "bookings_2024-08.json",
+      "transform": null
+    },
+    {
+      "canonical": "stay.room_type",
+      "endpoint": "bookings",
+      "path": "bookings[].stays[].room_class",
+      "probe": "bookings_2024-08.json",
+      "transform": "casefold",
+      "notes": "R13"
+    },
+    {
+      "canonical": "stay.meal_plan",
+      "endpoint": "bookings",
+      "path": "bookings[].stays[].board",
+      "probe": "bookings_2024-08.json",
+      "transform": null
+    },
+    {
+      "canonical": "stay.rate_code",
+      "endpoint": "bookings",
+      "path": "bookings[].stays[].tariff.code",
+      "probe": "bookings_2024-08.json",
+      "transform": null
+    },
+    {
+      "canonical": "stay.amount",
+      "endpoint": "bookings",
+      "path": "bookings[].stays[].tariff.charge",
+      "probe": "bookings_2024-08.json",
+      "transform": "money_object",
+      "notes": "R10's counterpart - an unpriced tariff carries a null amount rather than a zero, so 0 stays available to mean nothing was charged"
+    },
+    {
+      "canonical": "room.number",
+      "endpoint": "rooms",
+      "path": "rooms[].room_no",
+      "probe": "rooms.json",
+      "transform": null
+    },
+    {
+      "canonical": "room.type",
+      "endpoint": "rooms",
+      "path": "rooms[].class",
+      "probe": "rooms.json",
+      "transform": "casefold",
+      "notes": "R11 - may not resolve to a defined type; R13 - case"
+    },
+    {
+      "canonical": "room.closed_from",
+      "endpoint": "rooms",
+      "path": "rooms[].out_of_service.from",
+      "probe": "rooms.json",
+      "transform": "date_dmy_to_iso",
+      "notes": "null on every room in this hotel - the out-of-service mechanism has never been observed set (open question 2.4), and that is a fact about the property rather than about either PMS"
+    },
+    {
+      "canonical": "room.closed_to",
+      "endpoint": "rooms",
+      "path": "rooms[].out_of_service.to",
+      "probe": "rooms.json",
+      "transform": "date_dmy_to_iso"
+    },
+    {
+      "canonical": "room.housekeeping_status",
+      "endpoint": "rooms",
+      "path": "rooms[].housekeeping",
+      "probe": "rooms.json",
+      "transform": "clean_soiled"
+    },
+    {
+      "canonical": "room.is_sellable_by_integration",
+      "endpoint": "rooms",
+      "path": "rooms[].bookable",
+      "probe": "rooms.json",
+      "transform": "json_bool",
+      "notes": "R6"
+    },
+    {
+      "canonical": "room.max_guests.adults",
+      "endpoint": "rooms",
+      "path": "rooms[].limits[kind=adults].max",
+      "probe": "rooms.json",
+      "transform": "sentinel_is_unknown",
+      "notes": "R12 - the sentinel -1 means unconfigured. The other provider writes 0 and therefore cannot say 'this room sleeps nobody'; this one can, and the canonical answer is the same UNKNOWN either way"
+    },
+    {
+      "canonical": "room.max_guests.children",
+      "endpoint": "rooms",
+      "path": "rooms[].limits[kind=children].max",
+      "probe": "rooms.json",
+      "transform": "sentinel_is_unknown",
+      "notes": "R12"
+    },
+    {
+      "canonical": "room.max_guests.babies",
+      "endpoint": "rooms",
+      "path": "rooms[].limits[kind=babies].max",
+      "probe": "rooms.json",
+      "transform": "sentinel_is_unknown",
+      "notes": "R12"
+    },
+    {
+      "canonical": "room_type.code",
+      "endpoint": "room-types",
+      "path": "room_types[].code",
+      "probe": "room-types.json",
+      "transform": "casefold",
+      "notes": "R13"
+    },
+    {
+      "canonical": "room_type.description",
+      "endpoint": "room-types",
+      "path": "room_types[].label",
+      "probe": "room-types.json",
+      "transform": null
+    },
+    {
+      "canonical": "folio.balance_due",
+      "endpoint": "ledger",
+      "path": "ledger.balance",
+      "probe": "ledger_007004348.json",
+      "transform": "money_object",
+      "notes": "R9 - in the ledger's own currency, which on this hotel differs from the booking's exactly as it does on the other provider"
+    },
+    {
+      "canonical": "folio.currency",
+      "endpoint": "ledger",
+      "path": "ledger.balance.currency",
+      "probe": "ledger_007004348.json",
+      "transform": null,
+      "notes": "R9"
+    },
+    {
+      "canonical": "folio.total_charged",
+      "endpoint": "ledger",
+      "path": "ledger.charged",
+      "probe": "ledger_007004348.json",
+      "transform": "money_object"
+    },
+    {
+      "canonical": "folio.total_paid",
+      "endpoint": "ledger",
+      "path": "ledger.paid",
+      "probe": "ledger_007004348.json",
+      "transform": "money_object"
+    },
+    {
+      "canonical": "folio.transactions[].department",
+      "endpoint": "ledger",
+      "path": "ledger.postings[].category",
+      "probe": "ledger_007004348.json",
+      "transform": "tenant_department_map",
+      "notes": "A5 - posting categories are configured per property on any PMS"
+    },
+    {
+      "canonical": "folio.transactions[].kind",
+      "endpoint": "ledger",
+      "path": "ledger.postings[].direction",
+      "probe": "ledger_007004348.json",
+      "transform": "charge_payment"
+    },
+    {
+      "canonical": "folio.transactions[].amount",
+      "endpoint": "ledger",
+      "path": "ledger.postings[].value",
+      "probe": "ledger_007004348.json",
+      "transform": "money_object"
+    },
+    {
+      "canonical": "folio.transactions[].date",
+      "endpoint": "ledger",
+      "path": "ledger.postings[].posted_on",
+      "probe": "ledger_007004348.json",
+      "transform": "date_dmy_to_iso"
+    },
+    {
+      "canonical": "occupancy.room_number",
+      "endpoint": "occupancy",
+      "path": "rooms[].room_no",
+      "probe": "occupancy.json",
+      "transform": null,
+      "notes": "THE NESTED QUIRK. A segment carries no room number of its own; it reads the one on the room CONTAINING it. The other provider returns rooms and reservations as sibling lists, where each segment stands alone. Same canonical answer, opposite shapes - which is the point of the boundary above"
+    },
+    {
+      "canonical": "occupancy.reservation_id",
+      "endpoint": "occupancy",
+      "path": "rooms[].occupancy[].booking_ref",
+      "probe": "occupancy.json",
+      "transform": null,
+      "notes": "one booking may appear MULTIPLE times - split date segments"
+    },
+    {
+      "canonical": "occupancy.from",
+      "endpoint": "occupancy",
+      "path": "rooms[].occupancy[].from",
+      "probe": "occupancy.json",
+      "transform": "date_dmy_to_iso"
+    },
+    {
+      "canonical": "occupancy.to",
+      "endpoint": "occupancy",
+      "path": "rooms[].occupancy[].to",
+      "probe": "occupancy.json",
+      "transform": "date_dmy_to_iso"
+    },
+    {
+      "canonical": "occupancy.status",
+      "endpoint": "occupancy",
+      "path": "rooms[].occupancy[].state",
+      "probe": "occupancy.json",
+      "transform": "tenant_status_map",
+      "notes": "A5"
+    }
+  ],
+  "probe_note": "The booking probe is the 2024 file, mirroring the other provider's choice of the 2024 capture for the same reason: stay.rate_code and stay.amount appear on room stays there and on none of the 2026 ones. That is a fact about what this hotel recorded when, not about either wire format, and it is why a probe is named per mapping rather than assumed."
+}

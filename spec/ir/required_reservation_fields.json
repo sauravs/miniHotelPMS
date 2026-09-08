@@ -18,6 +18,18 @@
           "IncludeRoomPrices": true
         },
         "call_cost": "O(1) - IncludeRoomPrices is required or rate_code is absent and scope cannot be resolved"
+      },
+      "demopms": {
+        "endpoint": "bookings",
+        "filters": {
+          "arrival": {
+            "from": "today",
+            "to": "today+90d"
+          },
+          "include_prices": true
+        },
+        "then": [],
+        "call_cost": "1"
       }
     }
   },

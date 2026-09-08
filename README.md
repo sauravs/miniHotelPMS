@@ -34,9 +34,18 @@ turns a limitation into a product path: *"connect your housekeeping system to en
 
 ## Status
 
-**v2 is specified and about to be built.** v1 is preserved in `miniHotelLegacy/` — four silos, 152
-passing tests, one control working end to end. Reviewing it produced 12 things worth keeping and 20
-findings worth fixing; the headline is that only 1 of its 10 controls ever reaches a PASS or a FAIL.
+**Slices 0–7 of 12 are built and merged** — the kernel, the spec layer, both providers, evidence
+gathering, the evaluator, the runner and the contract suite. 903 tests, 95% coverage, 1003 spec
+checks, offline, green on Python 3.11 and 3.13. Scheduling, the English compiler, the web UI and the
+opt-in live transport are still to come.
+
+The claim the architecture rests on is now checked rather than asserted: **the same rule, over the
+same hotel, through two completely different PMS wire formats, produces the same verdicts** — and
+adding the second one changed nothing above the provider layer.
+
+v1 is preserved in `miniHotelLegacy/` — four silos, 152 passing tests, one control working end to
+end. Reviewing it produced 12 things worth keeping and 20 findings worth fixing; the headline is
+that only 1 of its 10 controls ever reaches a PASS or a FAIL.
 
 Start with **[`docs/plan.md`](docs/plan.md)** for where the build is, or
 **[`CLAUDE.md`](CLAUDE.md)** for a two-minute orientation.
@@ -71,6 +80,7 @@ python3 -m venv .venv && .venv/bin/pip install -r requirements-dev.txt
 PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -m pytest -q    # the suite, fully offline
 .venv/bin/python -m coverage run -m pytest && .venv/bin/python -m coverage report
 python3 -m tools.validate_spec                             # spec and fixture validation
+python3 -m tools.transcode_demopms --check                 # the demo fixtures are up to date
 ```
 
 `PYTHONDONTWRITEBYTECODE=1` is a correctness gate, not hygiene: an edit that changes neither a
@@ -82,9 +92,16 @@ tree and asserting the engine contains no outbound HTTP client at all.
 
 ## A note on the data
 
-Fixtures are real responses captured from MiniHotel's public sandbox, then **pseudonymised**: guest
-names, email addresses, phone numbers and free-text remarks are replaced with stable fakes. Every
-structural quirk — date formats, currency splits, unset-means-zero, status codes — is preserved
-exactly, because those quirks are the entire point of the fixtures.
+`fixtures/minihotel/` holds real responses captured from MiniHotel's public sandbox, then
+**pseudonymised**: guest names, email addresses, phone numbers and free-text remarks are replaced
+with stable fakes. Every structural quirk — date formats, currency splits, unset-means-zero, status
+codes — is preserved exactly, because those quirks are the entire point of the fixtures.
 
-No credentials are stored in this repository.
+`fixtures/demopms/` is the **same hotel in a different wire format**, generated from those captures
+by `tools/transcode_demopms.py` rather than written by hand — including the gaps. The folios nobody
+captured are still missing, the statuses nobody can name are still unnameable, and the 23 rooms with
+no configured capacity are still unconfigured. A demo hotel that knew more than the real one would
+make the two-provider test pass by being a different hotel. Runs over it report
+`evidence_is_synthetic`, because a run over records this repository produced must say so.
+
+Nothing in this repository is invented to reach a nicer answer, and no credentials are stored here.
