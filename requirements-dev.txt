@@ -1,0 +1,7 @@
+# Development dependencies ONLY.
+#
+# The engine itself imports nothing outside the standard library - that is
+# success criterion 11, and tests/unit/test_stdlib_only.py enforces it by walking
+# the source tree. Nothing listed here may be imported from hotelcontrols/.
+pytest==9.1.1
+coverage==7.16.0

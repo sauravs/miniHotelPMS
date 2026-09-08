@@ -1,0 +1,46 @@
+# ---------------------------------------------------------------- secrets
+# Credentials live in the environment with NO default, so a missing one fails
+# loudly rather than silently falling back to a checked-in sandbox account.
+.env
+.env.*
+!.env.example
+
+# ---------------------------------------------------------------- raw captures
+# Responses come off a vendor sandbox carrying third-party guest data: names,
+# email addresses, phone numbers and free-text remarks. Only PSEUDONYMISED
+# fixtures are committed (tools/scrub_fixtures.py, slice 2). Raw captures stay
+# on the machine that made them.
+fixtures/**/raw/
+*.raw.xml
+*.raw.json
+
+# ---------------------------------------------------------------- v1 codebase
+# miniHotelLegacy/ is kept locally as the specification input for v2 and is
+# referenced throughout docs/. It is NOT committed: it contains unscrubbed guest
+# data in probe/ and hard-coded sandbox credentials in verify_api.py, and this
+# repository is public. It can be committed once the slice-2 scrubber has been
+# run over it and the credentials moved to the environment.
+miniHotelLegacy/
+
+# ---------------------------------------------------------------- generated
+runs/
+*.sqlite3
+*.db
+docs/generated/
+
+# ---------------------------------------------------------------- python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+
+# ---------------------------------------------------------------- os / editor
+.DS_Store
+.idea/
+.vscode/

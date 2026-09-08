@@ -1,0 +1,23 @@
+# The engine has NO runtime dependencies and is not packaged for distribution.
+# This file exists to configure the test runner and the coverage floor, nothing more.
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+# `contract` marks the shared provider suite (slice 7): one set of tests run
+# against every registered provider, which is what makes "a new PMS is an adapter"
+# a claim a machine can check rather than a claim we make in a document.
+markers = [
+    "contract: provider-protocol conformance, run against every registered provider",
+]
+addopts = "-q --strict-markers"
+
+[tool.coverage.run]
+branch = true
+source = ["hotelcontrols"]
+
+[tool.coverage.report]
+# A floor, not a target. Coverage says a line ran; it does not say the line was
+# checked. Every slice gate in docs/plan.md names behaviours, not percentages.
+fail_under = 90
+show_missing = true
+skip_covered = true

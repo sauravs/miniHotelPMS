@@ -1,0 +1,51 @@
+# CI is the mechanical form of the gate in docs/plan.md: a slice does not merge
+# until its tests are green. Required on every pull request to main.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # 3.11 is the floor (zoneinfo, StrEnum, tomllib); 3.13 is what we develop on.
+        python-version: ["3.11", "3.13"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dev dependencies
+        # The engine needs none. These are the test runner and the coverage tool.
+        run: python -m pip install --require-hashes=false -r requirements-dev.txt
+
+      - name: Run the suite
+        # PYTHONDONTWRITEBYTECODE is not hygiene, it is a correctness gate. v1
+        # recorded two occasions where an edit changed neither a file's size nor
+        # its mtime-second, leaving a stale .pyc valid - so the suite ran the OLD
+        # code and reported a green that meant nothing.
+        env:
+          PYTHONDONTWRITEBYTECODE: "1"
+        run: python -m coverage run -m pytest
+
+      - name: Coverage floor
+        run: python -m coverage report
+
+      - name: Validate spec and fixtures
+        # No-op until slice 1 lands the validator; wired now so the gate exists
+        # before there is anything to sneak past it.
+        run: |
+          if [ -f tools/validate_spec.py ]; then
+            python -m tools.validate_spec
+          else
+            echo "spec validator arrives in slice 1 - skipping"
+          fi
