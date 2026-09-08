@@ -18,7 +18,15 @@ CREATE TABLE IF NOT EXISTS runs (
     as_of                 TEXT NOT NULL,
     created_at            TEXT NOT NULL,
     calls                 INTEGER NOT NULL,
-    blocked               TEXT
+    blocked               TEXT,
+    -- Finding F7's freshness half. `observed_at` is when the evidence was OBTAINED, which is a
+    -- different fact from `as_of` (what date it describes) and from `created_at` (when the run
+    -- happened). `maximum_age` is what the control asked for, carried on the run so a stored
+    -- verdict can still answer "was this current?" without re-reading the IR it came from.
+    -- Both nullable: a run made before this column existed cannot say, and a run that cannot
+    -- say is reported as stale rather than assumed fresh.
+    observed_at           TEXT,
+    maximum_age           TEXT
 );
 
 CREATE TABLE IF NOT EXISTS verdicts (

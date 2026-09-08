@@ -63,6 +63,18 @@ REFERENCE_REQUEST = {
 }
 
 
+# The webhooks this PMS publishes, in canonical names - and DELIBERATELY a smaller set than the
+# real one's. It emits reservation events and nothing else: no room-occupancy event, so
+# `resource_occupancy_consistency` runs in real time on one provider and on a timer on the
+# other.
+#
+# That difference is the point. Criterion 7 is about VERDICTS, and the two providers agree on
+# every one of them; WHEN a control runs is a capability question, and two systems that
+# happened to publish identical webhooks would leave the fallback path untested. The plan says
+# which event is missing, so the difference is visible rather than silent.
+PUBLISHED_EVENTS = ("reservation.created", "reservation.updated")
+
+
 class DemoPmsAdapter:
     """The provider adapter. One instance per tenant, because the status and department maps
     are the tenant's vocabulary rather than the provider's (A5)."""
@@ -160,6 +172,10 @@ class DemoPmsAdapter:
     def reference_request(self, entity: str) -> Request | None:
         """The call fetching the whole property's records of an entity, for a join."""
         return REFERENCE_REQUEST.get(entity)
+
+    def events(self) -> tuple[str, ...]:
+        """The events this PMS publishes, in canonical names."""
+        return PUBLISHED_EVENTS
 
     # ------------------------------------------------------------------ internals
     def _spec_for(self, field_name: str):

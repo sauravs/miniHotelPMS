@@ -17,7 +17,7 @@ Execution tracker. **Update the status table as slices close.** Design rationale
 | 5 | Evaluator — population level | ☑ | ☑ | ☑ | ☑ | ☑ | **done** — PR #7 |
 | 6 | Runner, coverage, readiness, store | ☑ | ☑ | ☑ | ☑ | ☑ | **done** — PR #8 |
 | 7 | Second provider — DemoPMS | ☑ | ☑ | ☑ | ☑ | ☑ | **done** — PR #11 |
-| 8 | Scheduling & freshness | ☐ | ☐ | — | ☐ | ☐ | not started |
+| 8 | Scheduling & freshness | ☑ | ☑ | — | ☑ | ☑ | **done** — PR #12 |
 | 9 | Compiler — English → IR | ☐ | ☐ | ☐ | ☐ | ☐ | not started |
 | 10 | Web UI & JSON API | ☐ | ☐ | ☐ | ☐ | ☐ | not started |
 | 11 | Transport (opt-in) & probe tooling | ☐ | ☐ | — | ☐ | ☐ | not started |
@@ -369,22 +369,49 @@ reached outcomes its captures could not.
 
 `hotelcontrols/runner/scheduling.py` — **fixes F7**
 
+Two pure functions. `next_evaluation` decides when a control runs next on a given provider;
+`freshness_of` decides whether the evidence a run used was still current. A daemon is out of
+scope; the decision is not, and it is fully testable with an injected clock.
+
 **Unit tests**
-- [ ] Each execution mode — `event`, `scheduled`, `periodic`, `daily` — yields the documented plan
-- [ ] An event-mode control on a provider **without** that webhook falls back to its declared
-      periodic interval, and says that is why
-- [ ] `before_event(arrival, 24h)` resolves through the **property clock**, not UTC (F11)
-- [ ] Evidence older than `freshness_requirement.maximum_age` is marked stale on the run
-- [ ] The function is pure: same inputs, same output, no wall clock read
+- [x] Each execution mode — `event`, `scheduled`, `periodic`, `daily` — yields the documented plan
+- [x] An event-mode control on a provider **without** that webhook falls back to its declared
+      periodic interval, and says that is why — **naming the missing event**, so a hotel can take
+      it to its vendor rather than just seeing a slower schedule
+- [x] A control whose events are unpublished and which declares **no fallback** is
+      `unschedulable` rather than being given a plausible interval. There is no honest default,
+      and inventing one produces a control that merely *appears* to be running
+- [x] `before_event(arrival, 24h)` resolves through the **property clock**, not UTC (F11), and a
+      naive instant is refused rather than assumed local
+- [x] Evidence older than `freshness_requirement.maximum_age` is marked stale on the run — and
+      evidence whose age **cannot be established is stale too**, never assumed current
+- [x] A duration the grammar does not define **raises** rather than defaulting
+- [x] The functions are pure: same inputs, same output, no wall clock read
 
 **Integration**
-- [ ] All 11 IRs produce a valid execution plan; none raises
+- [x] All 11 IRs produce a valid execution plan on **both** providers; none raises, and none is
+      left without a trigger
+- [x] A run over evidence captured twelve days earlier reports itself **stale** — and still
+      reports its 28 verdicts. Staleness annotates a run; it never suppresses one
+- [x] Freshness survives a store round trip, including a database written before the columns
+      existed, which reads back as *cannot say* and therefore stale
+
+**The one place the two providers disagree, and why that is right**
+
+`resource_occupancy_consistency` runs in **real time** on MiniHotel and on an **hourly timer** on
+DemoPMS, because only one of them publishes a room-occupancy event. Same rule, same evidence,
+the same verdicts — a different trigger, and the plan names the missing event.
+
+That is not a crack in criterion 7, which is about answers. *When* a control runs is a
+capability question, and two providers that happened to publish identical webhooks would have
+left the fallback path untested.
 
 **Gate**
-- [ ] Clock injected everywhere; no `datetime.now()` outside the clock module
-- [ ] A stale run says so on screen
-
----
+- [x] Clock injected everywhere; **no wall clock is read outside `kernel/clock.py`** — asserted
+      over the AST for the whole engine, with prose exempt. `run()` was calling `datetime.now()`
+      until this slice: a run's own timestamp decides its freshness, and a laptop in another
+      timezone would have dated it differently from the hotel it describes
+- [x] A stale run says so — **met in the API surface**; the page lands in slice 10
 
 ## Slice 9 · Compiler — English → IR
 

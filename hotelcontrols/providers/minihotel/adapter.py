@@ -69,6 +69,14 @@ REFERENCE_REQUEST = {
 }
 
 
+# The webhooks this PMS publishes, in canonical names. Taken from the vendor's own
+# documentation and recorded in the IRs' execution rationales: reservation events, plus a
+# dedicated room-occupancy one. There is NO event for a room being taken out of service, which
+# is why `ooo_room_protection` is periodic rather than event-driven - a fact about this PMS
+# that changes when a control runs and never what it answers.
+PUBLISHED_EVENTS = ("reservation.created", "reservation.updated", "room.occupancy_updated")
+
+
 class MiniHotelAdapter:
     """The provider adapter. One instance per tenant, because the status and department maps
     are the tenant's vocabulary rather than the provider's (A5)."""
@@ -189,6 +197,10 @@ class MiniHotelAdapter:
     def reference_request(self, entity: str) -> Request | None:
         """The call fetching the whole property's records of an entity, for a join."""
         return REFERENCE_REQUEST.get(entity)
+
+    def events(self) -> tuple[str, ...]:
+        """The events this PMS publishes, in canonical names."""
+        return PUBLISHED_EVENTS
 
     # ------------------------------------------------------------------ internals
     def _spec_for(self, field_name: str):

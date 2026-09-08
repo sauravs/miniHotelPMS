@@ -85,6 +85,18 @@ class DemoSource:
         return self.index["captures"][self.capture]["as_of"]
 
     @property
+    def observed_at(self) -> str:
+        """The date these responses were OBTAINED, as the index recorded it.
+
+        Different from `as_of`, and the difference is the whole of finding F7's freshness half:
+        `as_of` is the date the evidence describes, `observed_at` is when the bytes were
+        actually fetched. A control asking for evidence under an hour old is asking about the
+        second one, and a replayed capture is honestly stale against it - which the run says
+        rather than hides.
+        """
+        return self.index["captures"][self.capture]["captured_at"]
+
+    @property
     def is_synthetic(self) -> bool:
         """True, and it stays true. These records describe a real hotel and were produced by
         this repository rather than by a vendor's system, and a reader has to be able to tell
