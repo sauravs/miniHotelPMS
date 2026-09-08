@@ -136,6 +136,19 @@ range — pure, cheap, and the same code serves 1d, 2 and 13.
 
 ---
 
+### F3 · S1 — Two controls are blocked, and one of them should not have been
+
+> **Corrected 2026-09-08 (issue #3).** The half of this finding about `occupancy` was **wrong**,
+> and wrong in the way this project keeps warning about: I read v1's comment explaining why the
+> entity could not be cut into records, found it well-argued, and repeated it without opening the
+> response. Every `<Reservation>` element in `RoomStatusInquiry` carries `RoomNumber`, `ResNumber`,
+> `FromYmd`, `ToYmd` and `Status` **on itself** — it is a complete occupancy segment. v1's provider
+> map sourced `occupancy.room_number` from `Rooms/Room@Number`, the room *master* list, which
+> carries no reservation at all; the "no record boundary" conclusion followed from the mapping
+> rather than from the data. Control 20 needed a one-line path fix, not a projection mechanism.
+> The finding stands for `inactive_room_future_stay`, which was blocked for the separate and real
+> reason in F1. Fixed in slice 2.
+
 ### F3 · S1 — Two controls are permanently blocked by a record-boundary gap
 
 **What.** `Document.records(entity)` looks up a regex in `RECORD_SELECTORS`; a missing entry raises
@@ -149,11 +162,14 @@ whole record.
 
 **Impact.** Control 20 is unreachable. Control 13 is unreachable for a second reason on top of F1.
 
-**v2 action.** The honest refusal is right; the *mechanism* is wrong. With a real XML tree (F4) an
-occupancy record is a **projection** — `(room, reservation, from, to)` tuples assembled from two
-sibling lists by an explicitly declared join, with each segment its own record. Where a projection
-genuinely cannot be defined, the control stays blocked — but it should be blocked *per control with
-a named reason on screen*, which v1 already does well.
+**v2 action, as actually taken.** No projection was needed. `occupancy` gets an ordinary record
+selector (`Reservations/Reservation`) once the room number is read from the element that carries
+it. One reservation appearing as several date segments — which v1 read as the obstacle — is exactly
+what an overlap check wants: each segment is its own record with its own dates.
+
+The general principle survives: where a response genuinely has no single block per record, the
+control is blocked **per control, with a named reason on screen**, never crashed. v1 did that part
+well. What it got wrong was concluding it from a mapping error.
 
 ---
 

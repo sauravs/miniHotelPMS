@@ -183,14 +183,30 @@ class TestTenantConfigurationIsNotInTheCode:
     """Slice 1 gate, and the fix for finding F12 / v1's open question 1.4."""
 
     def test_no_provider_status_or_department_map_remains_in_python(self):
+        """F12 / v1's open question 1.4. A property's status vocabulary is configuration.
+
+        Checked for an actual DICT LITERAL mapping provider codes to canonical statuses -
+        which is the thing being banned - rather than for the words appearing anywhere. The
+        adapter's docstring necessarily says "a control speaks checked_out; only this layer
+        knows a hotel writes OUT", and a grep that cannot tell an explanation from an
+        implementation pushes us to delete the explanation.
+        """
         engine = pathlib.Path(__file__).resolve().parents[2] / "hotelcontrols"
+        codes = {"OUT", "CL", "IN", "OK", "OK4", "WL", "LWP"}
+        canonical = {"checked_out", "checked_in", "cancelled", "confirmed"}
         offenders = []
         for path in engine.rglob("*.py"):
-            text = path.read_text(encoding="utf-8")
-            for code, meaning in (('"OUT"', "checked_out"), ('"CL"', "cancelled"),
-                                  ('"IN"', "checked_in")):
-                if code in text and meaning in text:
-                    offenders.append("%s maps %s" % (path.name, code))
+            for node in ast.walk(ast.parse(path.read_text(encoding="utf-8"))):
+                if not isinstance(node, ast.Dict):
+                    continue
+                keys = {k.value for k in node.keys
+                        if isinstance(k, ast.Constant) and isinstance(k.value, str)}
+                values = {v.value for v in node.values
+                          if isinstance(v, ast.Constant) and isinstance(v.value, str)}
+                if keys & codes and values & canonical:
+                    offenders.append("%s line %d maps %s -> %s"
+                                     % (path.name, node.lineno, sorted(keys & codes),
+                                        sorted(values & canonical)))
         assert not offenders, (
             "a property's status vocabulary belongs in spec/tenants/, not in the engine: %s"
             % offenders)

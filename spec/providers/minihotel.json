@@ -452,11 +452,12 @@
     {
       "canonical": "occupancy.room_number",
       "endpoint": "RoomStatusInquiry",
-      "path": "Rooms/Room@Number",
+      "path": "Reservations/Reservation@RoomNumber",
       "probe": "4_RoomStatus.xml",
-      "test": "<Room Number=\"([^\"]*)\"",
+      "test": "<Reservation [^>]*RoomNumber=\"([^\"]*)\"",
       "transform": null,
-      "observed_populated": true
+      "observed_populated": true,
+      "notes": "Issue #3 - v1 sourced this from Rooms/Room@Number, the room MASTER list, which carries no reservation. Every <Reservation> element carries RoomNumber on itself, so an occupancy segment is a complete record and control 20 was never structurally blocked."
     },
     {
       "canonical": "occupancy.reservation_id",

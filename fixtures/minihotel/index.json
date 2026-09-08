@@ -1,0 +1,136 @@
+{
+  "provider": "minihotel",
+  "source": "sandbox.minihotel.cloud, read-only",
+  "note": "Every response here was captured live and then PSEUDONYMISED by tools/scrub_fixtures.py - guest names, emails, phones, identity numbers, addresses and free-text remarks are stable fakes. Reservation ids, statuses, dates, amounts, currencies, counts, rate codes, room types and every structural quirk are EXACTLY as the vendor returned them, because those are the evidence. Raw captures live in raw/ and are git-ignored (decision D6).",
+  "fingerprint_note": "Each entry records the request that produced the response. v1 replayed filters against a fixture without knowing what the fixture had actually been asked - so a control querying a window the capture never covered got an empty population that looked like 'no violations' rather than 'no data' (review finding F19c). A replay whose window is not covered here now refuses instead.",
+
+  "captures": {
+    "sandbox2024": {
+      "label": "the original feasibility probe",
+      "captured_at": "2026-09-01",
+      "as_of": "2024-09-01",
+      "note": "The 2024-era data the whole analysis rests on. Holds no checked-out reservation, so the checkout controls find nobody to judge in it - which the run page must say rather than showing four reassuring zeroes."
+    },
+    "sandbox2026": {
+      "label": "the checkout probe",
+      "captured_at": "2026-09-08",
+      "as_of": "2026-07-08",
+      "note": "Seven authorised calls, made after the demo was finished, which found that the sandbox had MOVED ON to 2026 data and held seven checked-out reservations. Three folios were captured and the rest deliberately were not: one call per reservation is the cost this control is built around (R1), on someone else's server (R8). The reservations whose folio is missing resolve to UNKNOWN, which is the correct answer."
+    }
+  },
+
+  "responses": [
+    {
+      "file": "1_getRoomTypes.xml",
+      "endpoint": "getRoomTypes",
+      "request": {},
+      "captures": ["sandbox2024", "sandbox2026"],
+      "captured_at": "2026-09-01",
+      "note": "The room-type master. NOT re-probed since the sandbox moved on - open question 1.2."
+    },
+    {
+      "file": "2_getRooms_all.xml",
+      "endpoint": "getRooms",
+      "request": {},
+      "captures": ["sandbox2024", "sandbox2026"],
+      "captured_at": "2026-09-01",
+      "note": "28 rooms. 23 report adult capacity 0, meaning unconfigured (R12); all 28 return an empty closed-date window, so the out-of-service mechanism has never been observed working (open question 2.4); rooms 9900/9901/9902 carry a type getRoomTypes does not define (R11). NOT re-probed - open question 1.2."
+    },
+    {
+      "file": "3_GetReservationKey.xml",
+      "endpoint": "GetReservationKey",
+      "request": { "ArrivalDate": { "From": "2024-08-01", "To": "2024-08-31" }, "IncludeRoomPrices": "true" },
+      "captures": ["sandbox2024"],
+      "captured_at": "2026-09-01",
+      "note": "11 bookings, queried by ARRIVAL. That filter is why 'the sandbox has no checked-out reservation' looked true for a week: a reservation that departed in the window but arrived outside it never appears."
+    },
+    {
+      "file": "4_RoomStatus.xml",
+      "endpoint": "RoomStatusInquiry",
+      "request": { "DateRange": { "from": "2024-08-14", "to": "2024-08-21" } },
+      "captures": ["sandbox2024", "sandbox2026"],
+      "captured_at": "2026-09-01",
+      "note": "Rooms and reservations as SIBLING lists, with one reservation appearing as several date segments. There is no single block per occupancy record, which is why occupancy is assembled by a declared projection rather than cut out."
+    },
+    {
+      "file": "6_BulkARI.xml",
+      "endpoint": "BulkARI",
+      "request": { "RatePlanCode": "Tourist-BB" },
+      "captures": ["sandbox2024", "sandbox2026"],
+      "captured_at": "2026-09-04",
+      "note": "Returned ERR 309, the price list is not defined. A reservation's rate code and the ARI price-list code are different key spaces (R13), which is why control 9 is unbuildable from this provider and answers UNKNOWN saying so."
+    },
+    {
+      "file": "7_departures_2024-08.xml",
+      "endpoint": "GetReservationKey",
+      "request": { "DepartureDate": { "From": "2024-08-01", "To": "2024-08-31" } },
+      "captures": [],
+      "captured_at": "2026-09-08",
+      "note": "The 2024 era asked by DEPARTURE rather than arrival - the query the original capture should have made. Kept for the record; no evidence set uses it."
+    },
+    {
+      "file": "8_departures_recent.xml",
+      "endpoint": "GetReservationKey",
+      "request": { "DepartureDate": { "From": "2026-08-10", "To": "2026-09-08" } },
+      "captures": [],
+      "captured_at": "2026-09-08",
+      "note": "65 bookings. The call that revealed the sandbox now holds 2026 data."
+    },
+    {
+      "file": "9_departures_2026-07.xml",
+      "endpoint": "GetReservationKey",
+      "request": { "DepartureDate": { "From": "2026-07-01", "To": "2026-08-09" } },
+      "captures": ["sandbox2026"],
+      "captured_at": "2026-09-08",
+      "note": "138 reservations, seven of them checked out. The body of evidence the checkout controls actually run against."
+    },
+    {
+      "file": "10_departures_status_out.xml",
+      "endpoint": "GetReservationKey",
+      "request": { "DepartureDate": { "From": "2026-08-10", "To": "2026-09-08" }, "BookingSearch": { "Status": "OUT" } },
+      "captures": [],
+      "captured_at": "2026-09-08",
+      "note": "The call that proved the server HONOURS BookingSearch Status='OUT'. It narrowed 65 bookings to 1, which also confirms the 1+N call cost is per checkout rather than per departure. The control 6 IR had claimed that filter since it was written and no call had ever exercised it."
+    },
+    {
+      "file": "5_balance_007003199.xml",
+      "endpoint": "GetReservationBalance",
+      "request": { "ReservationNumber": "007003199" },
+      "captures": ["sandbox2024"],
+      "captured_at": "2026-09-01",
+      "note": "THE R9 fixture. This folio reports 3262.5 ILS while its own reservation reports 870 USD, and no exchange rate exists anywhere in the API."
+    },
+    {
+      "file": "5_balance_007003204.xml",
+      "endpoint": "GetReservationBalance",
+      "request": { "ReservationNumber": "007003204" },
+      "captures": ["sandbox2024"],
+      "captured_at": "2026-09-01",
+      "note": ""
+    },
+    {
+      "file": "5_balance_007004348.xml",
+      "endpoint": "GetReservationBalance",
+      "request": { "ReservationNumber": "007004348" },
+      "captures": ["sandbox2026"],
+      "captured_at": "2026-09-08",
+      "note": "Departed at -490.75 ILS: the guest OVERPAID and the hotel owes a refund. v1 reported this as an outstanding balance; decision D8 split control 6 in two because of it."
+    },
+    {
+      "file": "5_balance_007004351.xml",
+      "endpoint": "GetReservationBalance",
+      "request": { "ReservationNumber": "007004351" },
+      "captures": ["sandbox2026"],
+      "captured_at": "2026-09-08",
+      "note": "Departed at 0 ILS - a settled folio, and the control's genuine PASS."
+    },
+    {
+      "file": "5_balance_007004354.xml",
+      "endpoint": "GetReservationBalance",
+      "request": { "ReservationNumber": "007004354" },
+      "captures": ["sandbox2026"],
+      "captured_at": "2026-09-08",
+      "note": ""
+    }
+  ]
+}

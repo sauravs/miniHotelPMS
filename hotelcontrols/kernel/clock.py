@@ -20,7 +20,8 @@ THE CLOCK IS INJECTED, NEVER GLOBAL. A test sets it rather than depending on the
 test happens to run on, and `FixedClock` is what makes a run reproducible six months later -
 the difference between an audit trail and an anecdote.
 
-R3 is the related limitation this cannot fix: `createDateTime` is DATE ONLY, with no time
+R3 is the related limitation this cannot fix: the provider's creation timestamp is DATE
+ONLY, with no time
 component, so any control needing same-day precision is unanswerable no matter how good the
 clock is. That is stated by the evidence layer as UNKNOWN, not papered over here.
 """

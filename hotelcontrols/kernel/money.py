@@ -19,7 +19,8 @@ by remembering not to.
 DECIMAL, NOT FLOAT
 ------------------
 v1 used `float` (finding F10). Control 19 - financial posting integrity - reconciles Debit,
-Credit and TotalDebit against per-transaction amounts, and summing money in binary floating
+credit and outstanding balance against per-transaction amounts, and summing money in binary
+floating
 point is how an audit engine produces a 0.01 discrepancy it cannot explain to anybody. The
 raw string goes straight to `Decimal`; no float is ever constructed anywhere in the path,
 which the constructor enforces rather than a comment requesting.
