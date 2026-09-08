@@ -48,6 +48,14 @@ class Bundle:
     # "a room with an active closed window must not have an arriving reservation" is a question
     # about a room and the several segments booked into it.
     related: dict[str, tuple[dict[str, Value], ...]] = field(default_factory=dict)
+    # Per referenced entity, whether the join actually MATCHED - as a three-valued answer:
+    #   known(True)   the key matched a record in this property
+    #   known(False)  the key was readable and matched nothing. A definite finding: control 1a
+    #                 says a stay assigned to a room the master does not hold is a violation
+    #   unknown(why)  the key was unreadable, or the reference could not be fetched at all
+    # Kept separately from the resolved fields because "the room is not in the master" and "we
+    # could not read the master" must never produce the same verdict.
+    joins: dict[str, Value] = field(default_factory=dict)
 
     def unknown_fields(self) -> tuple[str, ...]:
         """What a verdict of UNKNOWN would cite."""
@@ -93,7 +101,8 @@ def gather(ir, adapter, tenant: TenantConfig, clock: Clock,
             record_id=identity.payload if identity.is_known else None,
             fields=_assemble(fields, record, identity, adapter, references, cache,
                              population_key),
-            related=_related(ir, record, adapter, references)))
+            related=_related(ir, record, adapter, references),
+            joins=_joins(record, adapter, references)))
 
     return EvidenceSet(tuple(bundles), references, budget.spent)
 
@@ -177,6 +186,26 @@ def _follow_up(name, identity, adapter, cache) -> Value:
         return Value.unknown("the response carrying this evidence could not be fetched: %s"
                              % exc, risk="R1", source=provenance)
     return adapter.resolve(name, response)
+
+
+def _joins(record, adapter, references) -> dict[str, Value]:
+    """Whether each declared join matched, as its own three-valued answer."""
+    joins: dict[str, Value] = {}
+    for entity, index in references.items():
+        if index.kind == "set":
+            joins[entity] = Value.known(index.is_available)
+            continue
+        if not index.is_available:
+            joins[entity] = Value.unknown(index.unavailable)
+            continue
+        key = _key_for(index, record, adapter)
+        if not key.is_known:
+            joins[entity] = Value.unknown(
+                "the key this record joins on is not established (%s)" % key.reason)
+            continue
+        # The key is readable and either matches or does not. Both are definite answers.
+        joins[entity] = Value.known(bool(index.by_key.get(str(key.payload))))
+    return joins
 
 
 def _related(ir, record, adapter, references) -> dict[str, tuple[dict[str, Value], ...]]:

@@ -13,7 +13,7 @@ Execution tracker. **Update the status table as slices close.** Design rationale
 | 1 | Spec layer & validator | ☑ | ☑ | — | ☑ | ☑ | **done** — PR #2 |
 | 2 | MiniHotel provider (structured) | ☑ | ☑ | — | ☑ | ☑ | **done** — PR #4 |
 | 3 | Evidence, references & budget | ☑ | ☑ | — | ☑ | ☑ | **done** — PR #5 |
-| 4 | Evaluator — record level | ☐ | ☐ | ☐ | ☐ | ☐ | not started |
+| 4 | Evaluator — record level | ☑ | ☑ | ☑ | ☐ | ☐ | **in review** |
 | 5 | Evaluator — population level | ☐ | ☐ | ☐ | ☐ | ☐ | not started |
 | 6 | Runner, coverage, readiness, store | ☐ | ☐ | ☐ | ☐ | ☐ | not started |
 | 7 | Second provider — DemoPMS | ☐ | ☐ | ☐ | ☐ | ☐ | not started |
@@ -210,26 +210,28 @@ The largest slice. Every quirk lives here and nothing above may know the PMS exi
 `hotelcontrols/evaluator/` (record path) — pure. No I/O, no clock, no network.
 
 **Unit tests**
-- [ ] Balance of zero → PASS; positive balance → FAIL (control 6a)
-- [ ] **An unknown balance → UNKNOWN, never FAIL.** The rule that keeps the system honest
-- [ ] A record outside scope is **EXCLUDED**, not passed
-- [ ] An exception makes a record EXCLUDED, and is evaluated after scope
-- [ ] Unknown precedence, both directions: a definite FAIL under `all` outranks an unrelated
+- [x] Balance of zero → PASS; positive balance → FAIL (control 6a)
+- [x] **An unknown balance → UNKNOWN, never FAIL.** The rule that keeps the system honest
+- [x] A record outside scope is **EXCLUDED**, not passed
+- [x] An exception makes a record EXCLUDED, and is evaluated after scope
+- [x] Unknown precedence, both directions: a definite FAIL under `all` outranks an unrelated
       unknown; a would-be PASS **never** outranks a missing field
-- [ ] `within` / `not_within` / `overlaps` on date intervals, including an open-ended window (F2)
-- [ ] Comparing `folio.balance_due` to `reservation.total_amount` is **refused**, with the reason (R9)
-- [ ] Every verdict carries a non-empty evidence table
+- [x] `within` / `not_within` / `overlaps` on date intervals, including an open-ended window (F2)
+- [x] Comparing `folio.balance_due` to `reservation.total_amount` is **refused**, with the reason (R9)
+- [x] Every verdict carries a non-empty evidence table
 
 **Integration + E2E**
-- [ ] Control 6a and 6b against real bundles from fixtures: the settled folio, the overpaid folio,
+- [x] Control 6a and 6b against real bundles from fixtures: the settled folio, the overpaid folio,
       and one whose folio was never captured — PASS, FAIL and UNKNOWN from **captured** evidence
-- [ ] Room capacity, room type validity and OOO protection reach real verdicts using slice 3's
-      reference join — the three controls that returned 111 UNKNOWN in v1
+- [x] Room type validity and inactive-room checks reach real verdicts using slice 3's reference
+      join — 27 PASS each, where v1 returned 111 UNKNOWN out of 111. Capacity and OOO reach only
+      EXCLUDED/UNKNOWN, correctly: 23 of 28 rooms report capacity `0` (R12) and no room has ever
+      had a closed-date window set (open question 2.4). Slice 6's coverage verdict surfaces that
 
 **Gate**
-- [ ] All four outcomes reachable from captured evidence
-- [ ] No path produces a verdict without evidence — structurally refused
-- [ ] **No I/O in this layer** — asserted by test (patched `open`/`socket` raise), not assumed
+- [x] All four outcomes reachable from captured evidence
+- [x] No path produces a verdict without evidence — structurally refused
+- [x] **No I/O in this layer** — asserted by test (patched `open`/`socket` raise), not assumed
 
 ---
 
