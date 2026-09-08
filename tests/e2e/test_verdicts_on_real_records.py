@@ -19,6 +19,7 @@ from hotelcontrols.evaluator import evaluate_record
 from hotelcontrols.evidence import CallBudget, gather
 from hotelcontrols.kernel import Outcome
 from hotelcontrols.kernel import FixedClock
+from hotelcontrols.providers.base import ResponseUnavailable
 from hotelcontrols.providers.minihotel import FrozenSource, MiniHotelAdapter
 from hotelcontrols.spec import TenantConfig, available, load
 
@@ -37,6 +38,14 @@ def run(control_id, capture="sandbox2026", as_of="2026-07-08T09:00"):
 
 def outcomes(verdicts):
     return Counter(v.outcome for v in verdicts)
+
+
+# Controls that CANNOT BE ASKED of this body of evidence at these dates, and why. Issue #9:
+# `resource_occupancy_consistency` asks about `today..today+7d`, and the only occupancy capture
+# covers 2024-08-14..2024-08-21. Rather than skipping it, the whole-set loops below assert the
+# refusal - a control that cannot be asked must say so, and an answer replayed from a window
+# nobody asked about is worse than no answer at all.
+CANNOT_BE_ASKED = {"resource_occupancy_consistency"}
 
 
 class TestTheCheckoutControls:
@@ -109,6 +118,10 @@ class TestAllFourOutcomesFromCapturedEvidence:
         seen = Counter()
         for control_id in available():
             for as_of in ("2026-07-08T09:00", "2026-07-10T09:00"):
+                if control_id in CANNOT_BE_ASKED:
+                    with pytest.raises(ResponseUnavailable):
+                        run(control_id, as_of=as_of)
+                    continue
                 verdicts, _, source = run(control_id, as_of=as_of)
                 assert source.is_synthetic is False
                 seen.update(outcomes(verdicts))
@@ -120,6 +133,8 @@ class TestAllFourOutcomesFromCapturedEvidence:
         """Success criterion 3. An unexplained verdict is not auditable, and audit is the
         product."""
         for control_id in available():
+            if control_id in CANNOT_BE_ASKED:
+                continue
             verdicts, _, _ = run(control_id)
             for verdict in verdicts:
                 assert verdict.evidence, "%s %s" % (control_id, verdict.record_id)
@@ -129,6 +144,13 @@ class TestAllFourOutcomesFromCapturedEvidence:
 
     def test_no_control_raises_on_any_record(self):
         for control_id in available():
+            if control_id in CANNOT_BE_ASKED:
+                # Not a crash: a NAMED provider refusal, which the runner renders as a
+                # sentence. Asserted here so "cannot be asked" cannot quietly become
+                # "raises something unexpected" (issue #9).
+                with pytest.raises(ResponseUnavailable):
+                    run(control_id)
+                continue
             verdicts, _, _ = run(control_id)
             assert isinstance(verdicts, list)
 

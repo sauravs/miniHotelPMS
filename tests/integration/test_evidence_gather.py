@@ -14,6 +14,7 @@ R1 is why - a folio takes one reservation per call and there is no bulk journal 
 import pytest
 
 from hotelcontrols.evidence import BudgetExceeded, CallBudget, gather
+from hotelcontrols.providers.base import ProviderError
 from hotelcontrols.kernel import FixedClock
 from hotelcontrols.providers.minihotel import FrozenSource, MiniHotelAdapter
 from hotelcontrols.spec import TenantConfig, load
@@ -239,9 +240,21 @@ class TestEveryShippedControlCanGather:
 
     @pytest.mark.parametrize("control_id", sorted(__import__(
         "hotelcontrols.spec", fromlist=["available"]).available()))
-    def test_gathering_never_raises(self, control_id):
+    def test_gathering_either_answers_or_refuses_in_a_sentence(self, control_id):
+        """No stack traces, ever. A control this body of evidence cannot answer must refuse
+        with a NAMED provider error - which the runner turns into a sentence on screen - and
+        never with an incidental exception or, worse, an answer from the wrong window.
+
+        `resource_occupancy_consistency` is the live case (issue #9): the only occupancy
+        capture covers 2024-08-14..2024-08-21, and asked about any other week the source
+        refuses rather than replaying August 2024 as if it were this week.
+        """
         adapter, tenant, source, clock = setup()
-        evidence = gather(load(control_id), adapter, tenant, clock, CallBudget(400))
+        try:
+            evidence = gather(load(control_id), adapter, tenant, clock, CallBudget(400))
+        except ProviderError as refusal:
+            assert len(str(refusal)) > 20, "a refusal that does not explain itself is a crash"
+            return
         assert isinstance(evidence.calls, int)
 
     @pytest.mark.parametrize("control_id", [
@@ -264,7 +277,12 @@ class TestEveryShippedControlCanGather:
                 "hotelcontrols.spec", fromlist=["available"]).available()):
             adapter, tenant, source, clock = setup()
             ir = load(control_id)
-            evidence = gather(ir, adapter, tenant, clock, CallBudget(400))
+            try:
+                evidence = gather(ir, adapter, tenant, clock, CallBudget(400))
+            except ProviderError:
+                # A control this evidence set cannot answer costs whatever it spent before
+                # being refused, and the bound below is about answered runs (issue #9).
+                continue
             ceiling = 1 + len(ir.references) + len(evidence)
             assert evidence.calls <= ceiling, (
                 "%s cost %d calls for %d records and %d references"

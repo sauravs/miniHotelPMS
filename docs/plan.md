@@ -253,11 +253,15 @@ The largest slice. Every quirk lives here and nothing above may know the PMS exi
       the cancelled half (R7's cancel-and-recreate) and **UNKNOWN** for the other, because `OK4` is
       documented nowhere so nobody can say whether it is active. It refuses to guess in either
       direction — see open questions 1.3 and 2.1
-- [x] `resource_occupancy_consistency` reaches verdicts — 2 PASS. No projection was needed; see
-      issue #3
+- [x] `resource_occupancy_consistency` reaches verdicts — 2 PASS, asked over the window its
+      evidence actually covers. No projection was needed; see issue #3. **Corrected after the
+      fact:** it was reaching those two PASSes at *any* as-of date, because the capture's
+      occupancy window was replayed unchecked (issue #9). It concludes on 14 August 2024 and is
+      blocked on both standard evidence sets, which is why criterion 1 measures 5 and not 6
 
 **Gate**
-- [x] Both population-level controls reach real conclusions on captured evidence: PASS for both.
+- [x] Both population-level controls reach real conclusions on captured evidence: PASS for both,
+      each asked over a window its evidence covers.
       **Neither reaches FAIL, and none was manufactured** — this property has no active duplicate
       and no double-booked room. v1 invented fixtures to reach a nicer demo; this repository does
       not
@@ -282,14 +286,16 @@ The largest slice. Every quirk lives here and nothing above may know the PMS exi
 
 **Integration + E2E**
 - [x] All 11 controls × all evidence sets execute or report a named blocker — asserted.
-      **6 of 11 reach PASS or FAIL, not the 8 criterion 1 asks for. Recorded as unmet below.**
+      **5 of 11 reach PASS or FAIL, not the 8 criterion 1 asks for. Recorded as unmet below.**
+      (Measured 6 when this slice merged; issue #9 removed one that was concluding from a window
+      nobody had asked about.)
 - [x] Run history: three runs of one control are listed newest-first and re-read with **zero**
       provider calls (R1)
 - [x] The 100%-excluded case renders as "reached no conclusion", asserted on the coverage headline
 
 **Gate**
-- [x] Criterion 1 **assessed** by test and recorded as **not met** — 6 of 11, with each of the
-      five shortfalls traced to a fact about the property or the provider rather than the engine
+- [x] Criterion 1 **assessed** by test and recorded as **not met** — 5 of 11, with each of the
+      six shortfalls traced to a fact about the property or the provider rather than the engine
 - [x] SQLite schema migrates from empty on first run; no manual setup step
 
 ---
@@ -425,7 +431,7 @@ something.
 
 | # | Criterion | State |
 | --- | --- | --- |
-| 1 | ≥8 of 11 controls reach PASS or FAIL; the rest name their blocker | **NOT MET — 6 of 11.** The second half IS met: every non-concluding control names its blocker. See the assessment below |
+| 1 | ≥8 of 11 controls reach PASS or FAIL; the rest name their blocker | **NOT MET — 5 of 11.** The second half IS met: every non-concluding control names its blocker. See the assessment below |
 | 2 | All four outcomes from captured evidence; UNKNOWN distinct from FAIL | pending |
 | 3 | Every verdict traces to its fields | **Met** — structurally; a `Verdict` cannot be built without evidence |
 | 4 | Call count is `1 + R + N`, asserted | **Met** — counted invocations, slice 3 and again end to end |
