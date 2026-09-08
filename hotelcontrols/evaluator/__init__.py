@@ -12,6 +12,7 @@ same verdict forever, which is the difference between an audit trail and an anec
 from .intervals import overlaps, within
 from .predicates import (AGGREGATE_OPERATORS, PredicateResult, UnsupportedPredicate, describe,
                          evaluate_predicate)
+from .population import evaluate_population
 from .record import evaluate_record
 
 __all__ = [
@@ -19,6 +20,7 @@ __all__ = [
     "PredicateResult",
     "UnsupportedPredicate",
     "describe",
+    "evaluate_population",
     "evaluate_predicate",
     "evaluate_record",
     "overlaps",
