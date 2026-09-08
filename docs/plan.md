@@ -9,7 +9,7 @@ Execution tracker. **Update the status table as slices close.** Design rationale
 
 | # | Slice | Unit | Integ | E2E | CI | PR | State |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| 0 | Foundation, kernel & CI | ☑ | — | — | ☐ | ☐ | **in review** |
+| 0 | Foundation, kernel & CI | ☑ | — | — | ☑ | ☑ | **done** — PR #1 |
 | 1 | Spec layer & validator | ☐ | ☐ | — | ☐ | ☐ | not started |
 | 2 | MiniHotel provider (structured) | ☐ | ☐ | — | ☐ | ☐ | not started |
 | 3 | Evidence, references & budget | ☐ | ☐ | — | ☐ | ☐ | not started |
@@ -88,7 +88,7 @@ The vocabulary every later layer speaks, plus a mechanical gate from the very fi
 - [x] `README.md`, `CLAUDE.md`, all prose already in `docs/`
 - [x] `requirements-dev.txt` — `pytest`, `coverage`. **Runtime dependencies: none, ever**
 - [x] GitHub Actions: `PYTHONDONTWRITEBYTECODE=1`, full suite, spec validator, coverage floor
-- [ ] Branch protection on `main` requiring the workflow
+- [x] Branch protection on `main` requiring the workflow
 
 **Unit tests**
 - [x] A number without a unit **cannot be constructed** (R9)
@@ -102,7 +102,7 @@ The vocabulary every later layer speaks, plus a mechanical gate from the very fi
 - [x] `Clock` is a protocol; a fixed test clock and a property timezone both satisfy it (F11)
 
 **Gate**
-- [ ] CI green on `main`
+- [x] CI green on `main` — 101 tests, 99% coverage, Python 3.11 and 3.13
 - [x] No runtime import outside the standard library — asserted by a test that walks the tree
 - [x] Every kernel type is a frozen dataclass; mutation raises
 
