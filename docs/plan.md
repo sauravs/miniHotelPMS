@@ -12,7 +12,7 @@ Execution tracker. **Update the status table as slices close.** Design rationale
 | 0 | Foundation, kernel & CI | ☑ | — | — | ☑ | ☑ | **done** — PR #1 |
 | 1 | Spec layer & validator | ☑ | ☑ | — | ☑ | ☑ | **done** — PR #2 |
 | 2 | MiniHotel provider (structured) | ☑ | ☑ | — | ☑ | ☑ | **done** — PR #4 |
-| 3 | Evidence, references & budget | ☐ | ☐ | — | ☐ | ☐ | not started |
+| 3 | Evidence, references & budget | ☑ | ☑ | — | ☐ | ☐ | **in review** |
 | 4 | Evaluator — record level | ☐ | ☐ | ☐ | ☐ | ☐ | not started |
 | 5 | Evaluator — population level | ☐ | ☐ | ☐ | ☐ | ☐ | not started |
 | 6 | Runner, coverage, readiness, store | ☐ | ☐ | ☐ | ☐ | ☐ | not started |
@@ -183,25 +183,25 @@ The largest slice. Every quirk lives here and nothing above may know the PMS exi
 `hotelcontrols/evidence/` — **this slice fixes F1, the largest functional gap in v1**
 
 **Unit tests**
-- [ ] A control's population query produces the documented request filters, with `today-1d`
+- [x] A control's population query produces the documented request filters, with `today-1d`
       resolved through the **tenant clock**, not the machine's (F11)
-- [ ] An unrecognised relative-date token **raises** rather than being passed through
-- [ ] Exceeding the call budget **raises**; nothing further is fetched (R1, R8)
-- [ ] A failed follow-up yields a bundle marked unknown, not a dropped record
-- [ ] A reference key with no match resolves UNKNOWN — **a join never invents a match**
-- [ ] The run-scoped cache fetches one response once, however many records need it (F19b)
+- [x] An unrecognised relative-date token **raises** rather than being passed through
+- [x] Exceeding the call budget **raises**; nothing further is fetched (R1, R8)
+- [x] A failed follow-up yields a bundle marked unknown, not a dropped record
+- [x] A reference key with no match resolves UNKNOWN — **a join never invents a match**
+- [x] The run-scoped cache fetches one response once, however many records need it (F19b)
 
 **Integration tests**
-- [ ] Against fixtures, the population is exactly the hand-computed expected set for its window
-- [ ] **Call count is `1 + R + N`**, asserted by counting invocations — the regression guard on R1
-- [ ] The room master is fetched **once** and joined to 111 stays: `room.type` and
+- [x] Against fixtures, the population is exactly the hand-computed expected set for its window
+- [x] **Call count is `1 + R + N`**, asserted by counting invocations — the regression guard on R1
+- [x] The room master is fetched **once** and joined to 111 stays: `room.type` and
       `room.max_guests.adults` resolve for records that previously returned 111 UNKNOWN (F1)
-- [ ] One unreachable follow-up degrades a single bundle, never the run
+- [x] One unreachable follow-up degrades a single bundle, never the run
 
 **Gate**
-- [ ] Population matches a hand-computed set
-- [ ] Call count asserted, not assumed
-- [ ] Grep test: no provider name, endpoint or field path anywhere in `evidence/`, prose included
+- [x] Population matches a hand-computed set
+- [x] Call count asserted, not assumed
+- [x] Grep test: no provider name, endpoint or field path anywhere in `evidence/`, prose included
 
 ---
 

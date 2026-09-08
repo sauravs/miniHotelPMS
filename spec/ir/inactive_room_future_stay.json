@@ -6,15 +6,17 @@
   "natural_language": "No future reservation may reference a room that is inactive or decommissioned.",
   "entity": "stay",
   "population": {
-    "description": "Non-cancelled reservations arriving from today onward, joined against the full room master.",
+    "description": "Non-cancelled reservations arriving from today onward. The room master is joined as a reference, one call for the whole property, rather than being queried per stay.",
     "provider_query": {
       "minihotel": {
-        "endpoint": "getRooms",
-        "filters": {},
-        "then": [
-          "GetReservationKey with ArrivalDate from today forward"
-        ],
-        "call_cost": "O(1) - two bulk calls"
+        "endpoint": "GetReservationKey",
+        "filters": {
+          "ArrivalDate": {
+            "From": "today",
+            "To": "today+90d"
+          }
+        },
+        "call_cost": "1 + R: one population call plus one room-master call, whatever the number of stays. v1's query started from getRooms and asked the engine to cut a rooms response into stays, which it cannot do - the join it described in prose is now declared as a reference."
       }
     }
   },
