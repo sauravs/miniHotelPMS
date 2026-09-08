@@ -88,6 +88,10 @@ class Provider(Protocol):
         """An opaque token for "which call yields this field", so two fields from one response
         cost one call rather than two (R1). Callers compare it; they never interpret it."""
 
+    def source_key_for_request(self, request: Request) -> str:
+        """The same token for a call rather than a field, so the layer above can ask "is this
+        field already in the response I hold?" without learning what either one is."""
+
     def follow_up(self, field_name: str, record_id: str) -> Request | None:
         """The call that fetches `field_name` for ONE record, or None if this field's source
         answers for the whole property and cannot be asked about a single record."""

@@ -156,8 +156,21 @@ class MiniHotelAdapter:
         crosses as DATA: no PMS field path is in it, and no layer above parses it. An auditor
         has to know which system and which call produced a number.
         """
-        mapping, _ = self._spec_for(field_name)
-        return "pms:%s/%s" % (self.name, mapping["endpoint"])
+        if field_name not in self.mappings:
+            # Not an error here, unlike source_key: the honest provenance of a field this
+            # provider cannot supply at all is that we looked nowhere. R13's rate-plan fields
+            # are the live case - the hotel supplies them or nobody does.
+            return None
+        return "pms:%s/%s" % (self.name, self.mappings[field_name]["endpoint"])
+
+    def source_key_for_request(self, request: Request) -> str:
+        """The same opaque token, for a call rather than a field.
+
+        The evidence layer needs to ask "does this field come from the response I already
+        have?" without learning what either of them is. Comparing two tokens answers that; it
+        is the whole reason the token exists.
+        """
+        return request.endpoint
 
     def source_key(self, field_name: str) -> str:
         """An opaque token for "which call yields this field". Compared, never interpreted."""
