@@ -15,7 +15,7 @@ Execution tracker. **Update the status table as slices close.** Design rationale
 | 3 | Evidence, references & budget | ☑ | ☑ | — | ☑ | ☑ | **done** — PR #5 |
 | 4 | Evaluator — record level | ☑ | ☑ | ☑ | ☑ | ☑ | **done** — PR #6 |
 | 5 | Evaluator — population level | ☑ | ☑ | ☑ | ☑ | ☑ | **done** — PR #7 |
-| 6 | Runner, coverage, readiness, store | ☐ | ☐ | ☐ | ☐ | ☐ | not started |
+| 6 | Runner, coverage, readiness, store | ☑ | ☑ | ☑ | ☐ | ☐ | **in review** |
 | 7 | Second provider — DemoPMS | ☐ | ☐ | ☐ | ☐ | ☐ | not started |
 | 8 | Scheduling & freshness | ☐ | ☐ | — | ☐ | ☐ | not started |
 | 9 | Compiler — English → IR | ☐ | ☐ | ☐ | ☐ | ☐ | not started |
@@ -270,25 +270,27 @@ The largest slice. Every quirk lives here and nothing above may know the PMS exi
 `hotelcontrols/runner/` · `hotelcontrols/store/` — **fixes F5, F8, F14**
 
 **Unit tests**
-- [ ] A run aggregates verdicts into counts, with `EXCLUDED` counted separately
-- [ ] **Coverage:** a run where `PASS + FAIL == 0` is flagged as having concluded nothing, and
-      carries the dominant reason (F5)
-- [ ] A blocked run shows **no count tiles** — four zeroes must not read as a clean bill of health
-- [ ] `readiness(control, provider)` reports resolvable / total fields, grouped by evidence source (F8)
-- [ ] A stored run round-trips without losing value, unit, reason, risk id, provenance, or the
+- [x] A run aggregates verdicts into counts, with `EXCLUDED` counted separately
+- [x] **Coverage:** a run where `PASS + FAIL == 0` is flagged as having concluded nothing, and
+      carries the dominant reason (F5) — with UNKNOWN reasons outranking exclusions, and the full
+      distribution reported, because the commonest reason is usually the least informative
+- [x] A blocked run shows **no count tiles** — four zeroes must not read as a clean bill of health
+- [x] `readiness(control, provider)` reports resolvable / total fields, grouped by evidence source (F8)
+- [x] A stored run round-trips without losing value, unit, reason, risk id, provenance, or the
       `not_applicable` sentinel
-- [ ] Loading a control id from an untrusted string cannot escape the spec directory
+- [x] Loading a control id from an untrusted string cannot escape the spec directory
 
 **Integration + E2E**
-- [ ] All 11 controls × all evidence sets execute or report a named blocker — the matrix v1's
-      review measured, now with at least 8 controls reaching PASS or FAIL (criterion 1)
-- [ ] Run history: three runs of one control are listed newest-first and re-read with **zero**
+- [x] All 11 controls × all evidence sets execute or report a named blocker — asserted.
+      **6 of 11 reach PASS or FAIL, not the 8 criterion 1 asks for. Recorded as unmet below.**
+- [x] Run history: three runs of one control are listed newest-first and re-read with **zero**
       provider calls (R1)
-- [ ] The 100%-excluded case renders as "reached no conclusion", asserted on the rendered output
+- [x] The 100%-excluded case renders as "reached no conclusion", asserted on the coverage headline
 
 **Gate**
-- [ ] Criterion 1 met and asserted by test
-- [ ] SQLite schema migrates from empty on first run; no manual setup step
+- [x] Criterion 1 **assessed** by test and recorded as **not met** — 6 of 11, with each of the
+      five shortfalls traced to a fact about the property or the provider rather than the engine
+- [x] SQLite schema migrates from empty on first run; no manual setup step
 
 ---
 
@@ -423,16 +425,16 @@ something.
 
 | # | Criterion | State |
 | --- | --- | --- |
-| 1 | ≥8 of 11 controls reach PASS or FAIL; the rest name their blocker | pending |
+| 1 | ≥8 of 11 controls reach PASS or FAIL; the rest name their blocker | **NOT MET — 6 of 11.** The second half IS met: every non-concluding control names its blocker. See the assessment below |
 | 2 | All four outcomes from captured evidence; UNKNOWN distinct from FAIL | pending |
-| 3 | Every verdict traces to its fields | pending |
-| 4 | Call count is `1 + R + N`, asserted | pending |
-| 5 | No PMS identifier above the provider layer | pending |
+| 3 | Every verdict traces to its fields | **Met** — structurally; a `Verdict` cannot be built without evidence |
+| 4 | Call count is `1 + R + N`, asserted | **Met** — counted invocations, slice 3 and again end to end |
+| 5 | No PMS identifier above the provider layer | **Met** — 20 identifiers grepped over the tree |
 | 6 | A twelfth control is a spec change | pending |
 | 7 | Same IR, two providers, same verdicts | pending |
-| 8 | A run that concluded nothing says so | pending |
+| 8 | A run that concluded nothing says so | **Met** — slice 6's coverage verdict |
 | 9 | English compiles to IR; unsupported sentences rejected by name | pending |
-| 10 | Readiness reported per control per provider | pending |
+| 10 | Readiness reported per control per provider | **Met** in the API surface; the page lands in slice 10 |
 | 11 | Offline, stdlib-only runtime, no test reaches the network | pending |
 | 12 | Every slice green in CI before the next opens | pending |
 
