@@ -26,6 +26,7 @@ import pytest
 from hotelcontrols.evaluator import evaluate_population
 from hotelcontrols.evidence import CallBudget, gather
 from hotelcontrols.kernel import FixedClock, Outcome
+from hotelcontrols.providers.base import ResponseUnavailable
 from hotelcontrols.providers.minihotel import FrozenSource, MiniHotelAdapter
 from hotelcontrols.spec import TenantConfig, available, load
 
@@ -38,6 +39,20 @@ def run(control_id, capture="sandbox2026", as_of="2026-07-08T09:00"):
     evidence = gather(ir, adapter, tenant, FixedClock.at(as_of, tenant.timezone),
                       CallBudget(400))
     return evaluate_population(ir, evidence.bundles, tenant.settings), evidence, source
+
+
+# The only clock at which the occupancy control can be asked anything at all.
+#
+# Its population query is `DateRange {from: today, to: today+7d}` and the one occupancy capture
+# ever taken has the fingerprint 2024-08-14..2024-08-21, so a run standing on 14 August 2024
+# asks exactly the question this capture answers. At any other date the frozen source refuses
+# (issue #9) rather than replaying August 2024 as though it were the week that was asked about
+# - which it did until that issue was fixed, reporting two PASSes about July 2026.
+OCCUPANCY_WINDOW = {"capture": "sandbox2024", "as_of": "2024-08-14T09:00"}
+
+# What each aggregate control has to be asked in order to be answerable at all.
+ASKABLE = {"duplicate_channel_reservation": {},
+           "resource_occupancy_consistency": OCCUPANCY_WINDOW}
 
 
 class TestTheKnownDuplicatePair:
@@ -75,13 +90,24 @@ class TestTheKnownDuplicatePair:
 
 
 class TestAggregateControlsNowAnswer:
-    @pytest.mark.parametrize("control_id", [
-        "duplicate_channel_reservation", "resource_occupancy_consistency"])
+    @pytest.mark.parametrize("control_id", sorted(ASKABLE))
     def test_both_reach_real_conclusions(self, control_id):
-        """The slice gate. v1 reached zero conclusions on either."""
-        verdicts, _, _ = run(control_id)
+        """The slice gate. v1 reached zero conclusions on either.
+
+        Each is asked over the window its evidence actually covers. That qualification is not
+        a weakening: a conclusion drawn from a window nobody asked about is not a conclusion.
+        """
+        verdicts, _, _ = run(control_id, **ASKABLE[control_id])
         answered = [v for v in verdicts if v.is_answer]
         assert answered, "%s reaches no conclusion about any record" % control_id
+
+    def test_the_occupancy_control_refuses_a_week_the_capture_never_covered(self):
+        """Issue #9, from the control's own end. Two PASSes about rooms in July 2026, drawn
+        from segments captured in August 2024, is the exact failure F19c describes - and it
+        is worse than an empty population, because it looks like an answer."""
+        with pytest.raises(ResponseUnavailable) as caught:
+            run("resource_occupancy_consistency")
+        assert "2024-08-14" in str(caught.value) and "2026-07-08" in str(caught.value)
 
     def test_no_fail_is_manufactured_where_the_data_holds_none(self):
         """Honesty check, and a deliberate non-assertion.
@@ -91,8 +117,8 @@ class TestAggregateControlsNowAnswer:
         demo is exactly what v1 did with fixtures/synthetic/ and exactly what this repository
         does not do - every record here came from the vendor's own system.
         """
-        for control_id in ("duplicate_channel_reservation", "resource_occupancy_consistency"):
-            verdicts, _, source = run(control_id)
+        for control_id, asked in sorted(ASKABLE.items()):
+            verdicts, _, source = run(control_id, **asked)
             assert source.is_synthetic is False
             assert Counter(v.outcome for v in verdicts)[Outcome.FAIL] == 0
 
@@ -100,7 +126,7 @@ class TestAggregateControlsNowAnswer:
         """Reservation 007003204 holds room 303 twice - 10-11 and 15-16 August. v1 read that
         repetition as the reason occupancy could not be cut into records at all; it is the
         ordinary case, and a reservation cannot double-book itself."""
-        verdicts, _, _ = run("resource_occupancy_consistency")
+        verdicts, _, _ = run("resource_occupancy_consistency", **OCCUPANCY_WINDOW)
         assert {v.record_id for v in verdicts} == {"007003204"}
         assert all(v.outcome is Outcome.PASS for v in verdicts)
 
@@ -150,7 +176,7 @@ class TestEveryControlStillRuns:
     def test_the_single_entry_point_handles_both_shapes(self, control_id):
         """A runner calls `evaluate_population` for everything; it must hand a record-level
         control straight through without the caller knowing which shape it is."""
-        verdicts, evidence, _ = run(control_id)
+        verdicts, evidence, _ = run(control_id, **ASKABLE.get(control_id, {}))
         assert len(verdicts) == len(evidence.bundles)
         for verdict in verdicts:
             assert verdict.evidence

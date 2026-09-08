@@ -23,8 +23,23 @@ CAPTURES = {"sandbox2026": "2026-07-08T09:00", "sandbox2024": "2024-09-01T09:00"
 # Measured, not aspirational. These reach a PASS or a FAIL on the 2026 capture.
 CONCLUDING = {
     "checkout_money_owed", "checkout_unrefunded_credit", "duplicate_channel_reservation",
-    "inactive_room_future_stay", "resource_occupancy_consistency",
-    "room_assignment_type_validity",
+    "inactive_room_future_stay", "room_assignment_type_validity",
+}
+
+# Controls that cannot even be ASKED of this body of evidence, and are therefore blocked
+# before any record is judged. Different from CANNOT_CONCLUDE below: those run and reach no
+# conclusion, this one never runs at all.
+#
+# `resource_occupancy_consistency` asks about `today..today+7d` and the only occupancy capture
+# covers 2024-08-14..2024-08-21 (issue #9). It counted towards criterion 1 until that guard
+# was fixed - it was reaching two PASSes about July 2026 from segments captured in August 2024.
+# Asked on 14 August 2024 it concludes perfectly well, which is asserted in
+# tests/e2e/test_population_verdicts.py; neither of this repository's two evidence sets stands
+# on that date.
+BLOCKED = {
+    "resource_occupancy_consistency":
+        "the only occupancy capture covers 2024-08-14..2024-08-21, and a run asking about any "
+        "other week is refused rather than answered from the wrong one (issue #9)",
 }
 
 # These cannot conclude, and each reason is a fact about the PROPERTY or the PROVIDER rather
@@ -92,17 +107,30 @@ class TestSuccessCriterionOne:
     definition-of-done table in docs/plan.md.
     """
 
-    def test_at_least_six_controls_reach_a_conclusion(self):
+    def test_five_controls_reach_a_conclusion(self):
         concluding = {c for c in available() if a_run(c).coverage.concluded}
         assert concluding == CONCLUDING, (
             "the set of concluding controls changed - update CONCLUDING and the criterion-1 "
             "assessment in docs/plan.md rather than the assertion")
 
-    def test_criterion_one_is_not_yet_met_and_the_shortfall_is_five_controls(self):
+    def test_criterion_one_is_not_yet_met_and_the_shortfall_is_six_controls(self):
         concluding = [c for c in available() if a_run(c).coverage.concluded]
-        assert len(concluding) == 6
+        assert len(concluding) == 5
         assert len(concluding) < 8, (
             "criterion 1 now passes - update docs/plan.md, which currently records it as unmet")
+
+    @pytest.mark.parametrize("control_id", sorted(BLOCKED))
+    def test_a_control_this_evidence_cannot_answer_is_blocked_with_a_sentence(self, control_id):
+        """A blocked run is the OTHER honest failure: not "no violations", not "nothing
+        applied", but "this body of evidence cannot answer that question". It must reach the
+        screen as a sentence naming the window, and it must show no count tiles - four zeroes
+        read as a clean bill of health for a control that never ran."""
+        result = a_run(control_id)
+        assert result.is_blocked, control_id
+        assert "2024-08-14" in result.blocked, (
+            "the blocker must name the window that WAS captured, or nobody can act on it")
+        assert result.counts["total"] == 0
+        assert not result.coverage.concluded
 
     @pytest.mark.parametrize("control_id", sorted(CANNOT_CONCLUDE))
     def test_every_control_that_cannot_conclude_says_why_on_screen(self, control_id):
@@ -118,7 +146,7 @@ class TestSuccessCriterionOne:
 
 class TestFindingF5:
     def test_a_run_that_concluded_nothing_never_looks_like_a_clean_result(self):
-        """The whole point of the slice. `ooo_room_protection` excludes all 28 rooms because
+        """The point of the slice. `ooo_room_protection` excludes all 28 rooms because
         the property has never set a closed-date window - correct, and in v1 indistinguishable
         on screen from '28 rooms checked, all compliant'."""
         result = a_run("ooo_room_protection")

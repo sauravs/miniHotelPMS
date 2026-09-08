@@ -34,12 +34,20 @@ from .transforms import date_ddmmyyyy_to_iso
 
 FIXTURE_DIR = pathlib.Path(__file__).resolve().parents[3] / "fixtures" / "minihotel"
 
-# Where each booking-level date filter reads from, on one <Booking> element.
+# Where each booking-level date filter reads from, on one <Booking> element. This table is
+# about REPLAYING a filter - narrowing the captured bookings the way the server would have -
+# and it is deliberately NOT the list of filters the window guard checks. Issue #9 is what
+# happens when those two are the same list: the occupancy endpoint's window is spelled
+# `DateRange {from,to}`, appears in no table here, and was replayed entirely unguarded.
 BOOKING_DATE_FILTERS = {
     "ArrivalDate": ("ResGlobalInfo/Timespan", "arrival"),
     "DepartureDate": ("ResGlobalInfo/Timespan", "departure"),
     "CreateDate": (None, "createDateTime"),
 }
+
+# The two spellings a date window arrives in. MiniHotel writes `From`/`To` on the booking
+# filters and `from`/`to` on the occupancy one, in the same API.
+WINDOW_BOUNDS = (("From", "To"), ("from", "to"))
 
 # Request options that widen or narrow the CONTENT of each record rather than selecting
 # records. The captures were taken with prices included, so honouring them is a no-op.
@@ -113,24 +121,37 @@ class FrozenSource:
         return entry
 
     def _check_window_covered(self, request: Request, entry: dict[str, Any]) -> None:
-        """Refuse a question this capture cannot answer (finding F19c).
+        """Refuse a question this capture cannot answer (finding F19c, issue #9).
 
-        If a control asks for departures in a window the capture never covered, replaying the
-        filter would return zero bookings - and zero bookings renders identically to "we looked
-        and everything was fine". Saying so is the whole point.
+        If a control asks about a window the capture never covered, replaying the filter would
+        return whatever the capture happens to hold - and that is worse than nothing. An empty
+        result renders identically to "we looked and everything was fine"; a NON-empty result
+        from the wrong window is worse still, because it is a confident answer about records
+        nobody looked at. `resource_occupancy_consistency` asked about July 2026 and was
+        answered with segments from August 2024, as two PASSes.
+
+        EVERY window in the request is checked against the fingerprint, found by SHAPE rather
+        than by name. The first version of this guard checked three filter names, so the fourth
+        window this API spells differently went unguarded from the day it was added - and the
+        fifth would have too.
         """
-        for name in BOOKING_DATE_FILTERS:
-            asked, captured = request.params.get(name), entry["request"].get(name)
-            if not asked or not captured:
+        for name, asked_raw in request.params.items():
+            asked, captured = _window(asked_raw), _window(entry["request"].get(name))
+            if asked is None or captured is None:
+                # Not a date window on one side or the other. `BookingSearch {Status: OUT}` is
+                # a filter but not a window, and a filter the capture did not record cannot be
+                # compared - _booking_matches refuses the ones it cannot replay.
                 continue
-            if asked.get("From", "") < captured.get("From", "") or \
-                    asked.get("To", "9999") > captured.get("To", "9999"):
+            asked_from, asked_to = asked
+            captured_from, captured_to = captured
+            if (asked_from or "") < (captured_from or "") or \
+                    (asked_to or "9999") > (captured_to or "9999"):
                 raise ResponseUnavailable(
                     "this capture cannot answer that question: %s was captured for %s..%s and "
                     "the run asks for %s..%s. An empty population here would look exactly like "
-                    "'no violations found', so it is refused instead"
-                    % (name, captured.get("From"), captured.get("To"),
-                       asked.get("From"), asked.get("To")))
+                    "'no violations found', and a population from the WRONG window would look "
+                    "like an answer, so it is refused instead"
+                    % (name, captured_from, captured_to, asked_from, asked_to))
 
     # ------------------------------------------------------------------ filter replay
     def _replay(self, request: Request, entry: dict[str, Any], body: str) -> str:
@@ -180,3 +201,18 @@ def _booking_matches(booking: ET.Element, params: dict[str, Any]) -> bool:
             # for, which is the one failure a bounded query exists to prevent (R1).
             raise ResponseUnavailable("replay cannot honour request filter %r" % (name,))
     return True
+
+
+def _window(value: Any) -> tuple[str | None, str | None] | None:
+    """The (start, end) a request filter names, or None if it is not a date window at all.
+
+    Found by shape, because the name is exactly what the guard must not depend on (issue #9).
+    A dict carrying either bound counts: a half-open window is still a window, and treating it
+    as "not a window" would send it down the unguarded path this function exists to close.
+    """
+    if not isinstance(value, dict):
+        return None
+    for low, high in WINDOW_BOUNDS:
+        if low in value or high in value:
+            return value.get(low), value.get(high)
+    return None

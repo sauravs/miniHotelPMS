@@ -338,3 +338,48 @@ class TestNoSiblingLeakThroughListWrappers:
         no_block = [r for r in rooms
                     if not find_all(r.element, "rec_rooms_gst_max[rgm_gst_type=A]/rgm_max")]
         assert (len(configured_zero), len(no_block), len(rooms)) == (21, 2, 28)
+
+
+class TestTheWindowGuardCoversEveryEndpoint:
+    """Issue #9. F19c was enforced for the three BOOKING date filters and nowhere else.
+
+    The occupancy capture covers 2024-08-14..2024-08-21 and nothing else has ever been taken.
+    `resource_occupancy_consistency` asks about `today..today+7d`, so on the 2026 evidence set
+    it was asking about July 2026 and being answered with segments from August 2024 - and
+    reporting two PASSes about rooms nobody had looked at in that window.
+
+    The guard has to read the fingerprint, not a list of filter names the guard's author
+    happened to think of.
+    """
+
+    def test_an_occupancy_window_the_capture_never_covered_is_refused(self):
+        a = adapter()
+        with pytest.raises(ResponseUnavailable) as caught:
+            a.fetch(Request("RoomStatusInquiry",
+                            {"DateRange": {"from": "2026-07-08", "to": "2026-07-15"}}))
+        assert "cannot answer that question" in str(caught.value)
+        assert "2024-08-14" in str(caught.value), \
+            "the refusal must name the window that WAS captured, or nobody can act on it"
+
+    def test_the_window_the_capture_does_cover_is_still_answered(self):
+        """The guard must refuse the unanswerable question and only that one. A guard that
+        refused everything would be indistinguishable from a broken fixture set."""
+        a = adapter()
+        records = a.records(
+            a.fetch(Request("RoomStatusInquiry",
+                            {"DateRange": {"from": "2024-08-15", "to": "2024-08-16"}})),
+            "occupancy")
+        assert len(records) == 2
+
+    def test_the_guard_reads_the_fingerprint_rather_than_a_list_of_known_filter_names(self):
+        """The actual defect. A filter naming a window the guard has never heard of must be
+        compared against the fingerprint anyway - the next endpoint we add will spell its
+        window differently again, and it must not silently become unguarded."""
+        source = FrozenSource("sandbox2026")
+        entry = {"file": "4_RoomStatus.xml", "endpoint": "X",
+                 "request": {"SomeWindowNobodyAnticipated": {"From": "2024-01-01",
+                                                             "To": "2024-01-31"}}}
+        with pytest.raises(ResponseUnavailable):
+            source._check_window_covered(
+                Request("X", {"SomeWindowNobodyAnticipated": {"From": "2025-01-01",
+                                                              "To": "2025-01-31"}}), entry)

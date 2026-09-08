@@ -50,10 +50,9 @@ control 6 split into `checkout_money_owed` and `checkout_unrefunded_credit`.
 
 ### Success criterion 1 is recorded as NOT MET
 
-6 of 11 controls reach a PASS or FAIL; the PRD asks for 8. **Do not relax the criterion.** The
-five shortfalls are traced, one by one, in the "Criterion 1, assessed honestly" section of
-`docs/plan.md`, and none of them is a defect in the engine. Three would move on a conversation
-rather than on code.
+5 of 11 controls reach a PASS or FAIL; the PRD asks for 8. **Do not relax the criterion.** The
+six shortfalls are traced, one by one, in `docs/plan.md`, and none of them is a defect in the
+engine. Three would move on a conversation rather than on code.
 
 ### Checkpoints that need the project owner
 
