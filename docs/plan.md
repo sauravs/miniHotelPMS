@@ -11,7 +11,7 @@ Execution tracker. **Update the status table as slices close.** Design rationale
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | 0 | Foundation, kernel & CI | ☑ | — | — | ☑ | ☑ | **done** — PR #1 |
 | 1 | Spec layer & validator | ☑ | ☑ | — | ☑ | ☑ | **done** — PR #2 |
-| 2 | MiniHotel provider (structured) | ☐ | ☐ | — | ☐ | ☐ | not started |
+| 2 | MiniHotel provider (structured) | ☑ | ☑ | — | ☐ | ☐ | **in review** |
 | 3 | Evidence, references & budget | ☐ | ☐ | — | ☐ | ☐ | not started |
 | 4 | Evaluator — record level | ☐ | ☐ | ☐ | ☐ | ☐ | not started |
 | 5 | Evaluator — population level | ☐ | ☐ | ☐ | ☐ | ☐ | not started |
@@ -144,37 +144,37 @@ The largest slice. Every quirk lives here and nothing above may know the PMS exi
 **This slice fixes F4, the silent-fragility finding.**
 
 **Fixture preparation (first, before any resolver work)**
-- [ ] `scrub_fixtures.py` — deterministic pseudonymisation of names, emails, phones, ID numbers and
+- [x] `scrub_fixtures.py` — deterministic pseudonymisation of names, emails, phones, ID numbers and
       free-text remarks. Stable mapping, so fixtures stay byte-identical between runs (F15)
-- [ ] Raw captures moved out of the repository and git-ignored; scrubbed fixtures committed
-- [ ] Each fixture carries a **request fingerprint** recording what was actually asked (F19c)
+- [x] Raw captures moved out of the repository and git-ignored; scrubbed fixtures committed
+- [x] Each fixture carries a **request fingerprint** recording what was actually asked (F19c)
 
 **Unit tests**
-- [ ] Each date transform, including one that **rejects** an unparseable value rather than guessing (R2, R3)
-- [ ] `createDateTime` resolves with date granularity and no caller can believe otherwise (R3)
-- [ ] `zero_is_unknown` returns unknown for `0`, known for `1` (R10, R12)
-- [ ] `casefold` makes `EXECUTIVE` and `Executive` compare equal (R13)
-- [ ] Tenant status map turns `OUT` into `checked_out`; `OK4` and `WL` resolve UNKNOWN (A5)
-- [ ] An absent field returns the registry's `absent_means` — unknown, false, or not_applicable — **never `None`**
-- [ ] A present-but-empty field is treated as absent
-- [ ] **Attribute order does not change any resolved value** — the exact v1 failure, as a regression test (F4)
-- [ ] **XML entities are decoded**: `O&apos;Brien` resolves as `O'Brien` (F4)
-- [ ] A money field with no establishable currency resolves UNKNOWN, not a bare number (R9)
+- [x] Each date transform, including one that **rejects** an unparseable value rather than guessing (R2, R3)
+- [x] `createDateTime` resolves with date granularity and no caller can believe otherwise (R3)
+- [x] `zero_is_unknown` returns unknown for `0`, known for `1` (R10, R12)
+- [x] `casefold` makes `EXECUTIVE` and `Executive` compare equal (R13)
+- [x] Tenant status map turns `OUT` into `checked_out`; `OK4` and `WL` resolve UNKNOWN (A5)
+- [x] An absent field returns the registry's `absent_means` — unknown, false, or not_applicable — **never `None`**
+- [x] A present-but-empty field is treated as absent
+- [x] **Attribute order does not change any resolved value** — the exact v1 failure, as a regression test (F4)
+- [x] **XML entities are decoded**: `O&apos;Brien` resolves as `O'Brien` (F4)
+- [x] A money field with no establishable currency resolves UNKNOWN, not a bare number (R9)
 
 **Integration tests**
-- [ ] All 52 mappings resolve against their fixture — the check `validate_spec` performs, enforced here too
-- [ ] `folio.balance_due` on `007003199` returns `Decimal('3262.5') ILS`, and `reservation.currency`
+- [x] All 52 mappings resolve against their fixture — the check `validate_spec` performs, enforced here too
+- [x] `folio.balance_due` on `007003199` returns `Decimal('3262.5') ILS`, and `reservation.currency`
       on the same reservation returns `USD` — the currency split visible in one test (R9)
-- [ ] `folio.balance_due` on `007004348` returns `Decimal('-490.75') ILS` — the overpayment
-- [ ] `room.max_guests.adults` is unknown for 23 of 28 rooms — 21 configured `0`, 2 absent (R12)
-- [ ] A record reads a field from the record **containing** it, and **never from a sibling** (R7)
-- [ ] Live and frozen paths return identical `Value`s for the same record, with a fake transport
+- [x] `folio.balance_due` on `007004348` returns `Decimal('-490.75') ILS` — the overpayment
+- [x] `room.max_guests.adults` is unknown for 23 of 28 rooms — 21 configured `0`, 2 absent (R12)
+- [x] A record reads a field from the record **containing** it, and **never from a sibling** (R7)
+- [x] Live and frozen paths return identical `Value`s for the same record, with a fake transport
 
 **Gate**
-- [ ] All 52 mappings resolve
-- [ ] No caller can obtain a number without its unit
-- [ ] Grep test: no PMS identifier outside `providers/minihotel/`
-- [ ] No guest name, email or phone from the vendor sandbox remains in a committed file
+- [x] All 52 mappings resolve
+- [x] No caller can obtain a number without its unit
+- [x] Grep test: no PMS identifier outside `providers/minihotel/`
+- [x] No guest name, email or phone from the vendor sandbox remains in a committed file
 
 ---
 

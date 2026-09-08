@@ -1,0 +1,895 @@
+<Response>
+  <ServerInfo>
+    <Name>SANDBOX1</Name>
+    <ResponseTime>15 ms</ResponseTime>
+    <DateTime>9/1/2026 12:51:37 PM</DateTime>
+  </ServerInfo>
+  <ArrayOfRnm_struct_room>
+    <rnm_struct_room is_mapped="true">
+      <rm_serial>001</rm_serial>
+      <rm_number>01</rm_number>
+      <rm_type>DBL</rm_type>
+      <rm_clsdt1 />
+      <rm_clsdt2 />
+      <rm_status>D</rm_status>
+      <rm_dorm>0</rm_dorm>
+      <rm_wing>0</rm_wing>
+      <rm_bed>0</rm_bed>
+      <rm_occ>0</rm_occ>
+      <rm_color>0255010501380214</rm_color>
+      <rm_image />
+      <ArrayOfRec_rooms_gst_max>
+        <rec_rooms_gst_max>
+          <rgm_gst_type>A</rgm_gst_type>
+          <rgm_max>6</rgm_max>
+        </rec_rooms_gst_max>
+        <rec_rooms_gst_max>
+          <rgm_gst_type>C</rgm_gst_type>
+          <rgm_max>0</rgm_max>
+        </rec_rooms_gst_max>
+        <rec_rooms_gst_max>
+          <rgm_gst_type>B</rgm_gst_type>
+          <rgm_max>0</rgm_max>
+        </rec_rooms_gst_max>
+      </ArrayOfRec_rooms_gst_max>
+      <ArrayOfRnm_struct_room_attributes>
+        <rnm_attribute code="Address" description="Dizengoff 50, Tel Aviv, Israel" />
+        <rnm_attribute code="Latitude" description="32.07530801101282" />
+        <rnm_attribute code="Longitude" description="34.77495310926179" />
+      </ArrayOfRnm_struct_room_attributes>
+    </rnm_struct_room>
+    <rnm_struct_room is_mapped="true">
+      <rm_serial>002</rm_serial>
+      <rm_number>101</rm_number>
+      <rm_type>DBL</rm_type>
+      <rm_clsdt1 />
+      <rm_clsdt2 />
+      <rm_status>D</rm_status>
+      <rm_dorm>0</rm_dorm>
+      <rm_wing>0</rm_wing>
+      <rm_bed>0</rm_bed>
+      <rm_occ>0</rm_occ>
+      <rm_color>0255021502150000</rm_color>
+      <rm_image />
+      <ArrayOfRec_rooms_gst_max>
+        <rec_rooms_gst_max>
+          <rgm_gst_type>A</rgm_gst_type>
+          <rgm_max>0</rgm_max>
+        </rec_rooms_gst_max>
+        <rec_rooms_gst_max>
+          <rgm_gst_type>C</rgm_gst_type>
+          <rgm_max>0</rgm_max>
+        </rec_rooms_gst_max>
+        <rec_rooms_gst_max>
+          <rgm_gst_type>B</rgm_gst_type>
+          <rgm_max>0</rgm_max>
+        </rec_rooms_gst_max>
+      </ArrayOfRec_rooms_gst_max>
+      <ArrayOfRnm_struct_room_attributes>
+        <rnm_attribute code="Address" description="Dizengoff 50, Tel Aviv, Israel" />
+        <rnm_attribute code="Latitude" description="32.07530801101282" />
+        <rnm_attribute code="Longitude" description="34.77495310926179" />
+      </ArrayOfRnm_struct_room_attributes>
+    </rnm_struct_room>
+    <rnm_struct_room is_mapped="true">
+      <rm_serial>003</rm_serial>
+      <rm_number>302</rm_number>
+      <rm_type>DBL</rm_type>
+      <rm_clsdt1 />
+      <rm_clsdt2 />
+      <rm_status>D</rm_status>
+      <rm_dorm>0</rm_dorm>
+      <rm_wing>0</rm_wing>
+      <rm_bed>0</rm_bed>
+      <rm_occ>0</rm_occ>
+      <rm_color>0255000000000000</rm_color>
+      <rm_image />
+      <ArrayOfRec_rooms_gst_max>
+        <rec_rooms_gst_max>
+          <rgm_gst_type>A</rgm_gst_type>
+          <rgm_max>0</rgm_max>
+        </rec_rooms_gst_max>
+        <rec_rooms_gst_max>
+          <rgm_gst_type>C</rgm_gst_type>
+          <rgm_max>0</rgm_max>
+        </rec_rooms_gst_max>
+        <rec_rooms_gst_max>
+          <rgm_gst_type>B</rgm_gst_type>
+          <rgm_max>0</rgm_max>
+        </rec_rooms_gst_max>
+      </ArrayOfRec_rooms_gst_max>
+      <ArrayOfRnm_struct_room_attributes>
+        <rnm_attribute code="Address" description="Dizengoff 50, Tel Aviv, Israel" />
+        <rnm_attribute code="Latitude" description="32.07530801101282" />
+        <rnm_attribute code="Longitude" description="34.77495310926179" />
+      </ArrayOfRnm_struct_room_attributes>
+    </rnm_struct_room>
+    <rnm_struct_room is_mapped="false">
+      <rm_serial>004</rm_serial>
+      <rm_number>606</rm_number>
+      <rm_type>APT_SEA</rm_type>
+      <rm_clsdt1 />
+      <rm_clsdt2 />
+      <rm_status>C</rm_status>
+      <rm_dorm>0</rm_dorm>
+      <rm_wing>0</rm_wing>
+      <rm_bed>0</rm_bed>
+      <rm_occ>0</rm_occ>
+      <rm_color>0255000002270255</rm_color>
+      <rm_image />
+      <ArrayOfRec_rooms_gst_max>
+        <rec_rooms_gst_max>
+          <rgm_gst_type>A</rgm_gst_type>
+          <rgm_max>2</rgm_max>
+        </rec_rooms_gst_max>
+        <rec_rooms_gst_max>
+          <rgm_gst_type>C</rgm_gst_type>
+          <rgm_max>0</rgm_max>
+        </rec_rooms_gst_max>
+        <rec_rooms_gst_max>
+          <rgm_gst_type>B</rgm_gst_type>
+          <rgm_max>0</rgm_max>
+        </rec_rooms_gst_max>
+      </ArrayOfRec_rooms_gst_max>
+      <ArrayOfRnm_struct_room_attributes>
+        <rnm_attribute code="Address" description="Dizengoff 50, Tel Aviv, Israel" />
+        <rnm_attribute code="Latitude" description="32.07530801101282" />
+        <rnm_attribute code="Longitude" description="34.77495310926179" />
+      </ArrayOfRnm_struct_room_attributes>
+    </rnm_struct_room>
+    <rnm_struct_room is_mapped="false">
+      <rm_serial>005</rm_serial>
+      <rm_number>701</rm_number>
+      <rm_type>2BEDAPT</rm_type>
+      <rm_clsdt1 />
+      <rm_clsdt2 />
+      <rm_status>C</rm_status>
+      <rm_dorm>0</rm_dorm>
+      <rm_wing>0</rm_wing>
+      <rm_bed>0</rm_bed>
+      <rm_occ>0</rm_occ>
+      <rm_color>0255025501680000</rm_color>
+      <rm_image />
+      <ArrayOfRec_rooms_gst_max>
+        <rec_rooms_gst_max>
+          <rgm_gst_type>A</rgm_gst_type>
+          <rgm_max>0</rgm_max>
+        </rec_rooms_gst_max>
+        <rec_rooms_gst_max>
+          <rgm_gst_type>C</rgm_gst_type>
+          <rgm_max>0</rgm_max>
+        </rec_rooms_gst_max>
+        <rec_rooms_gst_max>
+          <rgm_gst_type>B</rgm_gst_type>
+          <rgm_max>0</rgm_max>
+        </rec_rooms_gst_max>
+      </ArrayOfRec_rooms_gst_max>
+      <ArrayOfRnm_struct_room_attributes>
+        <rnm_attribute code="Address" description="Dizengoff 50, Tel Aviv, Israel" />
+        <rnm_attribute code="Latitude" description="32.07530801101282" />
+        <rnm_attribute code="Longitude" description="34.77495310926179" />
+      </ArrayOfRnm_struct_room_attributes>
+    </rnm_struct_room>
+    <rnm_struct_room is_mapped="true">
+      <rm_serial>006</rm_serial>
+      <rm_number>02</rm_number>
+      <rm_type>DBL</rm_type>
+      <rm_clsdt1 />
+      <rm_clsdt2 />
+      <rm_status>C</rm_status>
+      <rm_dorm>0</rm_dorm>
+      <rm_wing>0</rm_wing>
+      <rm_bed>0</rm_bed>
+      <rm_occ>0</rm_occ>
+      <rm_color>0255010501380214</rm_color>
+      <rm_image />
+      <ArrayOfRec_rooms_gst_max>
+        <rec_rooms_gst_max>
+          <rgm_gst_type>A</rgm_gst_type>
+          <rgm_max>2</rgm_max>
+        </rec_rooms_gst_max>
+        <rec_rooms_gst_max>
+          <rgm_gst_type>C</rgm_gst_type>
+          <rgm_max>1</rgm_max>
+        </rec_rooms_gst_max>
+        <rec_rooms_gst_max>
+          <rgm_gst_type>B</rgm_gst_type>
+          <rgm_max>0</rgm_max>
+        </rec_rooms_gst_max>
+      </ArrayOfRec_rooms_gst_max>
+      <ArrayOfRnm_struct_room_attributes>
+        <rnm_attribute code="Address" description="Dizengoff 50, Tel Aviv, Israel" />
+        <rnm_attribute code="Latitude" description="32.07530801101282" />
+        <rnm_attribute code="Longitude" description="34.77495310926179" />
+      </ArrayOfRnm_struct_room_attributes>
+    </rnm_struct_room>
+    <rnm_struct_room is_mapped="true">
+      <rm_serial>007</rm_serial>
+      <rm_number>103</rm_number>
+      <rm_type>Twin</rm_type>
+      <rm_clsdt1 />
+      <rm_clsdt2 />
+      <rm_status>C</rm_status>
+      <rm_dorm>0</rm_dorm>
+      <rm_wing>0</rm_wing>
+      <rm_bed>0</rm_bed>
+      <rm_occ>0</rm_occ>
+      <rm_color>0255025500060096</rm_color>
+      <rm_image />
+      <ArrayOfRec_rooms_gst_max>
+        <rec_rooms_gst_max>
+          <rgm_gst_type>A</rgm_gst_type>
+          <rgm_max>0</rgm_max>
+        </rec_rooms_gst_max>
+        <rec_rooms_gst_max>
+          <rgm_gst_type>C</rgm_gst_type>
+          <rgm_max>0</rgm_max>
+        </rec_rooms_gst_max>
+        <rec_rooms_gst_max>
+          <rgm_gst_type>B</rgm_gst_type>
+          <rgm_max>0</rgm_max>
+        </rec_rooms_gst_max>
+      </ArrayOfRec_rooms_gst_max>
+      <ArrayOfRnm_struct_room_attributes>
+        <rnm_attribute code="Address" description="Dizengoff 50, Tel Aviv, Israel" />
+        <rnm_attribute code="Latitude" description="32.07530801101282" />
+        <rnm_attribute code="Longitude" description="34.77495310926179" />
+      </ArrayOfRnm_struct_room_attributes>
+    </rnm_struct_room>
+    <rnm_struct_room is_mapped="true">
+      <rm_serial>008</rm_serial>
+      <rm_number>303</rm_number>
+      <rm_type>DBL</rm_type>
+      <rm_clsdt1 />
+      <rm_clsdt2 />
+      <rm_status>C</rm_status>
+      <rm_dorm>0</rm_dorm>
+      <rm_wing>0</rm_wing>
+      <rm_bed>0</rm_bed>
+      <rm_occ>0</rm_occ>
+      <rm_color>0255025501280128</rm_color>
+      <rm_image />
+      <ArrayOfRec_rooms_gst_max>
+        <rec_rooms_gst_max>
+          <rgm_gst_type>A</rgm_gst_type>
+          <rgm_max>0</rgm_max>
+        </rec_rooms_gst_max>
+        <rec_rooms_gst_max>
+          <rgm_gst_type>C</rgm_gst_type>
+          <rgm_max>0</rgm_max>
+        </rec_rooms_gst_max>
+        <rec_rooms_gst_max>
+          <rgm_gst_type>B</rgm_gst_type>
+          <rgm_max>0</rgm_max>
+        </rec_rooms_gst_max>
+      </ArrayOfRec_rooms_gst_max>
+      <ArrayOfRnm_struct_room_attributes>
+        <rnm_attribute code="Address" description="Dizengoff 50, Tel Aviv, Israel" />
+        <rnm_attribute code="Latitude" description="32.07530801101282" />
+        <rnm_attribute code="Longitude" description="34.77495310926179" />
+      </ArrayOfRnm_struct_room_attributes>
+    </rnm_struct_room>
+    <rnm_struct_room is_mapped="false">
+      <rm_serial>009</rm_serial>
+      <rm_number>901</rm_number>
+      <rm_type>2BEDAPT</rm_type>
+      <rm_clsdt1 />
+      <rm_clsdt2 />
+      <rm_status>D</rm_status>
+      <rm_dorm>0</rm_dorm>
+      <rm_wing>0</rm_wing>
+      <rm_bed>0</rm_bed>
+      <rm_occ>0</rm_occ>
+      <rm_color>0255000000000000</rm_color>
+      <rm_image />
+      <ArrayOfRec_rooms_gst_max>
+        <rec_rooms_gst_max>
+          <rgm_gst_type>A</rgm_gst_type>
+          <rgm_max>0</rgm_max>
+        </rec_rooms_gst_max>
+        <rec_rooms_gst_max>
+          <rgm_gst_type>C</rgm_gst_type>
+          <rgm_max>0</rgm_max>
+        </rec_rooms_gst_max>
+        <rec_rooms_gst_max>
+          <rgm_gst_type>B</rgm_gst_type>
+          <rgm_max>0</rgm_max>
+        </rec_rooms_gst_max>
+      </ArrayOfRec_rooms_gst_max>
+      <ArrayOfRnm_struct_room_attributes>
+        <rnm_attribute code="Address" description="Dizengoff 50, Tel Aviv, Israel" />
+        <rnm_attribute code="Latitude" description="32.07530801101282" />
+        <rnm_attribute code="Longitude" description="34.77495310926179" />
+      </ArrayOfRnm_struct_room_attributes>
+    </rnm_struct_room>
+    <rnm_struct_room is_mapped="true">
+      <rm_serial>010</rm_serial>
+      <rm_number>Nemanja</rm_number>
+      <rm_type>TRP</rm_type>
+      <rm_clsdt1 />
+      <rm_clsdt2 />
+      <rm_status>C</rm_status>
+      <rm_dorm>0</rm_dorm>
+      <rm_wing>0</rm_wing>
+      <rm_bed>0</rm_bed>
+      <rm_occ>0</rm_occ>
+      <rm_color>0255023400000255</rm_color>
+      <rm_image />
+      <ArrayOfRec_rooms_gst_max>
+        <rec_rooms_gst_max>
+          <rgm_gst_type>A</rgm_gst_type>
+          <rgm_max>0</rgm_max>
+        </rec_rooms_gst_max>
+        <rec_rooms_gst_max>
+          <rgm_gst_type>C</rgm_gst_type>
+          <rgm_max>0</rgm_max>
+        </rec_rooms_gst_max>
+        <rec_rooms_gst_max>
+          <rgm_gst_type>B</rgm_gst_type>
+          <rgm_max>0</rgm_max>
+        </rec_rooms_gst_max>
+      </ArrayOfRec_rooms_gst_max>
+      <ArrayOfRnm_struct_room_attributes />
+    </rnm_struct_room>
+    <rnm_struct_room is_mapped="false">
+      <rm_serial>011</rm_serial>
+      <rm_number>9900</rm_number>
+      <rm_type>Double</rm_type>
+      <rm_clsdt1 />
+      <rm_clsdt2 />
+      <rm_status>C</rm_status>
+      <rm_dorm>0</rm_dorm>
+      <rm_wing>0</rm_wing>
+      <rm_bed>0</rm_bed>
+      <rm_occ>0</rm_occ>
+      <rm_color>0255006701910184</rm_color>
+      <rm_image />
+      <ArrayOfRec_rooms_gst_max>
+        <rec_rooms_gst_max>
+          <rgm_gst_type>A</rgm_gst_type>
+          <rgm_max>0</rgm_max>
+        </rec_rooms_gst_max>
+        <rec_rooms_gst_max>
+          <rgm_gst_type>C</rgm_gst_type>
+          <rgm_max>0</rgm_max>
+        </rec_rooms_gst_max>
+        <rec_rooms_gst_max>
+          <rgm_gst_type>B</rgm_gst_type>
+          <rgm_max>0</rgm_max>
+        </rec_rooms_gst_max>
+      </ArrayOfRec_rooms_gst_max>
+      <ArrayOfRnm_struct_room_attributes>
+        <rnm_attribute code="Address" description="Dizengoff 50, Tel Aviv, Israel" />
+        <rnm_attribute code="Latitude" description="32.07530801101282" />
+        <rnm_attribute code="Longitude" description="34.77495310926179" />
+      </ArrayOfRnm_struct_room_attributes>
+    </rnm_struct_room>
+    <rnm_struct_room is_mapped="true">
+      <rm_serial>012</rm_serial>
+      <rm_number>104</rm_number>
+      <rm_type>Twin</rm_type>
+      <rm_clsdt1 />
+      <rm_clsdt2 />
+      <rm_status>C</rm_status>
+      <rm_dorm>0</rm_dorm>
+      <rm_wing>0</rm_wing>
+      <rm_bed>0</rm_bed>
+      <rm_occ>0</rm_occ>
+      <rm_color>0255012801280255</rm_color>
+      <rm_image />
+      <ArrayOfRec_rooms_gst_max>
+        <rec_rooms_gst_max>
+          <rgm_gst_type>A</rgm_gst_type>
+          <rgm_max>0</rgm_max>
+        </rec_rooms_gst_max>
+        <rec_rooms_gst_max>
+          <rgm_gst_type>C</rgm_gst_type>
+          <rgm_max>0</rgm_max>
+        </rec_rooms_gst_max>
+        <rec_rooms_gst_max>
+          <rgm_gst_type>B</rgm_gst_type>
+          <rgm_max>0</rgm_max>
+        </rec_rooms_gst_max>
+      </ArrayOfRec_rooms_gst_max>
+      <ArrayOfRnm_struct_room_attributes>
+        <rnm_attribute code="Address" description="Dizengoff 50, Tel Aviv, Israel" />
+        <rnm_attribute code="Latitude" description="32.07530801101282" />
+        <rnm_attribute code="Longitude" description="34.77495310926179" />
+      </ArrayOfRnm_struct_room_attributes>
+    </rnm_struct_room>
+    <rnm_struct_room is_mapped="true">
+      <rm_serial>013</rm_serial>
+      <rm_number>304</rm_number>
+      <rm_type>DBL</rm_type>
+      <rm_clsdt1 />
+      <rm_clsdt2 />
+      <rm_status>C</rm_status>
+      <rm_dorm>0</rm_dorm>
+      <rm_wing>0</rm_wing>
+      <rm_bed>0</rm_bed>
+      <rm_occ>0</rm_occ>
+      <rm_color>0255013102550128</rm_color>
+      <rm_image />
+      <ArrayOfRec_rooms_gst_max>
+        <rec_rooms_gst_max>
+          <rgm_gst_type>A</rgm_gst_type>
+          <rgm_max>0</rgm_max>
+        </rec_rooms_gst_max>
+        <rec_rooms_gst_max>
+          <rgm_gst_type>C</rgm_gst_type>
+          <rgm_max>0</rgm_max>
+        </rec_rooms_gst_max>
+        <rec_rooms_gst_max>
+          <rgm_gst_type>B</rgm_gst_type>
+          <rgm_max>0</rgm_max>
+        </rec_rooms_gst_max>
+      </ArrayOfRec_rooms_gst_max>
+      <ArrayOfRnm_struct_room_attributes>
+        <rnm_attribute code="Address" description="Dizengoff 50, Tel Aviv, Israel" />
+        <rnm_attribute code="Latitude" description="32.07530801101282" />
+        <rnm_attribute code="Longitude" description="34.77495310926179" />
+      </ArrayOfRnm_struct_room_attributes>
+    </rnm_struct_room>
+    <rnm_struct_room is_mapped="true">
+      <rm_serial>014</rm_serial>
+      <rm_number>902</rm_number>
+      <rm_type>TRP</rm_type>
+      <rm_clsdt1 />
+      <rm_clsdt2 />
+      <rm_status>C</rm_status>
+      <rm_dorm>0</rm_dorm>
+      <rm_wing>0</rm_wing>
+      <rm_bed>0</rm_bed>
+      <rm_occ>0</rm_occ>
+      <rm_color>0255000000000000</rm_color>
+      <rm_image />
+      <ArrayOfRec_rooms_gst_max>
+        <rec_rooms_gst_max>
+          <rgm_gst_type>A</rgm_gst_type>
+          <rgm_max>0</rgm_max>
+        </rec_rooms_gst_max>
+        <rec_rooms_gst_max>
+          <rgm_gst_type>C</rgm_gst_type>
+          <rgm_max>0</rgm_max>
+        </rec_rooms_gst_max>
+        <rec_rooms_gst_max>
+          <rgm_gst_type>B</rgm_gst_type>
+          <rgm_max>0</rgm_max>
+        </rec_rooms_gst_max>
+      </ArrayOfRec_rooms_gst_max>
+      <ArrayOfRnm_struct_room_attributes>
+        <rnm_attribute code="Address" description="Dizengoff 50, Tel Aviv, Israel" />
+        <rnm_attribute code="Latitude" description="32.07530801101282" />
+        <rnm_attribute code="Longitude" description="34.77495310926179" />
+      </ArrayOfRnm_struct_room_attributes>
+    </rnm_struct_room>
+    <rnm_struct_room is_mapped="false">
+      <rm_serial>016</rm_serial>
+      <rm_number>9901</rm_number>
+      <rm_type>Double</rm_type>
+      <rm_clsdt1 />
+      <rm_clsdt2 />
+      <rm_status>C</rm_status>
+      <rm_dorm>0</rm_dorm>
+      <rm_wing>0</rm_wing>
+      <rm_bed>0</rm_bed>
+      <rm_occ>0</rm_occ>
+      <rm_color>0255025501280064</rm_color>
+      <rm_image />
+      <ArrayOfRec_rooms_gst_max>
+        <rec_rooms_gst_max>
+          <rgm_gst_type>A</rgm_gst_type>
+          <rgm_max>0</rgm_max>
+        </rec_rooms_gst_max>
+        <rec_rooms_gst_max>
+          <rgm_gst_type>C</rgm_gst_type>
+          <rgm_max>0</rgm_max>
+        </rec_rooms_gst_max>
+        <rec_rooms_gst_max>
+          <rgm_gst_type>B</rgm_gst_type>
+          <rgm_max>0</rgm_max>
+        </rec_rooms_gst_max>
+      </ArrayOfRec_rooms_gst_max>
+      <ArrayOfRnm_struct_room_attributes>
+        <rnm_attribute code="Address" description="Dizengoff 50, Tel Aviv, Israel" />
+        <rnm_attribute code="Latitude" description="32.07530801101282" />
+        <rnm_attribute code="Longitude" description="34.77495310926179" />
+      </ArrayOfRnm_struct_room_attributes>
+    </rnm_struct_room>
+    <rnm_struct_room is_mapped="true">
+      <rm_serial>017</rm_serial>
+      <rm_number>102</rm_number>
+      <rm_type>DBL</rm_type>
+      <rm_clsdt1 />
+      <rm_clsdt2 />
+      <rm_status>D</rm_status>
+      <rm_dorm>0</rm_dorm>
+      <rm_wing>0</rm_wing>
+      <rm_bed>0</rm_bed>
+      <rm_occ>0</rm_occ>
+      <rm_color>0255000000000000</rm_color>
+      <rm_image />
+      <ArrayOfRec_rooms_gst_max>
+        <rec_rooms_gst_max>
+          <rgm_gst_type>A</rgm_gst_type>
+          <rgm_max>0</rgm_max>
+        </rec_rooms_gst_max>
+        <rec_rooms_gst_max>
+          <rgm_gst_type>C</rgm_gst_type>
+          <rgm_max>0</rgm_max>
+        </rec_rooms_gst_max>
+        <rec_rooms_gst_max>
+          <rgm_gst_type>B</rgm_gst_type>
+          <rgm_max>0</rgm_max>
+        </rec_rooms_gst_max>
+      </ArrayOfRec_rooms_gst_max>
+      <ArrayOfRnm_struct_room_attributes>
+        <rnm_attribute code="Address" description="Dizengoff 50, Tel Aviv, Israel" />
+        <rnm_attribute code="Latitude" description="32.07530801101282" />
+        <rnm_attribute code="Longitude" description="34.77495310926179" />
+      </ArrayOfRnm_struct_room_attributes>
+    </rnm_struct_room>
+    <rnm_struct_room is_mapped="true">
+      <rm_serial>018</rm_serial>
+      <rm_number>401</rm_number>
+      <rm_type>Executive</rm_type>
+      <rm_clsdt1 />
+      <rm_clsdt2 />
+      <rm_status>C</rm_status>
+      <rm_dorm>0</rm_dorm>
+      <rm_wing>0</rm_wing>
+      <rm_bed>0</rm_bed>
+      <rm_occ>0</rm_occ>
+      <rm_color>0255000000000000</rm_color>
+      <rm_image />
+      <ArrayOfRec_rooms_gst_max>
+        <rec_rooms_gst_max>
+          <rgm_gst_type>A</rgm_gst_type>
+          <rgm_max>3</rgm_max>
+        </rec_rooms_gst_max>
+        <rec_rooms_gst_max>
+          <rgm_gst_type>C</rgm_gst_type>
+          <rgm_max>0</rgm_max>
+        </rec_rooms_gst_max>
+        <rec_rooms_gst_max>
+          <rgm_gst_type>B</rgm_gst_type>
+          <rgm_max>0</rgm_max>
+        </rec_rooms_gst_max>
+      </ArrayOfRec_rooms_gst_max>
+      <ArrayOfRnm_struct_room_attributes>
+        <rnm_attribute code="Address" description="Dizengoff 50, Tel Aviv, Israel" />
+        <rnm_attribute code="Latitude" description="32.07530801101282" />
+        <rnm_attribute code="Longitude" description="34.77495310926179" />
+      </ArrayOfRnm_struct_room_attributes>
+    </rnm_struct_room>
+    <rnm_struct_room is_mapped="false">
+      <rm_serial>019</rm_serial>
+      <rm_number>903</rm_number>
+      <rm_type>2BEDAPT</rm_type>
+      <rm_clsdt1 />
+      <rm_clsdt2 />
+      <rm_status>C</rm_status>
+      <rm_dorm>0</rm_dorm>
+      <rm_wing>0</rm_wing>
+      <rm_bed>0</rm_bed>
+      <rm_occ>0</rm_occ>
+      <rm_color>0255000000000000</rm_color>
+      <rm_image />
+      <ArrayOfRec_rooms_gst_max>
+        <rec_rooms_gst_max>
+          <rgm_gst_type>A</rgm_gst_type>
+          <rgm_max>0</rgm_max>
+        </rec_rooms_gst_max>
+        <rec_rooms_gst_max>
+          <rgm_gst_type>C</rgm_gst_type>
+          <rgm_max>0</rgm_max>
+        </rec_rooms_gst_max>
+        <rec_rooms_gst_max>
+          <rgm_gst_type>B</rgm_gst_type>
+          <rgm_max>0</rgm_max>
+        </rec_rooms_gst_max>
+      </ArrayOfRec_rooms_gst_max>
+      <ArrayOfRnm_struct_room_attributes>
+        <rnm_attribute code="Address" description="Dizengoff 50, Tel Aviv, Israel" />
+        <rnm_attribute code="Latitude" description="32.07530801101282" />
+        <rnm_attribute code="Longitude" description="34.77495310926179" />
+      </ArrayOfRnm_struct_room_attributes>
+    </rnm_struct_room>
+    <rnm_struct_room is_mapped="false">
+      <rm_serial>021</rm_serial>
+      <rm_number>9902</rm_number>
+      <rm_type>Double</rm_type>
+      <rm_clsdt1 />
+      <rm_clsdt2 />
+      <rm_status>C</rm_status>
+      <rm_dorm>0</rm_dorm>
+      <rm_wing>0</rm_wing>
+      <rm_bed>0</rm_bed>
+      <rm_occ>0</rm_occ>
+      <rm_color>0255025501280128</rm_color>
+      <rm_image />
+      <ArrayOfRec_rooms_gst_max>
+        <rec_rooms_gst_max>
+          <rgm_gst_type>A</rgm_gst_type>
+          <rgm_max>0</rgm_max>
+        </rec_rooms_gst_max>
+        <rec_rooms_gst_max>
+          <rgm_gst_type>C</rgm_gst_type>
+          <rgm_max>0</rgm_max>
+        </rec_rooms_gst_max>
+        <rec_rooms_gst_max>
+          <rgm_gst_type>B</rgm_gst_type>
+          <rgm_max>0</rgm_max>
+        </rec_rooms_gst_max>
+      </ArrayOfRec_rooms_gst_max>
+      <ArrayOfRnm_struct_room_attributes>
+        <rnm_attribute code="Address" description="Dizengoff 50, Tel Aviv, Israel" />
+        <rnm_attribute code="Latitude" description="32.07530801101282" />
+        <rnm_attribute code="Longitude" description="34.77495310926179" />
+      </ArrayOfRnm_struct_room_attributes>
+    </rnm_struct_room>
+    <rnm_struct_room is_mapped="false">
+      <rm_serial>024</rm_serial>
+      <rm_number>904</rm_number>
+      <rm_type>2BEDAPT</rm_type>
+      <rm_clsdt1 />
+      <rm_clsdt2 />
+      <rm_status>C</rm_status>
+      <rm_dorm>0</rm_dorm>
+      <rm_wing>0</rm_wing>
+      <rm_bed>0</rm_bed>
+      <rm_occ>0</rm_occ>
+      <rm_color>0255025500000000</rm_color>
+      <rm_image />
+      <ArrayOfRec_rooms_gst_max>
+        <rec_rooms_gst_max>
+          <rgm_gst_type>A</rgm_gst_type>
+          <rgm_max>2</rgm_max>
+        </rec_rooms_gst_max>
+        <rec_rooms_gst_max>
+          <rgm_gst_type>C</rgm_gst_type>
+          <rgm_max>0</rgm_max>
+        </rec_rooms_gst_max>
+        <rec_rooms_gst_max>
+          <rgm_gst_type>B</rgm_gst_type>
+          <rgm_max>0</rgm_max>
+        </rec_rooms_gst_max>
+      </ArrayOfRec_rooms_gst_max>
+      <ArrayOfRnm_struct_room_attributes>
+        <rnm_attribute code="Address" description="Dizengoff 50, Tel Aviv, Israel" />
+        <rnm_attribute code="Latitude" description="32.07530801101282" />
+        <rnm_attribute code="Longitude" description="34.77495310926179" />
+      </ArrayOfRnm_struct_room_attributes>
+    </rnm_struct_room>
+    <rnm_struct_room is_mapped="false">
+      <rm_serial>026</rm_serial>
+      <rm_number>9903</rm_number>
+      <rm_type>Suite</rm_type>
+      <rm_clsdt1 />
+      <rm_clsdt2 />
+      <rm_status>C</rm_status>
+      <rm_dorm>0</rm_dorm>
+      <rm_wing>0</rm_wing>
+      <rm_bed>0</rm_bed>
+      <rm_occ>0</rm_occ>
+      <rm_color>0255025501280128</rm_color>
+      <rm_image />
+      <ArrayOfRec_rooms_gst_max>
+        <rec_rooms_gst_max>
+          <rgm_gst_type>A</rgm_gst_type>
+          <rgm_max>0</rgm_max>
+        </rec_rooms_gst_max>
+        <rec_rooms_gst_max>
+          <rgm_gst_type>C</rgm_gst_type>
+          <rgm_max>0</rgm_max>
+        </rec_rooms_gst_max>
+        <rec_rooms_gst_max>
+          <rgm_gst_type>B</rgm_gst_type>
+          <rgm_max>0</rgm_max>
+        </rec_rooms_gst_max>
+      </ArrayOfRec_rooms_gst_max>
+      <ArrayOfRnm_struct_room_attributes>
+        <rnm_attribute code="Address" description="Dizengoff 50, Tel Aviv, Israel" />
+        <rnm_attribute code="Latitude" description="32.07530801101282" />
+        <rnm_attribute code="Longitude" description="34.77495310926179" />
+      </ArrayOfRnm_struct_room_attributes>
+    </rnm_struct_room>
+    <rnm_struct_room is_mapped="true">
+      <rm_serial>028</rm_serial>
+      <rm_number>501</rm_number>
+      <rm_type>SNG</rm_type>
+      <rm_clsdt1 />
+      <rm_clsdt2 />
+      <rm_status>C</rm_status>
+      <rm_dorm>0</rm_dorm>
+      <rm_wing>0</rm_wing>
+      <rm_bed>0</rm_bed>
+      <rm_occ>0</rm_occ>
+      <rm_color>0255025501280128</rm_color>
+      <rm_image />
+      <ArrayOfRec_rooms_gst_max>
+        <rec_rooms_gst_max>
+          <rgm_gst_type>A</rgm_gst_type>
+          <rgm_max>0</rgm_max>
+        </rec_rooms_gst_max>
+        <rec_rooms_gst_max>
+          <rgm_gst_type>C</rgm_gst_type>
+          <rgm_max>0</rgm_max>
+        </rec_rooms_gst_max>
+        <rec_rooms_gst_max>
+          <rgm_gst_type>B</rgm_gst_type>
+          <rgm_max>0</rgm_max>
+        </rec_rooms_gst_max>
+      </ArrayOfRec_rooms_gst_max>
+      <ArrayOfRnm_struct_room_attributes>
+        <rnm_attribute code="Address" description="Dizengoff 50, Tel Aviv, Israel" />
+        <rnm_attribute code="Latitude" description="32.07530801101282" />
+        <rnm_attribute code="Longitude" description="34.77495310926179" />
+      </ArrayOfRnm_struct_room_attributes>
+    </rnm_struct_room>
+    <rnm_struct_room is_mapped="false">
+      <rm_serial>031</rm_serial>
+      <rm_number>9904</rm_number>
+      <rm_type>Suite</rm_type>
+      <rm_clsdt1 />
+      <rm_clsdt2 />
+      <rm_status>C</rm_status>
+      <rm_dorm>0</rm_dorm>
+      <rm_wing>0</rm_wing>
+      <rm_bed>0</rm_bed>
+      <rm_occ>0</rm_occ>
+      <rm_color>0255025501280128</rm_color>
+      <rm_image />
+      <ArrayOfRec_rooms_gst_max>
+        <rec_rooms_gst_max>
+          <rgm_gst_type>A</rgm_gst_type>
+          <rgm_max>0</rgm_max>
+        </rec_rooms_gst_max>
+        <rec_rooms_gst_max>
+          <rgm_gst_type>C</rgm_gst_type>
+          <rgm_max>0</rgm_max>
+        </rec_rooms_gst_max>
+        <rec_rooms_gst_max>
+          <rgm_gst_type>B</rgm_gst_type>
+          <rgm_max>0</rgm_max>
+        </rec_rooms_gst_max>
+      </ArrayOfRec_rooms_gst_max>
+      <ArrayOfRnm_struct_room_attributes>
+        <rnm_attribute code="Address" description="Dizengoff 50, Tel Aviv, Israel" />
+        <rnm_attribute code="Latitude" description="32.07530801101282" />
+        <rnm_attribute code="Longitude" description="34.77495310926179" />
+      </ArrayOfRnm_struct_room_attributes>
+    </rnm_struct_room>
+    <rnm_struct_room is_mapped="true">
+      <rm_serial>033</rm_serial>
+      <rm_number>605</rm_number>
+      <rm_type>DBL</rm_type>
+      <rm_clsdt1 />
+      <rm_clsdt2 />
+      <rm_status>C</rm_status>
+      <rm_dorm>0</rm_dorm>
+      <rm_wing>0</rm_wing>
+      <rm_bed>0</rm_bed>
+      <rm_occ>0</rm_occ>
+      <rm_color>0255000000000000</rm_color>
+      <rm_image />
+      <ArrayOfRec_rooms_gst_max>
+        <rec_rooms_gst_max>
+          <rgm_gst_type>A</rgm_gst_type>
+          <rgm_max>0</rgm_max>
+        </rec_rooms_gst_max>
+        <rec_rooms_gst_max>
+          <rgm_gst_type>C</rgm_gst_type>
+          <rgm_max>0</rgm_max>
+        </rec_rooms_gst_max>
+        <rec_rooms_gst_max>
+          <rgm_gst_type>B</rgm_gst_type>
+          <rgm_max>0</rgm_max>
+        </rec_rooms_gst_max>
+      </ArrayOfRec_rooms_gst_max>
+      <ArrayOfRnm_struct_room_attributes>
+        <rnm_attribute code="Address" description="Dizengoff 50, Tel Aviv, Israel" />
+        <rnm_attribute code="Latitude" description="32.07530801101282" />
+        <rnm_attribute code="Longitude" description="34.77495310926179" />
+      </ArrayOfRnm_struct_room_attributes>
+    </rnm_struct_room>
+    <rnm_struct_room is_mapped="false">
+      <rm_serial>036</rm_serial>
+      <rm_number>9905</rm_number>
+      <rm_type>Suite</rm_type>
+      <rm_clsdt1 />
+      <rm_clsdt2 />
+      <rm_status>C</rm_status>
+      <rm_dorm>0</rm_dorm>
+      <rm_wing>0</rm_wing>
+      <rm_bed>0</rm_bed>
+      <rm_occ>0</rm_occ>
+      <rm_color>0255025502550128</rm_color>
+      <rm_image />
+      <ArrayOfRec_rooms_gst_max>
+        <rec_rooms_gst_max>
+          <rgm_gst_type>A</rgm_gst_type>
+          <rgm_max>0</rgm_max>
+        </rec_rooms_gst_max>
+        <rec_rooms_gst_max>
+          <rgm_gst_type>C</rgm_gst_type>
+          <rgm_max>0</rgm_max>
+        </rec_rooms_gst_max>
+        <rec_rooms_gst_max>
+          <rgm_gst_type>B</rgm_gst_type>
+          <rgm_max>0</rgm_max>
+        </rec_rooms_gst_max>
+      </ArrayOfRec_rooms_gst_max>
+      <ArrayOfRnm_struct_room_attributes>
+        <rnm_attribute code="Address" description="Dizengoff 50, Tel Aviv, Israel" />
+        <rnm_attribute code="Latitude" description="32.07530801101282" />
+        <rnm_attribute code="Longitude" description="34.77495310926179" />
+      </ArrayOfRnm_struct_room_attributes>
+    </rnm_struct_room>
+    <rnm_struct_room is_mapped="true">
+      <rm_serial>042</rm_serial>
+      <rm_number>301</rm_number>
+      <rm_type>Twin</rm_type>
+      <rm_clsdt1 />
+      <rm_clsdt2 />
+      <rm_status>C</rm_status>
+      <rm_dorm>0</rm_dorm>
+      <rm_wing>0</rm_wing>
+      <rm_bed>0</rm_bed>
+      <rm_occ>0</rm_occ>
+      <rm_color>0255024200000015</rm_color>
+      <rm_image />
+      <ArrayOfRec_rooms_gst_max>
+        <rec_rooms_gst_max>
+          <rgm_gst_type>A</rgm_gst_type>
+          <rgm_max>0</rgm_max>
+        </rec_rooms_gst_max>
+        <rec_rooms_gst_max>
+          <rgm_gst_type>C</rgm_gst_type>
+          <rgm_max>0</rgm_max>
+        </rec_rooms_gst_max>
+        <rec_rooms_gst_max>
+          <rgm_gst_type>B</rgm_gst_type>
+          <rgm_max>0</rgm_max>
+        </rec_rooms_gst_max>
+      </ArrayOfRec_rooms_gst_max>
+      <ArrayOfRnm_struct_room_attributes>
+        <rnm_attribute code="Address" description="Dizengoff 50, Tel Aviv, Israel" />
+        <rnm_attribute code="Latitude" description="32.07530801101282" />
+        <rnm_attribute code="Longitude" description="34.77495310926179" />
+      </ArrayOfRnm_struct_room_attributes>
+    </rnm_struct_room>
+    <rnm_struct_room is_mapped="true">
+      <rm_serial>001</rm_serial>
+      <rm_number>808</rm_number>
+      <rm_type>DBL</rm_type>
+      <rm_clsdt1 />
+      <rm_clsdt2 />
+      <rm_status>C</rm_status>
+      <rm_dorm>0</rm_dorm>
+      <rm_wing>2</rm_wing>
+      <rm_bed>0</rm_bed>
+      <rm_occ>0</rm_occ>
+      <rm_color>0255012801280255</rm_color>
+      <rm_image />
+      <ArrayOfRec_rooms_gst_max />
+      <ArrayOfRnm_struct_room_attributes />
+    </rnm_struct_room>
+    <rnm_struct_room is_mapped="true">
+      <rm_serial>006</rm_serial>
+      <rm_number>809</rm_number>
+      <rm_type>SNG</rm_type>
+      <rm_clsdt1 />
+      <rm_clsdt2 />
+      <rm_status>D</rm_status>
+      <rm_dorm>0</rm_dorm>
+      <rm_wing>2</rm_wing>
+      <rm_bed>0</rm_bed>
+      <rm_occ>0</rm_occ>
+      <rm_color>0255012801280255</rm_color>
+      <rm_image />
+      <ArrayOfRec_rooms_gst_max />
+      <ArrayOfRnm_struct_room_attributes />
+    </rnm_struct_room>
+  </ArrayOfRnm_struct_room>
+</Response>

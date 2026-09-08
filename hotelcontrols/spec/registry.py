@@ -3,7 +3,8 @@
 REGISTRY - the canonical vocabulary a rule is allowed to use.
 
 This is what makes "the rule never names a PMS" enforceable rather than aspirational. A control
-may reference `folio.balance_due`. It may not reference `TotalDebit`, because that is one
+may reference `folio.balance_due`. It may not reference whatever one vendor happens to call
+that field, because that is one
 vendor's spelling - and it may not reference `reservation.vip` either, because nobody has
 defined what that would mean or where it would come from.
 

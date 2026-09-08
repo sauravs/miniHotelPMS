@@ -1,0 +1,54 @@
+<Response>
+  <ServerInfo>
+    <Name>SANDBOX1</Name>
+    <ResponseTime>20 ms</ResponseTime>
+    <DateTime>9/1/2026 12:51:35 PM</DateTime>
+  </ServerInfo>
+  <ArrayOfRoomTypes>
+    <RoomTypes>
+      <Type>2BEDAPT</Type>
+      <Description>Two bedroom apartment</Description>
+      <Image />
+    </RoomTypes>
+    <RoomTypes>
+      <Type>APT_SEA</Type>
+      <Description>Apartment Sea View</Description>
+      <Image />
+    </RoomTypes>
+    <RoomTypes>
+      <Type>DBL</Type>
+      <Description>Double room</Description>
+      <Image />
+    </RoomTypes>
+    <RoomTypes>
+      <Type>Executive</Type>
+      <Description>Executive Room</Description>
+      <Image />
+    </RoomTypes>
+    <RoomTypes>
+      <Type>SNG</Type>
+      <Description>MEGA TEST 2 Y 3</Description>
+      <Image />
+    </RoomTypes>
+    <RoomTypes>
+      <Type>Suite</Type>
+      <Description>Suite</Description>
+      <Image />
+    </RoomTypes>
+    <RoomTypes>
+      <Type>TEST-DOUBLE</Type>
+      <Description>TEST HAB DOBLE PERO QUE ACEPTA 3 GG</Description>
+      <Image />
+    </RoomTypes>
+    <RoomTypes>
+      <Type>TRP</Type>
+      <Description>Triple Room</Description>
+      <Image />
+    </RoomTypes>
+    <RoomTypes>
+      <Type>Twin</Type>
+      <Description>Twin Room</Description>
+      <Image />
+    </RoomTypes>
+  </ArrayOfRoomTypes>
+</Response>

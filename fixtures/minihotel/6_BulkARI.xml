@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<AvailRaters><Hotel id="sandbox" Name_h="Test Hotel MiniHotel" Currency="USD" /><DateRange from="2024-08-14" to="2024-08-17" />
+<RoomTypes>
+<RoomType id="DBL" RoomName="Double room" BasicOccupancy="001">
+<Day Mdate="20240814" Mavailability="0" Mprice="67.50" Minngt="0" Mclose="Yes" McloseArr="Yes" McloseDep="Yes" ExtraAdultFee="150.00" ExtraChildFee="50.00" ExtraBabyFee="0.00" SingleUse="25.00" />
+<Day Mdate="20240815" Mavailability="0" Mprice="67.50" Minngt="0" Mclose="Yes" McloseArr="Yes" McloseDep="Yes" ExtraAdultFee="150.00" ExtraChildFee="50.00" ExtraBabyFee="0.00" SingleUse="25.00" />
+<Day Mdate="20240816" Mavailability="0" Mprice="67.50" Minngt="0" Mclose="Yes" McloseArr="Yes" McloseDep="Yes" ExtraAdultFee="150.00" ExtraChildFee="50.00" ExtraBabyFee="0.00" SingleUse="25.00" />
+<Day Mdate="20240817" Mavailability="0" Mprice="67.50" Minngt="0" Mclose="Yes" McloseArr="Yes" McloseDep="Yes" ExtraAdultFee="150.00" ExtraChildFee="50.00" ExtraBabyFee="0.00" SingleUse="25.00" />
+</RoomType>
+<RoomType id="EXECUTIVE" RoomName="Executive Room" BasicOccupancy="001">
+<Day Mdate="20240814" Mavailability="1" Mprice="67.50" Minngt="0" Mclose="No" McloseArr="No" McloseDep="No" ExtraAdultFee="150.00" ExtraChildFee="150.00" ExtraBabyFee="0.00" SingleUse="0.00" />
+<Day Mdate="20240815" Mavailability="1" Mprice="67.50" Minngt="0" Mclose="No" McloseArr="No" McloseDep="No" ExtraAdultFee="150.00" ExtraChildFee="150.00" ExtraBabyFee="0.00" SingleUse="0.00" />
+<Day Mdate="20240816" Mavailability="1" Mprice="67.50" Minngt="0" Mclose="No" McloseArr="No" McloseDep="No" ExtraAdultFee="150.00" ExtraChildFee="150.00" ExtraBabyFee="0.00" SingleUse="0.00" />
+<Day Mdate="20240817" Mavailability="1" Mprice="67.50" Minngt="0" Mclose="No" McloseArr="No" McloseDep="No" ExtraAdultFee="150.00" ExtraChildFee="150.00" ExtraBabyFee="0.00" SingleUse="0.00" />
+</RoomType>
+<RoomType id="SNG" RoomName="MEGA TEST 2 Y 3" BasicOccupancy="001">
+<Day Mdate="20240814" Mavailability="0" Mprice="67.50" Minngt="0" Mclose="Yes" McloseArr="Yes" McloseDep="Yes" ExtraAdultFee="10.00" ExtraChildFee="0.00" ExtraBabyFee="0.00" SingleUse="0.00" />
+<Day Mdate="20240815" Mavailability="0" Mprice="67.50" Minngt="0" Mclose="Yes" McloseArr="Yes" McloseDep="Yes" ExtraAdultFee="10.00" ExtraChildFee="0.00" ExtraBabyFee="0.00" SingleUse="0.00" />
+<Day Mdate="20240816" Mavailability="0" Mprice="67.50" Minngt="0" Mclose="Yes" McloseArr="Yes" McloseDep="Yes" ExtraAdultFee="10.00" ExtraChildFee="0.00" ExtraBabyFee="0.00" SingleUse="0.00" />
+<Day Mdate="20240817" Mavailability="0" Mprice="67.50" Minngt="0" Mclose="Yes" McloseArr="Yes" McloseDep="Yes" ExtraAdultFee="10.00" ExtraChildFee="0.00" ExtraBabyFee="0.00" SingleUse="0.00" />
+</RoomType>
+<RoomType id="TWIN" RoomName="Twin Room" BasicOccupancy="001">
+<Day Mdate="20240814" Mavailability="3" Mprice="67.50" Minngt="0" Mclose="No" McloseArr="No" McloseDep="No" ExtraAdultFee="10.00" ExtraChildFee="0.00" ExtraBabyFee="0.00" SingleUse="0.00" />
+<Day Mdate="20240815" Mavailability="3" Mprice="67.50" Minngt="0" Mclose="No" McloseArr="No" McloseDep="No" ExtraAdultFee="10.00" ExtraChildFee="0.00" ExtraBabyFee="0.00" SingleUse="0.00" />
+<Day Mdate="20240816" Mavailability="3" Mprice="67.50" Minngt="0" Mclose="No" McloseArr="No" McloseDep="No" ExtraAdultFee="10.00" ExtraChildFee="0.00" ExtraBabyFee="0.00" SingleUse="0.00" />
+<Day Mdate="20240817" Mavailability="3" Mprice="67.50" Minngt="0" Mclose="No" McloseArr="No" McloseDep="No" ExtraAdultFee="10.00" ExtraChildFee="0.00" ExtraBabyFee="0.00" SingleUse="0.00" />
+</RoomType>
+<RoomType id="TRP" RoomName="Triple Room" BasicOccupancy="001">
+<Day Mdate="20240814" Mavailability="2" Mprice="Null" Minngt="0" Mclose="No" McloseArr="No" McloseDep="No" ExtraAdultFee="100.00" ExtraChildFee="50.00" ExtraBabyFee="25.00" SingleUse="100.00" />
+<Day Mdate="20240815" Mavailability="2" Mprice="Null" Minngt="0" Mclose="No" McloseArr="No" McloseDep="No" ExtraAdultFee="100.00" ExtraChildFee="50.00" ExtraBabyFee="25.00" SingleUse="100.00" />
+<Day Mdate="20240816" Mavailability="2" Mprice="Null" Minngt="0" Mclose="No" McloseArr="No" McloseDep="No" ExtraAdultFee="100.00" ExtraChildFee="50.00" ExtraBabyFee="25.00" SingleUse="100.00" />
+<Day Mdate="20240817" Mavailability="2" Mprice="Null" Minngt="0" Mclose="No" McloseArr="No" McloseDep="No" ExtraAdultFee="100.00" ExtraChildFee="50.00" ExtraBabyFee="25.00" SingleUse="100.00" />
+</RoomType>
+</RoomTypes>
+<Meals>
+<Meal MealId="B">
+<Day Mdate="20240814" MealAdult="25.00" MealBaby="5.00" MealChild="10.00" />
+<Day Mdate="20240815" MealAdult="25.00" MealBaby="5.00" MealChild="10.00" />
+<Day Mdate="20240816" MealAdult="25.00" MealBaby="5.00" MealChild="10.00" />
+<Day Mdate="20240817" MealAdult="25.00" MealBaby="5.00" MealChild="10.00" />
+</Meal>
+<Meal MealId="D">
+<Day Mdate="20240814" MealAdult="58.00" MealBaby="18.00" MealChild="28.00" />
+<Day Mdate="20240815" MealAdult="58.00" MealBaby="18.00" MealChild="28.00" />
+<Day Mdate="20240816" MealAdult="58.00" MealBaby="18.00" MealChild="28.00" />
+<Day Mdate="20240817" MealAdult="58.00" MealBaby="18.00" MealChild="28.00" />
+</Meal>
+<Meal MealId="L">
+<Day Mdate="20240814" MealAdult="0.00" MealBaby="0.00" MealChild="0.00" />
+<Day Mdate="20240815" MealAdult="0.00" MealBaby="0.00" MealChild="0.00" />
+<Day Mdate="20240816" MealAdult="0.00" MealBaby="0.00" MealChild="0.00" />
+<Day Mdate="20240817" MealAdult="0.00" MealBaby="0.00" MealChild="0.00" />
+</Meal>
+</Meals>
+</AvailRaters>

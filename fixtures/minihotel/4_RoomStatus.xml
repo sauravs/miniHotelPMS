@@ -1,0 +1,49 @@
+<AvailRaters>
+<Hotel id="sandbox" Name_h="Test Hotel MiniHotel" Name_e="Test Hotel MiniHotel" />
+<DateRange from="2024-08-14" to="2024-08-17" />
+<Rooms>
+<Room Number="01" Rmtype="DBL" />
+<Room Number="02" Rmtype="DBL" />
+<Room Number="101" Rmtype="DBL" />
+<Room Number="102" Rmtype="DBL" />
+<Room Number="103" Rmtype="Twin" />
+<Room Number="104" Rmtype="Twin" />
+<Room Number="301" Rmtype="Twin" />
+<Room Number="302" Rmtype="DBL" />
+<Room Number="303" Rmtype="DBL" />
+<Room Number="304" Rmtype="DBL" />
+<Room Number="401" Rmtype="Executive" />
+<Room Number="501" Rmtype="SNG" />
+<Room Number="605" Rmtype="DBL" />
+<Room Number="606" Rmtype="APT_SEA" />
+<Room Number="701" Rmtype="2BEDAPT" />
+<Room Number="808" Rmtype="DBL" />
+<Room Number="809" Rmtype="SNG" />
+<Room Number="901" Rmtype="2BEDAPT" />
+<Room Number="902" Rmtype="TRP" />
+<Room Number="903" Rmtype="2BEDAPT" />
+<Room Number="904" Rmtype="2BEDAPT" />
+<Room Number="9900" Rmtype="Double" />
+<Room Number="9901" Rmtype="Double" />
+<Room Number="9902" Rmtype="Double" />
+<Room Number="9903" Rmtype="Suite" />
+<Room Number="9904" Rmtype="Suite" />
+<Room Number="9905" Rmtype="Suite" />
+<Room Number="Nemanja" Rmtype="TRP" />
+ </Rooms>
+<RoomsTypes>
+<RoomType Code="2BEDAPT" Description="Two bedroom apartment" />
+<RoomType Code="APT_SEA" Description="Apartment Sea View" />
+<RoomType Code="DBL" Description="Double room" />
+<RoomType Code="Executive" Description="Executive Room" />
+<RoomType Code="SNG" Description="MEGA TEST 2 Y 3" />
+<RoomType Code="Suite" Description="Suite" />
+<RoomType Code="TEST-DOUBLE" Description="TEST HAB DOBLE PERO QUE ACEPTA 3 GG" />
+<RoomType Code="TRP" Description="Triple Room" />
+<RoomType Code="Twin" Description="Twin Room" />
+ </RoomsTypes>
+<Reservations>
+ <Reservation ResNumber="007003204" Namep="multiroom" Namef="splitted dates" RoomNumber="303" RoomType="DBL" FromYmd="20240810" ToYmd="20240811" RoomsQty="0001" Status="OK" Board="HB" />
+ <Reservation ResNumber="007003204" Namep="sidecick" Namef="" RoomNumber="303" RoomType="DBL" FromYmd="20240815" ToYmd="20240816" RoomsQty="0001" Status="OK" Board="HB" />
+ </Reservations>
+</AvailRaters>

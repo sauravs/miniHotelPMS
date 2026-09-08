@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Bookings>
+  <Hotel id="sandbox" />
+  <Booking Portal_reservation_id="CCP1782527356429" Minihotel_reservation_id="007004303" type="Query" createDateTime="27/06/2026" Status="OUT" ModifyAllowed="YES" NumofKeys="000" source="Web" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="NO">
+    <RoomStays>
+      <RoomStay roomNumber="01" roomTypeID="DBL" roomTypeName="Double room" mealStatus="BB">
+      </RoomStay>
+    </RoomStays>
+    <PrimaryGuest>
+      <Name givenName="Bruno" surname="Duarte" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="OT" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email>uma.ueda@example.example</Email>
+      <Phone>771721</Phone>
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks">[remark redacted for publication - see tools/scrub_fixtures.py]</SpecialRequest>
+    <ReservationRemarks>
+      <PrintedRemarks>[remark redacted for publication - see tools/scrub_fixtures.py]</PrintedRemarks>
+      <NonPrintedRemarks>[remark redacted for publication - see tools/scrub_fixtures.py]</NonPrintedRemarks>
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <GuestCount adult="2" child="0" baby="0" youth="0" />
+      <Timespan arrival="10/08/2026" departure="12/08/2026" />
+      <Total AmountAfterTaxes="980.00" CurrencyCode="USD" />
+    </ResGlobalInfo>
+  </Booking>
+</Bookings>

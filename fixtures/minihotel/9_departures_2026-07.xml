@@ -1,0 +1,4145 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Bookings>
+  <Hotel id="sandbox" />
+  <Booking Portal_reservation_id="TESTAIRBN1" Minihotel_reservation_id="007003917" type="Query" createDateTime="18/04/2026" Status="CL" ModifyAllowed="YES" NumofKeys="000" source="AIRBNB" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="NO">
+    <RoomStays>
+      <RoomStay roomNumber="01" roomTypeID="DBL" roomTypeName="Double room" mealStatus="BB">
+      </RoomStay>
+    </RoomStays>
+    <PrimaryGuest>
+      <Name givenName="Hugo" surname="Olsen" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="US" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email>quinn.quintero@example.example</Email>
+      <Phone>6932514</Phone>
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks">[remark redacted for publication - see tools/scrub_fixtures.py]</SpecialRequest>
+    <ReservationRemarks>
+      <PrintedRemarks>[remark redacted for publication - see tools/scrub_fixtures.py]</PrintedRemarks>
+      <NonPrintedRemarks />
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <GuestCount adult="1" child="0" baby="0" youth="0" />
+      <Timespan arrival="17/07/2026" departure="19/07/2026" />
+      <Total AmountAfterTaxes="300.00" CurrencyCode="USD" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Portal_reservation_id="TESTAIRBN1" Minihotel_reservation_id="007003918" type="Query" createDateTime="18/04/2026" Status="OK4" ModifyAllowed="YES" NumofKeys="000" source="AIRBNB" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="NO">
+    <RoomStays>
+      <RoomStay roomNumber="01" roomTypeID="DBL" roomTypeName="Double room" mealStatus="BB">
+      </RoomStay>
+    </RoomStays>
+    <PrimaryGuest>
+      <Name givenName="Hugo" surname="Olsen" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="US" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email>quinn.quintero@example.example</Email>
+      <Phone>6932514</Phone>
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks">[remark redacted for publication - see tools/scrub_fixtures.py]</SpecialRequest>
+    <ReservationRemarks>
+      <PrintedRemarks>[remark redacted for publication - see tools/scrub_fixtures.py]</PrintedRemarks>
+      <NonPrintedRemarks />
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <GuestCount adult="1" child="0" baby="0" youth="0" />
+      <Timespan arrival="17/07/2026" departure="20/07/2026" />
+      <Total AmountAfterTaxes="400.00" CurrencyCode="USD" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Portal_reservation_id="DIRECT1776517640" Minihotel_reservation_id="007003919" type="Query" createDateTime="18/04/2026" Status="CL" ModifyAllowed="YES" NumofKeys="000" source="Web" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="NO">
+    <RoomStays>
+      <RoomStay roomNumber="02" roomTypeID="DBL" roomTypeName="Double room" mealStatus="BB">
+      </RoomStay>
+    </RoomStays>
+    <PrimaryGuest>
+      <Name givenName="Hugo" surname="Olsen" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="US" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email>quinn.quintero@example.example</Email>
+      <Phone>6932514</Phone>
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks">[remark redacted for publication - see tools/scrub_fixtures.py]</SpecialRequest>
+    <ReservationRemarks>
+      <PrintedRemarks>[remark redacted for publication - see tools/scrub_fixtures.py]</PrintedRemarks>
+      <NonPrintedRemarks />
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <GuestCount adult="1" child="0" baby="0" youth="0" />
+      <Timespan arrival="17/07/2026" departure="19/07/2026" />
+      <Total AmountAfterTaxes="300.00" CurrencyCode="USD" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Portal_reservation_id="DIRECT1776517640" Minihotel_reservation_id="007003920" type="Query" createDateTime="18/04/2026" Status="OK4" ModifyAllowed="YES" NumofKeys="000" source="Web" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="YES">
+    <RoomStays>
+      <RoomStay roomNumber="02" roomTypeID="DBL" roomTypeName="Double room" mealStatus="BB" memberSerial="00001">
+        <StayDate arrival="2026-07-17" departure="2026-07-20" />
+        <RoomCount NumberOfUnits="1" />
+        <GuestCount adult="1" child="0" baby="0" youth="0" />
+        <GuestNames>
+          <Name givenName="Hugo" surname="Olsen" />
+        </GuestNames>
+        <IdNumber />
+        <Email>vidal.vargas@example.example</Email>
+        <Phone>6932514</Phone>
+        <Status />
+      </RoomStay>
+    </RoomStays>
+    <PrimaryGuest>
+      <Name givenName="Hugo" surname="Olsen" />
+      <Address Street="53 Quarry Rise" Zip="48074" City="Westhaven" />
+      <Country CountryName="US" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email>vidal.vargas@example.example</Email>
+      <Phone>6932514</Phone>
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks">[remark redacted for publication - see tools/scrub_fixtures.py]</SpecialRequest>
+    <ReservationRemarks>
+      <PrintedRemarks>[remark redacted for publication - see tools/scrub_fixtures.py]</PrintedRemarks>
+      <NonPrintedRemarks />
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <Timespan arrival="17/07/2026" departure="20/07/2026" />
+      <Total AmountAfterTaxes="400.00" CurrencyCode="USD" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Portal_reservation_id="BKNG1776517645" Minihotel_reservation_id="007003921" type="Query" createDateTime="18/04/2026" Status="CL" ModifyAllowed="YES" NumofKeys="000" source="Booking.com" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="NO">
+    <RoomStays>
+      <RoomStay roomNumber="101" roomTypeID="DBL" roomTypeName="Double room" mealStatus="BB">
+      </RoomStay>
+    </RoomStays>
+    <PrimaryGuest>
+      <Name givenName="Hugo" surname="Olsen" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="US" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email>quinn.quintero@example.example</Email>
+      <Phone>6932514</Phone>
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks">[remark redacted for publication - see tools/scrub_fixtures.py]</SpecialRequest>
+    <ReservationRemarks>
+      <PrintedRemarks>[remark redacted for publication - see tools/scrub_fixtures.py]</PrintedRemarks>
+      <NonPrintedRemarks />
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <GuestCount adult="1" child="0" baby="0" youth="0" />
+      <Timespan arrival="17/07/2026" departure="19/07/2026" />
+      <Total AmountAfterTaxes="300.00" CurrencyCode="USD" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Portal_reservation_id="BKNG1776517645" Minihotel_reservation_id="007003922" type="Query" createDateTime="18/04/2026" Status="OK4" ModifyAllowed="YES" NumofKeys="000" source="Booking.com" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="NO">
+    <RoomStays>
+      <RoomStay roomNumber="101" roomTypeID="DBL" roomTypeName="Double room" mealStatus="BB">
+      </RoomStay>
+    </RoomStays>
+    <PrimaryGuest>
+      <Name givenName="Hugo" surname="Olsen" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="US" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email>quinn.quintero@example.example</Email>
+      <Phone>6932514</Phone>
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks">[remark redacted for publication - see tools/scrub_fixtures.py]</SpecialRequest>
+    <ReservationRemarks>
+      <PrintedRemarks>[remark redacted for publication - see tools/scrub_fixtures.py]</PrintedRemarks>
+      <NonPrintedRemarks />
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <GuestCount adult="1" child="0" baby="0" youth="0" />
+      <Timespan arrival="17/07/2026" departure="20/07/2026" />
+      <Total AmountAfterTaxes="400.00" CurrencyCode="USD" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Portal_reservation_id="AIRBNBSIM1" Minihotel_reservation_id="007003923" type="Query" createDateTime="18/04/2026" Status="CL" ModifyAllowed="YES" NumofKeys="000" source="AIRBNB" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="NO">
+    <RoomStays>
+      <RoomStay roomNumber="102" roomTypeID="DBL" roomTypeName="Double room" mealStatus="BB">
+      </RoomStay>
+    </RoomStays>
+    <PrimaryGuest>
+      <Name givenName="Wren" surname="Almeida" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="IL" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email />
+      <Phone>966359776782</Phone>
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks">[remark redacted for publication - see tools/scrub_fixtures.py]</SpecialRequest>
+    <ReservationRemarks>
+      <PrintedRemarks>[remark redacted for publication - see tools/scrub_fixtures.py]</PrintedRemarks>
+      <NonPrintedRemarks />
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <GuestCount adult="1" child="0" baby="0" youth="0" />
+      <Timespan arrival="17/07/2026" departure="19/07/2026" />
+      <Total AmountAfterTaxes="300.00" CurrencyCode="USD" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Portal_reservation_id="AIRBNBSIM1" Minihotel_reservation_id="007003924" type="Query" createDateTime="18/04/2026" Status="OK4" ModifyAllowed="YES" NumofKeys="000" source="Miya" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="NO">
+    <RoomStays>
+      <RoomStay roomNumber="102" roomTypeID="DBL" roomTypeName="Double room" mealStatus="HB">
+      </RoomStay>
+    </RoomStays>
+    <PrimaryGuest>
+      <Name givenName="Wren" surname="Almeida" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="IL" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email />
+      <Phone>966359776782</Phone>
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks">[remark redacted for publication - see tools/scrub_fixtures.py]</SpecialRequest>
+    <ReservationRemarks>
+      <PrintedRemarks>[remark redacted for publication - see tools/scrub_fixtures.py]</PrintedRemarks>
+      <NonPrintedRemarks />
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <GuestCount adult="1" child="0" baby="0" youth="0" />
+      <Timespan arrival="17/07/2026" departure="20/07/2026" />
+      <Total AmountAfterTaxes="400.00" CurrencyCode="USD" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Portal_reservation_id="AIRBNBSIM2" Minihotel_reservation_id="007003925" type="Query" createDateTime="18/04/2026" Status="CL" ModifyAllowed="YES" NumofKeys="000" source="AIRBNB" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="NO">
+    <RoomStays>
+      <RoomStay roomNumber="302" roomTypeID="DBL" roomTypeName="Double room" mealStatus="BB">
+      </RoomStay>
+    </RoomStays>
+    <PrimaryGuest>
+      <Name givenName="Wren" surname="Almeida" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="IL" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email />
+      <Phone>966359776782</Phone>
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks">[remark redacted for publication - see tools/scrub_fixtures.py]</SpecialRequest>
+    <ReservationRemarks>
+      <PrintedRemarks>[remark redacted for publication - see tools/scrub_fixtures.py]</PrintedRemarks>
+      <NonPrintedRemarks />
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <GuestCount adult="1" child="0" baby="0" youth="0" />
+      <Timespan arrival="17/07/2026" departure="19/07/2026" />
+      <Total AmountAfterTaxes="300.00" CurrencyCode="USD" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Portal_reservation_id="AIRBNBSIM2" Minihotel_reservation_id="007003926" type="Query" createDateTime="18/04/2026" Status="OK4" ModifyAllowed="YES" NumofKeys="000" source="AIRBNB" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="NO">
+    <RoomStays>
+      <RoomStay roomNumber="302" roomTypeID="DBL" roomTypeName="Double room" mealStatus="HB">
+      </RoomStay>
+    </RoomStays>
+    <PrimaryGuest>
+      <Name givenName="Wren" surname="Almeida" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="IL" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email />
+      <Phone>966359776782</Phone>
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks">[remark redacted for publication - see tools/scrub_fixtures.py]</SpecialRequest>
+    <ReservationRemarks>
+      <PrintedRemarks>[remark redacted for publication - see tools/scrub_fixtures.py]</PrintedRemarks>
+      <NonPrintedRemarks />
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <GuestCount adult="1" child="0" baby="0" youth="0" />
+      <Timespan arrival="17/07/2026" departure="20/07/2026" />
+      <Total AmountAfterTaxes="400.00" CurrencyCode="USD" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Portal_reservation_id="TESTBRK1" Minihotel_reservation_id="007003927" type="Query" createDateTime="18/04/2026" Status="CL" ModifyAllowed="YES" NumofKeys="000" source="AIRBNB" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="NO">
+    <RoomStays>
+      <RoomStay roomNumber="303" roomTypeID="DBL" roomTypeName="Double room" mealStatus="RO">
+      </RoomStay>
+    </RoomStays>
+    <PrimaryGuest>
+      <Name givenName="Wren" surname="Almeida" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="IL" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email />
+      <Phone>966359776782</Phone>
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks">[remark redacted for publication - see tools/scrub_fixtures.py]</SpecialRequest>
+    <ReservationRemarks>
+      <PrintedRemarks>[remark redacted for publication - see tools/scrub_fixtures.py]</PrintedRemarks>
+      <NonPrintedRemarks />
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <GuestCount adult="1" child="0" baby="0" youth="0" />
+      <Timespan arrival="17/07/2026" departure="19/07/2026" />
+      <Total AmountAfterTaxes="300.00" CurrencyCode="USD" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Portal_reservation_id="TESTBRK1" Minihotel_reservation_id="007003928" type="Query" createDateTime="18/04/2026" Status="OK4" ModifyAllowed="YES" NumofKeys="000" source="Miya" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="NO">
+    <RoomStays>
+      <RoomStay roomNumber="303" roomTypeID="DBL" roomTypeName="Double room" mealStatus="HB">
+      </RoomStay>
+    </RoomStays>
+    <PrimaryGuest>
+      <Name givenName="Wren" surname="Almeida" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="IL" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email />
+      <Phone>966359776782</Phone>
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks">[remark redacted for publication - see tools/scrub_fixtures.py]</SpecialRequest>
+    <ReservationRemarks>
+      <PrintedRemarks>[remark redacted for publication - see tools/scrub_fixtures.py]</PrintedRemarks>
+      <NonPrintedRemarks />
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <GuestCount adult="1" child="0" baby="0" youth="0" />
+      <Timespan arrival="17/07/2026" departure="20/07/2026" />
+      <Total AmountAfterTaxes="400.00" CurrencyCode="USD" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Portal_reservation_id="TESTFIX1" Minihotel_reservation_id="007003929" type="Query" createDateTime="18/04/2026" Status="CL" ModifyAllowed="YES" NumofKeys="000" source="AIRBNB" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="NO">
+    <RoomStays>
+      <RoomStay roomNumber="304" roomTypeID="DBL" roomTypeName="Double room" mealStatus="RO">
+      </RoomStay>
+    </RoomStays>
+    <PrimaryGuest>
+      <Name givenName="Wren" surname="Almeida" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="IL" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email />
+      <Phone>966359776782</Phone>
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks">[remark redacted for publication - see tools/scrub_fixtures.py]</SpecialRequest>
+    <ReservationRemarks>
+      <PrintedRemarks>[remark redacted for publication - see tools/scrub_fixtures.py]</PrintedRemarks>
+      <NonPrintedRemarks />
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <GuestCount adult="1" child="0" baby="0" youth="0" />
+      <Timespan arrival="17/07/2026" departure="19/07/2026" />
+      <Total AmountAfterTaxes="300.00" CurrencyCode="USD" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Portal_reservation_id="TESTFIX1" Minihotel_reservation_id="007003930" type="Query" createDateTime="18/04/2026" Status="OK4" ModifyAllowed="YES" NumofKeys="000" source="Miya" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="NO">
+    <RoomStays>
+      <RoomStay roomNumber="304" roomTypeID="DBL" roomTypeName="Double room" mealStatus="RO">
+      </RoomStay>
+    </RoomStays>
+    <PrimaryGuest>
+      <Name givenName="Wren" surname="Almeida" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="IL" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email />
+      <Phone>966359776782</Phone>
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks">[remark redacted for publication - see tools/scrub_fixtures.py]</SpecialRequest>
+    <ReservationRemarks>
+      <PrintedRemarks>[remark redacted for publication - see tools/scrub_fixtures.py]</PrintedRemarks>
+      <NonPrintedRemarks />
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <GuestCount adult="1" child="0" baby="0" youth="0" />
+      <Timespan arrival="17/07/2026" departure="20/07/2026" />
+      <Total AmountAfterTaxes="400.00" CurrencyCode="USD" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Portal_reservation_id="CTRY1776572578" Minihotel_reservation_id="007003932" type="Query" createDateTime="19/04/2026" Status="IN" ModifyAllowed="YES" NumofKeys="000" source="Web" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="NO">
+    <RoomStays>
+      <RoomStay roomNumber="904" roomTypeID="2BEDAPT" roomTypeName="Two bedroom apartment" mealStatus="BB">
+      </RoomStay>
+    </RoomStays>
+    <PrimaryGuest>
+      <Name givenName="Hugo" surname="Quintero" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="IL" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email />
+      <Phone>6932514</Phone>
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks">[remark redacted for publication - see tools/scrub_fixtures.py]</SpecialRequest>
+    <ReservationRemarks>
+      <PrintedRemarks>[remark redacted for publication - see tools/scrub_fixtures.py]</PrintedRemarks>
+      <NonPrintedRemarks />
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <GuestCount adult="1" child="0" baby="0" youth="0" />
+      <Timespan arrival="09/07/2026" departure="11/07/2026" />
+      <Total AmountAfterTaxes="300.00" CurrencyCode="USD" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Portal_reservation_id="007004053" Minihotel_reservation_id="007004053" type="Query" createDateTime="14/05/2026" Status="OK" ModifyAllowed="YES" NumofKeys="000" source="Kinaro" arrival_time="15:00" departure_time="11:00" market_segment="" isGroupReservation="NO">
+    <RoomStays>
+      <RoomStay roomNumber="01" roomTypeID="DBL" roomTypeName="Double room" mealStatus="BB">
+      </RoomStay>
+    </RoomStays>
+    <PrimaryGuest>
+      <Name givenName="Hugo" surname="Quintero" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="IL" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email>elena.eriksen@example.example</Email>
+      <Phone>0682190991</Phone>
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks">[remark redacted for publication - see tools/scrub_fixtures.py]</SpecialRequest>
+    <ReservationRemarks>
+      <PrintedRemarks>[remark redacted for publication - see tools/scrub_fixtures.py]</PrintedRemarks>
+      <NonPrintedRemarks>[remark redacted for publication - see tools/scrub_fixtures.py]</NonPrintedRemarks>
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <GuestCount adult="2" child="0" baby="0" youth="0" />
+      <Timespan arrival="01/07/2026" departure="03/07/2026" />
+      <Total AmountAfterTaxes="500.00" CurrencyCode="USD" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Portal_reservation_id="6516513213215610000111" Minihotel_reservation_id="007004076" type="Query" createDateTime="22/05/2026" Status="OK4" ModifyAllowed="YES" NumofKeys="000" source="Web" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="NO">
+    <RoomStays>
+      <RoomStay roomNumber="902" roomTypeID="TRP" roomTypeName="Triple Room" mealStatus="HB">
+      </RoomStay>
+    </RoomStays>
+    <PrimaryGuest>
+      <Name givenName="Bruno" surname="Ferrer" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="OT" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email>greta.grimaldi@example.example</Email>
+      <Phone>29700325</Phone>
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks">[remark redacted for publication - see tools/scrub_fixtures.py]</SpecialRequest>
+    <ReservationRemarks>
+      <PrintedRemarks>[remark redacted for publication - see tools/scrub_fixtures.py]</PrintedRemarks>
+      <NonPrintedRemarks />
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <GuestCount adult="1" child="0" baby="0" youth="0" />
+      <Timespan arrival="21/07/2026" departure="25/07/2026" />
+      <Total AmountAfterTaxes="10000.00" CurrencyCode="USD" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Portal_reservation_id="65165132132156100111" Minihotel_reservation_id="007004077" type="Query" createDateTime="22/05/2026" Status="OK4" ModifyAllowed="YES" NumofKeys="000" source="Web" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="NO">
+    <RoomStays>
+      <RoomStay roomNumber="Nemanja" roomTypeID="TRP" roomTypeName="Triple Room" mealStatus="HB">
+      </RoomStay>
+    </RoomStays>
+    <PrimaryGuest>
+      <Name givenName="Bruno" surname="Ferrer" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="OT" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email>greta.grimaldi@example.example</Email>
+      <Phone>29700325</Phone>
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks">[remark redacted for publication - see tools/scrub_fixtures.py]</SpecialRequest>
+    <ReservationRemarks>
+      <PrintedRemarks>[remark redacted for publication - see tools/scrub_fixtures.py]</PrintedRemarks>
+      <NonPrintedRemarks />
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <GuestCount adult="1" child="0" baby="0" youth="0" />
+      <Timespan arrival="21/07/2026" departure="25/07/2026" />
+      <Total AmountAfterTaxes="10000.00" CurrencyCode="USD" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Portal_reservation_id="PROBE-1779830541765" Minihotel_reservation_id="007004092" type="Query" createDateTime="27/05/2026" Status="OK4" ModifyAllowed="YES" NumofKeys="000" source="Nightel" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="NO">
+    <RoomStays>
+      <RoomStay roomNumber="02" roomTypeID="DBL" roomTypeName="Double room" mealStatus="BB">
+      </RoomStay>
+    </RoomStays>
+    <PrimaryGuest>
+      <Name givenName="Pavel" surname="Sorokin" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="OT" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email>hugo.halvorsen@example.example</Email>
+      <Phone>1658896492542</Phone>
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks">[remark redacted for publication - see tools/scrub_fixtures.py]</SpecialRequest>
+    <ReservationRemarks>
+      <PrintedRemarks>[remark redacted for publication - see tools/scrub_fixtures.py]</PrintedRemarks>
+      <NonPrintedRemarks>[remark redacted for publication - see tools/scrub_fixtures.py]</NonPrintedRemarks>
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <GuestCount adult="2" child="0" baby="0" youth="0" />
+      <Timespan arrival="30/06/2026" departure="02/07/2026" />
+      <Total AmountAfterTaxes="300.00" CurrencyCode="USD" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Portal_reservation_id="TEST001" Minihotel_reservation_id="007004100" type="Query" createDateTime="27/05/2026" Status="IN" ModifyAllowed="YES" NumofKeys="000" source="Web" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="NO">
+    <RoomStays>
+      <RoomStay roomNumber="01" roomTypeID="DBL" roomTypeName="Double room" mealStatus="BB">
+      </RoomStay>
+    </RoomStays>
+    <PrimaryGuest>
+      <Name givenName="Hugo" surname="Olsen" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="OT" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email>sten.sorokin@example.example</Email>
+      <Phone />
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks">[remark redacted for publication - see tools/scrub_fixtures.py]</SpecialRequest>
+    <ReservationRemarks>
+      <PrintedRemarks>[remark redacted for publication - see tools/scrub_fixtures.py]</PrintedRemarks>
+      <NonPrintedRemarks />
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <GuestCount adult="2" child="0" baby="0" youth="0" />
+      <Timespan arrival="25/07/2026" departure="27/07/2026" />
+      <Total AmountAfterTaxes="100.00" CurrencyCode="USD" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Portal_reservation_id="testyuval001" Minihotel_reservation_id="007004258" type="Query" createDateTime="14/06/2026" Status="OK4" ModifyAllowed="YES" NumofKeys="000" source="Test" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="NO">
+    <RoomStays>
+      <RoomStay roomNumber="01" roomTypeID="DBL" roomTypeName="Double room" mealStatus="CC">
+      </RoomStay>
+    </RoomStays>
+    <PrimaryGuest>
+      <Name givenName="Bruno" surname="Ferrer" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="AR" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email>iris.ionescu@example.example</Email>
+      <Phone>628118706381</Phone>
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="203110" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks">[remark redacted for publication - see tools/scrub_fixtures.py]</SpecialRequest>
+    <ReservationRemarks>
+      <PrintedRemarks>[remark redacted for publication - see tools/scrub_fixtures.py]</PrintedRemarks>
+      <NonPrintedRemarks>[remark redacted for publication - see tools/scrub_fixtures.py]</NonPrintedRemarks>
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <GuestCount adult="2" child="0" baby="0" youth="0" />
+      <Timespan arrival="04/07/2026" departure="07/07/2026" />
+      <Total AmountAfterTaxes="200.00" CurrencyCode="USD" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Portal_reservation_id="testyuval002" Minihotel_reservation_id="007004259" type="Query" createDateTime="14/06/2026" Status="IN" ModifyAllowed="YES" NumofKeys="000" source="" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="NO">
+    <RoomStays>
+      <RoomStay roomNumber="02" roomTypeID="DBL" roomTypeName="Double room" mealStatus="CC">
+      </RoomStay>
+    </RoomStays>
+    <PrimaryGuest>
+      <Name givenName="Bruno" surname="Ferrer" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="AR" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email>iris.ionescu@example.example</Email>
+      <Phone>628118706381</Phone>
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="203110" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks">[remark redacted for publication - see tools/scrub_fixtures.py]</SpecialRequest>
+    <ReservationRemarks>
+      <PrintedRemarks>[remark redacted for publication - see tools/scrub_fixtures.py]</PrintedRemarks>
+      <NonPrintedRemarks>[remark redacted for publication - see tools/scrub_fixtures.py]</NonPrintedRemarks>
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <GuestCount adult="2" child="0" baby="0" youth="0" />
+      <Timespan arrival="04/07/2026" departure="12/07/2026" />
+      <Total AmountAfterTaxes="200.00" CurrencyCode="USD" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Portal_reservation_id="CCP-2A-1782512672565" Minihotel_reservation_id="007004300" type="Query" createDateTime="27/06/2026" Status="OK4" ModifyAllowed="YES" NumofKeys="000" source="Web" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="NO">
+    <RoomStays>
+      <RoomStay roomNumber="01" roomTypeID="DBL" roomTypeName="Double room" mealStatus="BB">
+      </RoomStay>
+    </RoomStays>
+    <PrimaryGuest>
+      <Name givenName="Bruno" surname="Duarte" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="OT" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email>uma.ueda@example.example</Email>
+      <Phone>771721</Phone>
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks">[remark redacted for publication - see tools/scrub_fixtures.py]</SpecialRequest>
+    <ReservationRemarks>
+      <PrintedRemarks>[remark redacted for publication - see tools/scrub_fixtures.py]</PrintedRemarks>
+      <NonPrintedRemarks />
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <GuestCount adult="2" child="0" baby="0" youth="0" />
+      <Timespan arrival="15/07/2026" departure="17/07/2026" />
+      <Total AmountAfterTaxes="980.00" CurrencyCode="USD" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Portal_reservation_id="378164845" Minihotel_reservation_id="007004305" type="Query" createDateTime="01/07/2026" Status="WL" ModifyAllowed="YES" NumofKeys="000" source="" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="NO">
+    <RoomStays />
+    <PrimaryGuest>
+      <Name givenName="Ada" surname="Zavala" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="OT" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email />
+      <Phone />
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks">[remark redacted for publication - see tools/scrub_fixtures.py]</SpecialRequest>
+    <ReservationRemarks>
+      <PrintedRemarks>[remark redacted for publication - see tools/scrub_fixtures.py]</PrintedRemarks>
+      <NonPrintedRemarks>[remark redacted for publication - see tools/scrub_fixtures.py]</NonPrintedRemarks>
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <GuestCount adult="2" child="0" baby="0" youth="0" />
+      <Timespan arrival="05/07/2026" departure="06/07/2026" />
+      <Total AmountAfterTaxes="900.00" CurrencyCode="USD" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Portal_reservation_id="969175841" Minihotel_reservation_id="007004306" type="Query" createDateTime="01/07/2026" Status="WL" ModifyAllowed="YES" NumofKeys="000" source="" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="NO">
+    <RoomStays />
+    <PrimaryGuest>
+      <Name givenName="Ada" surname="Zavala" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="OT" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email />
+      <Phone />
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks">[remark redacted for publication - see tools/scrub_fixtures.py]</SpecialRequest>
+    <ReservationRemarks>
+      <PrintedRemarks>[remark redacted for publication - see tools/scrub_fixtures.py]</PrintedRemarks>
+      <NonPrintedRemarks />
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <GuestCount adult="2" child="0" baby="0" youth="0" />
+      <Timespan arrival="05/07/2026" departure="06/07/2026" />
+      <Total AmountAfterTaxes="900.00" CurrencyCode="USD" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Portal_reservation_id="141859352" Minihotel_reservation_id="007004307" type="Query" createDateTime="01/07/2026" Status="WL" ModifyAllowed="YES" NumofKeys="000" source="" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="NO">
+    <RoomStays />
+    <PrimaryGuest>
+      <Name givenName="Iris" surname="Lindqvist" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="OT" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email />
+      <Phone />
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks">[remark redacted for publication - see tools/scrub_fixtures.py]</SpecialRequest>
+    <ReservationRemarks>
+      <PrintedRemarks>[remark redacted for publication - see tools/scrub_fixtures.py]</PrintedRemarks>
+      <NonPrintedRemarks />
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <GuestCount adult="2" child="0" baby="0" youth="0" />
+      <Timespan arrival="05/07/2026" departure="06/07/2026" />
+      <Total AmountAfterTaxes="900.00" CurrencyCode="USD" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Portal_reservation_id="964353101" Minihotel_reservation_id="007004308" type="Query" createDateTime="01/07/2026" Status="WL" ModifyAllowed="YES" NumofKeys="000" source="" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="NO">
+    <RoomStays />
+    <PrimaryGuest>
+      <Name givenName="Iris" surname="Lindqvist" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="OT" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email />
+      <Phone />
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks">[remark redacted for publication - see tools/scrub_fixtures.py]</SpecialRequest>
+    <ReservationRemarks>
+      <PrintedRemarks>[remark redacted for publication - see tools/scrub_fixtures.py]</PrintedRemarks>
+      <NonPrintedRemarks />
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <GuestCount adult="2" child="0" baby="0" youth="0" />
+      <Timespan arrival="05/07/2026" departure="06/07/2026" />
+      <Total AmountAfterTaxes="900.00" CurrencyCode="USD" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Minihotel_reservation_id="007004309" type="Query" createDateTime="01/07/2026" Status="CL" ModifyAllowed="YES" NumofKeys="000" source="" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="NO">
+    <RoomStays>
+      <RoomStay roomNumber="101" roomTypeID="DBL" roomTypeName="Double room" mealStatus="BB">
+      </RoomStay>
+    </RoomStays>
+    <PrimaryGuest>
+      <Name givenName="Xenia" surname="Almeida" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email />
+      <Phone />
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks" />
+    <ReservationRemarks>
+      <PrintedRemarks />
+      <NonPrintedRemarks />
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <GuestCount adult="2" child="0" baby="0" youth="0" />
+      <Timespan arrival="02/07/2026" departure="03/07/2026" />
+      <Total AmountAfterTaxes="2.00" CurrencyCode="ILS" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Portal_reservation_id="711788539" Minihotel_reservation_id="007004310" type="Query" createDateTime="01/07/2026" Status="WL" ModifyAllowed="YES" NumofKeys="000" source="" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="NO">
+    <RoomStays />
+    <PrimaryGuest>
+      <Name givenName="Elena" surname="Ximenes" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="OT" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email />
+      <Phone />
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks">[remark redacted for publication - see tools/scrub_fixtures.py]</SpecialRequest>
+    <ReservationRemarks>
+      <PrintedRemarks>[remark redacted for publication - see tools/scrub_fixtures.py]</PrintedRemarks>
+      <NonPrintedRemarks />
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <GuestCount adult="2" child="0" baby="0" youth="0" />
+      <Timespan arrival="05/07/2026" departure="06/07/2026" />
+      <Total AmountAfterTaxes="900.00" CurrencyCode="USD" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Portal_reservation_id="515925240" Minihotel_reservation_id="007004311" type="Query" createDateTime="01/07/2026" Status="WL" ModifyAllowed="YES" NumofKeys="000" source="" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="NO">
+    <RoomStays />
+    <PrimaryGuest>
+      <Name givenName="Elena" surname="Ximenes" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="OT" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email />
+      <Phone />
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks">[remark redacted for publication - see tools/scrub_fixtures.py]</SpecialRequest>
+    <ReservationRemarks>
+      <PrintedRemarks>[remark redacted for publication - see tools/scrub_fixtures.py]</PrintedRemarks>
+      <NonPrintedRemarks />
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <GuestCount adult="2" child="0" baby="0" youth="0" />
+      <Timespan arrival="05/07/2026" departure="06/07/2026" />
+      <Total AmountAfterTaxes="900.00" CurrencyCode="USD" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Portal_reservation_id="408088102" Minihotel_reservation_id="007004312" type="Query" createDateTime="01/07/2026" Status="IN" ModifyAllowed="YES" NumofKeys="000" source="" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="NO">
+    <RoomStays />
+    <PrimaryGuest>
+      <Name givenName="Ada" surname="Zavala" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="OT" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email />
+      <Phone />
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks">[remark redacted for publication - see tools/scrub_fixtures.py]</SpecialRequest>
+    <ReservationRemarks>
+      <PrintedRemarks>[remark redacted for publication - see tools/scrub_fixtures.py]</PrintedRemarks>
+      <NonPrintedRemarks />
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <GuestCount adult="2" child="0" baby="0" youth="0" />
+      <Timespan arrival="08/07/2026" departure="13/07/2026" />
+      <Total AmountAfterTaxes="900.00" CurrencyCode="USD" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Portal_reservation_id="530733138" Minihotel_reservation_id="007004313" type="Query" createDateTime="01/07/2026" Status="IN" ModifyAllowed="YES" NumofKeys="000" source="" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="NO">
+    <RoomStays />
+    <PrimaryGuest>
+      <Name givenName="Ada" surname="Zavala" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="OT" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email />
+      <Phone />
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks">[remark redacted for publication - see tools/scrub_fixtures.py]</SpecialRequest>
+    <ReservationRemarks>
+      <PrintedRemarks>[remark redacted for publication - see tools/scrub_fixtures.py]</PrintedRemarks>
+      <NonPrintedRemarks />
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <GuestCount adult="2" child="0" baby="0" youth="0" />
+      <Timespan arrival="08/07/2026" departure="13/07/2026" />
+      <Total AmountAfterTaxes="900.00" CurrencyCode="USD" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Minihotel_reservation_id="007004321" type="Query" createDateTime="02/07/2026" Status="OK" ModifyAllowed="YES" NumofKeys="000" source="" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="NO">
+    <RoomStays>
+      <RoomStay roomNumber="401" roomTypeID="Executive" roomTypeName="Executive Room" mealStatus="BB">
+      </RoomStay>
+    </RoomStays>
+    <PrimaryGuest>
+      <Name givenName="Xenia" surname="Almeida" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email />
+      <Phone />
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks" />
+    <ReservationRemarks>
+      <PrintedRemarks>
+</PrintedRemarks>
+      <NonPrintedRemarks />
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <GuestCount adult="2" child="0" baby="0" youth="0" />
+      <Timespan arrival="02/07/2026" departure="03/07/2026" />
+      <Total AmountAfterTaxes="2.00" CurrencyCode="ILS" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Portal_reservation_id="test123" Minihotel_reservation_id="007004327" type="Query" createDateTime="04/07/2026" Status="CL" ModifyAllowed="YES" NumofKeys="000" source="Web" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="NO">
+    <RoomStays>
+      <RoomStay roomNumber="902" roomTypeID="TRP" roomTypeName="Triple Room" mealStatus="HB">
+      </RoomStay>
+    </RoomStays>
+    <PrimaryGuest>
+      <Name givenName="Hugo" surname="Olsen" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="OT" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email />
+      <Phone />
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks">[remark redacted for publication - see tools/scrub_fixtures.py]</SpecialRequest>
+    <ReservationRemarks>
+      <PrintedRemarks>[remark redacted for publication - see tools/scrub_fixtures.py]</PrintedRemarks>
+      <NonPrintedRemarks />
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <GuestCount adult="1" child="0" baby="0" youth="0" />
+      <Timespan arrival="10/07/2026" departure="12/07/2026" />
+      <Total AmountAfterTaxes="100.00" CurrencyCode="USD" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Portal_reservation_id="OVF001" Minihotel_reservation_id="007004329" type="Query" createDateTime="04/07/2026" Status="OK4" ModifyAllowed="YES" NumofKeys="000" source="Web" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="NO">
+    <RoomStays>
+      <RoomStay roomNumber="01" roomTypeID="DBL" roomTypeName="Double room" mealStatus="BB">
+      </RoomStay>
+    </RoomStays>
+    <PrimaryGuest>
+      <Name givenName="Quinn" surname="Quintero" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="OT" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email />
+      <Phone />
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks">[remark redacted for publication - see tools/scrub_fixtures.py]</SpecialRequest>
+    <ReservationRemarks>
+      <PrintedRemarks>[remark redacted for publication - see tools/scrub_fixtures.py]</PrintedRemarks>
+      <NonPrintedRemarks>[remark redacted for publication - see tools/scrub_fixtures.py]</NonPrintedRemarks>
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <GuestCount adult="1" child="0" baby="0" youth="0" />
+      <Timespan arrival="10/07/2026" departure="12/07/2026" />
+      <Total AmountAfterTaxes="999999999999.00" CurrencyCode="USD" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Minihotel_reservation_id="007004333" type="Query" createDateTime="05/07/2026" Status="CL" ModifyAllowed="YES" NumofKeys="000" source="" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="NO">
+    <RoomStays>
+      <RoomStay roomNumber="101" roomTypeID="DBL" roomTypeName="Double room" mealStatus="BB">
+      </RoomStay>
+    </RoomStays>
+    <PrimaryGuest>
+      <Name givenName="Xenia" surname="Almeida" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email />
+      <Phone />
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks" />
+    <ReservationRemarks>
+      <PrintedRemarks>
+</PrintedRemarks>
+      <NonPrintedRemarks />
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <GuestCount adult="2" child="0" baby="0" youth="0" />
+      <Timespan arrival="05/07/2026" departure="06/07/2026" />
+      <Total AmountAfterTaxes="2.00" CurrencyCode="ILS" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Portal_reservation_id="TEST-1783274258398" Minihotel_reservation_id="007004334" type="Query" createDateTime="05/07/2026" Status="CL" ModifyAllowed="YES" NumofKeys="000" source="Nightel" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="NO">
+    <RoomStays>
+      <RoomStay roomNumber="102" roomTypeID="DBL" roomTypeName="Double room" mealStatus="BB">
+      </RoomStay>
+    </RoomStays>
+    <PrimaryGuest>
+      <Name givenName="Hugo" surname="Olsen" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="IL" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email>tova.torres@example.example</Email>
+      <Phone>1738988195660</Phone>
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks">[remark redacted for publication - see tools/scrub_fixtures.py]</SpecialRequest>
+    <ReservationRemarks>
+      <PrintedRemarks>[remark redacted for publication - see tools/scrub_fixtures.py]</PrintedRemarks>
+      <NonPrintedRemarks />
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <GuestCount adult="2" child="0" baby="0" youth="0" />
+      <Timespan arrival="06/07/2026" departure="07/07/2026" />
+      <Total AmountAfterTaxes="150.00" CurrencyCode="USD" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Portal_reservation_id="TEST-1783274334289" Minihotel_reservation_id="007004335" type="Query" createDateTime="05/07/2026" Status="CL" ModifyAllowed="YES" NumofKeys="000" source="Nightel" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="NO">
+    <RoomStays>
+      <RoomStay roomNumber="102" roomTypeID="DBL" roomTypeName="Double room" mealStatus="BB">
+      </RoomStay>
+    </RoomStays>
+    <PrimaryGuest>
+      <Name givenName="Hugo" surname="Olsen" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="IL" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email>tova.torres@example.example</Email>
+      <Phone>1738988195660</Phone>
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks">[remark redacted for publication - see tools/scrub_fixtures.py]</SpecialRequest>
+    <ReservationRemarks>
+      <PrintedRemarks>[remark redacted for publication - see tools/scrub_fixtures.py]</PrintedRemarks>
+      <NonPrintedRemarks />
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <GuestCount adult="2" child="0" baby="0" youth="0" />
+      <Timespan arrival="06/07/2026" departure="07/07/2026" />
+      <Total AmountAfterTaxes="150.00" CurrencyCode="USD" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Portal_reservation_id="CCP1783275808296" Minihotel_reservation_id="007004336" type="Query" createDateTime="05/07/2026" Status="OK4" ModifyAllowed="YES" NumofKeys="000" source="Web" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="NO">
+    <RoomStays>
+      <RoomStay roomNumber="902" roomTypeID="TRP" roomTypeName="Triple Room" mealStatus="BB">
+      </RoomStay>
+    </RoomStays>
+    <PrimaryGuest>
+      <Name givenName="Tova" surname="" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="OT" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email>kira.kowalski@example.example</Email>
+      <Phone>65730115805561</Phone>
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks">[remark redacted for publication - see tools/scrub_fixtures.py]</SpecialRequest>
+    <ReservationRemarks>
+      <PrintedRemarks>[remark redacted for publication - see tools/scrub_fixtures.py]</PrintedRemarks>
+      <NonPrintedRemarks />
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <GuestCount adult="3" child="0" baby="0" youth="0" />
+      <Timespan arrival="18/07/2026" departure="20/07/2026" />
+      <Total AmountAfterTaxes="1350.00" CurrencyCode="USD" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Portal_reservation_id="H3_B10145" Minihotel_reservation_id="007004337" type="Query" createDateTime="06/07/2026" Status="CL" ModifyAllowed="YES" NumofKeys="000" source="KIOSK" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="NO">
+    <RoomStays>
+      <RoomStay roomNumber="701" roomTypeID="2BEDAPT" roomTypeName="Two bedroom apartment" mealStatus="BB">
+      </RoomStay>
+    </RoomStays>
+    <PrimaryGuest>
+      <Name givenName="Xenia" surname="Almeida" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="IL" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email>mira.moreau@example.example</Email>
+      <Phone>06678404617</Phone>
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks">[remark redacted for publication - see tools/scrub_fixtures.py]</SpecialRequest>
+    <ReservationRemarks>
+      <PrintedRemarks>[remark redacted for publication - see tools/scrub_fixtures.py]</PrintedRemarks>
+      <NonPrintedRemarks />
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <GuestCount adult="1" child="0" baby="0" youth="0" />
+      <Timespan arrival="06/07/2026" departure="07/07/2026" />
+      <Total AmountAfterTaxes="223.00" CurrencyCode="ILS" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Minihotel_reservation_id="007004338" type="Query" createDateTime="06/07/2026" Status="IN" ModifyAllowed="YES" NumofKeys="000" source="web" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="NO">
+    <RoomStays>
+      <RoomStay roomNumber="102" roomTypeID="DBL" roomTypeName="Double room" mealStatus="BB">
+      </RoomStay>
+    </RoomStays>
+    <PrimaryGuest>
+      <Name givenName="Dmitri" surname="Jansen" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="ZW" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email />
+      <Phone />
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks" />
+    <ReservationRemarks>
+      <PrintedRemarks>
+</PrintedRemarks>
+      <NonPrintedRemarks />
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <GuestCount adult="2" child="0" baby="0" youth="0" />
+      <Timespan arrival="06/07/2026" departure="09/07/2026" />
+      <Total AmountAfterTaxes="846.00" CurrencyCode="USD" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Minihotel_reservation_id="007004339" type="Query" createDateTime="06/07/2026" Status="CL" ModifyAllowed="YES" NumofKeys="000" source="" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="NO">
+    <RoomStays>
+      <RoomStay roomNumber="102" roomTypeID="DBL" roomTypeName="Double room" mealStatus="BB">
+      </RoomStay>
+    </RoomStays>
+    <PrimaryGuest>
+      <Name givenName="Greta" surname="Jansen" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email>quinn.quintero@example.example</Email>
+      <Phone />
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks" />
+    <ReservationRemarks>
+      <PrintedRemarks>
+</PrintedRemarks>
+      <NonPrintedRemarks />
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <GuestCount adult="2" child="0" baby="0" youth="0" />
+      <Timespan arrival="06/07/2026" departure="07/07/2026" />
+      <Total AmountAfterTaxes="282.00" CurrencyCode="USD" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Minihotel_reservation_id="007004340" type="Query" createDateTime="06/07/2026" Status="IN" ModifyAllowed="YES" NumofKeys="000" source="001" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="YES">
+    <RoomStays>
+      <RoomStay roomNumber="103" roomTypeID="Twin" roomTypeName="Twin Room" mealStatus="BB" memberSerial="00001">
+        <StayDate arrival="2026-07-06" departure="2026-07-09" />
+        <RoomCount NumberOfUnits="1" />
+        <GuestCount adult="2" child="0" baby="0" youth="0" />
+        <GuestNames>
+          <Name givenName="Dmitri" surname="Jansen" />
+        </GuestNames>
+        <IdNumber />
+        <Email />
+        <Phone />
+        <Status>IN</Status>
+      </RoomStay>
+    </RoomStays>
+    <PrimaryGuest>
+      <Name givenName="Dmitri" surname="Jansen" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="GB" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email />
+      <Phone />
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks" />
+    <ReservationRemarks>
+      <PrintedRemarks />
+      <NonPrintedRemarks />
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <Timespan arrival="06/07/2026" departure="09/07/2026" />
+      <Total AmountAfterTaxes="372.00" CurrencyCode="USD" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Minihotel_reservation_id="007004341" type="Query" createDateTime="06/07/2026" Status="CL" ModifyAllowed="YES" NumofKeys="000" source="" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="NO">
+    <RoomStays>
+      <RoomStay roomNumber="104" roomTypeID="Twin" roomTypeName="Twin Room" mealStatus="BB">
+      </RoomStay>
+    </RoomStays>
+    <PrimaryGuest>
+      <Name givenName="Iris" surname="Almeida" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email />
+      <Phone />
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks" />
+    <ReservationRemarks>
+      <PrintedRemarks>
+</PrintedRemarks>
+      <NonPrintedRemarks />
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <GuestCount adult="2" child="0" baby="0" youth="0" />
+      <Timespan arrival="06/07/2026" departure="07/07/2026" />
+      <Total AmountAfterTaxes="2.00" CurrencyCode="ILS" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Minihotel_reservation_id="007004342" type="Query" createDateTime="06/07/2026" Status="IN" ModifyAllowed="YES" NumofKeys="000" source="Booking" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="YES">
+    <RoomStays>
+      <RoomStay roomNumber="606" roomTypeID="APT_SEA" roomTypeName="Apartment Sea View" mealStatus="BB" memberSerial="00001">
+        <StayDate arrival="2026-07-06" departure="2026-07-09" />
+        <RoomCount NumberOfUnits="1" />
+        <GuestCount adult="2" child="0" baby="0" youth="0" />
+        <GuestNames>
+          <Name givenName="Yara" surname="Quintero" />
+        </GuestNames>
+        <IdNumber />
+        <Email />
+        <Phone />
+        <Status />
+      </RoomStay>
+    </RoomStays>
+    <PrimaryGuest>
+      <Name givenName="Yara" surname="Quintero" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="UG" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email />
+      <Phone />
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks" />
+    <ReservationRemarks>
+      <PrintedRemarks />
+      <NonPrintedRemarks />
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <Timespan arrival="06/07/2026" departure="09/07/2026" />
+      <Total AmountAfterTaxes="602.00" CurrencyCode="USD" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Minihotel_reservation_id="007004343" type="Query" createDateTime="06/07/2026" Status="IN" ModifyAllowed="YES" NumofKeys="000" source="" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="NO">
+    <RoomStays>
+      <RoomStay roomNumber="302" roomTypeID="DBL" roomTypeName="Double room" mealStatus="BB">
+      </RoomStay>
+    </RoomStays>
+    <PrimaryGuest>
+      <Name givenName="Xenia" surname="Torres" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email />
+      <Phone />
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks" />
+    <ReservationRemarks>
+      <PrintedRemarks>
+</PrintedRemarks>
+      <NonPrintedRemarks />
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <GuestCount adult="2" child="0" baby="0" youth="0" />
+      <Timespan arrival="07/07/2026" departure="08/07/2026" />
+      <Total AmountAfterTaxes="2.00" CurrencyCode="ILS" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Minihotel_reservation_id="007004344" type="Query" createDateTime="06/07/2026" Status="IN" ModifyAllowed="YES" NumofKeys="000" source="Booking" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="YES">
+    <RoomStays>
+      <RoomStay roomNumber="303" roomTypeID="DBL" roomTypeName="Double room" mealStatus="BB" memberSerial="00001">
+        <StayDate arrival="2026-07-08" departure="2026-07-09" />
+        <RoomCount NumberOfUnits="1" />
+        <GuestCount adult="2" child="0" baby="0" youth="0" />
+        <GuestNames>
+          <Name givenName="Farid" surname="Zavala" />
+        </GuestNames>
+        <IdNumber>21331961</IdNumber>
+        <Email>vidal.vargas@example.example</Email>
+        <Phone>1382330561</Phone>
+        <Status>IN</Status>
+      </RoomStay>
+    </RoomStays>
+    <PrimaryGuest>
+      <Name givenName="Farid" surname="Zavala" />
+      <Address Street="23 Quarry Rise" Zip="2161286" City="Brookmere" />
+      <Country CountryName="US" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber>21331961</IdNumber>
+      <Email>vidal.vargas@example.example</Email>
+      <Phone>1382330561</Phone>
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks" />
+    <ReservationRemarks>
+      <PrintedRemarks />
+      <NonPrintedRemarks>[remark redacted for publication - see tools/scrub_fixtures.py]</NonPrintedRemarks>
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <Timespan arrival="08/07/2026" departure="09/07/2026" />
+      <Total AmountAfterTaxes="282.00" CurrencyCode="USD" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Minihotel_reservation_id="007004345" type="Query" createDateTime="07/07/2026" Status="IN" ModifyAllowed="YES" NumofKeys="000" source="" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="NO">
+    <RoomStays>
+      <RoomStay roomNumber="104" roomTypeID="Twin" roomTypeName="Twin Room" mealStatus="BB">
+      </RoomStay>
+    </RoomStays>
+    <PrimaryGuest>
+      <Name givenName="Farid" surname="Grimaldi" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email />
+      <Phone />
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks" />
+    <ReservationRemarks>
+      <PrintedRemarks>
+</PrintedRemarks>
+      <NonPrintedRemarks />
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <GuestCount adult="2" child="0" baby="0" youth="0" />
+      <Timespan arrival="07/07/2026" departure="08/07/2026" />
+      <Total AmountAfterTaxes="2.00" CurrencyCode="ILS" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Minihotel_reservation_id="007004346" type="Query" createDateTime="07/07/2026" Status="IN" ModifyAllowed="YES" NumofKeys="000" source="" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="NO">
+    <RoomStays>
+      <RoomStay roomNumber="101" roomTypeID="DBL" roomTypeName="Double room" mealStatus="BB">
+      </RoomStay>
+    </RoomStays>
+    <PrimaryGuest>
+      <Name givenName="Luca" surname="Wexler" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email />
+      <Phone />
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks" />
+    <ReservationRemarks>
+      <PrintedRemarks>
+</PrintedRemarks>
+      <NonPrintedRemarks />
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <GuestCount adult="2" child="0" baby="0" youth="0" />
+      <Timespan arrival="07/07/2026" departure="10/07/2026" />
+      <Total AmountAfterTaxes="6.00" CurrencyCode="ILS" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Minihotel_reservation_id="007004347" type="Query" createDateTime="07/07/2026" Status="IN" ModifyAllowed="YES" NumofKeys="000" source="" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="NO">
+    <RoomStays>
+      <RoomStay roomNumber="304" roomTypeID="DBL" roomTypeName="Double room" mealStatus="BB">
+      </RoomStay>
+    </RoomStays>
+    <PrimaryGuest>
+      <Name givenName="Yara" surname="Eriksen" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email />
+      <Phone />
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks" />
+    <ReservationRemarks>
+      <PrintedRemarks>
+</PrintedRemarks>
+      <NonPrintedRemarks />
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <GuestCount adult="2" child="0" baby="0" youth="0" />
+      <Timespan arrival="07/07/2026" departure="08/07/2026" />
+      <Total AmountAfterTaxes="2.00" CurrencyCode="ILS" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Minihotel_reservation_id="007004348" type="Query" createDateTime="07/07/2026" Status="OUT" ModifyAllowed="YES" NumofKeys="000" source="" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="NO">
+    <RoomStays>
+      <RoomStay roomNumber="301" roomTypeID="Twin" roomTypeName="Twin Room" mealStatus="BB">
+      </RoomStay>
+    </RoomStays>
+    <PrimaryGuest>
+      <Name givenName="Dmitri" surname="Almeida" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email />
+      <Phone />
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks" />
+    <ReservationRemarks>
+      <PrintedRemarks>
+</PrintedRemarks>
+      <NonPrintedRemarks />
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <GuestCount adult="2" child="0" baby="0" youth="0" />
+      <Timespan arrival="06/07/2026" departure="07/07/2026" />
+      <Total AmountAfterTaxes="124.00" CurrencyCode="USD" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Minihotel_reservation_id="007004349" type="Query" createDateTime="07/07/2026" Status="IN" ModifyAllowed="YES" NumofKeys="000" source="" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="NO">
+    <RoomStays>
+      <RoomStay roomNumber="901" roomTypeID="2BEDAPT" roomTypeName="Two bedroom apartment" mealStatus="BB">
+      </RoomStay>
+    </RoomStays>
+    <PrimaryGuest>
+      <Name givenName="Dmitri" surname="Vargas" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email />
+      <Phone />
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks" />
+    <ReservationRemarks>
+      <PrintedRemarks>
+</PrintedRemarks>
+      <NonPrintedRemarks />
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <GuestCount adult="2" child="0" baby="0" youth="0" />
+      <Timespan arrival="07/07/2026" departure="08/07/2026" />
+      <Total AmountAfterTaxes="229.00" CurrencyCode="USD" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Minihotel_reservation_id="007004350" type="Query" createDateTime="07/07/2026" Status="CL" ModifyAllowed="YES" NumofKeys="000" source="" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="NO">
+    <RoomStays>
+      <RoomStay roomNumber="903" roomTypeID="2BEDAPT" roomTypeName="Two bedroom apartment" mealStatus="BB">
+      </RoomStay>
+    </RoomStays>
+    <PrimaryGuest>
+      <Name givenName="Dmitri" surname="Lindqvist" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email />
+      <Phone />
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks" />
+    <ReservationRemarks>
+      <PrintedRemarks>
+</PrintedRemarks>
+      <NonPrintedRemarks />
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <GuestCount adult="2" child="0" baby="0" youth="0" />
+      <Timespan arrival="07/07/2026" departure="08/07/2026" />
+      <Total AmountAfterTaxes="211.00" CurrencyCode="USD" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Minihotel_reservation_id="007004351" type="Query" createDateTime="08/07/2026" Status="OUT" ModifyAllowed="YES" NumofKeys="000" source="" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="NO">
+    <RoomStays>
+      <RoomStay roomNumber="605" roomTypeID="DBL" roomTypeName="Double room" mealStatus="BB">
+      </RoomStay>
+    </RoomStays>
+    <PrimaryGuest>
+      <Name givenName="Quinn" surname="Petrov" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email />
+      <Phone />
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks" />
+    <ReservationRemarks>
+      <PrintedRemarks>
+</PrintedRemarks>
+      <NonPrintedRemarks />
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <GuestCount adult="2" child="0" baby="0" youth="0" />
+      <Timespan arrival="07/07/2026" departure="08/07/2026" />
+      <Total AmountAfterTaxes="282.00" CurrencyCode="USD" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Minihotel_reservation_id="007004352" type="Query" createDateTime="08/07/2026" Status="IN" ModifyAllowed="YES" NumofKeys="000" source="" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="NO">
+    <RoomStays>
+      <RoomStay roomNumber="701" roomTypeID="2BEDAPT" roomTypeName="Two bedroom apartment" mealStatus="BB">
+      </RoomStay>
+    </RoomStays>
+    <PrimaryGuest>
+      <Name givenName="Quinn" surname="Duarte" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email />
+      <Phone />
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks" />
+    <ReservationRemarks>
+      <PrintedRemarks>
+</PrintedRemarks>
+      <NonPrintedRemarks />
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <GuestCount adult="2" child="0" baby="0" youth="0" />
+      <Timespan arrival="07/07/2026" departure="08/07/2026" />
+      <Total AmountAfterTaxes="229.00" CurrencyCode="USD" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Minihotel_reservation_id="007004353" type="Query" createDateTime="08/07/2026" Status="IN" ModifyAllowed="YES" NumofKeys="000" source="" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="NO">
+    <RoomStays>
+      <RoomStay roomNumber="501" roomTypeID="SNG" roomTypeName="MEGA TEST 2 Y 3" mealStatus="BB">
+      </RoomStay>
+    </RoomStays>
+    <PrimaryGuest>
+      <Name givenName="Wren" surname="Kowalski" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email />
+      <Phone />
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks" />
+    <ReservationRemarks>
+      <PrintedRemarks>
+</PrintedRemarks>
+      <NonPrintedRemarks />
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <GuestCount adult="2" child="0" baby="0" youth="0" />
+      <Timespan arrival="08/07/2026" departure="10/07/2026" />
+      <Total AmountAfterTaxes="304.00" CurrencyCode="USD" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Minihotel_reservation_id="007004354" type="Query" createDateTime="08/07/2026" Status="OUT" ModifyAllowed="YES" NumofKeys="000" source="" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="NO">
+    <RoomStays>
+      <RoomStay roomNumber="809" roomTypeID="SNG" roomTypeName="MEGA TEST 2 Y 3" mealStatus="BB">
+      </RoomStay>
+    </RoomStays>
+    <PrimaryGuest>
+      <Name givenName="Quinn" surname="Petrov" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email />
+      <Phone />
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks" />
+    <ReservationRemarks>
+      <PrintedRemarks>
+</PrintedRemarks>
+      <NonPrintedRemarks />
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <GuestCount adult="2" child="0" baby="0" youth="0" />
+      <Timespan arrival="08/07/2026" departure="09/07/2026" />
+      <Total AmountAfterTaxes="152.00" CurrencyCode="USD" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Minihotel_reservation_id="007004355" type="Query" createDateTime="08/07/2026" Status="IN" ModifyAllowed="YES" NumofKeys="000" source="" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="NO">
+    <RoomStays>
+      <RoomStay roomNumber="903" roomTypeID="2BEDAPT" roomTypeName="Two bedroom apartment" mealStatus="BB">
+      </RoomStay>
+    </RoomStays>
+    <PrimaryGuest>
+      <Name givenName="Quinn" surname="Almeida" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email />
+      <Phone />
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks" />
+    <ReservationRemarks>
+      <PrintedRemarks>
+</PrintedRemarks>
+      <NonPrintedRemarks />
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <GuestCount adult="2" child="0" baby="0" youth="0" />
+      <Timespan arrival="08/07/2026" departure="09/07/2026" />
+      <Total AmountAfterTaxes="228.00" CurrencyCode="USD" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Minihotel_reservation_id="007004356" type="Query" createDateTime="08/07/2026" Status="CL" ModifyAllowed="YES" NumofKeys="000" source="" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="NO">
+    <RoomStays>
+      <RoomStay roomNumber="904" roomTypeID="2BEDAPT" roomTypeName="Two bedroom apartment" mealStatus="BB">
+      </RoomStay>
+    </RoomStays>
+    <PrimaryGuest>
+      <Name givenName="Quinn" surname="Ionescu" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email />
+      <Phone />
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks" />
+    <ReservationRemarks>
+      <PrintedRemarks>
+</PrintedRemarks>
+      <NonPrintedRemarks />
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <GuestCount adult="2" child="0" baby="0" youth="0" />
+      <Timespan arrival="08/07/2026" departure="09/07/2026" />
+      <Total AmountAfterTaxes="228.00" CurrencyCode="USD" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Portal_reservation_id="H3_B10146" Minihotel_reservation_id="007004357" type="Query" createDateTime="08/07/2026" Status="IN" ModifyAllowed="YES" NumofKeys="000" source="KIOSK" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="NO">
+    <RoomStays>
+      <RoomStay roomNumber="701" roomTypeID="2BEDAPT" roomTypeName="Two bedroom apartment" mealStatus="BB">
+      </RoomStay>
+    </RoomStays>
+    <PrimaryGuest>
+      <Name givenName="Luca" surname="Zavala" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="IL" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email>pavel.petrov@example.example</Email>
+      <Phone>082248805</Phone>
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks">[remark redacted for publication - see tools/scrub_fixtures.py]</SpecialRequest>
+    <ReservationRemarks>
+      <PrintedRemarks>[remark redacted for publication - see tools/scrub_fixtures.py]</PrintedRemarks>
+      <NonPrintedRemarks />
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <GuestCount adult="1" child="0" baby="0" youth="0" />
+      <Timespan arrival="08/07/2026" departure="09/07/2026" />
+      <Total AmountAfterTaxes="228.00" CurrencyCode="ILS" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Portal_reservation_id="TEST-1783551971555" Minihotel_reservation_id="007004358" type="Query" createDateTime="09/07/2026" Status="CL" ModifyAllowed="YES" NumofKeys="000" source="Nightel" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="NO">
+    <RoomStays>
+      <RoomStay roomNumber="01" roomTypeID="DBL" roomTypeName="Double room" mealStatus="BB">
+      </RoomStay>
+    </RoomStays>
+    <PrimaryGuest>
+      <Name givenName="Hugo" surname="Olsen" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="IL" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email>tova.torres@example.example</Email>
+      <Phone>1738988195660</Phone>
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks">[remark redacted for publication - see tools/scrub_fixtures.py]</SpecialRequest>
+    <ReservationRemarks>
+      <PrintedRemarks>[remark redacted for publication - see tools/scrub_fixtures.py]</PrintedRemarks>
+      <NonPrintedRemarks />
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <GuestCount adult="2" child="0" baby="0" youth="0" />
+      <Timespan arrival="09/07/2026" departure="10/07/2026" />
+      <Total AmountAfterTaxes="150.00" CurrencyCode="USD" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Portal_reservation_id="TEST-1783552289039" Minihotel_reservation_id="007004359" type="Query" createDateTime="09/07/2026" Status="CL" ModifyAllowed="YES" NumofKeys="000" source="Nightel" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="NO">
+    <RoomStays>
+      <RoomStay roomNumber="01" roomTypeID="DBL" roomTypeName="Double room" mealStatus="BB">
+      </RoomStay>
+    </RoomStays>
+    <PrimaryGuest>
+      <Name givenName="Hugo" surname="Olsen" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="IL" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email>tova.torres@example.example</Email>
+      <Phone>1738988195660</Phone>
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks">[remark redacted for publication - see tools/scrub_fixtures.py]</SpecialRequest>
+    <ReservationRemarks>
+      <PrintedRemarks>[remark redacted for publication - see tools/scrub_fixtures.py]</PrintedRemarks>
+      <NonPrintedRemarks />
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <GuestCount adult="2" child="0" baby="0" youth="0" />
+      <Timespan arrival="09/07/2026" departure="10/07/2026" />
+      <Total AmountAfterTaxes="150.00" CurrencyCode="USD" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Portal_reservation_id="TEST-1783553382226" Minihotel_reservation_id="007004360" type="Query" createDateTime="09/07/2026" Status="CL" ModifyAllowed="YES" NumofKeys="000" source="Nightel" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="NO">
+    <RoomStays>
+      <RoomStay roomNumber="01" roomTypeID="DBL" roomTypeName="Double room" mealStatus="BB">
+      </RoomStay>
+    </RoomStays>
+    <PrimaryGuest>
+      <Name givenName="Hugo" surname="Olsen" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="IL" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email>tova.torres@example.example</Email>
+      <Phone>1738988195660</Phone>
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks">[remark redacted for publication - see tools/scrub_fixtures.py]</SpecialRequest>
+    <ReservationRemarks>
+      <PrintedRemarks>[remark redacted for publication - see tools/scrub_fixtures.py]</PrintedRemarks>
+      <NonPrintedRemarks />
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <GuestCount adult="2" child="0" baby="0" youth="0" />
+      <Timespan arrival="09/07/2026" departure="10/07/2026" />
+      <Total AmountAfterTaxes="150.00" CurrencyCode="USD" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Portal_reservation_id="TEST-1783553495987" Minihotel_reservation_id="007004361" type="Query" createDateTime="09/07/2026" Status="CL" ModifyAllowed="YES" NumofKeys="000" source="Nightel" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="NO">
+    <RoomStays>
+      <RoomStay roomNumber="01" roomTypeID="DBL" roomTypeName="Double room" mealStatus="BB">
+      </RoomStay>
+    </RoomStays>
+    <PrimaryGuest>
+      <Name givenName="Hugo" surname="Olsen" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="IL" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email>tova.torres@example.example</Email>
+      <Phone>1738988195660</Phone>
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks">[remark redacted for publication - see tools/scrub_fixtures.py]</SpecialRequest>
+    <ReservationRemarks>
+      <PrintedRemarks>[remark redacted for publication - see tools/scrub_fixtures.py]</PrintedRemarks>
+      <NonPrintedRemarks />
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <GuestCount adult="2" child="0" baby="0" youth="0" />
+      <Timespan arrival="09/07/2026" departure="10/07/2026" />
+      <Total AmountAfterTaxes="150.00" CurrencyCode="USD" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Portal_reservation_id="TEST-1783554508804" Minihotel_reservation_id="007004362" type="Query" createDateTime="09/07/2026" Status="CL" ModifyAllowed="YES" NumofKeys="000" source="Nightel" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="NO">
+    <RoomStays>
+      <RoomStay roomNumber="01" roomTypeID="DBL" roomTypeName="Double room" mealStatus="BB">
+      </RoomStay>
+    </RoomStays>
+    <PrimaryGuest>
+      <Name givenName="Hugo" surname="Olsen" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="IL" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email>tova.torres@example.example</Email>
+      <Phone>1738988195660</Phone>
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks">[remark redacted for publication - see tools/scrub_fixtures.py]</SpecialRequest>
+    <ReservationRemarks>
+      <PrintedRemarks>[remark redacted for publication - see tools/scrub_fixtures.py]</PrintedRemarks>
+      <NonPrintedRemarks />
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <GuestCount adult="2" child="0" baby="0" youth="0" />
+      <Timespan arrival="09/07/2026" departure="10/07/2026" />
+      <Total AmountAfterTaxes="150.00" CurrencyCode="USD" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Portal_reservation_id="TEST-1783554986565" Minihotel_reservation_id="007004363" type="Query" createDateTime="09/07/2026" Status="CL" ModifyAllowed="YES" NumofKeys="000" source="Nightel" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="NO">
+    <RoomStays>
+      <RoomStay roomNumber="01" roomTypeID="DBL" roomTypeName="Double room" mealStatus="BB">
+      </RoomStay>
+    </RoomStays>
+    <PrimaryGuest>
+      <Name givenName="Hugo" surname="Olsen" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="IL" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email>tova.torres@example.example</Email>
+      <Phone>1738988195660</Phone>
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks">[remark redacted for publication - see tools/scrub_fixtures.py]</SpecialRequest>
+    <ReservationRemarks>
+      <PrintedRemarks>[remark redacted for publication - see tools/scrub_fixtures.py]</PrintedRemarks>
+      <NonPrintedRemarks />
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <GuestCount adult="2" child="0" baby="0" youth="0" />
+      <Timespan arrival="09/07/2026" departure="10/07/2026" />
+      <Total AmountAfterTaxes="150.00" CurrencyCode="USD" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Minihotel_reservation_id="007004364" type="Query" createDateTime="09/07/2026" Status="IN" ModifyAllowed="YES" NumofKeys="000" source="AG" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="YES">
+    <RoomStays>
+      <RoomStay roomNumber="808" roomTypeID="DBL" roomTypeName="Double room" mealStatus="BB" memberSerial="00001">
+        <StayDate arrival="2026-07-08" departure="2026-07-11" />
+        <RoomCount NumberOfUnits="1" />
+        <GuestCount adult="2" child="0" baby="0" youth="0" />
+        <GuestNames>
+          <Name givenName="Sten" surname="Vargas" />
+        </GuestNames>
+        <IdNumber />
+        <Email />
+        <Phone />
+        <Status>IN</Status>
+      </RoomStay>
+    </RoomStays>
+    <PrimaryGuest>
+      <Name givenName="Sten" surname="Vargas" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="AR" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email />
+      <Phone />
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks" />
+    <ReservationRemarks>
+      <PrintedRemarks />
+      <NonPrintedRemarks />
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <Timespan arrival="08/07/2026" departure="11/07/2026" />
+      <Total AmountAfterTaxes="846.00" CurrencyCode="USD" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Minihotel_reservation_id="007004365" type="Query" createDateTime="09/07/2026" Status="OUT" ModifyAllowed="YES" NumofKeys="000" source="" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="NO">
+    <RoomStays>
+      <RoomStay roomNumber="809" roomTypeID="SNG" roomTypeName="MEGA TEST 2 Y 3" mealStatus="BB">
+      </RoomStay>
+    </RoomStays>
+    <PrimaryGuest>
+      <Name givenName="Wren" surname="Duarte" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email />
+      <Phone />
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks" />
+    <ReservationRemarks>
+      <PrintedRemarks>
+</PrintedRemarks>
+      <NonPrintedRemarks />
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <GuestCount adult="2" child="0" baby="0" youth="0" />
+      <Timespan arrival="09/07/2026" departure="10/07/2026" />
+      <Total AmountAfterTaxes="152.00" CurrencyCode="USD" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Minihotel_reservation_id="007004366" type="Query" createDateTime="09/07/2026" Status="IN" ModifyAllowed="YES" NumofKeys="000" source="Booking" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="YES">
+    <RoomStays>
+      <RoomStay roomNumber="104" roomTypeID="Twin" roomTypeName="Twin Room" mealStatus="BB" memberSerial="00001">
+        <StayDate arrival="2026-07-09" departure="2026-07-10" />
+        <RoomCount NumberOfUnits="1" />
+        <GuestCount adult="2" child="0" baby="0" youth="0" />
+        <GuestNames>
+          <Name givenName="Sten" surname="Lindqvist" />
+        </GuestNames>
+        <IdNumber />
+        <Email />
+        <Phone />
+        <Status>IN</Status>
+      </RoomStay>
+    </RoomStays>
+    <PrimaryGuest>
+      <Name givenName="Sten" surname="Lindqvist" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="GB" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email />
+      <Phone />
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks" />
+    <ReservationRemarks>
+      <PrintedRemarks />
+      <NonPrintedRemarks />
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <Timespan arrival="09/07/2026" departure="10/07/2026" />
+      <Total AmountAfterTaxes="118.00" CurrencyCode="USD" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Minihotel_reservation_id="007004367" type="Query" createDateTime="10/07/2026" Status="OK" ModifyAllowed="YES" NumofKeys="000" source="Daka90" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="YES">
+    <RoomStays>
+      <RoomStay roomNumber="301" roomTypeID="Twin" roomTypeName="Twin Room" mealStatus="BB" memberSerial="00001">
+        <StayDate arrival="2026-07-10" departure="2026-07-13" />
+        <RoomCount NumberOfUnits="1" />
+        <GuestCount adult="2" child="0" baby="0" youth="0" />
+        <GuestNames>
+          <Name givenName="Hugo" surname="Moreau" />
+        </GuestNames>
+        <IdNumber>158310</IdNumber>
+        <Email />
+        <Phone />
+        <Status />
+      </RoomStay>
+      <RoomStay roomNumber="302" roomTypeID="DBL" roomTypeName="Double room" mealStatus="BB" memberSerial="00002">
+        <StayDate arrival="2026-07-10" departure="2026-07-12" />
+        <RoomCount NumberOfUnits="1" />
+        <GuestCount adult="2" child="0" baby="0" youth="0" />
+        <GuestNames>
+          <Name givenName="Hugo" surname="Moreau" />
+        </GuestNames>
+        <IdNumber />
+        <Email />
+        <Phone />
+        <Status />
+      </RoomStay>
+      <RoomStay roomNumber="303" roomTypeID="DBL" roomTypeName="Double room" mealStatus="BB" memberSerial="00003">
+        <StayDate arrival="2026-07-10" departure="2026-07-14" />
+        <RoomCount NumberOfUnits="1" />
+        <GuestCount adult="2" child="0" baby="0" youth="0" />
+        <GuestNames>
+          <Name givenName="Hugo" surname="Moreau" />
+        </GuestNames>
+        <IdNumber />
+        <Email />
+        <Phone />
+        <Status>IN</Status>
+      </RoomStay>
+    </RoomStays>
+    <PrimaryGuest>
+      <Name givenName="Hugo" surname="Moreau" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="MV" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber>158310</IdNumber>
+      <Email />
+      <Phone />
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks" />
+    <ReservationRemarks>
+      <PrintedRemarks />
+      <NonPrintedRemarks />
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <Timespan arrival="10/07/2026" departure="14/07/2026" />
+      <Total AmountAfterTaxes="2063.00" CurrencyCode="USD" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Minihotel_reservation_id="007004368" type="Query" createDateTime="12/07/2026" Status="CL" ModifyAllowed="YES" NumofKeys="000" source="Booking" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="YES">
+    <RoomStays>
+      <RoomStay roomNumber="304" roomTypeID="DBL" roomTypeName="Double room" mealStatus="BB" memberSerial="00001">
+        <StayDate arrival="2026-07-12" departure="2026-07-13" />
+        <RoomCount NumberOfUnits="1" />
+        <GuestCount adult="2" child="0" baby="0" youth="0" />
+        <GuestNames>
+          <Name givenName="Luca" surname="Wexler" />
+        </GuestNames>
+        <IdNumber />
+        <Email />
+        <Phone />
+        <Status />
+      </RoomStay>
+    </RoomStays>
+    <PrimaryGuest>
+      <Name givenName="Luca" surname="Wexler" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="IL" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email />
+      <Phone />
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks" />
+    <ReservationRemarks>
+      <PrintedRemarks />
+      <NonPrintedRemarks />
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <Timespan arrival="12/07/2026" departure="13/07/2026" />
+      <Total AmountAfterTaxes="282.00" CurrencyCode="USD" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Minihotel_reservation_id="007004369" type="Query" createDateTime="12/07/2026" Status="CL" ModifyAllowed="YES" NumofKeys="000" source="Booking" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="YES">
+    <RoomStays>
+      <RoomStay roomNumber="401" roomTypeID="Executive" roomTypeName="Executive Room" mealStatus="BB" memberSerial="00001">
+        <StayDate arrival="2026-07-12" departure="2026-07-13" />
+        <RoomCount NumberOfUnits="1" />
+        <GuestCount adult="2" child="0" baby="0" youth="0" />
+        <GuestNames>
+          <Name givenName="Iris" surname="Almeida" />
+        </GuestNames>
+        <IdNumber />
+        <Email />
+        <Phone />
+        <Status />
+      </RoomStay>
+    </RoomStays>
+    <PrimaryGuest>
+      <Name givenName="Iris" surname="Almeida" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="IL" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email />
+      <Phone />
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks" />
+    <ReservationRemarks>
+      <PrintedRemarks>[remark redacted for publication - see tools/scrub_fixtures.py]</PrintedRemarks>
+      <NonPrintedRemarks>[remark redacted for publication - see tools/scrub_fixtures.py]</NonPrintedRemarks>
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <Timespan arrival="12/07/2026" departure="13/07/2026" />
+      <Total AmountAfterTaxes="487.00" CurrencyCode="USD" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Minihotel_reservation_id="007004372" type="Query" createDateTime="13/07/2026" Status="IN" ModifyAllowed="YES" NumofKeys="000" source="Expedia" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="YES">
+    <RoomStays>
+      <RoomStay roomNumber="104" roomTypeID="Twin" roomTypeName="Twin Room" mealStatus="BB" memberSerial="00001">
+        <StayDate arrival="2026-07-13" departure="2026-07-14" />
+        <RoomCount NumberOfUnits="1" />
+        <GuestCount adult="2" child="0" baby="0" youth="0" />
+        <GuestNames>
+          <Name givenName="Cora" surname="Ionescu" />
+        </GuestNames>
+        <IdNumber />
+        <Email />
+        <Phone />
+        <Status>IN</Status>
+      </RoomStay>
+    </RoomStays>
+    <PrimaryGuest>
+      <Name givenName="Cora" surname="Ionescu" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="MG" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email />
+      <Phone />
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks" />
+    <ReservationRemarks>
+      <PrintedRemarks />
+      <NonPrintedRemarks>[remark redacted for publication - see tools/scrub_fixtures.py]</NonPrintedRemarks>
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <Timespan arrival="13/07/2026" departure="14/07/2026" />
+      <Total AmountAfterTaxes="119.00" CurrencyCode="USD" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Minihotel_reservation_id="007004373" type="Query" createDateTime="13/07/2026" Status="CL" ModifyAllowed="YES" NumofKeys="000" source="Booking" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="YES">
+    <RoomStays>
+      <RoomStay roomNumber="302" roomTypeID="DBL" roomTypeName="Double room" mealStatus="BB" memberSerial="00001">
+        <StayDate arrival="2026-07-13" departure="2026-07-14" />
+        <RoomCount NumberOfUnits="1" />
+        <GuestCount adult="2" child="0" baby="0" youth="0" />
+        <GuestNames>
+          <Name givenName="Luca" surname="Zavala" />
+        </GuestNames>
+        <IdNumber />
+        <Email />
+        <Phone />
+        <Status />
+      </RoomStay>
+    </RoomStays>
+    <PrimaryGuest>
+      <Name givenName="Luca" surname="Zavala" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="GB" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email />
+      <Phone />
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks" />
+    <ReservationRemarks>
+      <PrintedRemarks />
+      <NonPrintedRemarks />
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <Timespan arrival="13/07/2026" departure="14/07/2026" />
+      <Total AmountAfterTaxes="282.00" CurrencyCode="USD" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Minihotel_reservation_id="007004374" type="Query" createDateTime="13/07/2026" Status="CL" ModifyAllowed="YES" NumofKeys="000" source="Booking" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="YES">
+    <RoomStays>
+      <RoomStay roomNumber="501" roomTypeID="SNG" roomTypeName="MEGA TEST 2 Y 3" mealStatus="BB" memberSerial="00001">
+        <StayDate arrival="2026-07-13" departure="2026-07-14" />
+        <RoomCount NumberOfUnits="1" />
+        <GuestCount adult="2" child="0" baby="0" youth="0" />
+        <GuestNames>
+          <Name givenName="Luca" surname="Zavala" />
+        </GuestNames>
+        <IdNumber />
+        <Email />
+        <Phone />
+        <Status />
+      </RoomStay>
+    </RoomStays>
+    <PrimaryGuest>
+      <Name givenName="Luca" surname="Zavala" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="GB" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email />
+      <Phone />
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks" />
+    <ReservationRemarks>
+      <PrintedRemarks />
+      <NonPrintedRemarks />
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <Timespan arrival="13/07/2026" departure="14/07/2026" />
+      <Total AmountAfterTaxes="152.00" CurrencyCode="USD" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Minihotel_reservation_id="007004375" type="Query" createDateTime="13/07/2026" Status="CL" ModifyAllowed="YES" NumofKeys="000" source="Booking" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="YES">
+    <RoomStays>
+      <RoomStay roomNumber="605" roomTypeID="DBL" roomTypeName="Double room" mealStatus="BB" memberSerial="00001">
+        <StayDate arrival="2026-07-13" departure="2026-07-14" />
+        <RoomCount NumberOfUnits="1" />
+        <GuestCount adult="2" child="0" baby="0" youth="0" />
+        <GuestNames>
+          <Name givenName="Luca" surname="Zavala" />
+        </GuestNames>
+        <IdNumber />
+        <Email />
+        <Phone />
+        <Status />
+      </RoomStay>
+    </RoomStays>
+    <PrimaryGuest>
+      <Name givenName="Luca" surname="Zavala" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="GB" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email />
+      <Phone />
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks" />
+    <ReservationRemarks>
+      <PrintedRemarks />
+      <NonPrintedRemarks />
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <Timespan arrival="13/07/2026" departure="14/07/2026" />
+      <Total AmountAfterTaxes="2.00" CurrencyCode="ILS" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Minihotel_reservation_id="007004376" type="Query" createDateTime="13/07/2026" Status="CL" ModifyAllowed="YES" NumofKeys="000" source="Booking" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="YES">
+    <RoomStays>
+      <RoomStay roomNumber="101" roomTypeID="DBL" roomTypeName="Double room" mealStatus="BB" memberSerial="00001">
+        <StayDate arrival="2026-07-13" departure="2026-07-14" />
+        <RoomCount NumberOfUnits="1" />
+        <GuestCount adult="2" child="0" baby="0" youth="0" />
+        <GuestNames>
+          <Name givenName="Ada" surname="Yilmaz" />
+        </GuestNames>
+        <IdNumber />
+        <Email />
+        <Phone />
+        <Status />
+      </RoomStay>
+    </RoomStays>
+    <PrimaryGuest>
+      <Name givenName="Ada" surname="Yilmaz" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="GB" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email />
+      <Phone />
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks" />
+    <ReservationRemarks>
+      <PrintedRemarks />
+      <NonPrintedRemarks>[remark redacted for publication - see tools/scrub_fixtures.py]</NonPrintedRemarks>
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <Timespan arrival="13/07/2026" departure="14/07/2026" />
+      <Total AmountAfterTaxes="2.00" CurrencyCode="ILS" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Minihotel_reservation_id="007004377" type="Query" createDateTime="13/07/2026" Status="CL" ModifyAllowed="YES" NumofKeys="000" source="Booking" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="YES">
+    <RoomStays>
+      <RoomStay roomNumber="102" roomTypeID="DBL" roomTypeName="Double room" mealStatus="BB" memberSerial="00001">
+        <StayDate arrival="2026-07-13" departure="2026-07-14" />
+        <RoomCount NumberOfUnits="1" />
+        <GuestCount adult="2" child="0" baby="0" youth="0" />
+        <GuestNames>
+          <Name givenName="Farid" surname="Novak" />
+        </GuestNames>
+        <IdNumber />
+        <Email />
+        <Phone />
+        <Status />
+      </RoomStay>
+    </RoomStays>
+    <PrimaryGuest>
+      <Name givenName="Farid" surname="Novak" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="GB" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email />
+      <Phone />
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks" />
+    <ReservationRemarks>
+      <PrintedRemarks />
+      <NonPrintedRemarks />
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <Timespan arrival="13/07/2026" departure="14/07/2026" />
+      <Total AmountAfterTaxes="2.00" CurrencyCode="ILS" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Minihotel_reservation_id="007004378" type="Query" createDateTime="13/07/2026" Status="CL" ModifyAllowed="YES" NumofKeys="000" source="Booking" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="YES">
+    <RoomStays>
+      <RoomStay roomNumber="102" roomTypeID="DBL" roomTypeName="Double room" mealStatus="BB" memberSerial="00001">
+        <StayDate arrival="2026-07-13" departure="2026-07-14" />
+        <RoomCount NumberOfUnits="1" />
+        <GuestCount adult="2" child="0" baby="0" youth="0" />
+        <GuestNames>
+          <Name givenName="Iris" surname="Almeida" />
+        </GuestNames>
+        <IdNumber />
+        <Email />
+        <Phone />
+        <Status />
+      </RoomStay>
+    </RoomStays>
+    <PrimaryGuest>
+      <Name givenName="Iris" surname="Almeida" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="GB" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email />
+      <Phone />
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks" />
+    <ReservationRemarks>
+      <PrintedRemarks />
+      <NonPrintedRemarks>[remark redacted for publication - see tools/scrub_fixtures.py]</NonPrintedRemarks>
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <Timespan arrival="13/07/2026" departure="14/07/2026" />
+      <Total AmountAfterTaxes="2.00" CurrencyCode="ILS" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Minihotel_reservation_id="007004379" type="Query" createDateTime="13/07/2026" Status="CL" ModifyAllowed="YES" NumofKeys="000" source="Booking" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="YES">
+    <RoomStays>
+      <RoomStay roomNumber="606" roomTypeID="APT_SEA" roomTypeName="Apartment Sea View" mealStatus="BB" memberSerial="00001">
+        <StayDate arrival="2026-07-13" departure="2026-07-14" />
+        <RoomCount NumberOfUnits="1" />
+        <GuestCount adult="2" child="0" baby="0" youth="0" />
+        <GuestNames>
+          <Name givenName="Yara" surname="Eriksen" />
+        </GuestNames>
+        <IdNumber />
+        <Email />
+        <Phone />
+        <Status />
+      </RoomStay>
+    </RoomStays>
+    <PrimaryGuest>
+      <Name givenName="Yara" surname="Eriksen" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="GB" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email />
+      <Phone />
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks" />
+    <ReservationRemarks>
+      <PrintedRemarks />
+      <NonPrintedRemarks>[remark redacted for publication - see tools/scrub_fixtures.py]</NonPrintedRemarks>
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <Timespan arrival="13/07/2026" departure="14/07/2026" />
+      <Total AmountAfterTaxes="2.00" CurrencyCode="ILS" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Minihotel_reservation_id="007004380" type="Query" createDateTime="13/07/2026" Status="CL" ModifyAllowed="YES" NumofKeys="000" source="Booking" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="YES">
+    <RoomStays>
+      <RoomStay roomNumber="701" roomTypeID="2BEDAPT" roomTypeName="Two bedroom apartment" mealStatus="BB" memberSerial="00001">
+        <StayDate arrival="2026-07-13" departure="2026-07-14" />
+        <RoomCount NumberOfUnits="1" />
+        <GuestCount adult="2" child="0" baby="0" youth="0" />
+        <GuestNames>
+          <Name givenName="Bruno" surname="Novak" />
+        </GuestNames>
+        <IdNumber />
+        <Email />
+        <Phone />
+        <Status />
+      </RoomStay>
+    </RoomStays>
+    <PrimaryGuest>
+      <Name givenName="Bruno" surname="Novak" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="GB" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email />
+      <Phone />
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks" />
+    <ReservationRemarks>
+      <PrintedRemarks />
+      <NonPrintedRemarks>[remark redacted for publication - see tools/scrub_fixtures.py]</NonPrintedRemarks>
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <Timespan arrival="13/07/2026" departure="14/07/2026" />
+      <Total AmountAfterTaxes="2.00" CurrencyCode="ILS" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Minihotel_reservation_id="007004381" type="Query" createDateTime="13/07/2026" Status="CL" ModifyAllowed="YES" NumofKeys="000" source="Booking" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="YES">
+    <RoomStays>
+      <RoomStay roomNumber="01" roomTypeID="DBL" roomTypeName="Double room" mealStatus="BB" memberSerial="00001">
+        <StayDate arrival="2026-07-13" departure="2026-07-14" />
+        <RoomCount NumberOfUnits="1" />
+        <GuestCount adult="2" child="0" baby="0" youth="0" />
+        <GuestNames>
+          <Name givenName="Iris" surname="Almeida" />
+        </GuestNames>
+        <IdNumber />
+        <Email />
+        <Phone />
+        <Status />
+      </RoomStay>
+    </RoomStays>
+    <PrimaryGuest>
+      <Name givenName="Iris" surname="Almeida" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="GB" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email />
+      <Phone />
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks" />
+    <ReservationRemarks>
+      <PrintedRemarks />
+      <NonPrintedRemarks>[remark redacted for publication - see tools/scrub_fixtures.py]</NonPrintedRemarks>
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <Timespan arrival="13/07/2026" departure="14/07/2026" />
+      <Total AmountAfterTaxes="2.00" CurrencyCode="ILS" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Minihotel_reservation_id="007004382" type="Query" createDateTime="13/07/2026" Status="CL" ModifyAllowed="YES" NumofKeys="000" source="Booking" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="YES">
+    <RoomStays>
+      <RoomStay roomNumber="02" roomTypeID="DBL" roomTypeName="Double room" mealStatus="BB" memberSerial="00001">
+        <StayDate arrival="2026-07-13" departure="2026-07-14" />
+        <RoomCount NumberOfUnits="1" />
+        <GuestCount adult="2" child="0" baby="0" youth="0" />
+        <GuestNames>
+          <Name givenName="Farid" surname="Grimaldi" />
+        </GuestNames>
+        <IdNumber />
+        <Email />
+        <Phone />
+        <Status />
+      </RoomStay>
+    </RoomStays>
+    <PrimaryGuest>
+      <Name givenName="Farid" surname="Grimaldi" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="GB" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email />
+      <Phone />
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks" />
+    <ReservationRemarks>
+      <PrintedRemarks />
+      <NonPrintedRemarks>[remark redacted for publication - see tools/scrub_fixtures.py]</NonPrintedRemarks>
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <Timespan arrival="13/07/2026" departure="14/07/2026" />
+      <Total AmountAfterTaxes="2.00" CurrencyCode="ILS" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Minihotel_reservation_id="007004383" type="Query" createDateTime="13/07/2026" Status="CL" ModifyAllowed="YES" NumofKeys="000" source="Booking" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="YES">
+    <RoomStays>
+      <RoomStay roomNumber="101" roomTypeID="DBL" roomTypeName="Double room" mealStatus="BB" memberSerial="00001">
+        <StayDate arrival="2026-07-13" departure="2026-07-14" />
+        <RoomCount NumberOfUnits="1" />
+        <GuestCount adult="2" child="0" baby="0" youth="0" />
+        <GuestNames>
+          <Name givenName="Iris" surname="Almeida" />
+        </GuestNames>
+        <IdNumber />
+        <Email />
+        <Phone />
+        <Status />
+      </RoomStay>
+    </RoomStays>
+    <PrimaryGuest>
+      <Name givenName="Iris" surname="Almeida" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="GB" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email />
+      <Phone />
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks" />
+    <ReservationRemarks>
+      <PrintedRemarks />
+      <NonPrintedRemarks>[remark redacted for publication - see tools/scrub_fixtures.py]</NonPrintedRemarks>
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <Timespan arrival="13/07/2026" departure="14/07/2026" />
+      <Total AmountAfterTaxes="2.00" CurrencyCode="ILS" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Minihotel_reservation_id="007004384" type="Query" createDateTime="13/07/2026" Status="CL" ModifyAllowed="YES" NumofKeys="000" source="Expedia" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="YES">
+    <RoomStays>
+      <RoomStay roomNumber="01" roomTypeID="DBL" roomTypeName="Double room" mealStatus="BB" memberSerial="00001">
+        <StayDate arrival="2026-07-13" departure="2026-07-14" />
+        <RoomCount NumberOfUnits="1" />
+        <GuestCount adult="2" child="0" baby="0" youth="0" />
+        <GuestNames>
+          <Name givenName="Xenia" surname="Almeida" />
+        </GuestNames>
+        <IdNumber />
+        <Email />
+        <Phone />
+        <Status />
+      </RoomStay>
+    </RoomStays>
+    <PrimaryGuest>
+      <Name givenName="Xenia" surname="Almeida" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="IL" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email />
+      <Phone />
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks" />
+    <ReservationRemarks>
+      <PrintedRemarks />
+      <NonPrintedRemarks />
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <Timespan arrival="13/07/2026" departure="14/07/2026" />
+      <Total AmountAfterTaxes="2.00" CurrencyCode="ILS" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Portal_reservation_id="H3_B10147" Minihotel_reservation_id="007004385" type="Query" createDateTime="13/07/2026" Status="CL" ModifyAllowed="YES" NumofKeys="000" source="KIOSK" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="NO">
+    <RoomStays>
+      <RoomStay roomNumber="701" roomTypeID="2BEDAPT" roomTypeName="Two bedroom apartment" mealStatus="BB">
+      </RoomStay>
+    </RoomStays>
+    <PrimaryGuest>
+      <Name givenName="Xenia" surname="Almeida" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="IL" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email>nils.novak@example.example</Email>
+      <Phone>04751693539</Phone>
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks">[remark redacted for publication - see tools/scrub_fixtures.py]</SpecialRequest>
+    <ReservationRemarks>
+      <PrintedRemarks>[remark redacted for publication - see tools/scrub_fixtures.py]</PrintedRemarks>
+      <NonPrintedRemarks>[remark redacted for publication - see tools/scrub_fixtures.py]</NonPrintedRemarks>
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <GuestCount adult="1" child="0" baby="0" youth="0" />
+      <Timespan arrival="13/07/2026" departure="14/07/2026" />
+      <Total AmountAfterTaxes="232.00" CurrencyCode="ILS" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Portal_reservation_id="H3_B10148" Minihotel_reservation_id="007004386" type="Query" createDateTime="13/07/2026" Status="CL" ModifyAllowed="YES" NumofKeys="000" source="KIOSK" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="NO">
+    <RoomStays>
+      <RoomStay roomNumber="701" roomTypeID="2BEDAPT" roomTypeName="Two bedroom apartment" mealStatus="BB">
+      </RoomStay>
+    </RoomStays>
+    <PrimaryGuest>
+      <Name givenName="Xenia" surname="Almeida" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="IL" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email>mira.moreau@example.example</Email>
+      <Phone>0887611334</Phone>
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks">[remark redacted for publication - see tools/scrub_fixtures.py]</SpecialRequest>
+    <ReservationRemarks>
+      <PrintedRemarks>[remark redacted for publication - see tools/scrub_fixtures.py]</PrintedRemarks>
+      <NonPrintedRemarks>[remark redacted for publication - see tools/scrub_fixtures.py]</NonPrintedRemarks>
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <GuestCount adult="1" child="0" baby="0" youth="0" />
+      <Timespan arrival="13/07/2026" departure="14/07/2026" />
+      <Total AmountAfterTaxes="232.00" CurrencyCode="ILS" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Portal_reservation_id="H3_B10149" Minihotel_reservation_id="007004387" type="Query" createDateTime="13/07/2026" Status="CL" ModifyAllowed="YES" NumofKeys="000" source="KIOSK" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="NO">
+    <RoomStays>
+      <RoomStay roomNumber="701" roomTypeID="2BEDAPT" roomTypeName="Two bedroom apartment" mealStatus="BB">
+      </RoomStay>
+    </RoomStays>
+    <PrimaryGuest>
+      <Name givenName="Xenia" surname="Almeida" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="IL" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email>mira.moreau@example.example</Email>
+      <Phone>0274174403</Phone>
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks">[remark redacted for publication - see tools/scrub_fixtures.py]</SpecialRequest>
+    <ReservationRemarks>
+      <PrintedRemarks>[remark redacted for publication - see tools/scrub_fixtures.py]</PrintedRemarks>
+      <NonPrintedRemarks>[remark redacted for publication - see tools/scrub_fixtures.py]</NonPrintedRemarks>
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <GuestCount adult="1" child="0" baby="0" youth="0" />
+      <Timespan arrival="13/07/2026" departure="14/07/2026" />
+      <Total AmountAfterTaxes="232.00" CurrencyCode="ILS" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Portal_reservation_id="H3_B10150" Minihotel_reservation_id="007004388" type="Query" createDateTime="13/07/2026" Status="CL" ModifyAllowed="YES" NumofKeys="000" source="KIOSK" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="NO">
+    <RoomStays>
+      <RoomStay roomNumber="701" roomTypeID="2BEDAPT" roomTypeName="Two bedroom apartment" mealStatus="BB">
+      </RoomStay>
+    </RoomStays>
+    <PrimaryGuest>
+      <Name givenName="Xenia" surname="Almeida" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="IL" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email>janek.jansen@example.example</Email>
+      <Phone>02324629277</Phone>
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks">[remark redacted for publication - see tools/scrub_fixtures.py]</SpecialRequest>
+    <ReservationRemarks>
+      <PrintedRemarks>[remark redacted for publication - see tools/scrub_fixtures.py]</PrintedRemarks>
+      <NonPrintedRemarks />
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <GuestCount adult="1" child="0" baby="0" youth="0" />
+      <Timespan arrival="13/07/2026" departure="15/07/2026" />
+      <Total AmountAfterTaxes="474.00" CurrencyCode="ILS" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Portal_reservation_id="H3_B10151" Minihotel_reservation_id="007004389" type="Query" createDateTime="13/07/2026" Status="CL" ModifyAllowed="YES" NumofKeys="000" source="KIOSK" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="NO">
+    <RoomStays>
+      <RoomStay roomNumber="701" roomTypeID="2BEDAPT" roomTypeName="Two bedroom apartment" mealStatus="BB">
+      </RoomStay>
+    </RoomStays>
+    <PrimaryGuest>
+      <Name givenName="Xenia" surname="Almeida" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="IL" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email>ada.almeida@example.example</Email>
+      <Phone>03589270487</Phone>
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks">[remark redacted for publication - see tools/scrub_fixtures.py]</SpecialRequest>
+    <ReservationRemarks>
+      <PrintedRemarks>[remark redacted for publication - see tools/scrub_fixtures.py]</PrintedRemarks>
+      <NonPrintedRemarks />
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <GuestCount adult="1" child="0" baby="0" youth="0" />
+      <Timespan arrival="13/07/2026" departure="15/07/2026" />
+      <Total AmountAfterTaxes="474.00" CurrencyCode="ILS" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Portal_reservation_id="H3_B10152" Minihotel_reservation_id="007004390" type="Query" createDateTime="13/07/2026" Status="CL" ModifyAllowed="YES" NumofKeys="000" source="KIOSK" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="NO">
+    <RoomStays>
+      <RoomStay roomNumber="01" roomTypeID="DBL" roomTypeName="Double room" mealStatus="BB">
+      </RoomStay>
+    </RoomStays>
+    <PrimaryGuest>
+      <Name givenName="Xenia" surname="Almeida" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="IL" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email>wren.wexler@example.example</Email>
+      <Phone>0879919583</Phone>
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks">[remark redacted for publication - see tools/scrub_fixtures.py]</SpecialRequest>
+    <ReservationRemarks>
+      <PrintedRemarks>[remark redacted for publication - see tools/scrub_fixtures.py]</PrintedRemarks>
+      <NonPrintedRemarks />
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <GuestCount adult="1" child="0" baby="0" youth="0" />
+      <Timespan arrival="13/07/2026" departure="14/07/2026" />
+      <Total AmountAfterTaxes="181.00" CurrencyCode="ILS" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Minihotel_reservation_id="007004391" type="Query" createDateTime="14/07/2026" Status="IN" ModifyAllowed="YES" NumofKeys="000" source="Booking" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="YES">
+    <RoomStays>
+      <RoomStay roomNumber="02" roomTypeID="DBL" roomTypeName="Double room" mealStatus="BB" memberSerial="00001">
+        <StayDate arrival="2026-07-14" departure="2026-07-15" />
+        <RoomCount NumberOfUnits="1" />
+        <GuestCount adult="2" child="0" baby="0" youth="0" />
+        <GuestNames>
+          <Name givenName="Iris" surname="Almeida" />
+        </GuestNames>
+        <IdNumber />
+        <Email />
+        <Phone />
+        <Status>IN</Status>
+      </RoomStay>
+    </RoomStays>
+    <PrimaryGuest>
+      <Name givenName="Iris" surname="Almeida" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="GB" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email />
+      <Phone />
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks" />
+    <ReservationRemarks>
+      <PrintedRemarks />
+      <NonPrintedRemarks>[remark redacted for publication - see tools/scrub_fixtures.py]</NonPrintedRemarks>
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <Timespan arrival="14/07/2026" departure="15/07/2026" />
+      <Total AmountAfterTaxes="2.00" CurrencyCode="ILS" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Portal_reservation_id="H3_B10153" Minihotel_reservation_id="007004392" type="Query" createDateTime="14/07/2026" Status="CL" ModifyAllowed="YES" NumofKeys="000" source="KIOSK" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="NO">
+    <RoomStays>
+      <RoomStay roomNumber="701" roomTypeID="2BEDAPT" roomTypeName="Two bedroom apartment" mealStatus="BB">
+      </RoomStay>
+    </RoomStays>
+    <PrimaryGuest>
+      <Name givenName="Xenia" surname="Almeida" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="IL" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email>mira.moreau@example.example</Email>
+      <Phone>0879919583</Phone>
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks">[remark redacted for publication - see tools/scrub_fixtures.py]</SpecialRequest>
+    <ReservationRemarks>
+      <PrintedRemarks>[remark redacted for publication - see tools/scrub_fixtures.py]</PrintedRemarks>
+      <NonPrintedRemarks />
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <GuestCount adult="1" child="0" baby="0" youth="0" />
+      <Timespan arrival="14/07/2026" departure="15/07/2026" />
+      <Total AmountAfterTaxes="226.00" CurrencyCode="ILS" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Portal_reservation_id="H3_B10154" Minihotel_reservation_id="007004393" type="Query" createDateTime="14/07/2026" Status="CL" ModifyAllowed="YES" NumofKeys="000" source="KIOSK" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="NO">
+    <RoomStays>
+      <RoomStay roomNumber="701" roomTypeID="2BEDAPT" roomTypeName="Two bedroom apartment" mealStatus="BB">
+      </RoomStay>
+    </RoomStays>
+    <PrimaryGuest>
+      <Name givenName="Xenia" surname="Almeida" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="IL" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email>mira.moreau@example.example</Email>
+      <Phone>0879919583</Phone>
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks">[remark redacted for publication - see tools/scrub_fixtures.py]</SpecialRequest>
+    <ReservationRemarks>
+      <PrintedRemarks>[remark redacted for publication - see tools/scrub_fixtures.py]</PrintedRemarks>
+      <NonPrintedRemarks />
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <GuestCount adult="1" child="0" baby="0" youth="0" />
+      <Timespan arrival="14/07/2026" departure="15/07/2026" />
+      <Total AmountAfterTaxes="226.00" CurrencyCode="ILS" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Portal_reservation_id="H3_B10155" Minihotel_reservation_id="007004394" type="Query" createDateTime="14/07/2026" Status="CL" ModifyAllowed="YES" NumofKeys="000" source="KIOSK" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="NO">
+    <RoomStays>
+      <RoomStay roomNumber="701" roomTypeID="2BEDAPT" roomTypeName="Two bedroom apartment" mealStatus="BB">
+      </RoomStay>
+    </RoomStays>
+    <PrimaryGuest>
+      <Name givenName="Xenia" surname="Almeida" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="IL" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email>mira.moreau@example.example</Email>
+      <Phone>0879919583</Phone>
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks">[remark redacted for publication - see tools/scrub_fixtures.py]</SpecialRequest>
+    <ReservationRemarks>
+      <PrintedRemarks>[remark redacted for publication - see tools/scrub_fixtures.py]</PrintedRemarks>
+      <NonPrintedRemarks />
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <GuestCount adult="1" child="0" baby="0" youth="0" />
+      <Timespan arrival="14/07/2026" departure="15/07/2026" />
+      <Total AmountAfterTaxes="226.00" CurrencyCode="ILS" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Portal_reservation_id="H3_B10156" Minihotel_reservation_id="007004395" type="Query" createDateTime="14/07/2026" Status="CL" ModifyAllowed="YES" NumofKeys="000" source="KIOSK" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="NO">
+    <RoomStays>
+      <RoomStay roomNumber="701" roomTypeID="2BEDAPT" roomTypeName="Two bedroom apartment" mealStatus="BB">
+      </RoomStay>
+    </RoomStays>
+    <PrimaryGuest>
+      <Name givenName="Xenia" surname="Almeida" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="IL" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email>mira.moreau@example.example</Email>
+      <Phone>0879919583</Phone>
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks">[remark redacted for publication - see tools/scrub_fixtures.py]</SpecialRequest>
+    <ReservationRemarks>
+      <PrintedRemarks>[remark redacted for publication - see tools/scrub_fixtures.py]</PrintedRemarks>
+      <NonPrintedRemarks />
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <GuestCount adult="1" child="0" baby="0" youth="0" />
+      <Timespan arrival="14/07/2026" departure="15/07/2026" />
+      <Total AmountAfterTaxes="226.00" CurrencyCode="ILS" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Portal_reservation_id="H3_B10157" Minihotel_reservation_id="007004396" type="Query" createDateTime="14/07/2026" Status="CL" ModifyAllowed="YES" NumofKeys="000" source="KIOSK" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="NO">
+    <RoomStays>
+      <RoomStay roomNumber="701" roomTypeID="2BEDAPT" roomTypeName="Two bedroom apartment" mealStatus="BB">
+      </RoomStay>
+    </RoomStays>
+    <PrimaryGuest>
+      <Name givenName="Xenia" surname="Almeida" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="IL" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email>mira.moreau@example.example</Email>
+      <Phone>0879919583</Phone>
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks">[remark redacted for publication - see tools/scrub_fixtures.py]</SpecialRequest>
+    <ReservationRemarks>
+      <PrintedRemarks>[remark redacted for publication - see tools/scrub_fixtures.py]</PrintedRemarks>
+      <NonPrintedRemarks />
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <GuestCount adult="1" child="0" baby="0" youth="0" />
+      <Timespan arrival="14/07/2026" departure="15/07/2026" />
+      <Total AmountAfterTaxes="226.00" CurrencyCode="ILS" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Minihotel_reservation_id="007004397" type="Query" createDateTime="14/07/2026" Status="CL" ModifyAllowed="YES" NumofKeys="000" source="Booking" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="YES">
+    <RoomStays>
+      <RoomStay roomNumber="701" roomTypeID="2BEDAPT" roomTypeName="Two bedroom apartment" mealStatus="BB" memberSerial="00001">
+        <StayDate arrival="2026-07-14" departure="2026-07-15" />
+        <RoomCount NumberOfUnits="1" />
+        <GuestCount adult="2" child="0" baby="0" youth="0" />
+        <GuestNames>
+          <Name givenName="Xenia" surname="Almeida" />
+        </GuestNames>
+        <IdNumber />
+        <Email />
+        <Phone />
+        <Status />
+      </RoomStay>
+    </RoomStays>
+    <PrimaryGuest>
+      <Name givenName="Xenia" surname="Almeida" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="IL" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email />
+      <Phone />
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks" />
+    <ReservationRemarks>
+      <PrintedRemarks />
+      <NonPrintedRemarks />
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <Timespan arrival="14/07/2026" departure="15/07/2026" />
+      <Total AmountAfterTaxes="2.00" CurrencyCode="ILS" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Portal_reservation_id="H3_B10158" Minihotel_reservation_id="007004398" type="Query" createDateTime="15/07/2026" Status="CL" ModifyAllowed="YES" NumofKeys="000" source="KIOSK" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="NO">
+    <RoomStays>
+      <RoomStay roomNumber="701" roomTypeID="2BEDAPT" roomTypeName="Two bedroom apartment" mealStatus="BB">
+      </RoomStay>
+    </RoomStays>
+    <PrimaryGuest>
+      <Name givenName="Xenia" surname="Almeida" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="IL" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email>mira.moreau@example.example</Email>
+      <Phone>0879919583</Phone>
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks">[remark redacted for publication - see tools/scrub_fixtures.py]</SpecialRequest>
+    <ReservationRemarks>
+      <PrintedRemarks>[remark redacted for publication - see tools/scrub_fixtures.py]</PrintedRemarks>
+      <NonPrintedRemarks />
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <GuestCount adult="1" child="0" baby="0" youth="0" />
+      <Timespan arrival="15/07/2026" departure="16/07/2026" />
+      <Total AmountAfterTaxes="220.00" CurrencyCode="ILS" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Minihotel_reservation_id="007004399" type="Query" createDateTime="15/07/2026" Status="CL" ModifyAllowed="YES" NumofKeys="000" source="Booking" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="YES">
+    <RoomStays>
+      <RoomStay roomNumber="606" roomTypeID="APT_SEA" roomTypeName="Apartment Sea View" mealStatus="BB" memberSerial="00001">
+        <StayDate arrival="2026-07-14" departure="2026-07-16" />
+        <RoomCount NumberOfUnits="1" />
+        <GuestCount adult="2" child="0" baby="0" youth="0" />
+        <GuestNames>
+          <Name givenName="Iris" surname="Almeida" />
+        </GuestNames>
+        <IdNumber />
+        <Email />
+        <Phone />
+        <Status />
+      </RoomStay>
+    </RoomStays>
+    <PrimaryGuest>
+      <Name givenName="Iris" surname="Almeida" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="GB" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email />
+      <Phone />
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks" />
+    <ReservationRemarks>
+      <PrintedRemarks />
+      <NonPrintedRemarks>[remark redacted for publication - see tools/scrub_fixtures.py]</NonPrintedRemarks>
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <Timespan arrival="14/07/2026" departure="16/07/2026" />
+      <Total AmountAfterTaxes="4.00" CurrencyCode="ILS" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Minihotel_reservation_id="007004400" type="Query" createDateTime="15/07/2026" Status="CL" ModifyAllowed="YES" NumofKeys="000" source="Booking" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="YES">
+    <RoomStays>
+      <RoomStay roomNumber="605" roomTypeID="DBL" roomTypeName="Double room" mealStatus="BB" memberSerial="00001">
+        <StayDate arrival="2026-07-15" departure="2026-07-16" />
+        <RoomCount NumberOfUnits="1" />
+        <GuestCount adult="2" child="0" baby="0" youth="0" />
+        <GuestNames>
+          <Name givenName="Farid" surname="Grimaldi" />
+        </GuestNames>
+        <IdNumber />
+        <Email />
+        <Phone />
+        <Status />
+      </RoomStay>
+    </RoomStays>
+    <PrimaryGuest>
+      <Name givenName="Farid" surname="Grimaldi" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="GB" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email />
+      <Phone />
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks" />
+    <ReservationRemarks>
+      <PrintedRemarks />
+      <NonPrintedRemarks>[remark redacted for publication - see tools/scrub_fixtures.py]</NonPrintedRemarks>
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <Timespan arrival="15/07/2026" departure="16/07/2026" />
+      <Total AmountAfterTaxes="2.00" CurrencyCode="ILS" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Minihotel_reservation_id="007004401" type="Query" createDateTime="16/07/2026" Status="OUT" ModifyAllowed="YES" NumofKeys="000" source="Booking" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="YES">
+    <RoomStays>
+      <RoomStay roomNumber="103" roomTypeID="Twin" roomTypeName="Twin Room" mealStatus="BB" memberSerial="00001">
+        <StayDate arrival="2026-07-16" departure="2026-07-17" />
+        <RoomCount NumberOfUnits="1" />
+        <GuestCount adult="2" child="0" baby="0" youth="0" />
+        <GuestNames>
+          <Name givenName="Iris" surname="Almeida" />
+        </GuestNames>
+        <IdNumber />
+        <Email />
+        <Phone />
+        <Status>OUT</Status>
+      </RoomStay>
+    </RoomStays>
+    <PrimaryGuest>
+      <Name givenName="Iris" surname="Almeida" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="GB" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email />
+      <Phone />
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks" />
+    <ReservationRemarks>
+      <PrintedRemarks />
+      <NonPrintedRemarks>[remark redacted for publication - see tools/scrub_fixtures.py]</NonPrintedRemarks>
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <Timespan arrival="16/07/2026" departure="17/07/2026" />
+      <Total AmountAfterTaxes="2.00" CurrencyCode="ILS" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Minihotel_reservation_id="007004402" type="Query" createDateTime="16/07/2026" Status="OK" ModifyAllowed="YES" NumofKeys="000" source="Booking" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="YES">
+    <RoomStays>
+      <RoomStay roomNumber="104" roomTypeID="Twin" roomTypeName="Twin Room" mealStatus="BB" memberSerial="00001">
+        <StayDate arrival="2026-07-16" departure="2026-07-17" />
+        <RoomCount NumberOfUnits="1" />
+        <GuestCount adult="2" child="0" baby="0" youth="0" />
+        <GuestNames>
+          <Name givenName="Farid" surname="Grimaldi" />
+        </GuestNames>
+        <IdNumber />
+        <Email />
+        <Phone />
+        <Status />
+      </RoomStay>
+    </RoomStays>
+    <PrimaryGuest>
+      <Name givenName="Farid" surname="Grimaldi" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="GB" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email />
+      <Phone />
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks" />
+    <ReservationRemarks>
+      <PrintedRemarks />
+      <NonPrintedRemarks />
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <Timespan arrival="16/07/2026" departure="17/07/2026" />
+      <Total AmountAfterTaxes="2.00" CurrencyCode="ILS" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Minihotel_reservation_id="007004413" type="Query" createDateTime="20/07/2026" Status="CL" ModifyAllowed="YES" NumofKeys="000" source="Booking" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="YES">
+    <RoomStays>
+      <RoomStay roomNumber="104" roomTypeID="Twin" roomTypeName="Twin Room" mealStatus="BB" memberSerial="00001">
+        <StayDate arrival="2026-07-20" departure="2026-07-21" />
+        <RoomCount NumberOfUnits="1" />
+        <GuestCount adult="2" child="0" baby="0" youth="0" />
+        <GuestNames>
+          <Name givenName="Cora" surname="Ximenes" />
+        </GuestNames>
+        <IdNumber />
+        <Email />
+        <Phone />
+        <Status />
+      </RoomStay>
+    </RoomStays>
+    <PrimaryGuest>
+      <Name givenName="Cora" surname="Ximenes" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="GB" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email />
+      <Phone />
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks" />
+    <ReservationRemarks>
+      <PrintedRemarks />
+      <NonPrintedRemarks>[remark redacted for publication - see tools/scrub_fixtures.py]</NonPrintedRemarks>
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <Timespan arrival="20/07/2026" departure="21/07/2026" />
+      <Total AmountAfterTaxes="2.00" CurrencyCode="ILS" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Minihotel_reservation_id="007004414" type="Query" createDateTime="20/07/2026" Status="CL" ModifyAllowed="YES" NumofKeys="000" source="Booking" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="YES">
+    <RoomStays>
+      <RoomStay roomNumber="103" roomTypeID="Twin" roomTypeName="Twin Room" mealStatus="BB" memberSerial="00001">
+        <StayDate arrival="2026-07-20" departure="2026-07-21" />
+        <RoomCount NumberOfUnits="1" />
+        <GuestCount adult="2" child="0" baby="0" youth="0" />
+        <GuestNames>
+          <Name givenName="Ada" surname="Yilmaz" />
+        </GuestNames>
+        <IdNumber />
+        <Email />
+        <Phone />
+        <Status />
+      </RoomStay>
+    </RoomStays>
+    <PrimaryGuest>
+      <Name givenName="Ada" surname="Yilmaz" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="GB" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email />
+      <Phone />
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks" />
+    <ReservationRemarks>
+      <PrintedRemarks />
+      <NonPrintedRemarks>[remark redacted for publication - see tools/scrub_fixtures.py]</NonPrintedRemarks>
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <Timespan arrival="20/07/2026" departure="21/07/2026" />
+      <Total AmountAfterTaxes="2.00" CurrencyCode="ILS" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Portal_reservation_id="H3_B10159" Minihotel_reservation_id="007004415" type="Query" createDateTime="20/07/2026" Status="CL" ModifyAllowed="YES" NumofKeys="000" source="KIOSK" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="NO">
+    <RoomStays>
+      <RoomStay roomNumber="701" roomTypeID="2BEDAPT" roomTypeName="Two bedroom apartment" mealStatus="BB">
+      </RoomStay>
+    </RoomStays>
+    <PrimaryGuest>
+      <Name givenName="Hugo" surname="Ferrer" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="IL" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email>iris.ionescu@example.example</Email>
+      <Phone>09837911830</Phone>
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks">[remark redacted for publication - see tools/scrub_fixtures.py]</SpecialRequest>
+    <ReservationRemarks>
+      <PrintedRemarks>[remark redacted for publication - see tools/scrub_fixtures.py]</PrintedRemarks>
+      <NonPrintedRemarks />
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <GuestCount adult="1" child="0" baby="0" youth="0" />
+      <Timespan arrival="20/07/2026" departure="22/07/2026" />
+      <Total AmountAfterTaxes="423.00" CurrencyCode="ILS" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Portal_reservation_id="H3_B10160" Minihotel_reservation_id="007004416" type="Query" createDateTime="21/07/2026" Status="CL" ModifyAllowed="YES" NumofKeys="000" source="KIOSK" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="NO">
+    <RoomStays>
+      <RoomStay roomNumber="701" roomTypeID="2BEDAPT" roomTypeName="Two bedroom apartment" mealStatus="BB">
+      </RoomStay>
+    </RoomStays>
+    <PrimaryGuest>
+      <Name givenName="Iris" surname="Ionescu" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="IL" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email>vidal.vargas@example.example</Email>
+      <Phone>058765101124</Phone>
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks">[remark redacted for publication - see tools/scrub_fixtures.py]</SpecialRequest>
+    <ReservationRemarks>
+      <PrintedRemarks>[remark redacted for publication - see tools/scrub_fixtures.py]</PrintedRemarks>
+      <NonPrintedRemarks />
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <GuestCount adult="1" child="0" baby="0" youth="0" />
+      <Timespan arrival="21/07/2026" departure="22/07/2026" />
+      <Total AmountAfterTaxes="205.00" CurrencyCode="ILS" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Portal_reservation_id="H3_B10161" Minihotel_reservation_id="007004417" type="Query" createDateTime="21/07/2026" Status="CL" ModifyAllowed="YES" NumofKeys="000" source="KIOSK" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="NO">
+    <RoomStays>
+      <RoomStay roomNumber="701" roomTypeID="2BEDAPT" roomTypeName="Two bedroom apartment" mealStatus="BB">
+      </RoomStay>
+    </RoomStays>
+    <PrimaryGuest>
+      <Name givenName="Iris" surname="Almeida" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="IL" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email>mira.moreau@example.example</Email>
+      <Phone>082248805</Phone>
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks">[remark redacted for publication - see tools/scrub_fixtures.py]</SpecialRequest>
+    <ReservationRemarks>
+      <PrintedRemarks>[remark redacted for publication - see tools/scrub_fixtures.py]</PrintedRemarks>
+      <NonPrintedRemarks />
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <GuestCount adult="1" child="0" baby="0" youth="0" />
+      <Timespan arrival="21/07/2026" departure="22/07/2026" />
+      <Total AmountAfterTaxes="205.00" CurrencyCode="ILS" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Portal_reservation_id="H3_B10162" Minihotel_reservation_id="007004418" type="Query" createDateTime="21/07/2026" Status="CL" ModifyAllowed="YES" NumofKeys="000" source="KIOSK" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="NO">
+    <RoomStays>
+      <RoomStay roomNumber="401" roomTypeID="Executive" roomTypeName="Executive Room" mealStatus="BB">
+      </RoomStay>
+    </RoomStays>
+    <PrimaryGuest>
+      <Name givenName="Iris" surname="Almeida" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="IL" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email>xenia.ximenes@example.example</Email>
+      <Phone>0913896573</Phone>
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks">[remark redacted for publication - see tools/scrub_fixtures.py]</SpecialRequest>
+    <ReservationRemarks>
+      <PrintedRemarks>[remark redacted for publication - see tools/scrub_fixtures.py]</PrintedRemarks>
+      <NonPrintedRemarks />
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <GuestCount adult="1" child="0" baby="0" youth="0" />
+      <Timespan arrival="21/07/2026" departure="22/07/2026" />
+      <Total AmountAfterTaxes="460.00" CurrencyCode="ILS" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Portal_reservation_id="H3_B10163" Minihotel_reservation_id="007004419" type="Query" createDateTime="21/07/2026" Status="CL" ModifyAllowed="YES" NumofKeys="000" source="KIOSK" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="YES">
+    <RoomStays>
+      <RoomStay roomNumber="701" roomTypeID="2BEDAPT" roomTypeName="Two bedroom apartment" mealStatus="BB" memberSerial="00001">
+        <StayDate arrival="2026-07-21" departure="2026-07-22" />
+        <RoomCount NumberOfUnits="1" />
+        <GuestCount adult="1" child="0" baby="0" youth="0" />
+        <GuestNames>
+          <Name givenName="Iris" surname="Almeida" />
+        </GuestNames>
+        <IdNumber />
+        <Email />
+        <Phone />
+        <Status />
+      </RoomStay>
+    </RoomStays>
+    <PrimaryGuest>
+      <Name givenName="Iris" surname="Almeida" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="IL" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email>mira.moreau@example.example</Email>
+      <Phone>022265423</Phone>
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks">[remark redacted for publication - see tools/scrub_fixtures.py]</SpecialRequest>
+    <ReservationRemarks>
+      <PrintedRemarks>[remark redacted for publication - see tools/scrub_fixtures.py]</PrintedRemarks>
+      <NonPrintedRemarks>[remark redacted for publication - see tools/scrub_fixtures.py]</NonPrintedRemarks>
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <Timespan arrival="21/07/2026" departure="22/07/2026" />
+      <Total AmountAfterTaxes="209.00" CurrencyCode="ILS" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Portal_reservation_id="20260721210100" Minihotel_reservation_id="007004426" type="Query" createDateTime="22/07/2026" Status="IN" ModifyAllowed="YES" NumofKeys="000" source="Web" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="NO">
+    <RoomStays>
+      <RoomStay roomNumber="01" roomTypeID="DBL" roomTypeName="Double room" mealStatus="RO">
+      </RoomStay>
+    </RoomStays>
+    <PrimaryGuest>
+      <Name givenName="Ada" surname="Grimaldi" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="US" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email>farid.ferrer@example.example</Email>
+      <Phone>1378209198</Phone>
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202510" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks">[remark redacted for publication - see tools/scrub_fixtures.py]</SpecialRequest>
+    <ReservationRemarks>
+      <PrintedRemarks>[remark redacted for publication - see tools/scrub_fixtures.py]</PrintedRemarks>
+      <NonPrintedRemarks />
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <GuestCount adult="2" child="0" baby="0" youth="0" />
+      <Timespan arrival="21/07/2026" departure="23/07/2026" />
+      <Total AmountAfterTaxes="202.50" CurrencyCode="USD" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Portal_reservation_id="H3_B10164" Minihotel_reservation_id="007004427" type="Query" createDateTime="22/07/2026" Status="CL" ModifyAllowed="YES" NumofKeys="000" source="KIOSK" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="NO">
+    <RoomStays>
+      <RoomStay roomNumber="701" roomTypeID="2BEDAPT" roomTypeName="Two bedroom apartment" mealStatus="BB">
+      </RoomStay>
+    </RoomStays>
+    <PrimaryGuest>
+      <Name givenName="Iris" surname="Almeida" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="IL" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email>mira.moreau@example.example</Email>
+      <Phone>039689678</Phone>
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks">[remark redacted for publication - see tools/scrub_fixtures.py]</SpecialRequest>
+    <ReservationRemarks>
+      <PrintedRemarks>[remark redacted for publication - see tools/scrub_fixtures.py]</PrintedRemarks>
+      <NonPrintedRemarks>[remark redacted for publication - see tools/scrub_fixtures.py]</NonPrintedRemarks>
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <GuestCount adult="1" child="0" baby="0" youth="0" />
+      <Timespan arrival="22/07/2026" departure="23/07/2026" />
+      <Total AmountAfterTaxes="207.00" CurrencyCode="ILS" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Portal_reservation_id="H3_B10165" Minihotel_reservation_id="007004428" type="Query" createDateTime="22/07/2026" Status="CL" ModifyAllowed="YES" NumofKeys="000" source="KIOSK" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="NO">
+    <RoomStays>
+      <RoomStay roomNumber="02" roomTypeID="DBL" roomTypeName="Double room" mealStatus="BB">
+      </RoomStay>
+    </RoomStays>
+    <PrimaryGuest>
+      <Name givenName="Farid" surname="Grimaldi" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="IL" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email>bruno.berger@example.example</Email>
+      <Phone>0446583979</Phone>
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks">[remark redacted for publication - see tools/scrub_fixtures.py]</SpecialRequest>
+    <ReservationRemarks>
+      <PrintedRemarks>[remark redacted for publication - see tools/scrub_fixtures.py]</PrintedRemarks>
+      <NonPrintedRemarks />
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <GuestCount adult="1" child="0" baby="0" youth="0" />
+      <Timespan arrival="22/07/2026" departure="23/07/2026" />
+      <Total AmountAfterTaxes="181.00" CurrencyCode="ILS" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Portal_reservation_id="H3_B10166" Minihotel_reservation_id="007004429" type="Query" createDateTime="22/07/2026" Status="CL" ModifyAllowed="YES" NumofKeys="000" source="KIOSK" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="NO">
+    <RoomStays>
+      <RoomStay roomNumber="02" roomTypeID="DBL" roomTypeName="Double room" mealStatus="BB">
+      </RoomStay>
+    </RoomStays>
+    <PrimaryGuest>
+      <Name givenName="Farid" surname="Grimaldi" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="IL" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email>bruno.berger@example.example</Email>
+      <Phone>04</Phone>
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks">[remark redacted for publication - see tools/scrub_fixtures.py]</SpecialRequest>
+    <ReservationRemarks>
+      <PrintedRemarks>[remark redacted for publication - see tools/scrub_fixtures.py]</PrintedRemarks>
+      <NonPrintedRemarks />
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <GuestCount adult="1" child="0" baby="0" youth="0" />
+      <Timespan arrival="22/07/2026" departure="23/07/2026" />
+      <Total AmountAfterTaxes="181.00" CurrencyCode="ILS" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Portal_reservation_id="H3_B10167" Minihotel_reservation_id="007004430" type="Query" createDateTime="22/07/2026" Status="CL" ModifyAllowed="YES" NumofKeys="000" source="KIOSK" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="YES">
+    <RoomStays>
+      <RoomStay roomNumber="101" roomTypeID="DBL" roomTypeName="Double room" mealStatus="BB" memberSerial="00001">
+        <StayDate arrival="2026-07-22" departure="2026-07-23" />
+        <RoomCount NumberOfUnits="1" />
+        <GuestCount adult="1" child="0" baby="0" youth="0" />
+        <GuestNames>
+          <Name givenName="Farid" surname="Grimaldi" />
+        </GuestNames>
+        <IdNumber />
+        <Email />
+        <Phone />
+        <Status />
+      </RoomStay>
+    </RoomStays>
+    <PrimaryGuest>
+      <Name givenName="Farid" surname="Grimaldi" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="IL" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email>bruno.berger@example.example</Email>
+      <Phone>08</Phone>
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks">[remark redacted for publication - see tools/scrub_fixtures.py]</SpecialRequest>
+    <ReservationRemarks>
+      <PrintedRemarks>[remark redacted for publication - see tools/scrub_fixtures.py]</PrintedRemarks>
+      <NonPrintedRemarks>[remark redacted for publication - see tools/scrub_fixtures.py]</NonPrintedRemarks>
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <Timespan arrival="22/07/2026" departure="23/07/2026" />
+      <Total AmountAfterTaxes="181.00" CurrencyCode="ILS" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Minihotel_reservation_id="007004431" type="Query" createDateTime="22/07/2026" Status="CL" ModifyAllowed="YES" NumofKeys="000" source="Booking" arrival_time="15:00" departure_time="11:00" market_segment="" isGroupReservation="YES">
+    <RoomStays>
+      <RoomStay roomNumber="02" roomTypeID="DBL" roomTypeName="Double room" mealStatus="BB" memberSerial="00001">
+        <StayDate arrival="2026-07-22" departure="2026-07-23" />
+        <RoomCount NumberOfUnits="1" />
+        <GuestCount adult="2" child="0" baby="0" youth="0" />
+        <GuestNames>
+          <Name givenName="Luca" surname="Zavala" />
+        </GuestNames>
+        <IdNumber />
+        <Email />
+        <Phone />
+        <Status />
+      </RoomStay>
+    </RoomStays>
+    <PrimaryGuest>
+      <Name givenName="Luca" surname="Zavala" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="GB" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber>131919648</IdNumber>
+      <Email />
+      <Phone />
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks" />
+    <ReservationRemarks>
+      <PrintedRemarks />
+      <NonPrintedRemarks>[remark redacted for publication - see tools/scrub_fixtures.py]</NonPrintedRemarks>
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <Timespan arrival="22/07/2026" departure="23/07/2026" />
+      <Total AmountAfterTaxes="2.00" CurrencyCode="ILS" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Portal_reservation_id="H3_B10168" Minihotel_reservation_id="007004432" type="Query" createDateTime="22/07/2026" Status="CL" ModifyAllowed="YES" NumofKeys="000" source="KIOSK" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="NO">
+    <RoomStays>
+      <RoomStay roomNumber="501" roomTypeID="SNG" roomTypeName="MEGA TEST 2 Y 3" mealStatus="BB">
+      </RoomStay>
+    </RoomStays>
+    <PrimaryGuest>
+      <Name givenName="Sten" surname="Lindqvist" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="IL" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email>vidal.vargas@example.example</Email>
+      <Phone>036014932</Phone>
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks">[remark redacted for publication - see tools/scrub_fixtures.py]</SpecialRequest>
+    <ReservationRemarks>
+      <PrintedRemarks>[remark redacted for publication - see tools/scrub_fixtures.py]</PrintedRemarks>
+      <NonPrintedRemarks>[remark redacted for publication - see tools/scrub_fixtures.py]</NonPrintedRemarks>
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <GuestCount adult="1" child="0" baby="0" youth="0" />
+      <Timespan arrival="22/07/2026" departure="23/07/2026" />
+      <Total AmountAfterTaxes="151.00" CurrencyCode="ILS" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Portal_reservation_id="H3_B10169" Minihotel_reservation_id="007004433" type="Query" createDateTime="22/07/2026" Status="CL" ModifyAllowed="YES" NumofKeys="000" source="KIOSK" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="NO">
+    <RoomStays>
+      <RoomStay roomNumber="103" roomTypeID="Twin" roomTypeName="Twin Room" mealStatus="BB">
+      </RoomStay>
+    </RoomStays>
+    <PrimaryGuest>
+      <Name givenName="Xenia" surname="Almeida" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="IL" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email>xenia.ximenes@example.example</Email>
+      <Phone>0446583979</Phone>
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks">[remark redacted for publication - see tools/scrub_fixtures.py]</SpecialRequest>
+    <ReservationRemarks>
+      <PrintedRemarks>[remark redacted for publication - see tools/scrub_fixtures.py]</PrintedRemarks>
+      <NonPrintedRemarks />
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <GuestCount adult="1" child="0" baby="0" youth="0" />
+      <Timespan arrival="22/07/2026" departure="23/07/2026" />
+      <Total AmountAfterTaxes="111.00" CurrencyCode="ILS" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Portal_reservation_id="TEST-1784735982130" Minihotel_reservation_id="007004434" type="Query" createDateTime="22/07/2026" Status="CL" ModifyAllowed="YES" NumofKeys="000" source="Nightel" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="NO">
+    <RoomStays>
+      <RoomStay roomNumber="01" roomTypeID="DBL" roomTypeName="Double room" mealStatus="BB">
+      </RoomStay>
+    </RoomStays>
+    <PrimaryGuest>
+      <Name givenName="Hugo" surname="Olsen" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="IL" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email>tova.torres@example.example</Email>
+      <Phone>1738988195660</Phone>
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks">[remark redacted for publication - see tools/scrub_fixtures.py]</SpecialRequest>
+    <ReservationRemarks>
+      <PrintedRemarks>[remark redacted for publication - see tools/scrub_fixtures.py]</PrintedRemarks>
+      <NonPrintedRemarks />
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <GuestCount adult="2" child="0" baby="0" youth="0" />
+      <Timespan arrival="23/07/2026" departure="24/07/2026" />
+      <Total AmountAfterTaxes="150.00" CurrencyCode="USD" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Portal_reservation_id="TEST-1784755308216" Minihotel_reservation_id="007004435" type="Query" createDateTime="23/07/2026" Status="CL" ModifyAllowed="YES" NumofKeys="000" source="Nightel" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="NO">
+    <RoomStays>
+      <RoomStay roomNumber="01" roomTypeID="DBL" roomTypeName="Double room" mealStatus="BB">
+      </RoomStay>
+    </RoomStays>
+    <PrimaryGuest>
+      <Name givenName="Hugo" surname="Olsen" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="IL" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email>tova.torres@example.example</Email>
+      <Phone>1738988195660</Phone>
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks">[remark redacted for publication - see tools/scrub_fixtures.py]</SpecialRequest>
+    <ReservationRemarks>
+      <PrintedRemarks>[remark redacted for publication - see tools/scrub_fixtures.py]</PrintedRemarks>
+      <NonPrintedRemarks />
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <GuestCount adult="2" child="0" baby="0" youth="0" />
+      <Timespan arrival="23/07/2026" departure="24/07/2026" />
+      <Total AmountAfterTaxes="150.00" CurrencyCode="USD" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Minihotel_reservation_id="007004436" type="Query" createDateTime="23/07/2026" Status="OUT" ModifyAllowed="YES" NumofKeys="000" source="Booking" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="YES">
+    <RoomStays>
+      <RoomStay roomNumber="02" roomTypeID="DBL" roomTypeName="Double room" mealStatus="BB" memberSerial="00001">
+        <StayDate arrival="2026-07-23" departure="2026-07-24" />
+        <RoomCount NumberOfUnits="1" />
+        <GuestCount adult="2" child="0" baby="0" youth="0" />
+        <GuestNames>
+          <Name givenName="Tova" surname="Yilmaz" />
+        </GuestNames>
+        <IdNumber />
+        <Email />
+        <Phone />
+        <Status>OUT</Status>
+      </RoomStay>
+    </RoomStays>
+    <PrimaryGuest>
+      <Name givenName="Tova" surname="Yilmaz" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="GB" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email />
+      <Phone />
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks" />
+    <ReservationRemarks>
+      <PrintedRemarks />
+      <NonPrintedRemarks />
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <Timespan arrival="23/07/2026" departure="24/07/2026" />
+      <Total AmountAfterTaxes="2.00" CurrencyCode="ILS" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Portal_reservation_id="TEST-1784908199263" Minihotel_reservation_id="007004437" type="Query" createDateTime="24/07/2026" Status="CL" ModifyAllowed="YES" NumofKeys="000" source="Nightel" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="NO">
+    <RoomStays>
+      <RoomStay roomNumber="02" roomTypeID="DBL" roomTypeName="Double room" mealStatus="BB">
+      </RoomStay>
+    </RoomStays>
+    <PrimaryGuest>
+      <Name givenName="Hugo" surname="Olsen" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="IL" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email>tova.torres@example.example</Email>
+      <Phone>1738988195660</Phone>
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks">[remark redacted for publication - see tools/scrub_fixtures.py]</SpecialRequest>
+    <ReservationRemarks>
+      <PrintedRemarks>[remark redacted for publication - see tools/scrub_fixtures.py]</PrintedRemarks>
+      <NonPrintedRemarks />
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <GuestCount adult="2" child="0" baby="0" youth="0" />
+      <Timespan arrival="25/07/2026" departure="26/07/2026" />
+      <Total AmountAfterTaxes="150.00" CurrencyCode="USD" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Portal_reservation_id="TEST-1785222913802" Minihotel_reservation_id="007004438" type="Query" createDateTime="28/07/2026" Status="CL" ModifyAllowed="YES" NumofKeys="000" source="Nightel" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="NO">
+    <RoomStays>
+      <RoomStay roomNumber="01" roomTypeID="DBL" roomTypeName="Double room" mealStatus="BB">
+      </RoomStay>
+    </RoomStays>
+    <PrimaryGuest>
+      <Name givenName="Hugo" surname="Olsen" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="IL" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email>tova.torres@example.example</Email>
+      <Phone>1738988195660</Phone>
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks">[remark redacted for publication - see tools/scrub_fixtures.py]</SpecialRequest>
+    <ReservationRemarks>
+      <PrintedRemarks>[remark redacted for publication - see tools/scrub_fixtures.py]</PrintedRemarks>
+      <NonPrintedRemarks />
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <GuestCount adult="2" child="0" baby="0" youth="0" />
+      <Timespan arrival="29/07/2026" departure="30/07/2026" />
+      <Total AmountAfterTaxes="150.00" CurrencyCode="USD" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Portal_reservation_id="TEST-1785223469766" Minihotel_reservation_id="007004439" type="Query" createDateTime="28/07/2026" Status="CL" ModifyAllowed="YES" NumofKeys="000" source="Nightel" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="NO">
+    <RoomStays>
+      <RoomStay roomNumber="01" roomTypeID="DBL" roomTypeName="Double room" mealStatus="BB">
+      </RoomStay>
+    </RoomStays>
+    <PrimaryGuest>
+      <Name givenName="Hugo" surname="Olsen" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="IL" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email>tova.torres@example.example</Email>
+      <Phone>1738988195660</Phone>
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks">[remark redacted for publication - see tools/scrub_fixtures.py]</SpecialRequest>
+    <ReservationRemarks>
+      <PrintedRemarks>[remark redacted for publication - see tools/scrub_fixtures.py]</PrintedRemarks>
+      <NonPrintedRemarks />
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <GuestCount adult="2" child="0" baby="0" youth="0" />
+      <Timespan arrival="29/07/2026" departure="30/07/2026" />
+      <Total AmountAfterTaxes="150.00" CurrencyCode="USD" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Portal_reservation_id="TEST-1785224120685" Minihotel_reservation_id="007004440" type="Query" createDateTime="28/07/2026" Status="CL" ModifyAllowed="YES" NumofKeys="000" source="Nightel" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="NO">
+    <RoomStays>
+      <RoomStay roomNumber="01" roomTypeID="DBL" roomTypeName="Double room" mealStatus="BB">
+      </RoomStay>
+    </RoomStays>
+    <PrimaryGuest>
+      <Name givenName="Hugo" surname="Olsen" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="IL" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email>tova.torres@example.example</Email>
+      <Phone>1738988195660</Phone>
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks">[remark redacted for publication - see tools/scrub_fixtures.py]</SpecialRequest>
+    <ReservationRemarks>
+      <PrintedRemarks>[remark redacted for publication - see tools/scrub_fixtures.py]</PrintedRemarks>
+      <NonPrintedRemarks />
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <GuestCount adult="2" child="0" baby="0" youth="0" />
+      <Timespan arrival="29/07/2026" departure="30/07/2026" />
+      <Total AmountAfterTaxes="150.00" CurrencyCode="USD" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Portal_reservation_id="TEST-1785225409047" Minihotel_reservation_id="007004441" type="Query" createDateTime="28/07/2026" Status="CL" ModifyAllowed="YES" NumofKeys="000" source="Nightel" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="NO">
+    <RoomStays>
+      <RoomStay roomNumber="01" roomTypeID="DBL" roomTypeName="Double room" mealStatus="BB">
+      </RoomStay>
+    </RoomStays>
+    <PrimaryGuest>
+      <Name givenName="Hugo" surname="Olsen" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="IL" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email>tova.torres@example.example</Email>
+      <Phone>1738988195660</Phone>
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks">[remark redacted for publication - see tools/scrub_fixtures.py]</SpecialRequest>
+    <ReservationRemarks>
+      <PrintedRemarks>[remark redacted for publication - see tools/scrub_fixtures.py]</PrintedRemarks>
+      <NonPrintedRemarks />
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <GuestCount adult="2" child="0" baby="0" youth="0" />
+      <Timespan arrival="29/07/2026" departure="30/07/2026" />
+      <Total AmountAfterTaxes="150.00" CurrencyCode="USD" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Portal_reservation_id="TEST-1785225472867" Minihotel_reservation_id="007004442" type="Query" createDateTime="28/07/2026" Status="CL" ModifyAllowed="YES" NumofKeys="000" source="Nightel" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="NO">
+    <RoomStays>
+      <RoomStay roomNumber="01" roomTypeID="DBL" roomTypeName="Double room" mealStatus="BB">
+      </RoomStay>
+    </RoomStays>
+    <PrimaryGuest>
+      <Name givenName="Hugo" surname="Olsen" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="IL" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email>tova.torres@example.example</Email>
+      <Phone>1738988195660</Phone>
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks">[remark redacted for publication - see tools/scrub_fixtures.py]</SpecialRequest>
+    <ReservationRemarks>
+      <PrintedRemarks>[remark redacted for publication - see tools/scrub_fixtures.py]</PrintedRemarks>
+      <NonPrintedRemarks />
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <GuestCount adult="2" child="0" baby="0" youth="0" />
+      <Timespan arrival="29/07/2026" departure="30/07/2026" />
+      <Total AmountAfterTaxes="150.00" CurrencyCode="USD" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Minihotel_reservation_id="007004443" type="Query" createDateTime="28/07/2026" Status="CL" ModifyAllowed="YES" NumofKeys="000" source="Booking" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="YES">
+    <RoomStays>
+      <RoomStay roomNumber="104" roomTypeID="Twin" roomTypeName="Twin Room" mealStatus="BB" memberSerial="00001">
+        <StayDate arrival="2026-07-28" departure="2026-07-30" />
+        <RoomCount NumberOfUnits="1" />
+        <GuestCount adult="2" child="0" baby="0" youth="0" />
+        <GuestNames>
+          <Name givenName="Xenia" surname="Almeida" />
+        </GuestNames>
+        <IdNumber />
+        <Email />
+        <Phone />
+        <Status />
+      </RoomStay>
+    </RoomStays>
+    <PrimaryGuest>
+      <Name givenName="Xenia" surname="Almeida" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="GB" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email />
+      <Phone />
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks" />
+    <ReservationRemarks>
+      <PrintedRemarks />
+      <NonPrintedRemarks>[remark redacted for publication - see tools/scrub_fixtures.py]</NonPrintedRemarks>
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <Timespan arrival="28/07/2026" departure="30/07/2026" />
+      <Total AmountAfterTaxes="4.00" CurrencyCode="ILS" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Minihotel_reservation_id="007004444" type="Query" createDateTime="29/07/2026" Status="OK" ModifyAllowed="YES" NumofKeys="000" source="Booking" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="YES">
+    <RoomStays>
+      <RoomStay roomNumber="101" roomTypeID="DBL" roomTypeName="Double room" mealStatus="BB" memberSerial="00001">
+        <StayDate arrival="2026-07-29" departure="2026-07-30" />
+        <RoomCount NumberOfUnits="1" />
+        <GuestCount adult="2" child="0" baby="0" youth="0" />
+        <GuestNames>
+          <Name givenName="Xenia" surname="Almeida" />
+        </GuestNames>
+        <IdNumber />
+        <Email />
+        <Phone />
+        <Status />
+      </RoomStay>
+    </RoomStays>
+    <PrimaryGuest>
+      <Name givenName="Xenia" surname="Almeida" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="GB" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email />
+      <Phone />
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks" />
+    <ReservationRemarks>
+      <PrintedRemarks />
+      <NonPrintedRemarks />
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <Timespan arrival="29/07/2026" departure="30/07/2026" />
+      <Total AmountAfterTaxes="2.00" CurrencyCode="ILS" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Minihotel_reservation_id="007004445" type="Query" createDateTime="31/07/2026" Status="OK" ModifyAllowed="YES" NumofKeys="000" source="Booking" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="YES">
+    <RoomStays>
+      <RoomStay roomNumber="02" roomTypeID="DBL" roomTypeName="Double room" mealStatus="BB" memberSerial="00001">
+        <StayDate arrival="2026-08-05" departure="2026-08-06" />
+        <RoomCount NumberOfUnits="1" />
+        <GuestCount adult="2" child="0" baby="0" youth="0" />
+        <GuestNames>
+          <Name givenName="Uma" surname="Petrov" />
+        </GuestNames>
+        <IdNumber />
+        <Email />
+        <Phone />
+        <Status />
+      </RoomStay>
+      <RoomStay roomNumber="01" roomTypeID="DBL" roomTypeName="Double room" mealStatus="BB" memberSerial="00002">
+        <StayDate arrival="2026-08-05" departure="2026-08-06" />
+        <RoomCount NumberOfUnits="1" />
+        <GuestCount adult="2" child="0" baby="0" youth="0" />
+        <GuestNames>
+          <Name givenName="Uma" surname="Petrov" />
+        </GuestNames>
+        <IdNumber />
+        <Email />
+        <Phone />
+        <Status />
+      </RoomStay>
+    </RoomStays>
+    <PrimaryGuest>
+      <Name givenName="Uma" surname="Petrov" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="MG" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email />
+      <Phone />
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks" />
+    <ReservationRemarks>
+      <PrintedRemarks />
+      <NonPrintedRemarks />
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <Timespan arrival="05/08/2026" departure="06/08/2026" />
+      <Total AmountAfterTaxes="150.00" CurrencyCode="USD" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Minihotel_reservation_id="007004446" type="Query" createDateTime="31/07/2026" Status="OK" ModifyAllowed="YES" NumofKeys="000" source="001" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="YES">
+    <RoomStays>
+      <RoomStay roomNumber="303" roomTypeID="DBL" roomTypeName="Double room" mealStatus="BB" memberSerial="00001">
+        <StayDate arrival="2026-08-05" departure="2026-08-07" />
+        <RoomCount NumberOfUnits="1" />
+        <GuestCount adult="2" child="0" baby="0" youth="0" />
+        <GuestNames>
+          <Name givenName="Uma" surname="Wexler" />
+        </GuestNames>
+        <IdNumber />
+        <Email />
+        <Phone />
+        <Status />
+      </RoomStay>
+      <RoomStay roomNumber="304" roomTypeID="DBL" roomTypeName="Double room" mealStatus="BB" memberSerial="00002">
+        <StayDate arrival="2026-08-05" departure="2026-08-06" />
+        <RoomCount NumberOfUnits="1" />
+        <GuestCount adult="2" child="0" baby="0" youth="0" />
+        <GuestNames>
+          <Name givenName="Uma" surname="Wexler" />
+        </GuestNames>
+        <IdNumber />
+        <Email />
+        <Phone />
+        <Status />
+      </RoomStay>
+    </RoomStays>
+    <PrimaryGuest>
+      <Name givenName="Uma" surname="Wexler" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="MV" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email />
+      <Phone />
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks" />
+    <ReservationRemarks>
+      <PrintedRemarks />
+      <NonPrintedRemarks />
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <Timespan arrival="05/08/2026" departure="07/08/2026" />
+      <Total AmountAfterTaxes="846.00" CurrencyCode="USD" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Minihotel_reservation_id="007004447" type="Query" createDateTime="31/07/2026" Status="OK" ModifyAllowed="YES" NumofKeys="000" source="005" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="YES">
+    <RoomStays>
+      <RoomStay roomNumber="301" roomTypeID="Twin" roomTypeName="Twin Room" mealStatus="HB" memberSerial="00001">
+        <StayDate arrival="2026-08-04" departure="2026-08-05" />
+        <RoomCount NumberOfUnits="1" />
+        <GuestCount adult="2" child="0" baby="0" youth="0" />
+        <GuestNames>
+          <Name givenName="Janek" surname="Petrov" />
+        </GuestNames>
+        <IdNumber>5945</IdNumber>
+        <Email>cora.costa@example.example</Email>
+        <Phone>265</Phone>
+        <Status />
+      </RoomStay>
+      <RoomStay roomNumber="302" roomTypeID="DBL" roomTypeName="Double room" mealStatus="HB" memberSerial="00002">
+        <StayDate arrival="2026-08-04" departure="2026-08-05" />
+        <RoomCount NumberOfUnits="1" />
+        <GuestCount adult="2" child="0" baby="0" youth="0" />
+        <GuestNames>
+          <Name givenName="Tova" surname="Petrov" />
+        </GuestNames>
+        <IdNumber>7923322</IdNumber>
+        <Email>quinn.quintero@example.example</Email>
+        <Phone>6275</Phone>
+        <Status />
+      </RoomStay>
+    </RoomStays>
+    <PrimaryGuest>
+      <Name givenName="Janek" surname="Petrov" />
+      <Address Street="55 Cedar Lane" Zip="53512" City="Fairholm" />
+      <Country CountryName="IT" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber>5945</IdNumber>
+      <Email>cora.costa@example.example</Email>
+      <Phone>265</Phone>
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202812" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks" />
+    <ReservationRemarks>
+      <PrintedRemarks />
+      <NonPrintedRemarks>[remark redacted for publication - see tools/scrub_fixtures.py]</NonPrintedRemarks>
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <Timespan arrival="04/08/2026" departure="05/08/2026" />
+      <Total AmountAfterTaxes="419.00" CurrencyCode="USD" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Minihotel_reservation_id="007004448" type="Query" createDateTime="31/07/2026" Status="OK" ModifyAllowed="YES" NumofKeys="000" source="Daka90" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="YES">
+    <RoomStays>
+      <RoomStay roomNumber="02" roomTypeID="DBL" roomTypeName="Double room" mealStatus="BB" memberSerial="00001">
+        <StayDate arrival="2026-08-01" departure="2026-08-04" />
+        <RoomCount NumberOfUnits="1" />
+        <GuestCount adult="2" child="0" baby="0" youth="0" />
+        <GuestNames>
+          <Name givenName="Bruno" surname="Petrov" />
+        </GuestNames>
+        <IdNumber />
+        <Email />
+        <Phone />
+        <Status />
+      </RoomStay>
+    </RoomStays>
+    <PrimaryGuest>
+      <Name givenName="Bruno" surname="Petrov" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="MV" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email />
+      <Phone />
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks" />
+    <ReservationRemarks>
+      <PrintedRemarks />
+      <NonPrintedRemarks>[remark redacted for publication - see tools/scrub_fixtures.py]</NonPrintedRemarks>
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <Timespan arrival="01/08/2026" departure="04/08/2026" />
+      <Total AmountAfterTaxes="846.00" CurrencyCode="USD" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Portal_reservation_id="TEST-1785626700621" Minihotel_reservation_id="007004452" type="Query" createDateTime="02/08/2026" Status="CL" ModifyAllowed="YES" NumofKeys="000" source="Nightel" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="NO">
+    <RoomStays>
+      <RoomStay roomNumber="01" roomTypeID="DBL" roomTypeName="Double room" mealStatus="BB">
+      </RoomStay>
+    </RoomStays>
+    <PrimaryGuest>
+      <Name givenName="Hugo" surname="Olsen" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="IL" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email>tova.torres@example.example</Email>
+      <Phone>1738988195660</Phone>
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks">[remark redacted for publication - see tools/scrub_fixtures.py]</SpecialRequest>
+    <ReservationRemarks>
+      <PrintedRemarks>[remark redacted for publication - see tools/scrub_fixtures.py]</PrintedRemarks>
+      <NonPrintedRemarks />
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <GuestCount adult="2" child="0" baby="0" youth="0" />
+      <Timespan arrival="02/08/2026" departure="03/08/2026" />
+      <Total AmountAfterTaxes="150.00" CurrencyCode="USD" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Portal_reservation_id="TEST-1785659182236" Minihotel_reservation_id="007004453" type="Query" createDateTime="02/08/2026" Status="CL" ModifyAllowed="YES" NumofKeys="000" source="Nightel" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="NO">
+    <RoomStays>
+      <RoomStay roomNumber="01" roomTypeID="DBL" roomTypeName="Double room" mealStatus="BB">
+      </RoomStay>
+    </RoomStays>
+    <PrimaryGuest>
+      <Name givenName="Hugo" surname="Olsen" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="IL" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email>tova.torres@example.example</Email>
+      <Phone>1738988195660</Phone>
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks">[remark redacted for publication - see tools/scrub_fixtures.py]</SpecialRequest>
+    <ReservationRemarks>
+      <PrintedRemarks>[remark redacted for publication - see tools/scrub_fixtures.py]</PrintedRemarks>
+      <NonPrintedRemarks />
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <GuestCount adult="2" child="0" baby="0" youth="0" />
+      <Timespan arrival="03/08/2026" departure="04/08/2026" />
+      <Total AmountAfterTaxes="150.00" CurrencyCode="USD" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Portal_reservation_id="TEST-1786094024635" Minihotel_reservation_id="007004469" type="Query" createDateTime="07/08/2026" Status="CL" ModifyAllowed="YES" NumofKeys="000" source="Nightel" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="NO">
+    <RoomStays>
+      <RoomStay roomNumber="01" roomTypeID="DBL" roomTypeName="Double room" mealStatus="BB">
+      </RoomStay>
+    </RoomStays>
+    <PrimaryGuest>
+      <Name givenName="Hugo" surname="Olsen" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="IL" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email>tova.torres@example.example</Email>
+      <Phone>1738988195660</Phone>
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks">[remark redacted for publication - see tools/scrub_fixtures.py]</SpecialRequest>
+    <ReservationRemarks>
+      <PrintedRemarks>[remark redacted for publication - see tools/scrub_fixtures.py]</PrintedRemarks>
+      <NonPrintedRemarks />
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <GuestCount adult="2" child="0" baby="0" youth="0" />
+      <Timespan arrival="08/08/2026" departure="09/08/2026" />
+      <Total AmountAfterTaxes="150.00" CurrencyCode="USD" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Portal_reservation_id="TEST-1786094538784" Minihotel_reservation_id="007004470" type="Query" createDateTime="07/08/2026" Status="CL" ModifyAllowed="YES" NumofKeys="000" source="Nightel" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="NO">
+    <RoomStays>
+      <RoomStay roomNumber="01" roomTypeID="DBL" roomTypeName="Double room" mealStatus="BB">
+      </RoomStay>
+    </RoomStays>
+    <PrimaryGuest>
+      <Name givenName="Hugo" surname="Olsen" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="IL" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email>tova.torres@example.example</Email>
+      <Phone>1738988195660</Phone>
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks">[remark redacted for publication - see tools/scrub_fixtures.py]</SpecialRequest>
+    <ReservationRemarks>
+      <PrintedRemarks>[remark redacted for publication - see tools/scrub_fixtures.py]</PrintedRemarks>
+      <NonPrintedRemarks />
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <GuestCount adult="2" child="0" baby="0" youth="0" />
+      <Timespan arrival="08/08/2026" departure="09/08/2026" />
+      <Total AmountAfterTaxes="150.00" CurrencyCode="USD" />
+    </ResGlobalInfo>
+  </Booking>
+  <Booking Portal_reservation_id="6a747e43f888525836e6f955" Minihotel_reservation_id="007004471" type="Query" createDateTime="07/08/2026" Status="OK4" ModifyAllowed="YES" NumofKeys="000" source="CHECKIN" arrival_time="14:00" departure_time="11:00" market_segment="" isGroupReservation="NO">
+    <RoomStays>
+      <RoomStay roomNumber="01" roomTypeID="DBL" roomTypeName="Double room" mealStatus="BB">
+      </RoomStay>
+    </RoomStays>
+    <PrimaryGuest>
+      <Name givenName="Tova" surname="Almeida" />
+      <Address Street="" Zip=" " City="" />
+      <Country CountryName="OT" iso2="" iso3="" />
+      <Language iso2=" " />
+      <IdNumber />
+      <Email>greta.grimaldi@example.example</Email>
+      <Phone />
+      <Fax />
+      <CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101" />
+    </PrimaryGuest>
+    <SpecialRequest Type="Remarks">[remark redacted for publication - see tools/scrub_fixtures.py]</SpecialRequest>
+    <ReservationRemarks>
+      <PrintedRemarks>[remark redacted for publication - see tools/scrub_fixtures.py]</PrintedRemarks>
+      <NonPrintedRemarks />
+    </ReservationRemarks>
+    <ResGlobalInfo>
+      <GuestCount adult="1" child="0" baby="0" youth="0" />
+      <Timespan arrival="06/08/2026" departure="09/08/2026" />
+      <Total AmountAfterTaxes="870.00" CurrencyCode="USD" />
+    </ResGlobalInfo>
+  </Booking>
+</Bookings>

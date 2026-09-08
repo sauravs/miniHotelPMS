@@ -83,11 +83,10 @@ class Value:
     unit: str | None = None
     reason: str | None = None
     risk: str | None = None
-    # Where this came from, as it should read in an audit trail:
-    # "pms:minihotel/GetReservationBalance". This is the ONE thing carrying a provider name
-    # that crosses the canonical boundary, and it crosses as data: no PMS FIELD PATH is in
-    # it, and no layer above ever parses it. An auditor has to know which system and which
-    # call produced a number.
+    # Where this came from, as it should read in an audit trail: "pms:<provider>/<call>".
+    # This is the ONE thing carrying a provider name that crosses the canonical boundary, and
+    # it crosses as opaque data - no PMS field path is in it, and no layer above ever parses
+    # it. An auditor has to know which system and which call produced a number.
     source: str | None = field(default=None, compare=False)
 
     def __post_init__(self) -> None:
