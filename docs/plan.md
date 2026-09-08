@@ -15,7 +15,7 @@ Execution tracker. **Update the status table as slices close.** Design rationale
 | 3 | Evidence, references & budget | ☑ | ☑ | — | ☑ | ☑ | **done** — PR #5 |
 | 4 | Evaluator — record level | ☑ | ☑ | ☑ | ☑ | ☑ | **done** — PR #6 |
 | 5 | Evaluator — population level | ☑ | ☑ | ☑ | ☑ | ☑ | **done** — PR #7 |
-| 6 | Runner, coverage, readiness, store | ☑ | ☑ | ☑ | ☐ | ☐ | **in review** |
+| 6 | Runner, coverage, readiness, store | ☑ | ☑ | ☑ | ☑ | ☑ | **done** — PR #8 |
 | 7 | Second provider — DemoPMS | ☐ | ☐ | ☐ | ☐ | ☐ | not started |
 | 8 | Scheduling & freshness | ☐ | ☐ | — | ☐ | ☐ | not started |
 | 9 | Compiler — English → IR | ☐ | ☐ | ☐ | ☐ | ☐ | not started |
