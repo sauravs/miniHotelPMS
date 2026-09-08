@@ -151,6 +151,7 @@ class Provider(Protocol):
     def source_key(field) -> Token                   # opaque: "which call yields this"
     def follow_up(field, record_id) -> Request|None  # per-record call, or None
     def reference_request(entity) -> Request|None    # whole-property call for a join
+    def events() -> tuple[str, ...]                  # canonical events this PMS publishes
 ```
 
 Hides, per adapter: the wire format and its parsing · every field path · date formats · currency
@@ -238,7 +239,8 @@ run(control_id, tenant, evidence, as_of) -> Run
 Run = { control, as_of, provider, evidence_origin, is_synthetic, calls,
         verdicts, counts, coverage, blocked }
 readiness(control_id, provider)          -> Readiness   # fields resolvable / total, per source
-next_evaluation(ir, last_run_at, now, provider_capabilities) -> datetime | EventSubscription
+next_evaluation(ir, provider_events, clock, last_run_at, event_at) -> Plan
+freshness_of(maximum_age, observed_at, now)                        -> Freshness
 store.save(run) / store.load(run_id) / store.history(control_id)
 ```
 
@@ -252,10 +254,19 @@ dominant reason — never as four tiles containing a reassuring zero. v1 reporte
 for an out-of-service-room control on a property where the mechanism had never been observed
 working, and it was indistinguishable on screen from a clean result.
 
-**Scheduling is a pure function.** `next_evaluation` reads the IR's `execution` and
-`freshness_requirement`, asks the provider what events it supports, and returns when to run or what
-to subscribe to. A daemon is out of scope; the decision is not, and it is fully testable with an
-injected clock.
+**Scheduling is a pure function.** `next_evaluation` reads the IR's `execution`, asks the provider
+what events it publishes, and returns a `Plan`: a subscription, a due time, or `unschedulable`. A
+daemon is out of scope; the decision is not, and it is fully testable with an injected clock.
+
+A control whose events a provider does not publish falls back to its declared interval and the plan
+**names the missing event**. With no fallback it is `unschedulable` rather than given a plausible
+interval — there is no honest default, and inventing one produces a control that merely appears to
+be running. That is the scheduling form of turning an UNKNOWN into a PASS.
+
+**Freshness is the same rule applied to time.** A `Run` records when its evidence was OBTAINED, as
+distinct from what date it describes, and `freshness_of` compares that against the IR's
+`maximum_age`. Evidence whose age cannot be established is stale, never assumed current — and a
+stale run still shows every verdict, because staleness qualifies an answer rather than removing it.
 
 ### L7 · Web
 

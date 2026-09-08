@@ -21,6 +21,10 @@ a receipt.
 The `not_applicable` sentinel gets its own encoding rather than being written as null or "".
 R7 is the reason: "there is no channel confirmation because this was a direct booking" must
 survive as that, or every direct booking looks like a duplicate of every other one again.
+
+So does the run's FRESHNESS (finding F7): when the evidence was obtained, and what the control
+asked for. Re-reading a stored run has to report what was true when it ran, not what would be
+true if it ran now - a verdict's freshness is a property of the run rather than of the reader.
 """
 from __future__ import annotations
 
@@ -92,7 +96,24 @@ class RunStore:
         self._connection.execute("PRAGMA foreign_keys = ON")
         # No manual setup step: an empty file becomes a valid database on the first open.
         self._connection.executescript(SCHEMA.read_text(encoding="utf-8"))
+        self._migrate()
         self._connection.commit()
+
+    def _migrate(self) -> None:
+        """Bring an older database up to the current schema.
+
+        `CREATE TABLE IF NOT EXISTS` builds a new file correctly and does nothing at all to one
+        that already exists, so a column added later would be missing from every database made
+        before it - and the failure would arrive as an operational error in the middle of
+        saving a run. Columns are added here instead, nullable, so an old run reads back as a
+        run that cannot say when its evidence was obtained. Which is true, and which the
+        freshness verdict reports as stale rather than assuming.
+        """
+        existing = {row["name"] for row in
+                    self._connection.execute("PRAGMA table_info(runs)")}
+        for column in ("observed_at", "maximum_age"):
+            if column not in existing:
+                self._connection.execute("ALTER TABLE runs ADD COLUMN %s TEXT" % column)
 
     def close(self) -> None:
         self._connection.close()
@@ -108,10 +129,12 @@ class RunStore:
         run_id = run.run_id or make_run_id(run)
         with self._connection:
             self._connection.execute(
-                "INSERT OR REPLACE INTO runs VALUES (?,?,?,?,?,?,?,?,?,?,?,?)",
+                "INSERT OR REPLACE INTO runs VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
                 (run_id, run.control_id, run.control_name, run.natural_language, run.tenant_id,
                  run.provider, run.evidence_label, int(run.evidence_is_synthetic), run.as_of,
-                 run.created_at.isoformat(), run.calls, run.blocked))
+                 run.created_at.isoformat(), run.calls, run.blocked,
+                 run.observed_at.isoformat() if run.observed_at else None,
+                 run.maximum_age or None))
             self._connection.execute("DELETE FROM verdicts WHERE run_id = ?", (run_id,))
             self._connection.execute("DELETE FROM evidence WHERE run_id = ?", (run_id,))
             for position, verdict in enumerate(run.verdicts):
@@ -159,7 +182,10 @@ class RunStore:
             provider=row["provider"], evidence_label=row["evidence_label"],
             evidence_is_synthetic=bool(row["evidence_is_synthetic"]), as_of=row["as_of"],
             created_at=datetime.fromisoformat(row["created_at"]), calls=row["calls"],
-            verdicts=verdicts, blocked=row["blocked"], run_id=run_id)
+            verdicts=verdicts, blocked=row["blocked"], run_id=run_id,
+            observed_at=(datetime.fromisoformat(row["observed_at"])
+                         if row["observed_at"] else None),
+            maximum_age=row["maximum_age"] or "")
 
     def history(self, control_id: str | None = None, limit: int = 50) -> list[dict]:
         """Past runs, newest first, as summaries.

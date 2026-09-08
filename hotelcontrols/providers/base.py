@@ -101,3 +101,18 @@ class Provider(Protocol):
 
     def provenance(self, field_name: str) -> str:
         """Where a field's evidence comes from, as it should read in an audit trail."""
+
+    def events(self) -> tuple[str, ...]:
+        """The events this PMS publishes, in CANONICAL names.
+
+        A capability, not a wire detail: `reservation.updated` is the same fact on every system
+        that has it, and an IR names those events without knowing which systems do. What
+        differs is who publishes what - one PMS emits a dedicated room-occupancy event and
+        another emits nothing when a room is taken out of service - and that difference decides
+        whether a control runs in real time or on a timer.
+
+        Read by `runner.scheduling.next_evaluation`, which falls back to the control's declared
+        interval when an event is missing and SAYS which one. The alternative - assuming every
+        provider publishes everything - produces a control that subscribes to a webhook nobody
+        sends and never runs at all.
+        """

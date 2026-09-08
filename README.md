@@ -34,10 +34,10 @@ turns a limitation into a product path: *"connect your housekeeping system to en
 
 ## Status
 
-**Slices 0–7 of 12 are built and merged** — the kernel, the spec layer, both providers, evidence
-gathering, the evaluator, the runner and the contract suite. 903 tests, 95% coverage, 1003 spec
-checks, offline, green on Python 3.11 and 3.13. Scheduling, the English compiler, the web UI and the
-opt-in live transport are still to come.
+**Slices 0–8 of 12 are built and merged** — the kernel, the spec layer, both providers, evidence
+gathering, the evaluator, the runner, the contract suite and the execution model. 1086 tests, 95%
+coverage, 1003 spec checks, offline, green on Python 3.11 and 3.13. The English compiler, the web UI
+and the opt-in live transport are still to come.
 
 The claim the architecture rests on is now checked rather than asserted: **the same rule, over the
 same hotel, through two completely different PMS wire formats, produces the same verdicts** — and

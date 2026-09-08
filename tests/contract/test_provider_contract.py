@@ -298,6 +298,42 @@ class TestCallGroupingAndCost:
         assert provider.adapter.reference_request("rate_plan") is None
 
 
+class TestPublishedEvents:
+    """What a PMS tells you about, in canonical names (finding F7).
+
+    A capability rather than a wire detail, and it is allowed to DIFFER: one provider here
+    publishes a room-occupancy event and the other does not, so the same control runs in real
+    time on one and on a timer on the other. What must not differ is the vocabulary it is
+    declared in, or the layer above could not compare a declaration against an IR.
+    """
+
+    def test_every_provider_declares_what_it_publishes(self, provider):
+        events = provider.adapter.events()
+        assert isinstance(events, tuple)
+        assert events, (
+            "%s publishes nothing at all, so every event-driven control falls back to a timer "
+            "- which may be true, and has to be a stated fact rather than an empty default"
+            % provider.name)
+
+    def test_every_event_is_named_in_the_canonical_vocabulary(self, provider):
+        """`reservation.updated`, not whatever the vendor calls its webhook. An IR names events
+        without knowing which systems have them, so the names have to be ours."""
+        for event in provider.adapter.events():
+            entity, _, verb = event.partition(".")
+            assert verb, "%r is not entity.verb" % event
+            assert entity in REGISTRY.entities, (
+                "%r names an entity the canonical registry does not define" % event)
+
+    def test_the_declaration_is_a_set_of_names_and_not_a_promise_about_order(self, provider):
+        assert len(set(provider.adapter.events())) == len(provider.adapter.events())
+
+    def test_a_source_says_when_its_evidence_was_obtained(self, provider):
+        """The freshness half of F7. `observed_at` is when the bytes were fetched, which is a
+        different fact from what date they describe - and a source that cannot say makes its
+        runs stale rather than fresh."""
+        assert provider.source.observed_at.strip()
+
+
 class TestProvenance:
     def test_every_value_says_which_system_and_which_call_produced_it(self, bundles):
         """An auditor has to know. This string is the one thing carrying a provider name that

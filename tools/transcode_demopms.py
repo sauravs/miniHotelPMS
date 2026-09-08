@@ -423,6 +423,11 @@ def build_index(source_index: dict[str, Any]) -> dict[str, Any]:
         captures[CAPTURES[name]] = {
             "label": meta["label"],
             "as_of": meta["as_of"],
+            # When these records were OBTAINED - the source capture's date, unchanged.
+            # Transcoding re-encodes evidence; it does not re-observe a hotel, and dating the
+            # demo capture to the day the tool happened to run would make it look fresher than
+            # the records behind it actually are.
+            "captured_at": meta["captured_at"],
             "transcoded_from": "the %s MiniHotel capture, %s" % (name, meta["captured_at"]),
         }
 

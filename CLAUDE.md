@@ -22,7 +22,7 @@ that adding a PMS is a new adapter plus a mapping file, not a change to any rule
 | v1 demo: control 6, four silos, 152 tests | **Done** — and measured: only 1 of its 10 controls ever answers |
 | v1 review, 20 findings | **Done** — `docs/old-codebase-improve.md` |
 | v2 documents | **Done** — prd, context, architecture, plan, open questions |
-| v2 code | **Slices 0–7 of 12 merged.** 903 tests, 95% coverage, 1003 spec checks, CI green. Track in `docs/plan.md` |
+| v2 code | **Slices 0–8 of 12 merged.** 1086 tests, 95% coverage, 1003 spec checks, CI green. Track in `docs/plan.md` |
 
 ## Documents, in reading order
 
@@ -100,7 +100,8 @@ UNKNOWN. That is the honest cost of not guessing.
   something. Change the tool and rebuild; a test asserts the rebuild is byte-identical.
 - **Money is `Decimal` and carries its currency.** A bare number is never money.
 - **All dates resolve through the property clock**, never the machine's. Hotel controls are
-  questions about the hotel's calendar.
+  questions about the hotel's calendar. Enforced since slice 8 by a test over the whole engine's
+  AST: `kernel/clock.py` is the only module allowed to read a wall clock.
 - **Comment density is deliberately high.** Explain *why*, and cite the risk id. A comment that
   restates the code is noise; a comment naming the live response that forced the code is the point.
 - **Every test names what it protects** — an IR clause, a success criterion, or a risk id.

@@ -21,14 +21,16 @@ from hotelcontrols.runner import Run
 from hotelcontrols.store import RunStore, decode_payload, encode_payload
 
 
-def a_run(control_id="checkout_money_owed", verdicts=(), blocked=None, created_at=None):
+def a_run(control_id="checkout_money_owed", verdicts=(), blocked=None, created_at=None,
+          observed_at=None, maximum_age="1h"):
     return Run(
         control_id=control_id, control_name="Checkout With Money Owed",
         natural_language="A reservation cannot be closed while the guest still owes money.",
         tenant_id="sandbox", provider="minihotel", evidence_label="sandbox2026",
         evidence_is_synthetic=False, as_of="2026-07-08",
         created_at=created_at or datetime(2026, 9, 8, 12, 0, 0), calls=3,
-        verdicts=tuple(verdicts), blocked=blocked)
+        verdicts=tuple(verdicts), blocked=blocked,
+        observed_at=observed_at, maximum_age=maximum_age)
 
 
 @pytest.fixture
@@ -166,3 +168,69 @@ class TestSchema:
         first, second = store.save(run), store.save(run)
         assert first == second
         assert len(store.history()) == 1
+
+
+class TestFreshnessSurvivesTheRoundTrip:
+    """Finding F7. A stored run has to answer "was this current WHEN IT RAN?" - which means
+    carrying both when its evidence was obtained and what the control asked for.
+
+    Recomputing either from today's clock would give a different answer every time it was read,
+    and a verdict whose qualification changes while nobody touches it is not an audit trail.
+    """
+
+    def test_when_the_evidence_was_obtained_comes_back_unchanged(self, store):
+        observed = datetime(2026, 9, 8, 0, 0, 0)
+        run_id = store.save(a_run(observed_at=observed, maximum_age="30m"))
+        loaded = store.load(run_id)
+        assert loaded.observed_at == observed
+        assert loaded.maximum_age == "30m"
+
+    def test_a_stale_run_reads_back_stale(self, store):
+        """The whole point. Nine hours old against a thirty-minute requirement, today and in
+        six months."""
+        run_id = store.save(a_run(observed_at=datetime(2026, 9, 8, 3, 0, 0),
+                                  created_at=datetime(2026, 9, 8, 12, 0, 0),
+                                  maximum_age="30m"))
+        freshness = store.load(run_id).freshness
+        assert freshness.is_stale is True
+        assert "out of date" in freshness.headline
+
+    def test_a_fresh_run_reads_back_fresh(self, store):
+        run_id = store.save(a_run(observed_at=datetime(2026, 9, 8, 11, 45, 0),
+                                  created_at=datetime(2026, 9, 8, 12, 0, 0),
+                                  maximum_age="30m"))
+        assert store.load(run_id).freshness.is_stale is False
+
+    def test_a_run_that_never_knew_when_its_evidence_came_from_reads_back_stale(self, store):
+        """Including runs stored before these columns existed. An unknown age is not a fresh
+        age, and a null column must not read as "it was fine"."""
+        run_id = store.save(a_run(observed_at=None))
+        freshness = store.load(run_id).freshness
+        assert freshness.is_stale is True and freshness.is_known is False
+
+    def test_a_database_written_before_these_columns_existed_still_opens(self, tmp_path):
+        """`CREATE TABLE IF NOT EXISTS` builds a new file correctly and does nothing to an old
+        one, so a column added later would be missing from every database made before it - and
+        the failure would arrive mid-save. The store migrates instead."""
+        import sqlite3
+        path = tmp_path / "old.sqlite3"
+        legacy = sqlite3.connect(path)
+        legacy.executescript("""
+            CREATE TABLE runs (
+                run_id TEXT PRIMARY KEY, control_id TEXT NOT NULL, control_name TEXT NOT NULL,
+                natural_language TEXT NOT NULL, tenant_id TEXT NOT NULL, provider TEXT NOT NULL,
+                evidence_label TEXT NOT NULL, evidence_is_synthetic INTEGER NOT NULL,
+                as_of TEXT NOT NULL, created_at TEXT NOT NULL, calls INTEGER NOT NULL,
+                blocked TEXT);""")
+        legacy.execute("INSERT INTO runs VALUES ('old','checkout_money_owed','C','n.','sandbox',"
+                       "'minihotel','sandbox2026',0,'2026-07-08','2026-09-08T12:00:00',3,NULL)")
+        legacy.commit()
+        legacy.close()
+
+        with RunStore(path) as store:
+            loaded = store.load("old")
+            assert loaded is not None
+            assert loaded.observed_at is None
+            assert loaded.freshness.is_stale is True, (
+                "a run from before we recorded this cannot claim to have been current")
+            assert store.save(a_run()), "and the migrated database still accepts new runs"
