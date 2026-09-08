@@ -1,0 +1,510 @@
+{
+  "provider": "minihotel",
+  "version": 2,
+  "verified_against": "sandbox.minihotel.cloud, read-only probe, 2026-09-01 and 2026-09-04",
+  "note": "Every 'test' regex is asserted against its 'probe' file by validate_spec.py. observed_populated=false means the field EXISTS in the response but was empty in every sandbox record - the mapping is structural, not behaviourally proven. A mapping with existence_only=true proves the field is PRESENT in the response; its value_test regex must then find nothing for observed_populated=false to hold.",
+  "mappings": [
+    {
+      "canonical": "reservation.id",
+      "endpoint": "GetReservationKey",
+      "path": "Booking@Minihotel_reservation_id",
+      "probe": "3_GetReservationKey.xml",
+      "test": "Minihotel_reservation_id=\"([^\"]*)\"",
+      "transform": null,
+      "observed_populated": true
+    },
+    {
+      "canonical": "reservation.status",
+      "endpoint": "GetReservationKey",
+      "path": "Booking@Status",
+      "probe": "3_GetReservationKey.xml",
+      "test": "<Booking [^>]*Status=\"([^\"]*)\"",
+      "transform": "tenant_status_map",
+      "observed_populated": true,
+      "notes": "A5 - codes are per-hotel customisable"
+    },
+    {
+      "canonical": "reservation.arrival_date",
+      "endpoint": "GetReservationKey",
+      "path": "Booking/ResGlobalInfo/Timespan@arrival",
+      "probe": "3_GetReservationKey.xml",
+      "test": "<Timespan arrival=\"([^\"]*)\"",
+      "transform": "date_ddmmyyyy_to_iso",
+      "observed_populated": true,
+      "notes": "R2"
+    },
+    {
+      "canonical": "reservation.departure_date",
+      "endpoint": "GetReservationKey",
+      "path": "Booking/ResGlobalInfo/Timespan@departure",
+      "probe": "3_GetReservationKey.xml",
+      "test": "<Timespan [^>]*departure=\"([^\"]*)\"",
+      "transform": "date_ddmmyyyy_to_iso",
+      "observed_populated": true,
+      "notes": "R2"
+    },
+    {
+      "canonical": "reservation.arrival_time",
+      "endpoint": "GetReservationKey",
+      "path": "Booking@arrival_time",
+      "probe": "3_GetReservationKey.xml",
+      "test": "arrival_time=\"([^\"]*)\"",
+      "transform": null,
+      "observed_populated": true
+    },
+    {
+      "canonical": "reservation.created_at",
+      "endpoint": "GetReservationKey",
+      "path": "Booking@createDateTime",
+      "probe": "3_GetReservationKey.xml",
+      "test": "createDateTime=\"([^\"]*)\"",
+      "transform": "date_ddmmyyyy_to_iso",
+      "observed_populated": true,
+      "notes": "R3 - DATE ONLY, no time. Same-day precision impossible"
+    },
+    {
+      "canonical": "reservation.channel_confirmation_id",
+      "endpoint": "GetReservationKey",
+      "path": "Booking@Portal_reservation_id",
+      "probe": "3_GetReservationKey.xml",
+      "test": "Portal_reservation_id=\"([^\"]*)\"",
+      "transform": null,
+      "observed_populated": true,
+      "notes": "R7 - absent on 7 of 11 sandbox bookings (direct)"
+    },
+    {
+      "canonical": "reservation.channel",
+      "endpoint": "GetReservationKey",
+      "path": "Booking@source",
+      "probe": "3_GetReservationKey.xml",
+      "test": "<Booking [^>]*source=\"([^\"]*)\"",
+      "transform": null,
+      "observed_populated": true
+    },
+    {
+      "canonical": "reservation.total_amount",
+      "endpoint": "GetReservationKey",
+      "path": "Booking/ResGlobalInfo/Total@AmountAfterTaxes",
+      "probe": "3_GetReservationKey.xml",
+      "test": "<ResGlobalInfo>.*?<Total AmountAfterTaxes=\"([^\"]*)\"",
+      "transform": null,
+      "observed_populated": true
+    },
+    {
+      "canonical": "reservation.currency",
+      "endpoint": "GetReservationKey",
+      "path": "Booking/ResGlobalInfo/Total@CurrencyCode",
+      "probe": "3_GetReservationKey.xml",
+      "test": "<ResGlobalInfo>.*?<Total [^>]*CurrencyCode=\"([^\"]*)\"",
+      "transform": null,
+      "observed_populated": true,
+      "notes": "R9 - differs from folio.currency"
+    },
+    {
+      "canonical": "reservation.is_group",
+      "endpoint": "GetReservationKey",
+      "path": "Booking@isGroupReservation",
+      "probe": "3_GetReservationKey.xml",
+      "test": "isGroupReservation=\"([^\"]*)\"",
+      "transform": "yesno_to_bool",
+      "observed_populated": true
+    },
+    {
+      "canonical": "reservation.guest_count.adults",
+      "endpoint": "GetReservationKey",
+      "path": "RoomStay/GuestCount@adult",
+      "probe": "3_GetReservationKey.xml",
+      "test": "<GuestCount adult=\"([^\"]*)\"",
+      "transform": "to_int",
+      "observed_populated": true
+    },
+    {
+      "canonical": "reservation.guest_count.children",
+      "endpoint": "GetReservationKey",
+      "path": "RoomStay/GuestCount@child",
+      "probe": "3_GetReservationKey.xml",
+      "test": "<GuestCount [^>]*child=\"([^\"]*)\"",
+      "transform": "to_int",
+      "observed_populated": true
+    },
+    {
+      "canonical": "reservation.guest_count.babies",
+      "endpoint": "GetReservationKey",
+      "path": "RoomStay/GuestCount@baby",
+      "probe": "3_GetReservationKey.xml",
+      "test": "<GuestCount [^>]*baby=\"([^\"]*)\"",
+      "transform": "to_int",
+      "observed_populated": true
+    },
+    {
+      "canonical": "reservation.guest_count.youth",
+      "endpoint": "GetReservationKey",
+      "path": "RoomStay/GuestCount@youth",
+      "probe": "3_GetReservationKey.xml",
+      "test": "<GuestCount [^>]*youth=\"([^\"]*)\"",
+      "transform": "to_int",
+      "observed_populated": true,
+      "notes": "R12 - no matching room capacity exists"
+    },
+    {
+      "canonical": "reservation.guest.given_name",
+      "endpoint": "GetReservationKey",
+      "path": "PrimaryGuest/Name@givenName",
+      "probe": "3_GetReservationKey.xml",
+      "test": "<Name givenName=\"([^\"]*)\"",
+      "transform": null,
+      "observed_populated": true,
+      "notes": "docs also show 'giveName'; live data uses 'givenName'"
+    },
+    {
+      "canonical": "reservation.guest.surname",
+      "endpoint": "GetReservationKey",
+      "path": "PrimaryGuest/Name@surname",
+      "probe": "3_GetReservationKey.xml",
+      "test": "<Name [^>]*surname=\"([^\"]*)\"",
+      "transform": null,
+      "observed_populated": true
+    },
+    {
+      "canonical": "reservation.guest.email",
+      "endpoint": "GetReservationKey",
+      "path": "PrimaryGuest/Email",
+      "probe": "3_GetReservationKey.xml",
+      "test": "<PrimaryGuest>(?:(?!</PrimaryGuest>).)*?<Email>([^<]*)</Email>",
+      "transform": null,
+      "observed_populated": true,
+      "notes": "8 of 11 sandbox reservations populated - absence is the signal control 15 tests for"
+    },
+    {
+      "canonical": "reservation.guest.phone",
+      "endpoint": "GetReservationKey",
+      "path": "PrimaryGuest/Phone",
+      "probe": "3_GetReservationKey.xml",
+      "test": "<PrimaryGuest>(?:(?!</PrimaryGuest>).)*?<Phone>([^<]*)</Phone>",
+      "transform": null,
+      "observed_populated": true,
+      "notes": "8 of 11 sandbox reservations populated - absence is the signal control 15 tests for"
+    },
+    {
+      "canonical": "reservation.guest.id_number",
+      "endpoint": "GetReservationKey",
+      "path": "PrimaryGuest/IdNumber",
+      "probe": "3_GetReservationKey.xml",
+      "test": "<PrimaryGuest>(?:(?!</PrimaryGuest>).)*?<IdNumber>([^<]*)</IdNumber>",
+      "transform": null,
+      "observed_populated": true,
+      "notes": "2 of 11 sandbox reservations populated - absence is the signal control 15 tests for"
+    },
+    {
+      "canonical": "reservation.guest.country",
+      "endpoint": "GetReservationKey",
+      "path": "PrimaryGuest/Country@CountryName",
+      "probe": "3_GetReservationKey.xml",
+      "test": "<Country CountryName=\"([^\"]*)\"",
+      "transform": null,
+      "observed_populated": true
+    },
+    {
+      "canonical": "reservation.guest.payment_card_present",
+      "endpoint": "GetReservationKey",
+      "path": "PrimaryGuest/CreditCard@Number",
+      "probe": "3_GetReservationKey.xml",
+      "test": "<CreditCard [^>]*Number=\"([^\"]*)\"",
+      "transform": "masked_to_presence_bool",
+      "observed_populated": true,
+      "notes": "masked/tokenised - presence only"
+    },
+    {
+      "canonical": "stay.room_number",
+      "endpoint": "GetReservationKey",
+      "path": "RoomStay@roomNumber",
+      "probe": "3_GetReservationKey.xml",
+      "test": "<RoomStay [^>]*roomNumber=\"([^\"]*)\"",
+      "transform": null,
+      "observed_populated": true
+    },
+    {
+      "canonical": "stay.room_type",
+      "endpoint": "GetReservationKey",
+      "path": "RoomStay@roomTypeID",
+      "probe": "3_GetReservationKey.xml",
+      "test": "<RoomStay [^>]*roomTypeID=\"([^\"]*)\"",
+      "transform": "casefold",
+      "observed_populated": true,
+      "notes": "R13 - compare case-insensitively across endpoints"
+    },
+    {
+      "canonical": "stay.meal_plan",
+      "endpoint": "GetReservationKey",
+      "path": "RoomStay@mealStatus",
+      "probe": "3_GetReservationKey.xml",
+      "test": "<RoomStay [^>]*mealStatus=\"([^\"]*)\"",
+      "transform": null,
+      "observed_populated": true
+    },
+    {
+      "canonical": "stay.rate_code",
+      "endpoint": "GetReservationKey",
+      "path": "RoomStay/Total@rateCode",
+      "probe": "3_GetReservationKey.xml",
+      "test": "<Total [^>]*rateCode=\"([^\"]*)\"",
+      "transform": null,
+      "observed_populated": true,
+      "notes": "R13 - empty on some stays; does not join to ARI price list"
+    },
+    {
+      "canonical": "stay.amount",
+      "endpoint": "GetReservationKey",
+      "path": "RoomStay/Total@AmountAfterTaxes",
+      "probe": "3_GetReservationKey.xml",
+      "test": "<Total AmountAfterTaxes=\"([^\"]*)\" rateCode",
+      "transform": "zero_is_unknown",
+      "observed_populated": true,
+      "notes": "R10"
+    },
+    {
+      "canonical": "room.number",
+      "endpoint": "getRooms",
+      "path": "rnm_struct_room/rm_number",
+      "probe": "2_getRooms_all.xml",
+      "test": "<rm_number>(.*?)</rm_number>",
+      "transform": null,
+      "observed_populated": true
+    },
+    {
+      "canonical": "room.type",
+      "endpoint": "getRooms",
+      "path": "rnm_struct_room/rm_type",
+      "probe": "2_getRooms_all.xml",
+      "test": "<rm_type>(.*?)</rm_type>",
+      "transform": "casefold",
+      "observed_populated": true,
+      "notes": "R11 - may not resolve to a defined type; R13 - case"
+    },
+    {
+      "canonical": "room.closed_from",
+      "endpoint": "getRooms",
+      "path": "rnm_struct_room/rm_clsdt1",
+      "probe": "2_getRooms_all.xml",
+      "test": "<rm_clsdt1",
+      "transform": "date_yyyymmdd_to_iso",
+      "observed_populated": false,
+      "notes": "NEVER OBSERVED POPULATED - format assumed from docs",
+      "existence_only": true,
+      "value_test": "<rm_clsdt1>([^<]+)</rm_clsdt1>"
+    },
+    {
+      "canonical": "room.closed_to",
+      "endpoint": "getRooms",
+      "path": "rnm_struct_room/rm_clsdt2",
+      "probe": "2_getRooms_all.xml",
+      "test": "<rm_clsdt2",
+      "transform": "date_yyyymmdd_to_iso",
+      "observed_populated": false,
+      "notes": "NEVER OBSERVED POPULATED; only one window per room is representable",
+      "existence_only": true,
+      "value_test": "<rm_clsdt2>([^<]+)</rm_clsdt2>"
+    },
+    {
+      "canonical": "room.housekeeping_status",
+      "endpoint": "getRooms",
+      "path": "rnm_struct_room/rm_status",
+      "probe": "2_getRooms_all.xml",
+      "test": "<rm_status>(.*?)</rm_status>",
+      "transform": "cd_to_clean_dirty",
+      "observed_populated": true
+    },
+    {
+      "canonical": "room.is_sellable_by_integration",
+      "endpoint": "getRooms",
+      "path": "rnm_struct_room@is_mapped",
+      "probe": "2_getRooms_all.xml",
+      "test": "<rnm_struct_room is_mapped=\"([^\"]*)\"",
+      "transform": "to_bool",
+      "observed_populated": true,
+      "notes": "R6 - 11 of 28 false, but ALL rooms are still returned"
+    },
+    {
+      "canonical": "room.max_guests.adults",
+      "endpoint": "getRooms",
+      "path": "rec_rooms_gst_max[rgm_gst_type=A]/rgm_max",
+      "probe": "2_getRooms_all.xml",
+      "test": "<rgm_gst_type>A</rgm_gst_type>\\s*<rgm_max>(\\d+)</rgm_max>",
+      "transform": "zero_is_unknown",
+      "observed_populated": true,
+      "notes": "R12 - 0 on 23 of 28 rooms"
+    },
+    {
+      "canonical": "room.max_guests.children",
+      "endpoint": "getRooms",
+      "path": "rec_rooms_gst_max[rgm_gst_type=C]/rgm_max",
+      "probe": "2_getRooms_all.xml",
+      "test": "<rgm_gst_type>C</rgm_gst_type>\\s*<rgm_max>(\\d+)</rgm_max>",
+      "transform": "zero_is_unknown",
+      "observed_populated": true,
+      "notes": "R12"
+    },
+    {
+      "canonical": "room.max_guests.babies",
+      "endpoint": "getRooms",
+      "path": "rec_rooms_gst_max[rgm_gst_type=B]/rgm_max",
+      "probe": "2_getRooms_all.xml",
+      "test": "<rgm_gst_type>B</rgm_gst_type>\\s*<rgm_max>(\\d+)</rgm_max>",
+      "transform": "zero_is_unknown",
+      "observed_populated": true,
+      "notes": "R12"
+    },
+    {
+      "canonical": "room_type.code",
+      "endpoint": "getRoomTypes",
+      "path": "RoomTypes/Type",
+      "probe": "1_getRoomTypes.xml",
+      "test": "<Type>(.*?)</Type>",
+      "transform": "casefold",
+      "observed_populated": true,
+      "notes": "R13"
+    },
+    {
+      "canonical": "room_type.description",
+      "endpoint": "getRoomTypes",
+      "path": "RoomTypes/Description",
+      "probe": "1_getRoomTypes.xml",
+      "test": "<Description>(.*?)</Description>",
+      "transform": null,
+      "observed_populated": true
+    },
+    {
+      "canonical": "folio.balance_due",
+      "endpoint": "GetReservationBalance",
+      "path": "Balance/TotalDebit",
+      "probe": "5_balance_007003199.xml",
+      "test": "<TotalDebit>(.*?)</TotalDebit>",
+      "transform": "to_money",
+      "observed_populated": true,
+      "notes": "R9 - in folio.currency, NOT reservation.currency"
+    },
+    {
+      "canonical": "folio.currency",
+      "endpoint": "GetReservationBalance",
+      "path": "Balance/Currency",
+      "probe": "5_balance_007003199.xml",
+      "test": "<Currency>(.*?)</Currency>",
+      "transform": null,
+      "observed_populated": true,
+      "notes": "R9"
+    },
+    {
+      "canonical": "folio.total_charged",
+      "endpoint": "GetReservationBalance",
+      "path": "Balance/Debit",
+      "probe": "5_balance_007003199.xml",
+      "test": "<Debit>(.*?)</Debit>",
+      "transform": "to_money",
+      "observed_populated": true
+    },
+    {
+      "canonical": "folio.total_paid",
+      "endpoint": "GetReservationBalance",
+      "path": "Balance/Credit",
+      "probe": "5_balance_007003199.xml",
+      "test": "<Credit>(.*?)</Credit>",
+      "transform": "to_money",
+      "observed_populated": true
+    },
+    {
+      "canonical": "folio.transactions[].department",
+      "endpoint": "GetReservationBalance",
+      "path": "Transaction/Department",
+      "probe": "5_balance_007003199.xml",
+      "test": "<Department>(.*?)</Department>",
+      "transform": "tenant_department_map",
+      "observed_populated": true,
+      "notes": "A5"
+    },
+    {
+      "canonical": "folio.transactions[].kind",
+      "endpoint": "GetReservationBalance",
+      "path": "Transaction/DebitCredit",
+      "probe": "5_balance_007003199.xml",
+      "test": "<DebitCredit>(.*?)</DebitCredit>",
+      "transform": "one_two_to_charge_payment",
+      "observed_populated": true
+    },
+    {
+      "canonical": "folio.transactions[].amount",
+      "endpoint": "GetReservationBalance",
+      "path": "Transaction/Amount",
+      "probe": "5_balance_007003199.xml",
+      "test": "<Amount>(.*?)</Amount>",
+      "transform": "to_money",
+      "observed_populated": true
+    },
+    {
+      "canonical": "folio.transactions[].date",
+      "endpoint": "GetReservationBalance",
+      "path": "Transaction/Date",
+      "probe": "5_balance_007003199.xml",
+      "test": "<Date>(.*?)</Date>",
+      "transform": "date_yyyymmdd_to_iso",
+      "observed_populated": true,
+      "notes": "R2"
+    },
+    {
+      "canonical": "occupancy.room_number",
+      "endpoint": "RoomStatusInquiry",
+      "path": "Rooms/Room@Number",
+      "probe": "4_RoomStatus.xml",
+      "test": "<Room Number=\"([^\"]*)\"",
+      "transform": null,
+      "observed_populated": true
+    },
+    {
+      "canonical": "occupancy.reservation_id",
+      "endpoint": "RoomStatusInquiry",
+      "path": "Reservations/Reservation@ResNumber",
+      "probe": "4_RoomStatus.xml",
+      "test": "<Reservation[^>]*ResNumber=\"([^\"]*)\"",
+      "transform": null,
+      "observed_populated": true,
+      "notes": "one reservation may appear MULTIPLE times - split date segments"
+    },
+    {
+      "canonical": "occupancy.from",
+      "endpoint": "RoomStatusInquiry",
+      "path": "Reservations/Reservation@FromYmd",
+      "probe": "4_RoomStatus.xml",
+      "test": "FromYmd=\"([^\"]*)\"",
+      "transform": "date_yyyymmdd_to_iso",
+      "observed_populated": true
+    },
+    {
+      "canonical": "occupancy.to",
+      "endpoint": "RoomStatusInquiry",
+      "path": "Reservations/Reservation@ToYmd",
+      "probe": "4_RoomStatus.xml",
+      "test": "ToYmd=\"([^\"]*)\"",
+      "transform": "date_yyyymmdd_to_iso",
+      "observed_populated": true
+    },
+    {
+      "canonical": "occupancy.status",
+      "endpoint": "RoomStatusInquiry",
+      "path": "Reservations/Reservation@Status",
+      "probe": "4_RoomStatus.xml",
+      "test": "<Reservation[^>]*Status=\"([^\"]*)\"",
+      "transform": "tenant_status_map",
+      "observed_populated": true,
+      "notes": "A5"
+    },
+    {
+      "canonical": "rate_plan.permitted_room_types",
+      "endpoint": "BulkARI",
+      "path": "RoomTypes/RoomType@id",
+      "probe": "6_BulkARI.xml",
+      "test": "<RoomType id=\"([^\"]*)\"",
+      "transform": "casefold",
+      "observed_populated": true,
+      "notes": "R13 - UNUSABLE for control 9. Keyed by PRICE LIST code ('USD'), not the reservation's rate code ('Tourist-BB' -> ERR 309). Also scoped to mapped types only (5 of 9)."
+    }
+  ]
+}

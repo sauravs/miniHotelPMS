@@ -1,0 +1,113 @@
+{
+  "control_id": "checkout_money_owed",
+  "version": 2,
+  "source_control": "6",
+  "name": "Checkout With Money Owed",
+  "natural_language": "A reservation cannot be closed while the guest still owes money.",
+  "entity": "reservation",
+  "population": {
+    "description": "Reservations that reached checked-out status in the last 24 hours. Bounding this set matters: the folio endpoint is one call per reservation.",
+    "provider_query": {
+      "minihotel": {
+        "endpoint": "GetReservationKey",
+        "filters": {
+          "DepartureDate": {
+            "From": "today-1d",
+            "To": "today"
+          },
+          "BookingSearch": {
+            "Status": "OUT"
+          }
+        },
+        "then": [
+          "GetReservationBalance once per reservation in the population"
+        ],
+        "call_cost": "1 + N where N is checkouts in the window, NOT total reservations - this is why the population query exists (R1)"
+      }
+    }
+  },
+  "references": [],
+  "scope": [
+    {
+      "field": "reservation.status",
+      "operator": "equals",
+      "value": "checked_out"
+    }
+  ],
+  "exceptions": [],
+  "assertion": {
+    "mode": "all",
+    "predicates": [
+      {
+        "field": "folio.balance_due",
+        "operator": "lte",
+        "value": 0,
+        "note": "A positive balance is money the hotel is owed. Comparison is against literal zero, which is currency-safe by construction: zero is the same amount in every currency, so R9 never arises (the folio is in ILS while the reservation is in USD, with no exchange rate anywhere in the API)."
+      }
+    ]
+  },
+  "required_evidence": [
+    {
+      "field": "reservation.status",
+      "source": "pms",
+      "resolvable": true
+    },
+    {
+      "field": "reservation.departure_date",
+      "source": "pms",
+      "resolvable": true
+    },
+    {
+      "field": "folio.balance_due",
+      "source": "pms",
+      "resolvable": true
+    },
+    {
+      "field": "folio.currency",
+      "source": "pms",
+      "resolvable": true
+    },
+    {
+      "field": "reservation.currency",
+      "source": "pms",
+      "resolvable": true,
+      "note": "needed only to detect the currency split; the comparison itself is against 0 so no FX is required"
+    }
+  ],
+  "execution": {
+    "mode": "event",
+    "events": [
+      "reservation.updated"
+    ],
+    "fallback": {
+      "mode": "periodic",
+      "minimum_interval": "1h"
+    },
+    "rationale": "Type A on the status transition to checked_out. MiniHotel's reservation.updated webhook carries status, so the transition is detectable."
+  },
+  "freshness_requirement": {
+    "maximum_age": "1h",
+    "rationale": "A guest who has left with money owing is recoverable for a short while; hourly is enough."
+  },
+  "unknown_conditions": [
+    {
+      "when": "the GetReservationBalance call fails or returns no folio",
+      "reason": "balance not established"
+    },
+    {
+      "when": "any rule variant compares folio.balance_due against reservation.total_amount",
+      "reason": "folio.currency and reservation.currency differ (ILS vs USD observed live) and MiniHotel supplies no exchange rate. Comparing them without an FX source is invalid.",
+      "risk": "R9"
+    }
+  ],
+  "action": {
+    "type": "notify",
+    "severity": "high",
+    "audience": "finance"
+  },
+  "caveats": [
+    "Asserts against literal zero rather than the reservation total. Any future variant that compares the two amounts needs an external FX source and is invalid without one (R9).",
+    "An overpaid folio is NOT a violation of this control - it is checkout_unrefunded_credit's business. Splitting them is decision D8.",
+    "MiniHotel defines a status 'LWP' (Left Without Payment) which a property may already use as its own exception marker - confirm per tenant (A5)."
+  ]
+}

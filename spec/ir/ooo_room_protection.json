@@ -1,0 +1,131 @@
+{
+  "control_id": "ooo_room_protection",
+  "version": 2,
+  "source_control": "2",
+  "name": "Out-of-Service Room Protection",
+  "natural_language": "A room with an active out-of-service period must not have an arriving reservation.",
+  "entity": "room",
+  "population": {
+    "description": "Rooms that currently have a closed window set; then reservations arriving inside that window.",
+    "provider_query": {
+      "minihotel": {
+        "endpoint": "getRooms",
+        "filters": {},
+        "then": [
+          "GetReservationKey with ArrivalDate spanning the union of closed windows"
+        ],
+        "call_cost": "O(1) - starts from the room side, which is the smaller set"
+      }
+    }
+  },
+  "references": [
+    {
+      "entity": "occupancy",
+      "kind": "collection",
+      "local_field": "room.number",
+      "remote_field": "occupancy.room_number",
+      "note": "Every occupancy segment on this room. A collection, not a lookup: one room has many segments, and this control starts from the room side."
+    }
+  ],
+  "scope": [
+    {
+      "field": "room.closed_from",
+      "operator": "exists"
+    }
+  ],
+  "exceptions": [],
+  "assertion": {
+    "mode": "none",
+    "predicates": [
+      {
+        "field": "occupancy.reservation_id",
+        "operator": "within",
+        "interval": {
+          "start": "room.closed_from",
+          "end": "room.closed_to"
+        },
+        "note": "Violation when any non-cancelled reservation occupies the room inside its closed window."
+      }
+    ]
+  },
+  "required_evidence": [
+    {
+      "field": "room.closed_from",
+      "source": "pms",
+      "resolvable": true
+    },
+    {
+      "field": "room.closed_to",
+      "source": "pms",
+      "resolvable": true
+    },
+    {
+      "field": "reservation.arrival_date",
+      "source": "pms",
+      "resolvable": true
+    },
+    {
+      "field": "stay.room_number",
+      "source": "pms",
+      "resolvable": true
+    },
+    {
+      "field": "reservation.status",
+      "source": "pms",
+      "resolvable": true
+    },
+    {
+      "field": "occupancy.reservation_id",
+      "source": "pms",
+      "resolvable": true,
+      "note": "the assertion tests whether any reservation occupies the closed window"
+    },
+    {
+      "field": "room.number",
+      "source": "pms",
+      "note": "the key this control's occupancy collection joins on",
+      "resolvable": true
+    },
+    {
+      "field": "occupancy.room_number",
+      "source": "pms",
+      "note": "the far side of that join",
+      "resolvable": true
+    }
+  ],
+  "execution": {
+    "mode": "periodic",
+    "minimum_interval": "6h",
+    "fallback": {
+      "mode": "event",
+      "events": [
+        "reservation.created",
+        "reservation.updated"
+      ]
+    },
+    "rationale": "Type C. The doc's own periodic-state example. The trigger is a room being blocked, and MiniHotel emits no event for that - only reservation events exist."
+  },
+  "freshness_requirement": {
+    "maximum_age": "30m",
+    "rationale": "Same guest-facing urgency as 1d; the doc rates OOO conflicts high-urgency."
+  },
+  "unknown_conditions": [
+    {
+      "when": "a room is blocked through a mechanism other than rm_clsdt1/rm_clsdt2",
+      "reason": "MiniHotel also defines a reservation status 'CLOSE' (Closed Room); it is unconfirmed which mechanism a property actually uses"
+    },
+    {
+      "when": "closed dates do not parse",
+      "reason": "format unverified",
+      "risk": "R2"
+    }
+  ],
+  "action": {
+    "type": "notify",
+    "severity": "high",
+    "audience": "front_office_manager"
+  },
+  "caveats": [
+    "Shares the unproven closed-date mechanism with 1d and 13. Confirming it on one real property moves all three controls at once."
+  ]
+}

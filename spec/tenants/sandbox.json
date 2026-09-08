@@ -1,0 +1,31 @@
+{
+  "tenant_id": "sandbox",
+  "name": "MiniHotel vendor sandbox",
+  "provider": "minihotel",
+
+  "timezone": "Asia/Jerusalem",
+  "note": "Everything in this file describes ONE HOTEL's vocabulary and policy, not the provider's API. That separation is the answer to v1's open question 1.4: MiniHotel lets each property customise its status codes and posting categories (A5), so those maps belong to the property, not to the adapter. In v1 they were dictionaries in a Python module, which meant onboarding a second property was a code change (review finding F12).",
+
+  "call_budget": 101,
+  "call_budget_note": "One population call plus a hundred records. A window returning more than a hundred records is a signal to narrow the window, not to raise the budget (R1, R8). The provider takes one call per folio and offers no bulk journal endpoint, and the sandbox belongs to someone else.",
+
+  "status_map": {
+    "OK": "confirmed",
+    "IN": "checked_in",
+    "OUT": "checked_out",
+    "CL": "cancelled"
+  },
+  "status_map_note": "Only codes whose meaning is established by evidence in this repository. OUT is the filter control 6's own population query sends and the server honours it, narrowing 65 bookings to 1. CL is confirmed by the cancel-and-recreate pattern behind R7, where portal id test0000000N1 is shared by 007003206 (CL) and 007003207.",
+
+  "known_unmapped_statuses": ["OK4", "WL", "LWP"],
+  "known_unmapped_statuses_note": "DELIBERATELY not mapped, and declared here so the gap is a decision rather than an oversight. OK4 appears on 32 reservations and WL on 12 - together 44 of the 217 distinct reservations we have ever seen, one in five - and neither is documented anywhere. LWP (Left Without Payment) is documented but a property may use it as its own exception marker, which is a per-tenant question. Each resolves to UNKNOWN: a status we cannot name must not decide whether a control applies. Question 2.1 to MiniHotel would close all three.",
+
+  "department_map": {},
+  "department_map_note": "Ships EMPTY on purpose. 'RMS' is one property's posting category and there is no provider-wide vocabulary at all, so every folio department is UNKNOWN until a hotel supplies its own. That is the honest answer, and it is what drives 'connect your finance mapping to enable this control' rather than a wrong verdict.",
+
+  "settings": {
+    "nominated_rate_codes": [],
+    "rate_plan_permitted_room_types": {}
+  },
+  "settings_note": "What a control needs and only the hotel can supply. `nominated_rate_codes` is control 15's 'rate category X' - empty means the control excludes every record, which is useless but honest, and v1 instead carried the literal string '<hotel-nominated rate codes>' inside a rule it then tried to run. `rate_plan_permitted_room_types` maps a rate code to the room types it may be sold in; MiniHotel cannot resolve it (R13, open question 1.6), so an empty map means control 9 answers UNKNOWN with that reason."
+}

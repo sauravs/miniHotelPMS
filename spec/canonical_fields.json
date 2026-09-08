@@ -1,0 +1,463 @@
+{
+  "version": 2,
+  "note": "PMS-neutral vocabulary. A control IR may reference ONLY these names - never a provider field path, endpoint or wire format. `absent_means` is per field and decides what a missing value means: 'unknown' is an evidence gap, 'false' means the absence itself is the signal, 'not_applicable' means there genuinely is no such thing for this record (R7: a direct booking has no channel confirmation). `resolvable: false` marks a field no provider we have can supply, which is a fact about the vocabulary rather than a bug.",
+  "entities": {
+    "reservation": [
+      {
+        "field": "reservation.id",
+        "type": "string",
+        "nullable": false,
+        "absent_means": "false",
+        "description": "PMS-internal reservation identifier",
+        "resolvable": true
+      },
+      {
+        "field": "reservation.status",
+        "type": "enum",
+        "nullable": false,
+        "absent_means": "unknown",
+        "description": "Normalised lifecycle status: confirmed|checked_in|checked_out|cancelled|waitlist|no_show",
+        "risk": "A5",
+        "resolvable": true
+      },
+      {
+        "field": "reservation.arrival_date",
+        "type": "date",
+        "nullable": false,
+        "absent_means": "unknown",
+        "description": "Date of arrival",
+        "resolvable": true
+      },
+      {
+        "field": "reservation.arrival_time",
+        "type": "time",
+        "nullable": true,
+        "absent_means": "unknown",
+        "description": "Scheduled arrival time of day",
+        "resolvable": true
+      },
+      {
+        "field": "reservation.departure_date",
+        "type": "date",
+        "nullable": false,
+        "absent_means": "unknown",
+        "description": "Date of departure",
+        "resolvable": true
+      },
+      {
+        "field": "reservation.created_at",
+        "type": "datetime",
+        "nullable": false,
+        "absent_means": "unknown",
+        "description": "When the reservation was created. MiniHotel supplies DATE ONLY - no time component",
+        "risk": "R3",
+        "resolvable": true
+      },
+      {
+        "field": "reservation.channel_confirmation_id",
+        "type": "string",
+        "nullable": true,
+        "absent_means": "not_applicable",
+        "description": "OTA/channel confirmation number. Null for direct bookings",
+        "risk": "R7",
+        "resolvable": true
+      },
+      {
+        "field": "reservation.channel",
+        "type": "string",
+        "nullable": true,
+        "absent_means": "false",
+        "description": "Booking source / portal",
+        "resolvable": true
+      },
+      {
+        "field": "reservation.total_amount",
+        "type": "money",
+        "nullable": false,
+        "absent_means": "unknown",
+        "description": "Reservation-level total",
+        "resolvable": true
+      },
+      {
+        "field": "reservation.currency",
+        "type": "currency",
+        "nullable": false,
+        "absent_means": "unknown",
+        "description": "Currency of reservation.total_amount - may differ from folio.currency",
+        "risk": "R9",
+        "resolvable": true
+      },
+      {
+        "field": "reservation.is_group",
+        "type": "boolean",
+        "nullable": false,
+        "absent_means": "false",
+        "description": "Whether this is a group reservation",
+        "resolvable": true
+      },
+      {
+        "field": "reservation.guest_count.adults",
+        "type": "integer",
+        "nullable": false,
+        "absent_means": "unknown",
+        "description": "Adults",
+        "resolvable": true
+      },
+      {
+        "field": "reservation.guest_count.children",
+        "type": "integer",
+        "nullable": false,
+        "absent_means": "unknown",
+        "description": "Children",
+        "resolvable": true
+      },
+      {
+        "field": "reservation.guest_count.babies",
+        "type": "integer",
+        "nullable": false,
+        "absent_means": "unknown",
+        "description": "Babies",
+        "resolvable": true
+      },
+      {
+        "field": "reservation.guest_count.youth",
+        "type": "integer",
+        "nullable": true,
+        "absent_means": "unknown",
+        "description": "Youth. NOTE: no corresponding room capacity exists in MiniHotel",
+        "risk": "R12",
+        "resolvable": true
+      },
+      {
+        "field": "reservation.guest.given_name",
+        "type": "string",
+        "nullable": true,
+        "absent_means": "false",
+        "description": "Primary guest first name",
+        "resolvable": true
+      },
+      {
+        "field": "reservation.guest.surname",
+        "type": "string",
+        "nullable": true,
+        "absent_means": "false",
+        "description": "Primary guest surname",
+        "resolvable": true
+      },
+      {
+        "field": "reservation.guest.email",
+        "type": "string",
+        "nullable": true,
+        "absent_means": "false",
+        "description": "Primary guest email",
+        "resolvable": true
+      },
+      {
+        "field": "reservation.guest.phone",
+        "type": "string",
+        "nullable": true,
+        "absent_means": "false",
+        "description": "Primary guest phone",
+        "resolvable": true
+      },
+      {
+        "field": "reservation.guest.id_number",
+        "type": "string",
+        "nullable": true,
+        "absent_means": "false",
+        "description": "Passport / national ID",
+        "resolvable": true
+      },
+      {
+        "field": "reservation.guest.country",
+        "type": "string",
+        "nullable": true,
+        "absent_means": "false",
+        "description": "Guest country",
+        "resolvable": true
+      },
+      {
+        "field": "reservation.guest.payment_card_present",
+        "type": "boolean",
+        "nullable": false,
+        "absent_means": "unknown",
+        "description": "Whether a card is on file. Value is masked/tokenised - presence only, never validity",
+        "resolvable": true
+      }
+    ],
+    "stay": [
+      {
+        "field": "stay.room_number",
+        "type": "string",
+        "nullable": true,
+        "absent_means": "false",
+        "description": "Assigned room. Null = not yet assigned",
+        "resolvable": true
+      },
+      {
+        "field": "stay.room_type",
+        "type": "string",
+        "nullable": false,
+        "absent_means": "unknown",
+        "description": "Room type code as recorded on the reservation. Compare CASE-INSENSITIVELY across endpoints",
+        "risk": "R13",
+        "resolvable": true
+      },
+      {
+        "field": "stay.rate_code",
+        "type": "string",
+        "nullable": true,
+        "absent_means": "unknown",
+        "description": "Rate plan code. Empty on some live stays; does NOT join to the ARI price-list code",
+        "risk": "R13",
+        "resolvable": true
+      },
+      {
+        "field": "stay.amount",
+        "type": "money",
+        "nullable": true,
+        "absent_means": "unknown",
+        "description": "Per-room total. A value of 0 may mean unpopulated rather than free",
+        "risk": "R10",
+        "resolvable": true
+      },
+      {
+        "field": "stay.meal_plan",
+        "type": "enum",
+        "nullable": true,
+        "absent_means": "false",
+        "description": "Board basis: RO|BB|HB|FB",
+        "resolvable": true
+      }
+    ],
+    "room": [
+      {
+        "field": "room.number",
+        "type": "string",
+        "nullable": false,
+        "absent_means": "false",
+        "description": "Room number. Not always numeric",
+        "resolvable": true
+      },
+      {
+        "field": "room.type",
+        "type": "string",
+        "nullable": false,
+        "absent_means": "unknown",
+        "description": "Room type code. May not resolve to a defined room type",
+        "risk": "R11",
+        "resolvable": true
+      },
+      {
+        "field": "room.closed_from",
+        "type": "date",
+        "nullable": true,
+        "absent_means": "false",
+        "description": "Start of out-of-service window. Empty = in service. Format UNVERIFIED - never observed populated",
+        "resolvable": true
+      },
+      {
+        "field": "room.closed_to",
+        "type": "date",
+        "nullable": true,
+        "absent_means": "false",
+        "description": "End of out-of-service window. Only ONE window per room is representable",
+        "resolvable": true
+      },
+      {
+        "field": "room.housekeeping_status",
+        "type": "enum",
+        "nullable": true,
+        "absent_means": "unknown",
+        "description": "clean|dirty",
+        "resolvable": true
+      },
+      {
+        "field": "room.max_guests.adults",
+        "type": "integer",
+        "nullable": true,
+        "absent_means": "unknown",
+        "description": "Configured adult capacity. 0 means UNCONFIGURED, not zero",
+        "risk": "R12",
+        "resolvable": true
+      },
+      {
+        "field": "room.max_guests.children",
+        "type": "integer",
+        "nullable": true,
+        "absent_means": "unknown",
+        "description": "Configured child capacity",
+        "risk": "R12",
+        "resolvable": true
+      },
+      {
+        "field": "room.max_guests.babies",
+        "type": "integer",
+        "nullable": true,
+        "absent_means": "unknown",
+        "description": "Configured baby capacity",
+        "risk": "R12",
+        "resolvable": true
+      },
+      {
+        "field": "room.is_sellable_by_integration",
+        "type": "boolean",
+        "nullable": false,
+        "absent_means": "false",
+        "description": "Whether this room's type is mapped to the querying integration user",
+        "risk": "R6",
+        "resolvable": true
+      }
+    ],
+    "room_type": [
+      {
+        "field": "room_type.code",
+        "type": "string",
+        "nullable": false,
+        "absent_means": "false",
+        "description": "Defined room type code",
+        "resolvable": true
+      },
+      {
+        "field": "room_type.description",
+        "type": "string",
+        "nullable": true,
+        "absent_means": "false",
+        "description": "Human-readable description",
+        "resolvable": true
+      }
+    ],
+    "folio": [
+      {
+        "field": "folio.balance_due",
+        "type": "money",
+        "nullable": false,
+        "absent_means": "unknown",
+        "description": "Outstanding balance. Denominated in folio.currency, NOT reservation.currency",
+        "risk": "R9",
+        "resolvable": true
+      },
+      {
+        "field": "folio.currency",
+        "type": "currency",
+        "nullable": false,
+        "absent_means": "unknown",
+        "description": "Property local currency",
+        "risk": "R9",
+        "resolvable": true
+      },
+      {
+        "field": "folio.total_charged",
+        "type": "money",
+        "nullable": false,
+        "absent_means": "unknown",
+        "description": "Sum of charges",
+        "resolvable": true
+      },
+      {
+        "field": "folio.total_paid",
+        "type": "money",
+        "nullable": false,
+        "absent_means": "unknown",
+        "description": "Sum of payments",
+        "resolvable": true
+      },
+      {
+        "field": "folio.transactions[].department",
+        "type": "string",
+        "nullable": false,
+        "absent_means": "unknown",
+        "description": "Posting category. Per-tenant vocabulary",
+        "risk": "A5",
+        "resolvable": true
+      },
+      {
+        "field": "folio.transactions[].kind",
+        "type": "enum",
+        "nullable": false,
+        "absent_means": "unknown",
+        "description": "charge|payment",
+        "resolvable": true
+      },
+      {
+        "field": "folio.transactions[].amount",
+        "type": "money",
+        "nullable": false,
+        "absent_means": "unknown",
+        "description": "Transaction amount",
+        "resolvable": true
+      },
+      {
+        "field": "folio.transactions[].date",
+        "type": "date",
+        "nullable": false,
+        "absent_means": "unknown",
+        "description": "Posting date",
+        "resolvable": true
+      }
+    ],
+    "occupancy": [
+      {
+        "field": "occupancy.room_number",
+        "type": "string",
+        "nullable": false,
+        "absent_means": "false",
+        "description": "Room in the occupancy map",
+        "resolvable": true
+      },
+      {
+        "field": "occupancy.reservation_id",
+        "type": "string",
+        "nullable": true,
+        "absent_means": "false",
+        "description": "Reservation occupying it",
+        "resolvable": true
+      },
+      {
+        "field": "occupancy.from",
+        "type": "date",
+        "nullable": false,
+        "absent_means": "unknown",
+        "description": "Segment start",
+        "resolvable": true
+      },
+      {
+        "field": "occupancy.to",
+        "type": "date",
+        "nullable": false,
+        "absent_means": "unknown",
+        "description": "Segment end",
+        "resolvable": true
+      },
+      {
+        "field": "occupancy.status",
+        "type": "enum",
+        "nullable": false,
+        "absent_means": "unknown",
+        "description": "Reservation status for the segment",
+        "resolvable": true
+      }
+    ],
+    "rate_plan": [
+      {
+        "field": "rate_plan.code",
+        "type": "string",
+        "absent_means": "unknown",
+        "resolvable": false,
+        "risk": "R13",
+        "tenant_setting": "rate_plan_permitted_room_types",
+        "description": "Rate plan identifier, as the reservation records it. NOT RESOLVABLE from MiniHotel: the reservation's rate code and the Bulk ARI price-list code are different key spaces (R13), so the hotel supplies this mapping as tenant configuration or the control returns UNKNOWN."
+      },
+      {
+        "field": "rate_plan.permitted_room_types",
+        "type": "string[]",
+        "nullable": true,
+        "absent_means": "unknown",
+        "description": "Room types a rate may be sold in. NOT RESOLVABLE in MiniHotel - the reservation's rate code and the ARI price-list code are different key spaces",
+        "risk": "R13",
+        "resolvable": false,
+        "tenant_setting": "rate_plan_permitted_room_types"
+      }
+    ]
+  }
+}

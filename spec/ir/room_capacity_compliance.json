@@ -1,0 +1,159 @@
+{
+  "control_id": "room_capacity_compliance",
+  "version": 2,
+  "source_control": "4",
+  "name": "Room Capacity Compliance",
+  "natural_language": "The number of guests assigned to a room must not exceed the room's configured occupancy capacity.",
+  "entity": "stay",
+  "population": {
+    "description": "Non-cancelled reservations with an assigned room, arriving from today onward.",
+    "provider_query": {
+      "minihotel": {
+        "endpoint": "GetReservationKey",
+        "filters": {
+          "ArrivalDate": {
+            "From": "today",
+            "To": "today+90d"
+          }
+        },
+        "then": [
+          "getRooms (all rooms, 1 call)"
+        ],
+        "call_cost": "O(1)"
+      }
+    }
+  },
+  "references": [
+    {
+      "entity": "room",
+      "kind": "lookup",
+      "local_field": "stay.room_number",
+      "remote_field": "room.number",
+      "note": "Capacity lives on the room master, one call for the whole property. This is the join whose absence made v1 return 111 UNKNOWN out of 111 records (F1)."
+    }
+  ],
+  "scope": [
+    {
+      "field": "reservation.status",
+      "operator": "not_equals",
+      "value": "cancelled"
+    },
+    {
+      "field": "stay.room_number",
+      "operator": "exists"
+    }
+  ],
+  "exceptions": [],
+  "assertion": {
+    "mode": "all",
+    "predicates": [
+      {
+        "field": "reservation.guest_count.adults",
+        "operator": "lte",
+        "compare_to": "room.max_guests.adults"
+      },
+      {
+        "field": "reservation.guest_count.children",
+        "operator": "lte",
+        "compare_to": "room.max_guests.children"
+      },
+      {
+        "field": "reservation.guest_count.babies",
+        "operator": "lte",
+        "compare_to": "room.max_guests.babies"
+      }
+    ]
+  },
+  "required_evidence": [
+    {
+      "field": "reservation.guest_count.adults",
+      "source": "pms",
+      "resolvable": true
+    },
+    {
+      "field": "reservation.guest_count.children",
+      "source": "pms",
+      "resolvable": true
+    },
+    {
+      "field": "reservation.guest_count.babies",
+      "source": "pms",
+      "resolvable": true
+    },
+    {
+      "field": "reservation.guest_count.youth",
+      "source": "pms",
+      "resolvable": true
+    },
+    {
+      "field": "room.max_guests.adults",
+      "source": "pms",
+      "resolvable": true,
+      "note": "0 on 23 of 28 sandbox rooms - means unconfigured"
+    },
+    {
+      "field": "room.max_guests.children",
+      "source": "pms",
+      "resolvable": true
+    },
+    {
+      "field": "room.max_guests.babies",
+      "source": "pms",
+      "resolvable": true
+    },
+    {
+      "field": "reservation.status",
+      "source": "pms",
+      "resolvable": true,
+      "note": "scope filter"
+    },
+    {
+      "field": "stay.room_number",
+      "source": "pms",
+      "resolvable": true,
+      "note": "scope filter - only assigned reservations"
+    },
+    {
+      "field": "room.number",
+      "source": "pms",
+      "note": "the key the room-master lookup joins on",
+      "resolvable": true
+    }
+  ],
+  "execution": {
+    "mode": "event",
+    "events": [
+      "reservation.created",
+      "reservation.updated"
+    ],
+    "fallback": {
+      "mode": "periodic",
+      "minimum_interval": "12h"
+    },
+    "rationale": "Type A. Guest counts change only via reservation events."
+  },
+  "freshness_requirement": {
+    "maximum_age": "1h"
+  },
+  "unknown_conditions": [
+    {
+      "when": "room.max_guests.* is 0",
+      "reason": "capacity is UNCONFIGURED, not zero. Returning FAIL here would flag 23 of 28 sandbox rooms. Must return UNKNOWN and prompt the hotel to configure occupancy.",
+      "risk": "R12"
+    },
+    {
+      "when": "reservation.guest_count.youth > 0",
+      "reason": "MiniHotel defines capacities for adults/children/babies only (A/B/C). There is no youth capacity field, so a youth-bearing reservation cannot be fully evaluated.",
+      "risk": "R12"
+    }
+  ],
+  "action": {
+    "type": "notify",
+    "severity": "medium",
+    "audience": "front_office_manager"
+  },
+  "caveats": [
+    "THE UNKNOWN EXEMPLAR. On sandbox data a naive implementation returns FAIL for 23 of 28 rooms; the correct one returns UNKNOWN for those and evaluates only the 5 with real capacity configured.",
+    "Only per-guest-type maxima exist - there is no total-occupancy cap, so 2 adults + 2 children can pass every per-type check and still exceed the physical room."
+  ]
+}
