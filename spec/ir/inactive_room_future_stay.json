@@ -35,11 +35,6 @@
       "value": "cancelled"
     },
     {
-      "field": "reservation.arrival_date",
-      "operator": "gte",
-      "value": "today"
-    },
-    {
       "field": "stay.room_number",
       "operator": "exists"
     }
@@ -115,6 +110,7 @@
   },
   "caveats": [
     "MiniHotel has no explicit active/inactive flag. 'Inactive' is inferred from absence from the room master or presence of a closed window.",
-    "Room numbers are not always numeric - one sandbox room is named 'Nemanja'. Do not assume integer keys."
+    "Room numbers are not always numeric - one sandbox room is named 'Nemanja'. Do not assume integer keys.",
+    "The 'future' in this control's name is expressed by its population query (arrivals from today onward, resolved through the property's clock), not by a scope predicate. v1 carried both, and the scope copy compared a date against the literal string 'today' - a comparison that is always false, so every stay was excluded and the control reported a clean run over a property it had never looked at."
   ]
 }
