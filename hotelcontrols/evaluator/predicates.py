@@ -87,7 +87,15 @@ def evaluate_predicate(predicate: dict[str, Any], bundle: Bundle,
     try:
         holds = handler(left, right)
     except UnknownValue:
-        return PredicateResult(None, "%s is %s" % (name, describe(left)), tuple(fields))
+        # Name the side that was actually missing. When a capacity check cannot run because the
+        # ROOM's limit is unconfigured, reporting "guest_count.adults is 2" points a hotel at
+        # the one number that was fine - and the field it needs to fix goes unmentioned.
+        culprit, culprit_name = ((left, name) if not left.is_known
+                                 else (right, predicate.get("compare_to", "the comparison value"))
+                                 if isinstance(right, Value) and not right.is_known
+                                 else (left, name))
+        return PredicateResult(
+            None, "%s is %s" % (culprit_name, describe(culprit)), tuple(fields))
     except CurrencyMismatch as exc:
         # R9 arriving as a product answer rather than a crash. The engine will not compare a
         # folio in ILS to a reservation in USD, and it says why on the screen.
@@ -98,10 +106,15 @@ def evaluate_predicate(predicate: dict[str, Any], bundle: Bundle,
 
     # Phrased so it reads as an explanation next to the verdict, for every operator:
     #   "folio.balance_due is 812.5 ILS, which does not satisfy `lte 0`"
+    # `exists` and `not_exists` take no right-hand side, so rendering one produces
+    # "does not satisfy `exists None`" - which reads like a bug in the rule rather than a fact
+    # about the hotel. This sentence ends up on a screen.
+    clause = ("`%s`" % operator.replace("_", " ") if operator in ("exists", "not_exists")
+              else "`%s %s`" % (operator.replace("_", " "), right_text))
     return PredicateResult(
-        holds, "%s is %s, which %s `%s %s`"
-               % (name, describe(left), "satisfies" if holds else "does not satisfy",
-                  operator.replace("_", " "), right_text), tuple(fields))
+        holds, "%s is %s, which %s %s"
+               % (name, describe(left), "satisfies" if holds else "does not satisfy", clause),
+        tuple(fields))
 
 
 class UnsupportedPredicate(Exception):
