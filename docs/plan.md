@@ -14,7 +14,7 @@ Execution tracker. **Update the status table as slices close.** Design rationale
 | 2 | MiniHotel provider (structured) | ☑ | ☑ | — | ☑ | ☑ | **done** — PR #4 |
 | 3 | Evidence, references & budget | ☑ | ☑ | — | ☑ | ☑ | **done** — PR #5 |
 | 4 | Evaluator — record level | ☑ | ☑ | ☑ | ☑ | ☑ | **done** — PR #6 |
-| 5 | Evaluator — population level | ☐ | ☐ | ☐ | ☐ | ☐ | not started |
+| 5 | Evaluator — population level | ☑ | ☑ | ☑ | ☐ | ☐ | **in review** |
 | 6 | Runner, coverage, readiness, store | ☐ | ☐ | ☐ | ☐ | ☐ | not started |
 | 7 | Second provider — DemoPMS | ☐ | ☐ | ☐ | ☐ | ☐ | not started |
 | 8 | Scheduling & freshness | ☐ | ☐ | — | ☐ | ☐ | not started |
@@ -240,22 +240,28 @@ The largest slice. Every quirk lives here and nothing above may know the PMS exi
 `hotelcontrols/evaluator/population.py` — **fixes F2**
 
 **Unit tests**
-- [ ] `count_lte` over a group: two records sharing a key violate `count_lte 1`
-- [ ] Cancelled records are excluded from the group before counting (R7)
-- [ ] A `NOT_APPLICABLE` key is excluded from grouping — **every direct booking must not look like a
+- [x] `count_lte` over a group: two records sharing a key violate `count_lte 1`
+- [x] Cancelled records are excluded from the group before counting (R7)
+- [x] A `NOT_APPLICABLE` key is excluded from grouping — **every direct booking must not look like a
       duplicate of every other** (R7)
-- [ ] A record whose key is UNKNOWN yields UNKNOWN, and does not corrupt other records' verdicts
-- [ ] `aggregate` mode attributes the group's evidence to each contributing record
+- [x] A record whose key is UNKNOWN yields UNKNOWN, and does not corrupt other records' verdicts
+- [x] `aggregate` mode attributes the group's evidence to each contributing record
 
 **Integration + E2E**
-- [ ] `duplicate_channel_reservation` finds the **known real duplicate pair** in the fixtures —
-      portal id `test0000000N1`, shared by `007003206` (cancelled) and `007003207`. The engine must
-      make the correct call about whether that pair is a violation, and show why
-- [ ] `resource_occupancy_consistency` reaches verdicts via the occupancy projection (F3)
+- [x] `duplicate_channel_reservation` reaches the **known real pair** — portal id `test0000000N1`,
+      shared by `007003206` (cancelled) and `007003207` (`OK4`). The engine's call: **EXCLUDED** for
+      the cancelled half (R7's cancel-and-recreate) and **UNKNOWN** for the other, because `OK4` is
+      documented nowhere so nobody can say whether it is active. It refuses to guess in either
+      direction — see open questions 1.3 and 2.1
+- [x] `resource_occupancy_consistency` reaches verdicts — 2 PASS. No projection was needed; see
+      issue #3
 
 **Gate**
-- [ ] Both population-level controls produce PASS or FAIL on captured evidence
-- [ ] A group verdict names every record in its group in the evidence table
+- [x] Both population-level controls reach real conclusions on captured evidence: PASS for both.
+      **Neither reaches FAIL, and none was manufactured** — this property has no active duplicate
+      and no double-booked room. v1 invented fixtures to reach a nicer demo; this repository does
+      not
+- [x] A group verdict names every record in its group in the evidence table
 
 ---
 
