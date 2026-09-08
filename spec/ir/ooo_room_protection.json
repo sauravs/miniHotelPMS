@@ -15,6 +15,14 @@
           "GetReservationKey with ArrivalDate spanning the union of closed windows"
         ],
         "call_cost": "O(1) - starts from the room side, which is the smaller set"
+      },
+      "demopms": {
+        "endpoint": "rooms",
+        "filters": {},
+        "then": [
+          "occupancy (1 call)"
+        ],
+        "call_cost": "O(1) - two bulk calls. This provider nests each occupancy segment inside its room, but it still takes a second call to get them: the room master carries configuration, the occupancy call carries a window"
       }
     }
   },

@@ -1,0 +1,5272 @@
+{
+  "schema": "demopms/v1",
+  "endpoint": "bookings",
+  "bookings": [
+    {
+      "booking_ref": "007003917",
+      "state": "VOID",
+      "arrival": {
+        "date": "17 Jul 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "19 Jul 2026"
+      },
+      "created_on": "18 Apr 2026",
+      "origin": {
+        "external_ref": "TESTAIRBN1",
+        "channel": "AIRBNB"
+      },
+      "total": {
+        "amount": "300.00",
+        "currency": "USD"
+      },
+      "group_booking": false,
+      "guest": {
+        "first_name": "Hugo",
+        "last_name": "Olsen",
+        "email": "quinn.quintero@example.example",
+        "phone": "6932514",
+        "document_id": null,
+        "country": "US",
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "01",
+          "room_class": "DBL",
+          "board": "BB"
+        }
+      ]
+    },
+    {
+      "booking_ref": "007003918",
+      "state": "PROV4",
+      "arrival": {
+        "date": "17 Jul 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "20 Jul 2026"
+      },
+      "created_on": "18 Apr 2026",
+      "origin": {
+        "external_ref": "TESTAIRBN1",
+        "channel": "AIRBNB"
+      },
+      "total": {
+        "amount": "400.00",
+        "currency": "USD"
+      },
+      "group_booking": false,
+      "guest": {
+        "first_name": "Hugo",
+        "last_name": "Olsen",
+        "email": "quinn.quintero@example.example",
+        "phone": "6932514",
+        "document_id": null,
+        "country": "US",
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "01",
+          "room_class": "DBL",
+          "board": "BB"
+        }
+      ]
+    },
+    {
+      "booking_ref": "007003919",
+      "state": "VOID",
+      "arrival": {
+        "date": "17 Jul 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "19 Jul 2026"
+      },
+      "created_on": "18 Apr 2026",
+      "origin": {
+        "external_ref": "DIRECT1776517640",
+        "channel": "Web"
+      },
+      "total": {
+        "amount": "300.00",
+        "currency": "USD"
+      },
+      "group_booking": false,
+      "guest": {
+        "first_name": "Hugo",
+        "last_name": "Olsen",
+        "email": "quinn.quintero@example.example",
+        "phone": "6932514",
+        "document_id": null,
+        "country": "US",
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "02",
+          "room_class": "DBL",
+          "board": "BB"
+        }
+      ]
+    },
+    {
+      "booking_ref": "007003920",
+      "state": "PROV4",
+      "arrival": {
+        "date": "17 Jul 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "20 Jul 2026"
+      },
+      "created_on": "18 Apr 2026",
+      "origin": {
+        "external_ref": "DIRECT1776517640",
+        "channel": "Web"
+      },
+      "total": {
+        "amount": "400.00",
+        "currency": "USD"
+      },
+      "group_booking": true,
+      "occupants": {
+        "adults": 1,
+        "children": 0,
+        "babies": 0,
+        "youth": 0
+      },
+      "guest": {
+        "first_name": "Hugo",
+        "last_name": "Olsen",
+        "email": "vidal.vargas@example.example",
+        "phone": "6932514",
+        "document_id": null,
+        "country": "US",
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "02",
+          "room_class": "DBL",
+          "board": "BB"
+        }
+      ]
+    },
+    {
+      "booking_ref": "007003921",
+      "state": "VOID",
+      "arrival": {
+        "date": "17 Jul 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "19 Jul 2026"
+      },
+      "created_on": "18 Apr 2026",
+      "origin": {
+        "external_ref": "BKNG1776517645",
+        "channel": "Booking.com"
+      },
+      "total": {
+        "amount": "300.00",
+        "currency": "USD"
+      },
+      "group_booking": false,
+      "guest": {
+        "first_name": "Hugo",
+        "last_name": "Olsen",
+        "email": "quinn.quintero@example.example",
+        "phone": "6932514",
+        "document_id": null,
+        "country": "US",
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "101",
+          "room_class": "DBL",
+          "board": "BB"
+        }
+      ]
+    },
+    {
+      "booking_ref": "007003922",
+      "state": "PROV4",
+      "arrival": {
+        "date": "17 Jul 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "20 Jul 2026"
+      },
+      "created_on": "18 Apr 2026",
+      "origin": {
+        "external_ref": "BKNG1776517645",
+        "channel": "Booking.com"
+      },
+      "total": {
+        "amount": "400.00",
+        "currency": "USD"
+      },
+      "group_booking": false,
+      "guest": {
+        "first_name": "Hugo",
+        "last_name": "Olsen",
+        "email": "quinn.quintero@example.example",
+        "phone": "6932514",
+        "document_id": null,
+        "country": "US",
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "101",
+          "room_class": "DBL",
+          "board": "BB"
+        }
+      ]
+    },
+    {
+      "booking_ref": "007003923",
+      "state": "VOID",
+      "arrival": {
+        "date": "17 Jul 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "19 Jul 2026"
+      },
+      "created_on": "18 Apr 2026",
+      "origin": {
+        "external_ref": "AIRBNBSIM1",
+        "channel": "AIRBNB"
+      },
+      "total": {
+        "amount": "300.00",
+        "currency": "USD"
+      },
+      "group_booking": false,
+      "guest": {
+        "first_name": "Wren",
+        "last_name": "Almeida",
+        "email": null,
+        "phone": "966359776782",
+        "document_id": null,
+        "country": "IL",
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "102",
+          "room_class": "DBL",
+          "board": "BB"
+        }
+      ]
+    },
+    {
+      "booking_ref": "007003924",
+      "state": "PROV4",
+      "arrival": {
+        "date": "17 Jul 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "20 Jul 2026"
+      },
+      "created_on": "18 Apr 2026",
+      "origin": {
+        "external_ref": "AIRBNBSIM1",
+        "channel": "Miya"
+      },
+      "total": {
+        "amount": "400.00",
+        "currency": "USD"
+      },
+      "group_booking": false,
+      "guest": {
+        "first_name": "Wren",
+        "last_name": "Almeida",
+        "email": null,
+        "phone": "966359776782",
+        "document_id": null,
+        "country": "IL",
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "102",
+          "room_class": "DBL",
+          "board": "HB"
+        }
+      ]
+    },
+    {
+      "booking_ref": "007003925",
+      "state": "VOID",
+      "arrival": {
+        "date": "17 Jul 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "19 Jul 2026"
+      },
+      "created_on": "18 Apr 2026",
+      "origin": {
+        "external_ref": "AIRBNBSIM2",
+        "channel": "AIRBNB"
+      },
+      "total": {
+        "amount": "300.00",
+        "currency": "USD"
+      },
+      "group_booking": false,
+      "guest": {
+        "first_name": "Wren",
+        "last_name": "Almeida",
+        "email": null,
+        "phone": "966359776782",
+        "document_id": null,
+        "country": "IL",
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "302",
+          "room_class": "DBL",
+          "board": "BB"
+        }
+      ]
+    },
+    {
+      "booking_ref": "007003926",
+      "state": "PROV4",
+      "arrival": {
+        "date": "17 Jul 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "20 Jul 2026"
+      },
+      "created_on": "18 Apr 2026",
+      "origin": {
+        "external_ref": "AIRBNBSIM2",
+        "channel": "AIRBNB"
+      },
+      "total": {
+        "amount": "400.00",
+        "currency": "USD"
+      },
+      "group_booking": false,
+      "guest": {
+        "first_name": "Wren",
+        "last_name": "Almeida",
+        "email": null,
+        "phone": "966359776782",
+        "document_id": null,
+        "country": "IL",
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "302",
+          "room_class": "DBL",
+          "board": "HB"
+        }
+      ]
+    },
+    {
+      "booking_ref": "007003927",
+      "state": "VOID",
+      "arrival": {
+        "date": "17 Jul 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "19 Jul 2026"
+      },
+      "created_on": "18 Apr 2026",
+      "origin": {
+        "external_ref": "TESTBRK1",
+        "channel": "AIRBNB"
+      },
+      "total": {
+        "amount": "300.00",
+        "currency": "USD"
+      },
+      "group_booking": false,
+      "guest": {
+        "first_name": "Wren",
+        "last_name": "Almeida",
+        "email": null,
+        "phone": "966359776782",
+        "document_id": null,
+        "country": "IL",
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "303",
+          "room_class": "DBL",
+          "board": "RO"
+        }
+      ]
+    },
+    {
+      "booking_ref": "007003928",
+      "state": "PROV4",
+      "arrival": {
+        "date": "17 Jul 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "20 Jul 2026"
+      },
+      "created_on": "18 Apr 2026",
+      "origin": {
+        "external_ref": "TESTBRK1",
+        "channel": "Miya"
+      },
+      "total": {
+        "amount": "400.00",
+        "currency": "USD"
+      },
+      "group_booking": false,
+      "guest": {
+        "first_name": "Wren",
+        "last_name": "Almeida",
+        "email": null,
+        "phone": "966359776782",
+        "document_id": null,
+        "country": "IL",
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "303",
+          "room_class": "DBL",
+          "board": "HB"
+        }
+      ]
+    },
+    {
+      "booking_ref": "007003929",
+      "state": "VOID",
+      "arrival": {
+        "date": "17 Jul 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "19 Jul 2026"
+      },
+      "created_on": "18 Apr 2026",
+      "origin": {
+        "external_ref": "TESTFIX1",
+        "channel": "AIRBNB"
+      },
+      "total": {
+        "amount": "300.00",
+        "currency": "USD"
+      },
+      "group_booking": false,
+      "guest": {
+        "first_name": "Wren",
+        "last_name": "Almeida",
+        "email": null,
+        "phone": "966359776782",
+        "document_id": null,
+        "country": "IL",
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "304",
+          "room_class": "DBL",
+          "board": "RO"
+        }
+      ]
+    },
+    {
+      "booking_ref": "007003930",
+      "state": "PROV4",
+      "arrival": {
+        "date": "17 Jul 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "20 Jul 2026"
+      },
+      "created_on": "18 Apr 2026",
+      "origin": {
+        "external_ref": "TESTFIX1",
+        "channel": "Miya"
+      },
+      "total": {
+        "amount": "400.00",
+        "currency": "USD"
+      },
+      "group_booking": false,
+      "guest": {
+        "first_name": "Wren",
+        "last_name": "Almeida",
+        "email": null,
+        "phone": "966359776782",
+        "document_id": null,
+        "country": "IL",
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "304",
+          "room_class": "DBL",
+          "board": "RO"
+        }
+      ]
+    },
+    {
+      "booking_ref": "007003932",
+      "state": "IN_HOUSE",
+      "arrival": {
+        "date": "09 Jul 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "11 Jul 2026"
+      },
+      "created_on": "19 Apr 2026",
+      "origin": {
+        "external_ref": "CTRY1776572578",
+        "channel": "Web"
+      },
+      "total": {
+        "amount": "300.00",
+        "currency": "USD"
+      },
+      "group_booking": false,
+      "guest": {
+        "first_name": "Hugo",
+        "last_name": "Quintero",
+        "email": null,
+        "phone": "6932514",
+        "document_id": null,
+        "country": "IL",
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "904",
+          "room_class": "2BEDAPT",
+          "board": "BB"
+        }
+      ]
+    },
+    {
+      "booking_ref": "007004053",
+      "state": "BOOKED",
+      "arrival": {
+        "date": "01 Jul 2026",
+        "time": "15:00"
+      },
+      "departure": {
+        "date": "03 Jul 2026"
+      },
+      "created_on": "14 May 2026",
+      "origin": {
+        "external_ref": "007004053",
+        "channel": "Kinaro"
+      },
+      "total": {
+        "amount": "500.00",
+        "currency": "USD"
+      },
+      "group_booking": false,
+      "guest": {
+        "first_name": "Hugo",
+        "last_name": "Quintero",
+        "email": "elena.eriksen@example.example",
+        "phone": "0682190991",
+        "document_id": null,
+        "country": "IL",
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "01",
+          "room_class": "DBL",
+          "board": "BB"
+        }
+      ]
+    },
+    {
+      "booking_ref": "007004076",
+      "state": "PROV4",
+      "arrival": {
+        "date": "21 Jul 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "25 Jul 2026"
+      },
+      "created_on": "22 May 2026",
+      "origin": {
+        "external_ref": "6516513213215610000111",
+        "channel": "Web"
+      },
+      "total": {
+        "amount": "10000.00",
+        "currency": "USD"
+      },
+      "group_booking": false,
+      "guest": {
+        "first_name": "Bruno",
+        "last_name": "Ferrer",
+        "email": "greta.grimaldi@example.example",
+        "phone": "29700325",
+        "document_id": null,
+        "country": "OT",
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "902",
+          "room_class": "TRP",
+          "board": "HB"
+        }
+      ]
+    },
+    {
+      "booking_ref": "007004077",
+      "state": "PROV4",
+      "arrival": {
+        "date": "21 Jul 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "25 Jul 2026"
+      },
+      "created_on": "22 May 2026",
+      "origin": {
+        "external_ref": "65165132132156100111",
+        "channel": "Web"
+      },
+      "total": {
+        "amount": "10000.00",
+        "currency": "USD"
+      },
+      "group_booking": false,
+      "guest": {
+        "first_name": "Bruno",
+        "last_name": "Ferrer",
+        "email": "greta.grimaldi@example.example",
+        "phone": "29700325",
+        "document_id": null,
+        "country": "OT",
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "Nemanja",
+          "room_class": "TRP",
+          "board": "HB"
+        }
+      ]
+    },
+    {
+      "booking_ref": "007004092",
+      "state": "PROV4",
+      "arrival": {
+        "date": "30 Jun 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "02 Jul 2026"
+      },
+      "created_on": "27 May 2026",
+      "origin": {
+        "external_ref": "PROBE-1779830541765",
+        "channel": "Nightel"
+      },
+      "total": {
+        "amount": "300.00",
+        "currency": "USD"
+      },
+      "group_booking": false,
+      "guest": {
+        "first_name": "Pavel",
+        "last_name": "Sorokin",
+        "email": "hugo.halvorsen@example.example",
+        "phone": "1658896492542",
+        "document_id": null,
+        "country": "OT",
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "02",
+          "room_class": "DBL",
+          "board": "BB"
+        }
+      ]
+    },
+    {
+      "booking_ref": "007004100",
+      "state": "IN_HOUSE",
+      "arrival": {
+        "date": "25 Jul 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "27 Jul 2026"
+      },
+      "created_on": "27 May 2026",
+      "origin": {
+        "external_ref": "TEST001",
+        "channel": "Web"
+      },
+      "total": {
+        "amount": "100.00",
+        "currency": "USD"
+      },
+      "group_booking": false,
+      "guest": {
+        "first_name": "Hugo",
+        "last_name": "Olsen",
+        "email": "sten.sorokin@example.example",
+        "phone": null,
+        "document_id": null,
+        "country": "OT",
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "01",
+          "room_class": "DBL",
+          "board": "BB"
+        }
+      ]
+    },
+    {
+      "booking_ref": "007004258",
+      "state": "PROV4",
+      "arrival": {
+        "date": "04 Jul 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "07 Jul 2026"
+      },
+      "created_on": "14 Jun 2026",
+      "origin": {
+        "external_ref": "testyuval001",
+        "channel": "Test"
+      },
+      "total": {
+        "amount": "200.00",
+        "currency": "USD"
+      },
+      "group_booking": false,
+      "guest": {
+        "first_name": "Bruno",
+        "last_name": "Ferrer",
+        "email": "iris.ionescu@example.example",
+        "phone": "628118706381",
+        "document_id": null,
+        "country": "AR",
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "01",
+          "room_class": "DBL",
+          "board": "CC"
+        }
+      ]
+    },
+    {
+      "booking_ref": "007004259",
+      "state": "IN_HOUSE",
+      "arrival": {
+        "date": "04 Jul 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "12 Jul 2026"
+      },
+      "created_on": "14 Jun 2026",
+      "origin": {
+        "external_ref": "testyuval002",
+        "channel": null
+      },
+      "total": {
+        "amount": "200.00",
+        "currency": "USD"
+      },
+      "group_booking": false,
+      "guest": {
+        "first_name": "Bruno",
+        "last_name": "Ferrer",
+        "email": "iris.ionescu@example.example",
+        "phone": "628118706381",
+        "document_id": null,
+        "country": "AR",
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "02",
+          "room_class": "DBL",
+          "board": "CC"
+        }
+      ]
+    },
+    {
+      "booking_ref": "007004300",
+      "state": "PROV4",
+      "arrival": {
+        "date": "15 Jul 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "17 Jul 2026"
+      },
+      "created_on": "27 Jun 2026",
+      "origin": {
+        "external_ref": "CCP-2A-1782512672565",
+        "channel": "Web"
+      },
+      "total": {
+        "amount": "980.00",
+        "currency": "USD"
+      },
+      "group_booking": false,
+      "guest": {
+        "first_name": "Bruno",
+        "last_name": "Duarte",
+        "email": "uma.ueda@example.example",
+        "phone": "771721",
+        "document_id": null,
+        "country": "OT",
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "01",
+          "room_class": "DBL",
+          "board": "BB"
+        }
+      ]
+    },
+    {
+      "booking_ref": "007004305",
+      "state": "HOLD",
+      "arrival": {
+        "date": "05 Jul 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "06 Jul 2026"
+      },
+      "created_on": "01 Jul 2026",
+      "origin": {
+        "external_ref": "378164845",
+        "channel": null
+      },
+      "total": {
+        "amount": "900.00",
+        "currency": "USD"
+      },
+      "group_booking": false,
+      "guest": {
+        "first_name": "Ada",
+        "last_name": "Zavala",
+        "email": null,
+        "phone": null,
+        "document_id": null,
+        "country": "OT",
+        "card_last4": "****"
+      },
+      "stays": []
+    },
+    {
+      "booking_ref": "007004306",
+      "state": "HOLD",
+      "arrival": {
+        "date": "05 Jul 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "06 Jul 2026"
+      },
+      "created_on": "01 Jul 2026",
+      "origin": {
+        "external_ref": "969175841",
+        "channel": null
+      },
+      "total": {
+        "amount": "900.00",
+        "currency": "USD"
+      },
+      "group_booking": false,
+      "guest": {
+        "first_name": "Ada",
+        "last_name": "Zavala",
+        "email": null,
+        "phone": null,
+        "document_id": null,
+        "country": "OT",
+        "card_last4": "****"
+      },
+      "stays": []
+    },
+    {
+      "booking_ref": "007004307",
+      "state": "HOLD",
+      "arrival": {
+        "date": "05 Jul 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "06 Jul 2026"
+      },
+      "created_on": "01 Jul 2026",
+      "origin": {
+        "external_ref": "141859352",
+        "channel": null
+      },
+      "total": {
+        "amount": "900.00",
+        "currency": "USD"
+      },
+      "group_booking": false,
+      "guest": {
+        "first_name": "Iris",
+        "last_name": "Lindqvist",
+        "email": null,
+        "phone": null,
+        "document_id": null,
+        "country": "OT",
+        "card_last4": "****"
+      },
+      "stays": []
+    },
+    {
+      "booking_ref": "007004308",
+      "state": "HOLD",
+      "arrival": {
+        "date": "05 Jul 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "06 Jul 2026"
+      },
+      "created_on": "01 Jul 2026",
+      "origin": {
+        "external_ref": "964353101",
+        "channel": null
+      },
+      "total": {
+        "amount": "900.00",
+        "currency": "USD"
+      },
+      "group_booking": false,
+      "guest": {
+        "first_name": "Iris",
+        "last_name": "Lindqvist",
+        "email": null,
+        "phone": null,
+        "document_id": null,
+        "country": "OT",
+        "card_last4": "****"
+      },
+      "stays": []
+    },
+    {
+      "booking_ref": "007004309",
+      "state": "VOID",
+      "arrival": {
+        "date": "02 Jul 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "03 Jul 2026"
+      },
+      "created_on": "01 Jul 2026",
+      "origin": {
+        "channel": null
+      },
+      "total": {
+        "amount": "2.00",
+        "currency": "ILS"
+      },
+      "group_booking": false,
+      "guest": {
+        "first_name": "Xenia",
+        "last_name": "Almeida",
+        "email": null,
+        "phone": null,
+        "document_id": null,
+        "country": null,
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "101",
+          "room_class": "DBL",
+          "board": "BB"
+        }
+      ]
+    },
+    {
+      "booking_ref": "007004310",
+      "state": "HOLD",
+      "arrival": {
+        "date": "05 Jul 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "06 Jul 2026"
+      },
+      "created_on": "01 Jul 2026",
+      "origin": {
+        "external_ref": "711788539",
+        "channel": null
+      },
+      "total": {
+        "amount": "900.00",
+        "currency": "USD"
+      },
+      "group_booking": false,
+      "guest": {
+        "first_name": "Elena",
+        "last_name": "Ximenes",
+        "email": null,
+        "phone": null,
+        "document_id": null,
+        "country": "OT",
+        "card_last4": "****"
+      },
+      "stays": []
+    },
+    {
+      "booking_ref": "007004311",
+      "state": "HOLD",
+      "arrival": {
+        "date": "05 Jul 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "06 Jul 2026"
+      },
+      "created_on": "01 Jul 2026",
+      "origin": {
+        "external_ref": "515925240",
+        "channel": null
+      },
+      "total": {
+        "amount": "900.00",
+        "currency": "USD"
+      },
+      "group_booking": false,
+      "guest": {
+        "first_name": "Elena",
+        "last_name": "Ximenes",
+        "email": null,
+        "phone": null,
+        "document_id": null,
+        "country": "OT",
+        "card_last4": "****"
+      },
+      "stays": []
+    },
+    {
+      "booking_ref": "007004312",
+      "state": "IN_HOUSE",
+      "arrival": {
+        "date": "08 Jul 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "13 Jul 2026"
+      },
+      "created_on": "01 Jul 2026",
+      "origin": {
+        "external_ref": "408088102",
+        "channel": null
+      },
+      "total": {
+        "amount": "900.00",
+        "currency": "USD"
+      },
+      "group_booking": false,
+      "guest": {
+        "first_name": "Ada",
+        "last_name": "Zavala",
+        "email": null,
+        "phone": null,
+        "document_id": null,
+        "country": "OT",
+        "card_last4": "****"
+      },
+      "stays": []
+    },
+    {
+      "booking_ref": "007004313",
+      "state": "IN_HOUSE",
+      "arrival": {
+        "date": "08 Jul 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "13 Jul 2026"
+      },
+      "created_on": "01 Jul 2026",
+      "origin": {
+        "external_ref": "530733138",
+        "channel": null
+      },
+      "total": {
+        "amount": "900.00",
+        "currency": "USD"
+      },
+      "group_booking": false,
+      "guest": {
+        "first_name": "Ada",
+        "last_name": "Zavala",
+        "email": null,
+        "phone": null,
+        "document_id": null,
+        "country": "OT",
+        "card_last4": "****"
+      },
+      "stays": []
+    },
+    {
+      "booking_ref": "007004321",
+      "state": "BOOKED",
+      "arrival": {
+        "date": "02 Jul 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "03 Jul 2026"
+      },
+      "created_on": "02 Jul 2026",
+      "origin": {
+        "channel": null
+      },
+      "total": {
+        "amount": "2.00",
+        "currency": "ILS"
+      },
+      "group_booking": false,
+      "guest": {
+        "first_name": "Xenia",
+        "last_name": "Almeida",
+        "email": null,
+        "phone": null,
+        "document_id": null,
+        "country": null,
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "401",
+          "room_class": "Executive",
+          "board": "BB"
+        }
+      ]
+    },
+    {
+      "booking_ref": "007004327",
+      "state": "VOID",
+      "arrival": {
+        "date": "10 Jul 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "12 Jul 2026"
+      },
+      "created_on": "04 Jul 2026",
+      "origin": {
+        "external_ref": "test123",
+        "channel": "Web"
+      },
+      "total": {
+        "amount": "100.00",
+        "currency": "USD"
+      },
+      "group_booking": false,
+      "guest": {
+        "first_name": "Hugo",
+        "last_name": "Olsen",
+        "email": null,
+        "phone": null,
+        "document_id": null,
+        "country": "OT",
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "902",
+          "room_class": "TRP",
+          "board": "HB"
+        }
+      ]
+    },
+    {
+      "booking_ref": "007004329",
+      "state": "PROV4",
+      "arrival": {
+        "date": "10 Jul 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "12 Jul 2026"
+      },
+      "created_on": "04 Jul 2026",
+      "origin": {
+        "external_ref": "OVF001",
+        "channel": "Web"
+      },
+      "total": {
+        "amount": "999999999999.00",
+        "currency": "USD"
+      },
+      "group_booking": false,
+      "guest": {
+        "first_name": "Quinn",
+        "last_name": "Quintero",
+        "email": null,
+        "phone": null,
+        "document_id": null,
+        "country": "OT",
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "01",
+          "room_class": "DBL",
+          "board": "BB"
+        }
+      ]
+    },
+    {
+      "booking_ref": "007004333",
+      "state": "VOID",
+      "arrival": {
+        "date": "05 Jul 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "06 Jul 2026"
+      },
+      "created_on": "05 Jul 2026",
+      "origin": {
+        "channel": null
+      },
+      "total": {
+        "amount": "2.00",
+        "currency": "ILS"
+      },
+      "group_booking": false,
+      "guest": {
+        "first_name": "Xenia",
+        "last_name": "Almeida",
+        "email": null,
+        "phone": null,
+        "document_id": null,
+        "country": null,
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "101",
+          "room_class": "DBL",
+          "board": "BB"
+        }
+      ]
+    },
+    {
+      "booking_ref": "007004334",
+      "state": "VOID",
+      "arrival": {
+        "date": "06 Jul 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "07 Jul 2026"
+      },
+      "created_on": "05 Jul 2026",
+      "origin": {
+        "external_ref": "TEST-1783274258398",
+        "channel": "Nightel"
+      },
+      "total": {
+        "amount": "150.00",
+        "currency": "USD"
+      },
+      "group_booking": false,
+      "guest": {
+        "first_name": "Hugo",
+        "last_name": "Olsen",
+        "email": "tova.torres@example.example",
+        "phone": "1738988195660",
+        "document_id": null,
+        "country": "IL",
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "102",
+          "room_class": "DBL",
+          "board": "BB"
+        }
+      ]
+    },
+    {
+      "booking_ref": "007004335",
+      "state": "VOID",
+      "arrival": {
+        "date": "06 Jul 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "07 Jul 2026"
+      },
+      "created_on": "05 Jul 2026",
+      "origin": {
+        "external_ref": "TEST-1783274334289",
+        "channel": "Nightel"
+      },
+      "total": {
+        "amount": "150.00",
+        "currency": "USD"
+      },
+      "group_booking": false,
+      "guest": {
+        "first_name": "Hugo",
+        "last_name": "Olsen",
+        "email": "tova.torres@example.example",
+        "phone": "1738988195660",
+        "document_id": null,
+        "country": "IL",
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "102",
+          "room_class": "DBL",
+          "board": "BB"
+        }
+      ]
+    },
+    {
+      "booking_ref": "007004336",
+      "state": "PROV4",
+      "arrival": {
+        "date": "18 Jul 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "20 Jul 2026"
+      },
+      "created_on": "05 Jul 2026",
+      "origin": {
+        "external_ref": "CCP1783275808296",
+        "channel": "Web"
+      },
+      "total": {
+        "amount": "1350.00",
+        "currency": "USD"
+      },
+      "group_booking": false,
+      "guest": {
+        "first_name": "Tova",
+        "last_name": null,
+        "email": "kira.kowalski@example.example",
+        "phone": "65730115805561",
+        "document_id": null,
+        "country": "OT",
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "902",
+          "room_class": "TRP",
+          "board": "BB"
+        }
+      ]
+    },
+    {
+      "booking_ref": "007004337",
+      "state": "VOID",
+      "arrival": {
+        "date": "06 Jul 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "07 Jul 2026"
+      },
+      "created_on": "06 Jul 2026",
+      "origin": {
+        "external_ref": "H3_B10145",
+        "channel": "KIOSK"
+      },
+      "total": {
+        "amount": "223.00",
+        "currency": "ILS"
+      },
+      "group_booking": false,
+      "guest": {
+        "first_name": "Xenia",
+        "last_name": "Almeida",
+        "email": "mira.moreau@example.example",
+        "phone": "06678404617",
+        "document_id": null,
+        "country": "IL",
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "701",
+          "room_class": "2BEDAPT",
+          "board": "BB"
+        }
+      ]
+    },
+    {
+      "booking_ref": "007004338",
+      "state": "IN_HOUSE",
+      "arrival": {
+        "date": "06 Jul 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "09 Jul 2026"
+      },
+      "created_on": "06 Jul 2026",
+      "origin": {
+        "channel": "web"
+      },
+      "total": {
+        "amount": "846.00",
+        "currency": "USD"
+      },
+      "group_booking": false,
+      "guest": {
+        "first_name": "Dmitri",
+        "last_name": "Jansen",
+        "email": null,
+        "phone": null,
+        "document_id": null,
+        "country": "ZW",
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "102",
+          "room_class": "DBL",
+          "board": "BB"
+        }
+      ]
+    },
+    {
+      "booking_ref": "007004339",
+      "state": "VOID",
+      "arrival": {
+        "date": "06 Jul 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "07 Jul 2026"
+      },
+      "created_on": "06 Jul 2026",
+      "origin": {
+        "channel": null
+      },
+      "total": {
+        "amount": "282.00",
+        "currency": "USD"
+      },
+      "group_booking": false,
+      "guest": {
+        "first_name": "Greta",
+        "last_name": "Jansen",
+        "email": "quinn.quintero@example.example",
+        "phone": null,
+        "document_id": null,
+        "country": null,
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "102",
+          "room_class": "DBL",
+          "board": "BB"
+        }
+      ]
+    },
+    {
+      "booking_ref": "007004340",
+      "state": "IN_HOUSE",
+      "arrival": {
+        "date": "06 Jul 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "09 Jul 2026"
+      },
+      "created_on": "06 Jul 2026",
+      "origin": {
+        "channel": "001"
+      },
+      "total": {
+        "amount": "372.00",
+        "currency": "USD"
+      },
+      "group_booking": true,
+      "occupants": {
+        "adults": 2,
+        "children": 0,
+        "babies": 0,
+        "youth": 0
+      },
+      "guest": {
+        "first_name": "Dmitri",
+        "last_name": "Jansen",
+        "email": null,
+        "phone": null,
+        "document_id": null,
+        "country": "GB",
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "103",
+          "room_class": "Twin",
+          "board": "BB"
+        }
+      ]
+    },
+    {
+      "booking_ref": "007004341",
+      "state": "VOID",
+      "arrival": {
+        "date": "06 Jul 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "07 Jul 2026"
+      },
+      "created_on": "06 Jul 2026",
+      "origin": {
+        "channel": null
+      },
+      "total": {
+        "amount": "2.00",
+        "currency": "ILS"
+      },
+      "group_booking": false,
+      "guest": {
+        "first_name": "Iris",
+        "last_name": "Almeida",
+        "email": null,
+        "phone": null,
+        "document_id": null,
+        "country": null,
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "104",
+          "room_class": "Twin",
+          "board": "BB"
+        }
+      ]
+    },
+    {
+      "booking_ref": "007004342",
+      "state": "IN_HOUSE",
+      "arrival": {
+        "date": "06 Jul 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "09 Jul 2026"
+      },
+      "created_on": "06 Jul 2026",
+      "origin": {
+        "channel": "Booking"
+      },
+      "total": {
+        "amount": "602.00",
+        "currency": "USD"
+      },
+      "group_booking": true,
+      "occupants": {
+        "adults": 2,
+        "children": 0,
+        "babies": 0,
+        "youth": 0
+      },
+      "guest": {
+        "first_name": "Yara",
+        "last_name": "Quintero",
+        "email": null,
+        "phone": null,
+        "document_id": null,
+        "country": "UG",
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "606",
+          "room_class": "APT_SEA",
+          "board": "BB"
+        }
+      ]
+    },
+    {
+      "booking_ref": "007004343",
+      "state": "IN_HOUSE",
+      "arrival": {
+        "date": "07 Jul 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "08 Jul 2026"
+      },
+      "created_on": "06 Jul 2026",
+      "origin": {
+        "channel": null
+      },
+      "total": {
+        "amount": "2.00",
+        "currency": "ILS"
+      },
+      "group_booking": false,
+      "guest": {
+        "first_name": "Xenia",
+        "last_name": "Torres",
+        "email": null,
+        "phone": null,
+        "document_id": null,
+        "country": null,
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "302",
+          "room_class": "DBL",
+          "board": "BB"
+        }
+      ]
+    },
+    {
+      "booking_ref": "007004344",
+      "state": "IN_HOUSE",
+      "arrival": {
+        "date": "08 Jul 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "09 Jul 2026"
+      },
+      "created_on": "06 Jul 2026",
+      "origin": {
+        "channel": "Booking"
+      },
+      "total": {
+        "amount": "282.00",
+        "currency": "USD"
+      },
+      "group_booking": true,
+      "occupants": {
+        "adults": 2,
+        "children": 0,
+        "babies": 0,
+        "youth": 0
+      },
+      "guest": {
+        "first_name": "Farid",
+        "last_name": "Zavala",
+        "email": "vidal.vargas@example.example",
+        "phone": "1382330561",
+        "document_id": "21331961",
+        "country": "US",
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "303",
+          "room_class": "DBL",
+          "board": "BB"
+        }
+      ]
+    },
+    {
+      "booking_ref": "007004345",
+      "state": "IN_HOUSE",
+      "arrival": {
+        "date": "07 Jul 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "08 Jul 2026"
+      },
+      "created_on": "07 Jul 2026",
+      "origin": {
+        "channel": null
+      },
+      "total": {
+        "amount": "2.00",
+        "currency": "ILS"
+      },
+      "group_booking": false,
+      "guest": {
+        "first_name": "Farid",
+        "last_name": "Grimaldi",
+        "email": null,
+        "phone": null,
+        "document_id": null,
+        "country": null,
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "104",
+          "room_class": "Twin",
+          "board": "BB"
+        }
+      ]
+    },
+    {
+      "booking_ref": "007004346",
+      "state": "IN_HOUSE",
+      "arrival": {
+        "date": "07 Jul 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "10 Jul 2026"
+      },
+      "created_on": "07 Jul 2026",
+      "origin": {
+        "channel": null
+      },
+      "total": {
+        "amount": "6.00",
+        "currency": "ILS"
+      },
+      "group_booking": false,
+      "guest": {
+        "first_name": "Luca",
+        "last_name": "Wexler",
+        "email": null,
+        "phone": null,
+        "document_id": null,
+        "country": null,
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "101",
+          "room_class": "DBL",
+          "board": "BB"
+        }
+      ]
+    },
+    {
+      "booking_ref": "007004347",
+      "state": "IN_HOUSE",
+      "arrival": {
+        "date": "07 Jul 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "08 Jul 2026"
+      },
+      "created_on": "07 Jul 2026",
+      "origin": {
+        "channel": null
+      },
+      "total": {
+        "amount": "2.00",
+        "currency": "ILS"
+      },
+      "group_booking": false,
+      "guest": {
+        "first_name": "Yara",
+        "last_name": "Eriksen",
+        "email": null,
+        "phone": null,
+        "document_id": null,
+        "country": null,
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "304",
+          "room_class": "DBL",
+          "board": "BB"
+        }
+      ]
+    },
+    {
+      "booking_ref": "007004348",
+      "state": "DEPARTED",
+      "arrival": {
+        "date": "06 Jul 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "07 Jul 2026"
+      },
+      "created_on": "07 Jul 2026",
+      "origin": {
+        "channel": null
+      },
+      "total": {
+        "amount": "124.00",
+        "currency": "USD"
+      },
+      "group_booking": false,
+      "guest": {
+        "first_name": "Dmitri",
+        "last_name": "Almeida",
+        "email": null,
+        "phone": null,
+        "document_id": null,
+        "country": null,
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "301",
+          "room_class": "Twin",
+          "board": "BB"
+        }
+      ]
+    },
+    {
+      "booking_ref": "007004349",
+      "state": "IN_HOUSE",
+      "arrival": {
+        "date": "07 Jul 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "08 Jul 2026"
+      },
+      "created_on": "07 Jul 2026",
+      "origin": {
+        "channel": null
+      },
+      "total": {
+        "amount": "229.00",
+        "currency": "USD"
+      },
+      "group_booking": false,
+      "guest": {
+        "first_name": "Dmitri",
+        "last_name": "Vargas",
+        "email": null,
+        "phone": null,
+        "document_id": null,
+        "country": null,
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "901",
+          "room_class": "2BEDAPT",
+          "board": "BB"
+        }
+      ]
+    },
+    {
+      "booking_ref": "007004350",
+      "state": "VOID",
+      "arrival": {
+        "date": "07 Jul 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "08 Jul 2026"
+      },
+      "created_on": "07 Jul 2026",
+      "origin": {
+        "channel": null
+      },
+      "total": {
+        "amount": "211.00",
+        "currency": "USD"
+      },
+      "group_booking": false,
+      "guest": {
+        "first_name": "Dmitri",
+        "last_name": "Lindqvist",
+        "email": null,
+        "phone": null,
+        "document_id": null,
+        "country": null,
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "903",
+          "room_class": "2BEDAPT",
+          "board": "BB"
+        }
+      ]
+    },
+    {
+      "booking_ref": "007004351",
+      "state": "DEPARTED",
+      "arrival": {
+        "date": "07 Jul 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "08 Jul 2026"
+      },
+      "created_on": "08 Jul 2026",
+      "origin": {
+        "channel": null
+      },
+      "total": {
+        "amount": "282.00",
+        "currency": "USD"
+      },
+      "group_booking": false,
+      "guest": {
+        "first_name": "Quinn",
+        "last_name": "Petrov",
+        "email": null,
+        "phone": null,
+        "document_id": null,
+        "country": null,
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "605",
+          "room_class": "DBL",
+          "board": "BB"
+        }
+      ]
+    },
+    {
+      "booking_ref": "007004352",
+      "state": "IN_HOUSE",
+      "arrival": {
+        "date": "07 Jul 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "08 Jul 2026"
+      },
+      "created_on": "08 Jul 2026",
+      "origin": {
+        "channel": null
+      },
+      "total": {
+        "amount": "229.00",
+        "currency": "USD"
+      },
+      "group_booking": false,
+      "guest": {
+        "first_name": "Quinn",
+        "last_name": "Duarte",
+        "email": null,
+        "phone": null,
+        "document_id": null,
+        "country": null,
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "701",
+          "room_class": "2BEDAPT",
+          "board": "BB"
+        }
+      ]
+    },
+    {
+      "booking_ref": "007004353",
+      "state": "IN_HOUSE",
+      "arrival": {
+        "date": "08 Jul 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "10 Jul 2026"
+      },
+      "created_on": "08 Jul 2026",
+      "origin": {
+        "channel": null
+      },
+      "total": {
+        "amount": "304.00",
+        "currency": "USD"
+      },
+      "group_booking": false,
+      "guest": {
+        "first_name": "Wren",
+        "last_name": "Kowalski",
+        "email": null,
+        "phone": null,
+        "document_id": null,
+        "country": null,
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "501",
+          "room_class": "SNG",
+          "board": "BB"
+        }
+      ]
+    },
+    {
+      "booking_ref": "007004354",
+      "state": "DEPARTED",
+      "arrival": {
+        "date": "08 Jul 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "09 Jul 2026"
+      },
+      "created_on": "08 Jul 2026",
+      "origin": {
+        "channel": null
+      },
+      "total": {
+        "amount": "152.00",
+        "currency": "USD"
+      },
+      "group_booking": false,
+      "guest": {
+        "first_name": "Quinn",
+        "last_name": "Petrov",
+        "email": null,
+        "phone": null,
+        "document_id": null,
+        "country": null,
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "809",
+          "room_class": "SNG",
+          "board": "BB"
+        }
+      ]
+    },
+    {
+      "booking_ref": "007004355",
+      "state": "IN_HOUSE",
+      "arrival": {
+        "date": "08 Jul 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "09 Jul 2026"
+      },
+      "created_on": "08 Jul 2026",
+      "origin": {
+        "channel": null
+      },
+      "total": {
+        "amount": "228.00",
+        "currency": "USD"
+      },
+      "group_booking": false,
+      "guest": {
+        "first_name": "Quinn",
+        "last_name": "Almeida",
+        "email": null,
+        "phone": null,
+        "document_id": null,
+        "country": null,
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "903",
+          "room_class": "2BEDAPT",
+          "board": "BB"
+        }
+      ]
+    },
+    {
+      "booking_ref": "007004356",
+      "state": "VOID",
+      "arrival": {
+        "date": "08 Jul 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "09 Jul 2026"
+      },
+      "created_on": "08 Jul 2026",
+      "origin": {
+        "channel": null
+      },
+      "total": {
+        "amount": "228.00",
+        "currency": "USD"
+      },
+      "group_booking": false,
+      "guest": {
+        "first_name": "Quinn",
+        "last_name": "Ionescu",
+        "email": null,
+        "phone": null,
+        "document_id": null,
+        "country": null,
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "904",
+          "room_class": "2BEDAPT",
+          "board": "BB"
+        }
+      ]
+    },
+    {
+      "booking_ref": "007004357",
+      "state": "IN_HOUSE",
+      "arrival": {
+        "date": "08 Jul 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "09 Jul 2026"
+      },
+      "created_on": "08 Jul 2026",
+      "origin": {
+        "external_ref": "H3_B10146",
+        "channel": "KIOSK"
+      },
+      "total": {
+        "amount": "228.00",
+        "currency": "ILS"
+      },
+      "group_booking": false,
+      "guest": {
+        "first_name": "Luca",
+        "last_name": "Zavala",
+        "email": "pavel.petrov@example.example",
+        "phone": "082248805",
+        "document_id": null,
+        "country": "IL",
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "701",
+          "room_class": "2BEDAPT",
+          "board": "BB"
+        }
+      ]
+    },
+    {
+      "booking_ref": "007004358",
+      "state": "VOID",
+      "arrival": {
+        "date": "09 Jul 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "10 Jul 2026"
+      },
+      "created_on": "09 Jul 2026",
+      "origin": {
+        "external_ref": "TEST-1783551971555",
+        "channel": "Nightel"
+      },
+      "total": {
+        "amount": "150.00",
+        "currency": "USD"
+      },
+      "group_booking": false,
+      "guest": {
+        "first_name": "Hugo",
+        "last_name": "Olsen",
+        "email": "tova.torres@example.example",
+        "phone": "1738988195660",
+        "document_id": null,
+        "country": "IL",
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "01",
+          "room_class": "DBL",
+          "board": "BB"
+        }
+      ]
+    },
+    {
+      "booking_ref": "007004359",
+      "state": "VOID",
+      "arrival": {
+        "date": "09 Jul 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "10 Jul 2026"
+      },
+      "created_on": "09 Jul 2026",
+      "origin": {
+        "external_ref": "TEST-1783552289039",
+        "channel": "Nightel"
+      },
+      "total": {
+        "amount": "150.00",
+        "currency": "USD"
+      },
+      "group_booking": false,
+      "guest": {
+        "first_name": "Hugo",
+        "last_name": "Olsen",
+        "email": "tova.torres@example.example",
+        "phone": "1738988195660",
+        "document_id": null,
+        "country": "IL",
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "01",
+          "room_class": "DBL",
+          "board": "BB"
+        }
+      ]
+    },
+    {
+      "booking_ref": "007004360",
+      "state": "VOID",
+      "arrival": {
+        "date": "09 Jul 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "10 Jul 2026"
+      },
+      "created_on": "09 Jul 2026",
+      "origin": {
+        "external_ref": "TEST-1783553382226",
+        "channel": "Nightel"
+      },
+      "total": {
+        "amount": "150.00",
+        "currency": "USD"
+      },
+      "group_booking": false,
+      "guest": {
+        "first_name": "Hugo",
+        "last_name": "Olsen",
+        "email": "tova.torres@example.example",
+        "phone": "1738988195660",
+        "document_id": null,
+        "country": "IL",
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "01",
+          "room_class": "DBL",
+          "board": "BB"
+        }
+      ]
+    },
+    {
+      "booking_ref": "007004361",
+      "state": "VOID",
+      "arrival": {
+        "date": "09 Jul 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "10 Jul 2026"
+      },
+      "created_on": "09 Jul 2026",
+      "origin": {
+        "external_ref": "TEST-1783553495987",
+        "channel": "Nightel"
+      },
+      "total": {
+        "amount": "150.00",
+        "currency": "USD"
+      },
+      "group_booking": false,
+      "guest": {
+        "first_name": "Hugo",
+        "last_name": "Olsen",
+        "email": "tova.torres@example.example",
+        "phone": "1738988195660",
+        "document_id": null,
+        "country": "IL",
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "01",
+          "room_class": "DBL",
+          "board": "BB"
+        }
+      ]
+    },
+    {
+      "booking_ref": "007004362",
+      "state": "VOID",
+      "arrival": {
+        "date": "09 Jul 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "10 Jul 2026"
+      },
+      "created_on": "09 Jul 2026",
+      "origin": {
+        "external_ref": "TEST-1783554508804",
+        "channel": "Nightel"
+      },
+      "total": {
+        "amount": "150.00",
+        "currency": "USD"
+      },
+      "group_booking": false,
+      "guest": {
+        "first_name": "Hugo",
+        "last_name": "Olsen",
+        "email": "tova.torres@example.example",
+        "phone": "1738988195660",
+        "document_id": null,
+        "country": "IL",
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "01",
+          "room_class": "DBL",
+          "board": "BB"
+        }
+      ]
+    },
+    {
+      "booking_ref": "007004363",
+      "state": "VOID",
+      "arrival": {
+        "date": "09 Jul 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "10 Jul 2026"
+      },
+      "created_on": "09 Jul 2026",
+      "origin": {
+        "external_ref": "TEST-1783554986565",
+        "channel": "Nightel"
+      },
+      "total": {
+        "amount": "150.00",
+        "currency": "USD"
+      },
+      "group_booking": false,
+      "guest": {
+        "first_name": "Hugo",
+        "last_name": "Olsen",
+        "email": "tova.torres@example.example",
+        "phone": "1738988195660",
+        "document_id": null,
+        "country": "IL",
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "01",
+          "room_class": "DBL",
+          "board": "BB"
+        }
+      ]
+    },
+    {
+      "booking_ref": "007004364",
+      "state": "IN_HOUSE",
+      "arrival": {
+        "date": "08 Jul 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "11 Jul 2026"
+      },
+      "created_on": "09 Jul 2026",
+      "origin": {
+        "channel": "AG"
+      },
+      "total": {
+        "amount": "846.00",
+        "currency": "USD"
+      },
+      "group_booking": true,
+      "occupants": {
+        "adults": 2,
+        "children": 0,
+        "babies": 0,
+        "youth": 0
+      },
+      "guest": {
+        "first_name": "Sten",
+        "last_name": "Vargas",
+        "email": null,
+        "phone": null,
+        "document_id": null,
+        "country": "AR",
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "808",
+          "room_class": "DBL",
+          "board": "BB"
+        }
+      ]
+    },
+    {
+      "booking_ref": "007004365",
+      "state": "DEPARTED",
+      "arrival": {
+        "date": "09 Jul 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "10 Jul 2026"
+      },
+      "created_on": "09 Jul 2026",
+      "origin": {
+        "channel": null
+      },
+      "total": {
+        "amount": "152.00",
+        "currency": "USD"
+      },
+      "group_booking": false,
+      "guest": {
+        "first_name": "Wren",
+        "last_name": "Duarte",
+        "email": null,
+        "phone": null,
+        "document_id": null,
+        "country": null,
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "809",
+          "room_class": "SNG",
+          "board": "BB"
+        }
+      ]
+    },
+    {
+      "booking_ref": "007004366",
+      "state": "IN_HOUSE",
+      "arrival": {
+        "date": "09 Jul 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "10 Jul 2026"
+      },
+      "created_on": "09 Jul 2026",
+      "origin": {
+        "channel": "Booking"
+      },
+      "total": {
+        "amount": "118.00",
+        "currency": "USD"
+      },
+      "group_booking": true,
+      "occupants": {
+        "adults": 2,
+        "children": 0,
+        "babies": 0,
+        "youth": 0
+      },
+      "guest": {
+        "first_name": "Sten",
+        "last_name": "Lindqvist",
+        "email": null,
+        "phone": null,
+        "document_id": null,
+        "country": "GB",
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "104",
+          "room_class": "Twin",
+          "board": "BB"
+        }
+      ]
+    },
+    {
+      "booking_ref": "007004367",
+      "state": "BOOKED",
+      "arrival": {
+        "date": "10 Jul 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "14 Jul 2026"
+      },
+      "created_on": "10 Jul 2026",
+      "origin": {
+        "channel": "Daka90"
+      },
+      "total": {
+        "amount": "2063.00",
+        "currency": "USD"
+      },
+      "group_booking": true,
+      "occupants": {
+        "adults": 2,
+        "children": 0,
+        "babies": 0,
+        "youth": 0
+      },
+      "guest": {
+        "first_name": "Hugo",
+        "last_name": "Moreau",
+        "email": null,
+        "phone": null,
+        "document_id": "158310",
+        "country": "MV",
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "301",
+          "room_class": "Twin",
+          "board": "BB"
+        },
+        {
+          "room_no": "302",
+          "room_class": "DBL",
+          "board": "BB"
+        },
+        {
+          "room_no": "303",
+          "room_class": "DBL",
+          "board": "BB"
+        }
+      ]
+    },
+    {
+      "booking_ref": "007004368",
+      "state": "VOID",
+      "arrival": {
+        "date": "12 Jul 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "13 Jul 2026"
+      },
+      "created_on": "12 Jul 2026",
+      "origin": {
+        "channel": "Booking"
+      },
+      "total": {
+        "amount": "282.00",
+        "currency": "USD"
+      },
+      "group_booking": true,
+      "occupants": {
+        "adults": 2,
+        "children": 0,
+        "babies": 0,
+        "youth": 0
+      },
+      "guest": {
+        "first_name": "Luca",
+        "last_name": "Wexler",
+        "email": null,
+        "phone": null,
+        "document_id": null,
+        "country": "IL",
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "304",
+          "room_class": "DBL",
+          "board": "BB"
+        }
+      ]
+    },
+    {
+      "booking_ref": "007004369",
+      "state": "VOID",
+      "arrival": {
+        "date": "12 Jul 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "13 Jul 2026"
+      },
+      "created_on": "12 Jul 2026",
+      "origin": {
+        "channel": "Booking"
+      },
+      "total": {
+        "amount": "487.00",
+        "currency": "USD"
+      },
+      "group_booking": true,
+      "occupants": {
+        "adults": 2,
+        "children": 0,
+        "babies": 0,
+        "youth": 0
+      },
+      "guest": {
+        "first_name": "Iris",
+        "last_name": "Almeida",
+        "email": null,
+        "phone": null,
+        "document_id": null,
+        "country": "IL",
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "401",
+          "room_class": "Executive",
+          "board": "BB"
+        }
+      ]
+    },
+    {
+      "booking_ref": "007004372",
+      "state": "IN_HOUSE",
+      "arrival": {
+        "date": "13 Jul 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "14 Jul 2026"
+      },
+      "created_on": "13 Jul 2026",
+      "origin": {
+        "channel": "Expedia"
+      },
+      "total": {
+        "amount": "119.00",
+        "currency": "USD"
+      },
+      "group_booking": true,
+      "occupants": {
+        "adults": 2,
+        "children": 0,
+        "babies": 0,
+        "youth": 0
+      },
+      "guest": {
+        "first_name": "Cora",
+        "last_name": "Ionescu",
+        "email": null,
+        "phone": null,
+        "document_id": null,
+        "country": "MG",
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "104",
+          "room_class": "Twin",
+          "board": "BB"
+        }
+      ]
+    },
+    {
+      "booking_ref": "007004373",
+      "state": "VOID",
+      "arrival": {
+        "date": "13 Jul 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "14 Jul 2026"
+      },
+      "created_on": "13 Jul 2026",
+      "origin": {
+        "channel": "Booking"
+      },
+      "total": {
+        "amount": "282.00",
+        "currency": "USD"
+      },
+      "group_booking": true,
+      "occupants": {
+        "adults": 2,
+        "children": 0,
+        "babies": 0,
+        "youth": 0
+      },
+      "guest": {
+        "first_name": "Luca",
+        "last_name": "Zavala",
+        "email": null,
+        "phone": null,
+        "document_id": null,
+        "country": "GB",
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "302",
+          "room_class": "DBL",
+          "board": "BB"
+        }
+      ]
+    },
+    {
+      "booking_ref": "007004374",
+      "state": "VOID",
+      "arrival": {
+        "date": "13 Jul 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "14 Jul 2026"
+      },
+      "created_on": "13 Jul 2026",
+      "origin": {
+        "channel": "Booking"
+      },
+      "total": {
+        "amount": "152.00",
+        "currency": "USD"
+      },
+      "group_booking": true,
+      "occupants": {
+        "adults": 2,
+        "children": 0,
+        "babies": 0,
+        "youth": 0
+      },
+      "guest": {
+        "first_name": "Luca",
+        "last_name": "Zavala",
+        "email": null,
+        "phone": null,
+        "document_id": null,
+        "country": "GB",
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "501",
+          "room_class": "SNG",
+          "board": "BB"
+        }
+      ]
+    },
+    {
+      "booking_ref": "007004375",
+      "state": "VOID",
+      "arrival": {
+        "date": "13 Jul 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "14 Jul 2026"
+      },
+      "created_on": "13 Jul 2026",
+      "origin": {
+        "channel": "Booking"
+      },
+      "total": {
+        "amount": "2.00",
+        "currency": "ILS"
+      },
+      "group_booking": true,
+      "occupants": {
+        "adults": 2,
+        "children": 0,
+        "babies": 0,
+        "youth": 0
+      },
+      "guest": {
+        "first_name": "Luca",
+        "last_name": "Zavala",
+        "email": null,
+        "phone": null,
+        "document_id": null,
+        "country": "GB",
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "605",
+          "room_class": "DBL",
+          "board": "BB"
+        }
+      ]
+    },
+    {
+      "booking_ref": "007004376",
+      "state": "VOID",
+      "arrival": {
+        "date": "13 Jul 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "14 Jul 2026"
+      },
+      "created_on": "13 Jul 2026",
+      "origin": {
+        "channel": "Booking"
+      },
+      "total": {
+        "amount": "2.00",
+        "currency": "ILS"
+      },
+      "group_booking": true,
+      "occupants": {
+        "adults": 2,
+        "children": 0,
+        "babies": 0,
+        "youth": 0
+      },
+      "guest": {
+        "first_name": "Ada",
+        "last_name": "Yilmaz",
+        "email": null,
+        "phone": null,
+        "document_id": null,
+        "country": "GB",
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "101",
+          "room_class": "DBL",
+          "board": "BB"
+        }
+      ]
+    },
+    {
+      "booking_ref": "007004377",
+      "state": "VOID",
+      "arrival": {
+        "date": "13 Jul 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "14 Jul 2026"
+      },
+      "created_on": "13 Jul 2026",
+      "origin": {
+        "channel": "Booking"
+      },
+      "total": {
+        "amount": "2.00",
+        "currency": "ILS"
+      },
+      "group_booking": true,
+      "occupants": {
+        "adults": 2,
+        "children": 0,
+        "babies": 0,
+        "youth": 0
+      },
+      "guest": {
+        "first_name": "Farid",
+        "last_name": "Novak",
+        "email": null,
+        "phone": null,
+        "document_id": null,
+        "country": "GB",
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "102",
+          "room_class": "DBL",
+          "board": "BB"
+        }
+      ]
+    },
+    {
+      "booking_ref": "007004378",
+      "state": "VOID",
+      "arrival": {
+        "date": "13 Jul 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "14 Jul 2026"
+      },
+      "created_on": "13 Jul 2026",
+      "origin": {
+        "channel": "Booking"
+      },
+      "total": {
+        "amount": "2.00",
+        "currency": "ILS"
+      },
+      "group_booking": true,
+      "occupants": {
+        "adults": 2,
+        "children": 0,
+        "babies": 0,
+        "youth": 0
+      },
+      "guest": {
+        "first_name": "Iris",
+        "last_name": "Almeida",
+        "email": null,
+        "phone": null,
+        "document_id": null,
+        "country": "GB",
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "102",
+          "room_class": "DBL",
+          "board": "BB"
+        }
+      ]
+    },
+    {
+      "booking_ref": "007004379",
+      "state": "VOID",
+      "arrival": {
+        "date": "13 Jul 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "14 Jul 2026"
+      },
+      "created_on": "13 Jul 2026",
+      "origin": {
+        "channel": "Booking"
+      },
+      "total": {
+        "amount": "2.00",
+        "currency": "ILS"
+      },
+      "group_booking": true,
+      "occupants": {
+        "adults": 2,
+        "children": 0,
+        "babies": 0,
+        "youth": 0
+      },
+      "guest": {
+        "first_name": "Yara",
+        "last_name": "Eriksen",
+        "email": null,
+        "phone": null,
+        "document_id": null,
+        "country": "GB",
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "606",
+          "room_class": "APT_SEA",
+          "board": "BB"
+        }
+      ]
+    },
+    {
+      "booking_ref": "007004380",
+      "state": "VOID",
+      "arrival": {
+        "date": "13 Jul 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "14 Jul 2026"
+      },
+      "created_on": "13 Jul 2026",
+      "origin": {
+        "channel": "Booking"
+      },
+      "total": {
+        "amount": "2.00",
+        "currency": "ILS"
+      },
+      "group_booking": true,
+      "occupants": {
+        "adults": 2,
+        "children": 0,
+        "babies": 0,
+        "youth": 0
+      },
+      "guest": {
+        "first_name": "Bruno",
+        "last_name": "Novak",
+        "email": null,
+        "phone": null,
+        "document_id": null,
+        "country": "GB",
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "701",
+          "room_class": "2BEDAPT",
+          "board": "BB"
+        }
+      ]
+    },
+    {
+      "booking_ref": "007004381",
+      "state": "VOID",
+      "arrival": {
+        "date": "13 Jul 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "14 Jul 2026"
+      },
+      "created_on": "13 Jul 2026",
+      "origin": {
+        "channel": "Booking"
+      },
+      "total": {
+        "amount": "2.00",
+        "currency": "ILS"
+      },
+      "group_booking": true,
+      "occupants": {
+        "adults": 2,
+        "children": 0,
+        "babies": 0,
+        "youth": 0
+      },
+      "guest": {
+        "first_name": "Iris",
+        "last_name": "Almeida",
+        "email": null,
+        "phone": null,
+        "document_id": null,
+        "country": "GB",
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "01",
+          "room_class": "DBL",
+          "board": "BB"
+        }
+      ]
+    },
+    {
+      "booking_ref": "007004382",
+      "state": "VOID",
+      "arrival": {
+        "date": "13 Jul 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "14 Jul 2026"
+      },
+      "created_on": "13 Jul 2026",
+      "origin": {
+        "channel": "Booking"
+      },
+      "total": {
+        "amount": "2.00",
+        "currency": "ILS"
+      },
+      "group_booking": true,
+      "occupants": {
+        "adults": 2,
+        "children": 0,
+        "babies": 0,
+        "youth": 0
+      },
+      "guest": {
+        "first_name": "Farid",
+        "last_name": "Grimaldi",
+        "email": null,
+        "phone": null,
+        "document_id": null,
+        "country": "GB",
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "02",
+          "room_class": "DBL",
+          "board": "BB"
+        }
+      ]
+    },
+    {
+      "booking_ref": "007004383",
+      "state": "VOID",
+      "arrival": {
+        "date": "13 Jul 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "14 Jul 2026"
+      },
+      "created_on": "13 Jul 2026",
+      "origin": {
+        "channel": "Booking"
+      },
+      "total": {
+        "amount": "2.00",
+        "currency": "ILS"
+      },
+      "group_booking": true,
+      "occupants": {
+        "adults": 2,
+        "children": 0,
+        "babies": 0,
+        "youth": 0
+      },
+      "guest": {
+        "first_name": "Iris",
+        "last_name": "Almeida",
+        "email": null,
+        "phone": null,
+        "document_id": null,
+        "country": "GB",
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "101",
+          "room_class": "DBL",
+          "board": "BB"
+        }
+      ]
+    },
+    {
+      "booking_ref": "007004384",
+      "state": "VOID",
+      "arrival": {
+        "date": "13 Jul 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "14 Jul 2026"
+      },
+      "created_on": "13 Jul 2026",
+      "origin": {
+        "channel": "Expedia"
+      },
+      "total": {
+        "amount": "2.00",
+        "currency": "ILS"
+      },
+      "group_booking": true,
+      "occupants": {
+        "adults": 2,
+        "children": 0,
+        "babies": 0,
+        "youth": 0
+      },
+      "guest": {
+        "first_name": "Xenia",
+        "last_name": "Almeida",
+        "email": null,
+        "phone": null,
+        "document_id": null,
+        "country": "IL",
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "01",
+          "room_class": "DBL",
+          "board": "BB"
+        }
+      ]
+    },
+    {
+      "booking_ref": "007004385",
+      "state": "VOID",
+      "arrival": {
+        "date": "13 Jul 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "14 Jul 2026"
+      },
+      "created_on": "13 Jul 2026",
+      "origin": {
+        "external_ref": "H3_B10147",
+        "channel": "KIOSK"
+      },
+      "total": {
+        "amount": "232.00",
+        "currency": "ILS"
+      },
+      "group_booking": false,
+      "guest": {
+        "first_name": "Xenia",
+        "last_name": "Almeida",
+        "email": "nils.novak@example.example",
+        "phone": "04751693539",
+        "document_id": null,
+        "country": "IL",
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "701",
+          "room_class": "2BEDAPT",
+          "board": "BB"
+        }
+      ]
+    },
+    {
+      "booking_ref": "007004386",
+      "state": "VOID",
+      "arrival": {
+        "date": "13 Jul 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "14 Jul 2026"
+      },
+      "created_on": "13 Jul 2026",
+      "origin": {
+        "external_ref": "H3_B10148",
+        "channel": "KIOSK"
+      },
+      "total": {
+        "amount": "232.00",
+        "currency": "ILS"
+      },
+      "group_booking": false,
+      "guest": {
+        "first_name": "Xenia",
+        "last_name": "Almeida",
+        "email": "mira.moreau@example.example",
+        "phone": "0887611334",
+        "document_id": null,
+        "country": "IL",
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "701",
+          "room_class": "2BEDAPT",
+          "board": "BB"
+        }
+      ]
+    },
+    {
+      "booking_ref": "007004387",
+      "state": "VOID",
+      "arrival": {
+        "date": "13 Jul 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "14 Jul 2026"
+      },
+      "created_on": "13 Jul 2026",
+      "origin": {
+        "external_ref": "H3_B10149",
+        "channel": "KIOSK"
+      },
+      "total": {
+        "amount": "232.00",
+        "currency": "ILS"
+      },
+      "group_booking": false,
+      "guest": {
+        "first_name": "Xenia",
+        "last_name": "Almeida",
+        "email": "mira.moreau@example.example",
+        "phone": "0274174403",
+        "document_id": null,
+        "country": "IL",
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "701",
+          "room_class": "2BEDAPT",
+          "board": "BB"
+        }
+      ]
+    },
+    {
+      "booking_ref": "007004388",
+      "state": "VOID",
+      "arrival": {
+        "date": "13 Jul 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "15 Jul 2026"
+      },
+      "created_on": "13 Jul 2026",
+      "origin": {
+        "external_ref": "H3_B10150",
+        "channel": "KIOSK"
+      },
+      "total": {
+        "amount": "474.00",
+        "currency": "ILS"
+      },
+      "group_booking": false,
+      "guest": {
+        "first_name": "Xenia",
+        "last_name": "Almeida",
+        "email": "janek.jansen@example.example",
+        "phone": "02324629277",
+        "document_id": null,
+        "country": "IL",
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "701",
+          "room_class": "2BEDAPT",
+          "board": "BB"
+        }
+      ]
+    },
+    {
+      "booking_ref": "007004389",
+      "state": "VOID",
+      "arrival": {
+        "date": "13 Jul 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "15 Jul 2026"
+      },
+      "created_on": "13 Jul 2026",
+      "origin": {
+        "external_ref": "H3_B10151",
+        "channel": "KIOSK"
+      },
+      "total": {
+        "amount": "474.00",
+        "currency": "ILS"
+      },
+      "group_booking": false,
+      "guest": {
+        "first_name": "Xenia",
+        "last_name": "Almeida",
+        "email": "ada.almeida@example.example",
+        "phone": "03589270487",
+        "document_id": null,
+        "country": "IL",
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "701",
+          "room_class": "2BEDAPT",
+          "board": "BB"
+        }
+      ]
+    },
+    {
+      "booking_ref": "007004390",
+      "state": "VOID",
+      "arrival": {
+        "date": "13 Jul 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "14 Jul 2026"
+      },
+      "created_on": "13 Jul 2026",
+      "origin": {
+        "external_ref": "H3_B10152",
+        "channel": "KIOSK"
+      },
+      "total": {
+        "amount": "181.00",
+        "currency": "ILS"
+      },
+      "group_booking": false,
+      "guest": {
+        "first_name": "Xenia",
+        "last_name": "Almeida",
+        "email": "wren.wexler@example.example",
+        "phone": "0879919583",
+        "document_id": null,
+        "country": "IL",
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "01",
+          "room_class": "DBL",
+          "board": "BB"
+        }
+      ]
+    },
+    {
+      "booking_ref": "007004391",
+      "state": "IN_HOUSE",
+      "arrival": {
+        "date": "14 Jul 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "15 Jul 2026"
+      },
+      "created_on": "14 Jul 2026",
+      "origin": {
+        "channel": "Booking"
+      },
+      "total": {
+        "amount": "2.00",
+        "currency": "ILS"
+      },
+      "group_booking": true,
+      "occupants": {
+        "adults": 2,
+        "children": 0,
+        "babies": 0,
+        "youth": 0
+      },
+      "guest": {
+        "first_name": "Iris",
+        "last_name": "Almeida",
+        "email": null,
+        "phone": null,
+        "document_id": null,
+        "country": "GB",
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "02",
+          "room_class": "DBL",
+          "board": "BB"
+        }
+      ]
+    },
+    {
+      "booking_ref": "007004392",
+      "state": "VOID",
+      "arrival": {
+        "date": "14 Jul 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "15 Jul 2026"
+      },
+      "created_on": "14 Jul 2026",
+      "origin": {
+        "external_ref": "H3_B10153",
+        "channel": "KIOSK"
+      },
+      "total": {
+        "amount": "226.00",
+        "currency": "ILS"
+      },
+      "group_booking": false,
+      "guest": {
+        "first_name": "Xenia",
+        "last_name": "Almeida",
+        "email": "mira.moreau@example.example",
+        "phone": "0879919583",
+        "document_id": null,
+        "country": "IL",
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "701",
+          "room_class": "2BEDAPT",
+          "board": "BB"
+        }
+      ]
+    },
+    {
+      "booking_ref": "007004393",
+      "state": "VOID",
+      "arrival": {
+        "date": "14 Jul 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "15 Jul 2026"
+      },
+      "created_on": "14 Jul 2026",
+      "origin": {
+        "external_ref": "H3_B10154",
+        "channel": "KIOSK"
+      },
+      "total": {
+        "amount": "226.00",
+        "currency": "ILS"
+      },
+      "group_booking": false,
+      "guest": {
+        "first_name": "Xenia",
+        "last_name": "Almeida",
+        "email": "mira.moreau@example.example",
+        "phone": "0879919583",
+        "document_id": null,
+        "country": "IL",
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "701",
+          "room_class": "2BEDAPT",
+          "board": "BB"
+        }
+      ]
+    },
+    {
+      "booking_ref": "007004394",
+      "state": "VOID",
+      "arrival": {
+        "date": "14 Jul 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "15 Jul 2026"
+      },
+      "created_on": "14 Jul 2026",
+      "origin": {
+        "external_ref": "H3_B10155",
+        "channel": "KIOSK"
+      },
+      "total": {
+        "amount": "226.00",
+        "currency": "ILS"
+      },
+      "group_booking": false,
+      "guest": {
+        "first_name": "Xenia",
+        "last_name": "Almeida",
+        "email": "mira.moreau@example.example",
+        "phone": "0879919583",
+        "document_id": null,
+        "country": "IL",
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "701",
+          "room_class": "2BEDAPT",
+          "board": "BB"
+        }
+      ]
+    },
+    {
+      "booking_ref": "007004395",
+      "state": "VOID",
+      "arrival": {
+        "date": "14 Jul 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "15 Jul 2026"
+      },
+      "created_on": "14 Jul 2026",
+      "origin": {
+        "external_ref": "H3_B10156",
+        "channel": "KIOSK"
+      },
+      "total": {
+        "amount": "226.00",
+        "currency": "ILS"
+      },
+      "group_booking": false,
+      "guest": {
+        "first_name": "Xenia",
+        "last_name": "Almeida",
+        "email": "mira.moreau@example.example",
+        "phone": "0879919583",
+        "document_id": null,
+        "country": "IL",
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "701",
+          "room_class": "2BEDAPT",
+          "board": "BB"
+        }
+      ]
+    },
+    {
+      "booking_ref": "007004396",
+      "state": "VOID",
+      "arrival": {
+        "date": "14 Jul 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "15 Jul 2026"
+      },
+      "created_on": "14 Jul 2026",
+      "origin": {
+        "external_ref": "H3_B10157",
+        "channel": "KIOSK"
+      },
+      "total": {
+        "amount": "226.00",
+        "currency": "ILS"
+      },
+      "group_booking": false,
+      "guest": {
+        "first_name": "Xenia",
+        "last_name": "Almeida",
+        "email": "mira.moreau@example.example",
+        "phone": "0879919583",
+        "document_id": null,
+        "country": "IL",
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "701",
+          "room_class": "2BEDAPT",
+          "board": "BB"
+        }
+      ]
+    },
+    {
+      "booking_ref": "007004397",
+      "state": "VOID",
+      "arrival": {
+        "date": "14 Jul 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "15 Jul 2026"
+      },
+      "created_on": "14 Jul 2026",
+      "origin": {
+        "channel": "Booking"
+      },
+      "total": {
+        "amount": "2.00",
+        "currency": "ILS"
+      },
+      "group_booking": true,
+      "occupants": {
+        "adults": 2,
+        "children": 0,
+        "babies": 0,
+        "youth": 0
+      },
+      "guest": {
+        "first_name": "Xenia",
+        "last_name": "Almeida",
+        "email": null,
+        "phone": null,
+        "document_id": null,
+        "country": "IL",
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "701",
+          "room_class": "2BEDAPT",
+          "board": "BB"
+        }
+      ]
+    },
+    {
+      "booking_ref": "007004398",
+      "state": "VOID",
+      "arrival": {
+        "date": "15 Jul 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "16 Jul 2026"
+      },
+      "created_on": "15 Jul 2026",
+      "origin": {
+        "external_ref": "H3_B10158",
+        "channel": "KIOSK"
+      },
+      "total": {
+        "amount": "220.00",
+        "currency": "ILS"
+      },
+      "group_booking": false,
+      "guest": {
+        "first_name": "Xenia",
+        "last_name": "Almeida",
+        "email": "mira.moreau@example.example",
+        "phone": "0879919583",
+        "document_id": null,
+        "country": "IL",
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "701",
+          "room_class": "2BEDAPT",
+          "board": "BB"
+        }
+      ]
+    },
+    {
+      "booking_ref": "007004399",
+      "state": "VOID",
+      "arrival": {
+        "date": "14 Jul 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "16 Jul 2026"
+      },
+      "created_on": "15 Jul 2026",
+      "origin": {
+        "channel": "Booking"
+      },
+      "total": {
+        "amount": "4.00",
+        "currency": "ILS"
+      },
+      "group_booking": true,
+      "occupants": {
+        "adults": 2,
+        "children": 0,
+        "babies": 0,
+        "youth": 0
+      },
+      "guest": {
+        "first_name": "Iris",
+        "last_name": "Almeida",
+        "email": null,
+        "phone": null,
+        "document_id": null,
+        "country": "GB",
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "606",
+          "room_class": "APT_SEA",
+          "board": "BB"
+        }
+      ]
+    },
+    {
+      "booking_ref": "007004400",
+      "state": "VOID",
+      "arrival": {
+        "date": "15 Jul 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "16 Jul 2026"
+      },
+      "created_on": "15 Jul 2026",
+      "origin": {
+        "channel": "Booking"
+      },
+      "total": {
+        "amount": "2.00",
+        "currency": "ILS"
+      },
+      "group_booking": true,
+      "occupants": {
+        "adults": 2,
+        "children": 0,
+        "babies": 0,
+        "youth": 0
+      },
+      "guest": {
+        "first_name": "Farid",
+        "last_name": "Grimaldi",
+        "email": null,
+        "phone": null,
+        "document_id": null,
+        "country": "GB",
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "605",
+          "room_class": "DBL",
+          "board": "BB"
+        }
+      ]
+    },
+    {
+      "booking_ref": "007004401",
+      "state": "DEPARTED",
+      "arrival": {
+        "date": "16 Jul 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "17 Jul 2026"
+      },
+      "created_on": "16 Jul 2026",
+      "origin": {
+        "channel": "Booking"
+      },
+      "total": {
+        "amount": "2.00",
+        "currency": "ILS"
+      },
+      "group_booking": true,
+      "occupants": {
+        "adults": 2,
+        "children": 0,
+        "babies": 0,
+        "youth": 0
+      },
+      "guest": {
+        "first_name": "Iris",
+        "last_name": "Almeida",
+        "email": null,
+        "phone": null,
+        "document_id": null,
+        "country": "GB",
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "103",
+          "room_class": "Twin",
+          "board": "BB"
+        }
+      ]
+    },
+    {
+      "booking_ref": "007004402",
+      "state": "BOOKED",
+      "arrival": {
+        "date": "16 Jul 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "17 Jul 2026"
+      },
+      "created_on": "16 Jul 2026",
+      "origin": {
+        "channel": "Booking"
+      },
+      "total": {
+        "amount": "2.00",
+        "currency": "ILS"
+      },
+      "group_booking": true,
+      "occupants": {
+        "adults": 2,
+        "children": 0,
+        "babies": 0,
+        "youth": 0
+      },
+      "guest": {
+        "first_name": "Farid",
+        "last_name": "Grimaldi",
+        "email": null,
+        "phone": null,
+        "document_id": null,
+        "country": "GB",
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "104",
+          "room_class": "Twin",
+          "board": "BB"
+        }
+      ]
+    },
+    {
+      "booking_ref": "007004413",
+      "state": "VOID",
+      "arrival": {
+        "date": "20 Jul 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "21 Jul 2026"
+      },
+      "created_on": "20 Jul 2026",
+      "origin": {
+        "channel": "Booking"
+      },
+      "total": {
+        "amount": "2.00",
+        "currency": "ILS"
+      },
+      "group_booking": true,
+      "occupants": {
+        "adults": 2,
+        "children": 0,
+        "babies": 0,
+        "youth": 0
+      },
+      "guest": {
+        "first_name": "Cora",
+        "last_name": "Ximenes",
+        "email": null,
+        "phone": null,
+        "document_id": null,
+        "country": "GB",
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "104",
+          "room_class": "Twin",
+          "board": "BB"
+        }
+      ]
+    },
+    {
+      "booking_ref": "007004414",
+      "state": "VOID",
+      "arrival": {
+        "date": "20 Jul 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "21 Jul 2026"
+      },
+      "created_on": "20 Jul 2026",
+      "origin": {
+        "channel": "Booking"
+      },
+      "total": {
+        "amount": "2.00",
+        "currency": "ILS"
+      },
+      "group_booking": true,
+      "occupants": {
+        "adults": 2,
+        "children": 0,
+        "babies": 0,
+        "youth": 0
+      },
+      "guest": {
+        "first_name": "Ada",
+        "last_name": "Yilmaz",
+        "email": null,
+        "phone": null,
+        "document_id": null,
+        "country": "GB",
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "103",
+          "room_class": "Twin",
+          "board": "BB"
+        }
+      ]
+    },
+    {
+      "booking_ref": "007004415",
+      "state": "VOID",
+      "arrival": {
+        "date": "20 Jul 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "22 Jul 2026"
+      },
+      "created_on": "20 Jul 2026",
+      "origin": {
+        "external_ref": "H3_B10159",
+        "channel": "KIOSK"
+      },
+      "total": {
+        "amount": "423.00",
+        "currency": "ILS"
+      },
+      "group_booking": false,
+      "guest": {
+        "first_name": "Hugo",
+        "last_name": "Ferrer",
+        "email": "iris.ionescu@example.example",
+        "phone": "09837911830",
+        "document_id": null,
+        "country": "IL",
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "701",
+          "room_class": "2BEDAPT",
+          "board": "BB"
+        }
+      ]
+    },
+    {
+      "booking_ref": "007004416",
+      "state": "VOID",
+      "arrival": {
+        "date": "21 Jul 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "22 Jul 2026"
+      },
+      "created_on": "21 Jul 2026",
+      "origin": {
+        "external_ref": "H3_B10160",
+        "channel": "KIOSK"
+      },
+      "total": {
+        "amount": "205.00",
+        "currency": "ILS"
+      },
+      "group_booking": false,
+      "guest": {
+        "first_name": "Iris",
+        "last_name": "Ionescu",
+        "email": "vidal.vargas@example.example",
+        "phone": "058765101124",
+        "document_id": null,
+        "country": "IL",
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "701",
+          "room_class": "2BEDAPT",
+          "board": "BB"
+        }
+      ]
+    },
+    {
+      "booking_ref": "007004417",
+      "state": "VOID",
+      "arrival": {
+        "date": "21 Jul 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "22 Jul 2026"
+      },
+      "created_on": "21 Jul 2026",
+      "origin": {
+        "external_ref": "H3_B10161",
+        "channel": "KIOSK"
+      },
+      "total": {
+        "amount": "205.00",
+        "currency": "ILS"
+      },
+      "group_booking": false,
+      "guest": {
+        "first_name": "Iris",
+        "last_name": "Almeida",
+        "email": "mira.moreau@example.example",
+        "phone": "082248805",
+        "document_id": null,
+        "country": "IL",
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "701",
+          "room_class": "2BEDAPT",
+          "board": "BB"
+        }
+      ]
+    },
+    {
+      "booking_ref": "007004418",
+      "state": "VOID",
+      "arrival": {
+        "date": "21 Jul 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "22 Jul 2026"
+      },
+      "created_on": "21 Jul 2026",
+      "origin": {
+        "external_ref": "H3_B10162",
+        "channel": "KIOSK"
+      },
+      "total": {
+        "amount": "460.00",
+        "currency": "ILS"
+      },
+      "group_booking": false,
+      "guest": {
+        "first_name": "Iris",
+        "last_name": "Almeida",
+        "email": "xenia.ximenes@example.example",
+        "phone": "0913896573",
+        "document_id": null,
+        "country": "IL",
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "401",
+          "room_class": "Executive",
+          "board": "BB"
+        }
+      ]
+    },
+    {
+      "booking_ref": "007004419",
+      "state": "VOID",
+      "arrival": {
+        "date": "21 Jul 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "22 Jul 2026"
+      },
+      "created_on": "21 Jul 2026",
+      "origin": {
+        "external_ref": "H3_B10163",
+        "channel": "KIOSK"
+      },
+      "total": {
+        "amount": "209.00",
+        "currency": "ILS"
+      },
+      "group_booking": true,
+      "occupants": {
+        "adults": 1,
+        "children": 0,
+        "babies": 0,
+        "youth": 0
+      },
+      "guest": {
+        "first_name": "Iris",
+        "last_name": "Almeida",
+        "email": "mira.moreau@example.example",
+        "phone": "022265423",
+        "document_id": null,
+        "country": "IL",
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "701",
+          "room_class": "2BEDAPT",
+          "board": "BB"
+        }
+      ]
+    },
+    {
+      "booking_ref": "007004426",
+      "state": "IN_HOUSE",
+      "arrival": {
+        "date": "21 Jul 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "23 Jul 2026"
+      },
+      "created_on": "22 Jul 2026",
+      "origin": {
+        "external_ref": "20260721210100",
+        "channel": "Web"
+      },
+      "total": {
+        "amount": "202.50",
+        "currency": "USD"
+      },
+      "group_booking": false,
+      "guest": {
+        "first_name": "Ada",
+        "last_name": "Grimaldi",
+        "email": "farid.ferrer@example.example",
+        "phone": "1378209198",
+        "document_id": null,
+        "country": "US",
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "01",
+          "room_class": "DBL",
+          "board": "RO"
+        }
+      ]
+    },
+    {
+      "booking_ref": "007004427",
+      "state": "VOID",
+      "arrival": {
+        "date": "22 Jul 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "23 Jul 2026"
+      },
+      "created_on": "22 Jul 2026",
+      "origin": {
+        "external_ref": "H3_B10164",
+        "channel": "KIOSK"
+      },
+      "total": {
+        "amount": "207.00",
+        "currency": "ILS"
+      },
+      "group_booking": false,
+      "guest": {
+        "first_name": "Iris",
+        "last_name": "Almeida",
+        "email": "mira.moreau@example.example",
+        "phone": "039689678",
+        "document_id": null,
+        "country": "IL",
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "701",
+          "room_class": "2BEDAPT",
+          "board": "BB"
+        }
+      ]
+    },
+    {
+      "booking_ref": "007004428",
+      "state": "VOID",
+      "arrival": {
+        "date": "22 Jul 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "23 Jul 2026"
+      },
+      "created_on": "22 Jul 2026",
+      "origin": {
+        "external_ref": "H3_B10165",
+        "channel": "KIOSK"
+      },
+      "total": {
+        "amount": "181.00",
+        "currency": "ILS"
+      },
+      "group_booking": false,
+      "guest": {
+        "first_name": "Farid",
+        "last_name": "Grimaldi",
+        "email": "bruno.berger@example.example",
+        "phone": "0446583979",
+        "document_id": null,
+        "country": "IL",
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "02",
+          "room_class": "DBL",
+          "board": "BB"
+        }
+      ]
+    },
+    {
+      "booking_ref": "007004429",
+      "state": "VOID",
+      "arrival": {
+        "date": "22 Jul 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "23 Jul 2026"
+      },
+      "created_on": "22 Jul 2026",
+      "origin": {
+        "external_ref": "H3_B10166",
+        "channel": "KIOSK"
+      },
+      "total": {
+        "amount": "181.00",
+        "currency": "ILS"
+      },
+      "group_booking": false,
+      "guest": {
+        "first_name": "Farid",
+        "last_name": "Grimaldi",
+        "email": "bruno.berger@example.example",
+        "phone": "04",
+        "document_id": null,
+        "country": "IL",
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "02",
+          "room_class": "DBL",
+          "board": "BB"
+        }
+      ]
+    },
+    {
+      "booking_ref": "007004430",
+      "state": "VOID",
+      "arrival": {
+        "date": "22 Jul 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "23 Jul 2026"
+      },
+      "created_on": "22 Jul 2026",
+      "origin": {
+        "external_ref": "H3_B10167",
+        "channel": "KIOSK"
+      },
+      "total": {
+        "amount": "181.00",
+        "currency": "ILS"
+      },
+      "group_booking": true,
+      "occupants": {
+        "adults": 1,
+        "children": 0,
+        "babies": 0,
+        "youth": 0
+      },
+      "guest": {
+        "first_name": "Farid",
+        "last_name": "Grimaldi",
+        "email": "bruno.berger@example.example",
+        "phone": "08",
+        "document_id": null,
+        "country": "IL",
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "101",
+          "room_class": "DBL",
+          "board": "BB"
+        }
+      ]
+    },
+    {
+      "booking_ref": "007004431",
+      "state": "VOID",
+      "arrival": {
+        "date": "22 Jul 2026",
+        "time": "15:00"
+      },
+      "departure": {
+        "date": "23 Jul 2026"
+      },
+      "created_on": "22 Jul 2026",
+      "origin": {
+        "channel": "Booking"
+      },
+      "total": {
+        "amount": "2.00",
+        "currency": "ILS"
+      },
+      "group_booking": true,
+      "occupants": {
+        "adults": 2,
+        "children": 0,
+        "babies": 0,
+        "youth": 0
+      },
+      "guest": {
+        "first_name": "Luca",
+        "last_name": "Zavala",
+        "email": null,
+        "phone": null,
+        "document_id": "131919648",
+        "country": "GB",
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "02",
+          "room_class": "DBL",
+          "board": "BB"
+        }
+      ]
+    },
+    {
+      "booking_ref": "007004432",
+      "state": "VOID",
+      "arrival": {
+        "date": "22 Jul 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "23 Jul 2026"
+      },
+      "created_on": "22 Jul 2026",
+      "origin": {
+        "external_ref": "H3_B10168",
+        "channel": "KIOSK"
+      },
+      "total": {
+        "amount": "151.00",
+        "currency": "ILS"
+      },
+      "group_booking": false,
+      "guest": {
+        "first_name": "Sten",
+        "last_name": "Lindqvist",
+        "email": "vidal.vargas@example.example",
+        "phone": "036014932",
+        "document_id": null,
+        "country": "IL",
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "501",
+          "room_class": "SNG",
+          "board": "BB"
+        }
+      ]
+    },
+    {
+      "booking_ref": "007004433",
+      "state": "VOID",
+      "arrival": {
+        "date": "22 Jul 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "23 Jul 2026"
+      },
+      "created_on": "22 Jul 2026",
+      "origin": {
+        "external_ref": "H3_B10169",
+        "channel": "KIOSK"
+      },
+      "total": {
+        "amount": "111.00",
+        "currency": "ILS"
+      },
+      "group_booking": false,
+      "guest": {
+        "first_name": "Xenia",
+        "last_name": "Almeida",
+        "email": "xenia.ximenes@example.example",
+        "phone": "0446583979",
+        "document_id": null,
+        "country": "IL",
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "103",
+          "room_class": "Twin",
+          "board": "BB"
+        }
+      ]
+    },
+    {
+      "booking_ref": "007004434",
+      "state": "VOID",
+      "arrival": {
+        "date": "23 Jul 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "24 Jul 2026"
+      },
+      "created_on": "22 Jul 2026",
+      "origin": {
+        "external_ref": "TEST-1784735982130",
+        "channel": "Nightel"
+      },
+      "total": {
+        "amount": "150.00",
+        "currency": "USD"
+      },
+      "group_booking": false,
+      "guest": {
+        "first_name": "Hugo",
+        "last_name": "Olsen",
+        "email": "tova.torres@example.example",
+        "phone": "1738988195660",
+        "document_id": null,
+        "country": "IL",
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "01",
+          "room_class": "DBL",
+          "board": "BB"
+        }
+      ]
+    },
+    {
+      "booking_ref": "007004435",
+      "state": "VOID",
+      "arrival": {
+        "date": "23 Jul 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "24 Jul 2026"
+      },
+      "created_on": "23 Jul 2026",
+      "origin": {
+        "external_ref": "TEST-1784755308216",
+        "channel": "Nightel"
+      },
+      "total": {
+        "amount": "150.00",
+        "currency": "USD"
+      },
+      "group_booking": false,
+      "guest": {
+        "first_name": "Hugo",
+        "last_name": "Olsen",
+        "email": "tova.torres@example.example",
+        "phone": "1738988195660",
+        "document_id": null,
+        "country": "IL",
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "01",
+          "room_class": "DBL",
+          "board": "BB"
+        }
+      ]
+    },
+    {
+      "booking_ref": "007004436",
+      "state": "DEPARTED",
+      "arrival": {
+        "date": "23 Jul 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "24 Jul 2026"
+      },
+      "created_on": "23 Jul 2026",
+      "origin": {
+        "channel": "Booking"
+      },
+      "total": {
+        "amount": "2.00",
+        "currency": "ILS"
+      },
+      "group_booking": true,
+      "occupants": {
+        "adults": 2,
+        "children": 0,
+        "babies": 0,
+        "youth": 0
+      },
+      "guest": {
+        "first_name": "Tova",
+        "last_name": "Yilmaz",
+        "email": null,
+        "phone": null,
+        "document_id": null,
+        "country": "GB",
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "02",
+          "room_class": "DBL",
+          "board": "BB"
+        }
+      ]
+    },
+    {
+      "booking_ref": "007004437",
+      "state": "VOID",
+      "arrival": {
+        "date": "25 Jul 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "26 Jul 2026"
+      },
+      "created_on": "24 Jul 2026",
+      "origin": {
+        "external_ref": "TEST-1784908199263",
+        "channel": "Nightel"
+      },
+      "total": {
+        "amount": "150.00",
+        "currency": "USD"
+      },
+      "group_booking": false,
+      "guest": {
+        "first_name": "Hugo",
+        "last_name": "Olsen",
+        "email": "tova.torres@example.example",
+        "phone": "1738988195660",
+        "document_id": null,
+        "country": "IL",
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "02",
+          "room_class": "DBL",
+          "board": "BB"
+        }
+      ]
+    },
+    {
+      "booking_ref": "007004438",
+      "state": "VOID",
+      "arrival": {
+        "date": "29 Jul 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "30 Jul 2026"
+      },
+      "created_on": "28 Jul 2026",
+      "origin": {
+        "external_ref": "TEST-1785222913802",
+        "channel": "Nightel"
+      },
+      "total": {
+        "amount": "150.00",
+        "currency": "USD"
+      },
+      "group_booking": false,
+      "guest": {
+        "first_name": "Hugo",
+        "last_name": "Olsen",
+        "email": "tova.torres@example.example",
+        "phone": "1738988195660",
+        "document_id": null,
+        "country": "IL",
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "01",
+          "room_class": "DBL",
+          "board": "BB"
+        }
+      ]
+    },
+    {
+      "booking_ref": "007004439",
+      "state": "VOID",
+      "arrival": {
+        "date": "29 Jul 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "30 Jul 2026"
+      },
+      "created_on": "28 Jul 2026",
+      "origin": {
+        "external_ref": "TEST-1785223469766",
+        "channel": "Nightel"
+      },
+      "total": {
+        "amount": "150.00",
+        "currency": "USD"
+      },
+      "group_booking": false,
+      "guest": {
+        "first_name": "Hugo",
+        "last_name": "Olsen",
+        "email": "tova.torres@example.example",
+        "phone": "1738988195660",
+        "document_id": null,
+        "country": "IL",
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "01",
+          "room_class": "DBL",
+          "board": "BB"
+        }
+      ]
+    },
+    {
+      "booking_ref": "007004440",
+      "state": "VOID",
+      "arrival": {
+        "date": "29 Jul 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "30 Jul 2026"
+      },
+      "created_on": "28 Jul 2026",
+      "origin": {
+        "external_ref": "TEST-1785224120685",
+        "channel": "Nightel"
+      },
+      "total": {
+        "amount": "150.00",
+        "currency": "USD"
+      },
+      "group_booking": false,
+      "guest": {
+        "first_name": "Hugo",
+        "last_name": "Olsen",
+        "email": "tova.torres@example.example",
+        "phone": "1738988195660",
+        "document_id": null,
+        "country": "IL",
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "01",
+          "room_class": "DBL",
+          "board": "BB"
+        }
+      ]
+    },
+    {
+      "booking_ref": "007004441",
+      "state": "VOID",
+      "arrival": {
+        "date": "29 Jul 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "30 Jul 2026"
+      },
+      "created_on": "28 Jul 2026",
+      "origin": {
+        "external_ref": "TEST-1785225409047",
+        "channel": "Nightel"
+      },
+      "total": {
+        "amount": "150.00",
+        "currency": "USD"
+      },
+      "group_booking": false,
+      "guest": {
+        "first_name": "Hugo",
+        "last_name": "Olsen",
+        "email": "tova.torres@example.example",
+        "phone": "1738988195660",
+        "document_id": null,
+        "country": "IL",
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "01",
+          "room_class": "DBL",
+          "board": "BB"
+        }
+      ]
+    },
+    {
+      "booking_ref": "007004442",
+      "state": "VOID",
+      "arrival": {
+        "date": "29 Jul 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "30 Jul 2026"
+      },
+      "created_on": "28 Jul 2026",
+      "origin": {
+        "external_ref": "TEST-1785225472867",
+        "channel": "Nightel"
+      },
+      "total": {
+        "amount": "150.00",
+        "currency": "USD"
+      },
+      "group_booking": false,
+      "guest": {
+        "first_name": "Hugo",
+        "last_name": "Olsen",
+        "email": "tova.torres@example.example",
+        "phone": "1738988195660",
+        "document_id": null,
+        "country": "IL",
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "01",
+          "room_class": "DBL",
+          "board": "BB"
+        }
+      ]
+    },
+    {
+      "booking_ref": "007004443",
+      "state": "VOID",
+      "arrival": {
+        "date": "28 Jul 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "30 Jul 2026"
+      },
+      "created_on": "28 Jul 2026",
+      "origin": {
+        "channel": "Booking"
+      },
+      "total": {
+        "amount": "4.00",
+        "currency": "ILS"
+      },
+      "group_booking": true,
+      "occupants": {
+        "adults": 2,
+        "children": 0,
+        "babies": 0,
+        "youth": 0
+      },
+      "guest": {
+        "first_name": "Xenia",
+        "last_name": "Almeida",
+        "email": null,
+        "phone": null,
+        "document_id": null,
+        "country": "GB",
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "104",
+          "room_class": "Twin",
+          "board": "BB"
+        }
+      ]
+    },
+    {
+      "booking_ref": "007004444",
+      "state": "BOOKED",
+      "arrival": {
+        "date": "29 Jul 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "30 Jul 2026"
+      },
+      "created_on": "29 Jul 2026",
+      "origin": {
+        "channel": "Booking"
+      },
+      "total": {
+        "amount": "2.00",
+        "currency": "ILS"
+      },
+      "group_booking": true,
+      "occupants": {
+        "adults": 2,
+        "children": 0,
+        "babies": 0,
+        "youth": 0
+      },
+      "guest": {
+        "first_name": "Xenia",
+        "last_name": "Almeida",
+        "email": null,
+        "phone": null,
+        "document_id": null,
+        "country": "GB",
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "101",
+          "room_class": "DBL",
+          "board": "BB"
+        }
+      ]
+    },
+    {
+      "booking_ref": "007004445",
+      "state": "BOOKED",
+      "arrival": {
+        "date": "05 Aug 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "06 Aug 2026"
+      },
+      "created_on": "31 Jul 2026",
+      "origin": {
+        "channel": "Booking"
+      },
+      "total": {
+        "amount": "150.00",
+        "currency": "USD"
+      },
+      "group_booking": true,
+      "occupants": {
+        "adults": 2,
+        "children": 0,
+        "babies": 0,
+        "youth": 0
+      },
+      "guest": {
+        "first_name": "Uma",
+        "last_name": "Petrov",
+        "email": null,
+        "phone": null,
+        "document_id": null,
+        "country": "MG",
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "02",
+          "room_class": "DBL",
+          "board": "BB"
+        },
+        {
+          "room_no": "01",
+          "room_class": "DBL",
+          "board": "BB"
+        }
+      ]
+    },
+    {
+      "booking_ref": "007004446",
+      "state": "BOOKED",
+      "arrival": {
+        "date": "05 Aug 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "07 Aug 2026"
+      },
+      "created_on": "31 Jul 2026",
+      "origin": {
+        "channel": "001"
+      },
+      "total": {
+        "amount": "846.00",
+        "currency": "USD"
+      },
+      "group_booking": true,
+      "occupants": {
+        "adults": 2,
+        "children": 0,
+        "babies": 0,
+        "youth": 0
+      },
+      "guest": {
+        "first_name": "Uma",
+        "last_name": "Wexler",
+        "email": null,
+        "phone": null,
+        "document_id": null,
+        "country": "MV",
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "303",
+          "room_class": "DBL",
+          "board": "BB"
+        },
+        {
+          "room_no": "304",
+          "room_class": "DBL",
+          "board": "BB"
+        }
+      ]
+    },
+    {
+      "booking_ref": "007004447",
+      "state": "BOOKED",
+      "arrival": {
+        "date": "04 Aug 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "05 Aug 2026"
+      },
+      "created_on": "31 Jul 2026",
+      "origin": {
+        "channel": "005"
+      },
+      "total": {
+        "amount": "419.00",
+        "currency": "USD"
+      },
+      "group_booking": true,
+      "occupants": {
+        "adults": 2,
+        "children": 0,
+        "babies": 0,
+        "youth": 0
+      },
+      "guest": {
+        "first_name": "Janek",
+        "last_name": "Petrov",
+        "email": "cora.costa@example.example",
+        "phone": "265",
+        "document_id": "5945",
+        "country": "IT",
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "301",
+          "room_class": "Twin",
+          "board": "HB"
+        },
+        {
+          "room_no": "302",
+          "room_class": "DBL",
+          "board": "HB"
+        }
+      ]
+    },
+    {
+      "booking_ref": "007004448",
+      "state": "BOOKED",
+      "arrival": {
+        "date": "01 Aug 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "04 Aug 2026"
+      },
+      "created_on": "31 Jul 2026",
+      "origin": {
+        "channel": "Daka90"
+      },
+      "total": {
+        "amount": "846.00",
+        "currency": "USD"
+      },
+      "group_booking": true,
+      "occupants": {
+        "adults": 2,
+        "children": 0,
+        "babies": 0,
+        "youth": 0
+      },
+      "guest": {
+        "first_name": "Bruno",
+        "last_name": "Petrov",
+        "email": null,
+        "phone": null,
+        "document_id": null,
+        "country": "MV",
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "02",
+          "room_class": "DBL",
+          "board": "BB"
+        }
+      ]
+    },
+    {
+      "booking_ref": "007004452",
+      "state": "VOID",
+      "arrival": {
+        "date": "02 Aug 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "03 Aug 2026"
+      },
+      "created_on": "02 Aug 2026",
+      "origin": {
+        "external_ref": "TEST-1785626700621",
+        "channel": "Nightel"
+      },
+      "total": {
+        "amount": "150.00",
+        "currency": "USD"
+      },
+      "group_booking": false,
+      "guest": {
+        "first_name": "Hugo",
+        "last_name": "Olsen",
+        "email": "tova.torres@example.example",
+        "phone": "1738988195660",
+        "document_id": null,
+        "country": "IL",
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "01",
+          "room_class": "DBL",
+          "board": "BB"
+        }
+      ]
+    },
+    {
+      "booking_ref": "007004453",
+      "state": "VOID",
+      "arrival": {
+        "date": "03 Aug 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "04 Aug 2026"
+      },
+      "created_on": "02 Aug 2026",
+      "origin": {
+        "external_ref": "TEST-1785659182236",
+        "channel": "Nightel"
+      },
+      "total": {
+        "amount": "150.00",
+        "currency": "USD"
+      },
+      "group_booking": false,
+      "guest": {
+        "first_name": "Hugo",
+        "last_name": "Olsen",
+        "email": "tova.torres@example.example",
+        "phone": "1738988195660",
+        "document_id": null,
+        "country": "IL",
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "01",
+          "room_class": "DBL",
+          "board": "BB"
+        }
+      ]
+    },
+    {
+      "booking_ref": "007004469",
+      "state": "VOID",
+      "arrival": {
+        "date": "08 Aug 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "09 Aug 2026"
+      },
+      "created_on": "07 Aug 2026",
+      "origin": {
+        "external_ref": "TEST-1786094024635",
+        "channel": "Nightel"
+      },
+      "total": {
+        "amount": "150.00",
+        "currency": "USD"
+      },
+      "group_booking": false,
+      "guest": {
+        "first_name": "Hugo",
+        "last_name": "Olsen",
+        "email": "tova.torres@example.example",
+        "phone": "1738988195660",
+        "document_id": null,
+        "country": "IL",
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "01",
+          "room_class": "DBL",
+          "board": "BB"
+        }
+      ]
+    },
+    {
+      "booking_ref": "007004470",
+      "state": "VOID",
+      "arrival": {
+        "date": "08 Aug 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "09 Aug 2026"
+      },
+      "created_on": "07 Aug 2026",
+      "origin": {
+        "external_ref": "TEST-1786094538784",
+        "channel": "Nightel"
+      },
+      "total": {
+        "amount": "150.00",
+        "currency": "USD"
+      },
+      "group_booking": false,
+      "guest": {
+        "first_name": "Hugo",
+        "last_name": "Olsen",
+        "email": "tova.torres@example.example",
+        "phone": "1738988195660",
+        "document_id": null,
+        "country": "IL",
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "01",
+          "room_class": "DBL",
+          "board": "BB"
+        }
+      ]
+    },
+    {
+      "booking_ref": "007004471",
+      "state": "PROV4",
+      "arrival": {
+        "date": "06 Aug 2026",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "09 Aug 2026"
+      },
+      "created_on": "07 Aug 2026",
+      "origin": {
+        "external_ref": "6a747e43f888525836e6f955",
+        "channel": "CHECKIN"
+      },
+      "total": {
+        "amount": "870.00",
+        "currency": "USD"
+      },
+      "group_booking": false,
+      "guest": {
+        "first_name": "Tova",
+        "last_name": "Almeida",
+        "email": "greta.grimaldi@example.example",
+        "phone": null,
+        "document_id": null,
+        "country": "OT",
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "01",
+          "room_class": "DBL",
+          "board": "BB"
+        }
+      ]
+    }
+  ]
+}

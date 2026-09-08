@@ -21,6 +21,18 @@
           "BulkARI once per rate code - BUT SEE unknown_conditions, this lookup does not work"
         ],
         "call_cost": "1 + R where R is distinct rate codes"
+      },
+      "demopms": {
+        "endpoint": "bookings",
+        "filters": {
+          "arrival": {
+            "from": "today",
+            "to": "today+90d"
+          },
+          "include_prices": true
+        },
+        "then": [],
+        "call_cost": "1. The rate-plan mapping is tenant-supplied on every provider (R13), so no second call would help"
       }
     }
   },

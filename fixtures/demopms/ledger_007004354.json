@@ -1,0 +1,39 @@
+{
+  "schema": "demopms/v1",
+  "endpoint": "ledger",
+  "ledger": {
+    "booking_ref": "007004354",
+    "balance": {
+      "amount": "0",
+      "currency": "ILS"
+    },
+    "charged": {
+      "amount": "472.11",
+      "currency": "ILS"
+    },
+    "paid": {
+      "amount": "472.11",
+      "currency": "ILS"
+    },
+    "postings": [
+      {
+        "category": "CASH_RECEIPT",
+        "direction": "PAYMENT",
+        "value": {
+          "amount": "472.11",
+          "currency": "ILS"
+        },
+        "posted_on": "08 Jul 2026"
+      },
+      {
+        "category": "ROOM_REVENUE",
+        "direction": "CHARGE",
+        "value": {
+          "amount": "472.11",
+          "currency": "ILS"
+        },
+        "posted_on": "08 Jul 2026"
+      }
+    ]
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "schema": "demopms/v1",
+  "endpoint": "occupancy",
+  "rooms": [
+    {
+      "room_no": "303",
+      "occupancy": [
+        {
+          "booking_ref": "007003204",
+          "from": "10 Aug 2024",
+          "to": "11 Aug 2024",
+          "state": "BOOKED"
+        },
+        {
+          "booking_ref": "007003204",
+          "from": "15 Aug 2024",
+          "to": "16 Aug 2024",
+          "state": "BOOKED"
+        }
+      ]
+    }
+  ]
+}

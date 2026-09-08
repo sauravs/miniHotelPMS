@@ -16,7 +16,7 @@ Execution tracker. **Update the status table as slices close.** Design rationale
 | 4 | Evaluator — record level | ☑ | ☑ | ☑ | ☑ | ☑ | **done** — PR #6 |
 | 5 | Evaluator — population level | ☑ | ☑ | ☑ | ☑ | ☑ | **done** — PR #7 |
 | 6 | Runner, coverage, readiness, store | ☑ | ☑ | ☑ | ☑ | ☑ | **done** — PR #8 |
-| 7 | Second provider — DemoPMS | ☐ | ☐ | ☐ | ☐ | ☐ | not started |
+| 7 | Second provider — DemoPMS | ☑ | ☑ | ☑ | ☑ | ☑ | **done** — PR #11 |
 | 8 | Scheduling & freshness | ☐ | ☐ | — | ☐ | ☐ | not started |
 | 9 | Compiler — English → IR | ☐ | ☐ | ☐ | ☐ | ☐ | not started |
 | 10 | Web UI & JSON API | ☐ | ☐ | ☐ | ☐ | ☐ | not started |
@@ -302,32 +302,68 @@ The largest slice. Every quirk lives here and nothing above may know the PMS exi
 
 ## Slice 7 · Second provider — DemoPMS
 
-`hotelcontrols/providers/demopms/` · `tests/contract/` — **fixes F9. This is the thesis.**
+`hotelcontrols/providers/demopms/` · `hotelcontrols/providers/registry.py` · `tests/contract/`
+— **fixes F9. This is the thesis.**
 
-DemoPMS is fictional and speaks **JSON**, with quirks deliberately different from MiniHotel's: a
-different date format, a different way of signalling "unconfigured", nested rather than sibling
-occupancy, and a status vocabulary of its own.
+DemoPMS is fictional and speaks **JSON**, with quirks deliberately different from MiniHotel's — and
+"deliberately" is the load-bearing word. A second adapter that shared the first one's date format
+and the first one's way of saying "nobody configured this" would be the same adapter twice, and the
+boundary above it would still be untested.
+
+| quirk | MiniHotel | DemoPMS |
+| --- | --- | --- |
+| dates | three numeric formats in one API (R2) | one format carrying a month **name** |
+| "nobody configured this" | the number `0`, overloaded (R10, R12) | an out-of-band sentinel, so `0` stays real |
+| money | amount and currency in different parts of the response (R9) | one self-describing object |
+| booleans | `"YES"`, `"true"`, `"C"`/`"D"` | real JSON booleans, and words |
+| occupancy | sibling lists | **nested inside its room** |
+| statuses | `OK` / `IN` / `OUT` / `CL`, plus 3 nobody can name | `BOOKED` / `IN_HOUSE` / `DEPARTED` / `VOID`, plus the same 3 |
+
+**The fixtures are generated, not written.** `tools/transcode_demopms.py` re-encodes the vendor
+captures field by field: the same 138 reservations, 28 rooms, 5 folios and 2 occupancy segments —
+**and the same gaps**. The folios nobody captured are still missing, the statuses nobody can name
+are still unnameable, the 23 rooms with no configured capacity are still unconfigured. That last
+part is what makes criterion 7 a test rather than a demonstration: a demo hotel that knew more than
+the captured one would pass it by being a different hotel. v1 hand-wrote `fixtures/synthetic/` and
+reached outcomes its captures could not.
 
 **Unit tests**
-- [ ] DemoPMS transforms, mirroring slice 2's suite against a different wire format
+- [x] DemoPMS transforms, mirroring slice 2's suite against a different wire format — including a
+      date parser with an **explicit month table**, because `strptime("%b")` reads the machine's
+      locale and a verdict must not depend on the machine that produced it (F11's cousin)
+- [x] The JSON path grammar, including `strip_prefix` returning None for a path on another branch
+      — R7 made structural in a format with no element tags to anchor on
+- [x] The provider registry names nobody: **discovery by import**, asserted over the AST
 
 **Contract tests — one suite, run against every registered provider**
-- [ ] Every provider implements the full `Provider` protocol
-- [ ] A missing field returns the registry's `absent_means`, identically, on both
-- [ ] Money always carries a currency, on both
-- [ ] An unmapped status resolves UNKNOWN, on both
-- [ ] A record never reads a sibling's field, on both
+- [x] Every provider implements the full `Provider` protocol
+- [x] A missing field returns the registry's `absent_means`, identically, on both
+- [x] Money always carries a currency, on both — **and a reservation is still in a different
+      currency from its own folio on both** (R9 survived a format that keeps them together)
+- [x] An unmapped status resolves UNKNOWN naming the code, on both (A5)
+- [x] A record never reads a sibling's field, on both (R7)
+- [x] Every refusal descends from `ProviderError`, so a runner has one place to turn "no" into a
+      sentence and a new adapter cannot invent a fifth exception nobody catches
+
+**Integration**
+- [x] All 51 mappings resolve against their probe
+- [x] The transcode is byte-identical on rebuild, and **the two providers report the same records,
+      the same amounts and the same gaps** — checked canonically, through each adapter
 
 **E2E**
-- [ ] **The same IR, over the same logical hotel, through two providers, yields the same verdicts**
-      (criterion 7). The fixtures encode the same hotel twice, in two wire formats
+- [x] **The same IR, over the same logical hotel, through two providers, yields the same verdicts**
+      (criterion 7) — 11 controls × 3 as-of dates, compared per record id, and both providers cost
+      the **same number of calls** for every control
 
 **Gate**
-- [ ] Criterion 7 asserted
-- [ ] Adding DemoPMS required **zero changes** above the provider layer — verified by reviewing the
-      diff, and recorded in the PR description
-
----
+- [x] Criterion 7 asserted
+- [x] Adding DemoPMS required **zero changes** above the provider layer. The engine diff is
+      `hotelcontrols/providers/**` and nothing else: no kernel, spec, evidence, evaluator, runner or
+      store file changed. Everything else was data — a provider map, a tenant file, and one more key
+      in each control's `population.provider_query`
+- [x] The canonical-boundary test is now **symmetric**: both vendors' identifiers are banned above
+      the adapters, and the allowed directories are discovered rather than listed, so the third
+      adapter is policed from the moment it exists
 
 ## Slice 8 · Scheduling & freshness
 
@@ -435,9 +471,9 @@ something.
 | 2 | All four outcomes from captured evidence; UNKNOWN distinct from FAIL | pending |
 | 3 | Every verdict traces to its fields | **Met** — structurally; a `Verdict` cannot be built without evidence |
 | 4 | Call count is `1 + R + N`, asserted | **Met** — counted invocations, slice 3 and again end to end |
-| 5 | No PMS identifier above the provider layer | **Met** — 20 identifiers grepped over the tree |
+| 5 | No PMS identifier above the provider layer | **Met** — 28 identifiers from **both** providers grepped over the tree, with the allowed directories discovered rather than listed |
 | 6 | A twelfth control is a spec change | pending |
-| 7 | Same IR, two providers, same verdicts | pending |
+| 7 | Same IR, two providers, same verdicts | **Met** — 11 controls × 3 as-of dates, per record id, with identical call counts. The demo fixtures are the vendor captures transcoded, gaps included |
 | 8 | A run that concluded nothing says so | **Met** — slice 6's coverage verdict |
 | 9 | English compiles to IR; unsupported sentences rejected by name | pending |
 | 10 | Readiness reported per control per provider | **Met** in the API surface; the page lands in slice 10 |

@@ -1,0 +1,531 @@
+{
+  "schema": "demopms/v1",
+  "endpoint": "bookings",
+  "bookings": [
+    {
+      "booking_ref": "007003101",
+      "state": "VOID",
+      "arrival": {
+        "date": "02 Aug 2024",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "03 Aug 2024"
+      },
+      "created_on": "01 Jul 2024",
+      "origin": {
+        "external_ref": "20240701002",
+        "channel": "Qwerty"
+      },
+      "total": {
+        "amount": "150.00",
+        "currency": "USD"
+      },
+      "group_booking": false,
+      "guest": {
+        "first_name": "Bruno",
+        "last_name": "Duarte",
+        "email": "tova.torres@example.example",
+        "phone": "607196939",
+        "document_id": null,
+        "country": "US",
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "01",
+          "room_class": "DBL",
+          "board": "BB",
+          "tariff": {
+            "code": "Tourist-BB",
+            "charge": {
+              "amount": "150",
+              "currency": "USD"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "booking_ref": "007003105",
+      "state": "PROV4",
+      "arrival": {
+        "date": "01 Aug 2024",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "02 Aug 2024"
+      },
+      "created_on": "02 Jul 2024",
+      "origin": {
+        "external_ref": "20240702003",
+        "channel": "Qwerty"
+      },
+      "total": {
+        "amount": "150.00",
+        "currency": "USD"
+      },
+      "group_booking": false,
+      "guest": {
+        "first_name": "Bruno",
+        "last_name": "Duarte",
+        "email": "tova.torres@example.example",
+        "phone": "607196939",
+        "document_id": null,
+        "country": "US",
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "01",
+          "room_class": "DBL",
+          "board": "BB",
+          "tariff": {
+            "code": "Tourist-BB",
+            "charge": {
+              "amount": "150",
+              "currency": "USD"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "booking_ref": "007003183",
+      "state": "BOOKED",
+      "arrival": {
+        "date": "05 Aug 2024",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "06 Aug 2024"
+      },
+      "created_on": "29 Jul 2024",
+      "origin": {
+        "channel": "001"
+      },
+      "total": {
+        "amount": "217.50",
+        "currency": "USD"
+      },
+      "group_booking": false,
+      "guest": {
+        "first_name": "Yara",
+        "last_name": "Torres",
+        "email": "xenia.ximenes@example.example",
+        "phone": "191100159608",
+        "document_id": null,
+        "country": "US",
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "01",
+          "room_class": "DBL",
+          "board": "HB",
+          "tariff": {
+            "code": null,
+            "charge": {
+              "amount": "217.5",
+              "currency": "USD"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "booking_ref": "007003190",
+      "state": "BOOKED",
+      "arrival": {
+        "date": "03 Aug 2024",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "04 Aug 2024"
+      },
+      "created_on": "30 Jul 2024",
+      "origin": {
+        "channel": null
+      },
+      "total": {
+        "amount": "100.00",
+        "currency": "EUR"
+      },
+      "group_booking": false,
+      "guest": {
+        "first_name": "Yara",
+        "last_name": "Zavala",
+        "email": "sten.sorokin@example.example",
+        "phone": "152990043691",
+        "document_id": null,
+        "country": "US",
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "02",
+          "room_class": "DBL",
+          "board": "HB",
+          "tariff": {
+            "code": null,
+            "charge": {
+              "amount": "100",
+              "currency": "EUR"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "booking_ref": "007003191",
+      "state": "BOOKED",
+      "arrival": {
+        "date": "24 Aug 2024",
+        "time": "15:00"
+      },
+      "departure": {
+        "date": "30 Aug 2024"
+      },
+      "created_on": "20 Aug 2024",
+      "origin": {
+        "channel": null
+      },
+      "total": {
+        "amount": "3195.00",
+        "currency": "USD"
+      },
+      "group_booking": true,
+      "occupants": {
+        "adults": 3,
+        "children": 2,
+        "babies": 1,
+        "youth": 0
+      },
+      "guest": {
+        "first_name": "Dmitri",
+        "last_name": "Olsen",
+        "email": "bruno.berger@example.example",
+        "phone": "74833826",
+        "document_id": "7923322",
+        "country": "US",
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "01",
+          "room_class": "DBL",
+          "board": "HB",
+          "tariff": {
+            "code": null,
+            "charge": {
+              "amount": null,
+              "currency": "USD"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "booking_ref": "007003192",
+      "state": "BOOKED",
+      "arrival": {
+        "date": "25 Aug 2024",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "30 Aug 2024"
+      },
+      "created_on": "20 Aug 2024",
+      "origin": {
+        "channel": null
+      },
+      "total": {
+        "amount": "500.00",
+        "currency": "EUR"
+      },
+      "group_booking": true,
+      "occupants": {
+        "adults": 2,
+        "children": 0,
+        "babies": 0,
+        "youth": 0
+      },
+      "guest": {
+        "first_name": "Tova",
+        "last_name": "Kowalski",
+        "email": null,
+        "phone": null,
+        "document_id": null,
+        "country": "BG",
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "103",
+          "room_class": "Twin",
+          "board": "HB",
+          "tariff": {
+            "code": null,
+            "charge": {
+              "amount": "120",
+              "currency": "EUR"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "booking_ref": "007003193",
+      "state": "BOOKED",
+      "arrival": {
+        "date": "22 Aug 2024",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "30 Aug 2024"
+      },
+      "created_on": "20 Aug 2024",
+      "origin": {
+        "channel": null
+      },
+      "total": {
+        "amount": "120.00",
+        "currency": "EUR"
+      },
+      "group_booking": true,
+      "occupants": {
+        "adults": 2,
+        "children": 0,
+        "babies": 0,
+        "youth": 0
+      },
+      "guest": {
+        "first_name": "Mira",
+        "last_name": "Moreau",
+        "email": null,
+        "phone": null,
+        "document_id": null,
+        "country": "US",
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "605",
+          "room_class": "DBL",
+          "board": "HB",
+          "tariff": {
+            "code": null,
+            "charge": {
+              "amount": "100",
+              "currency": "EUR"
+            }
+          }
+        },
+        {
+          "room_no": "904",
+          "room_class": "2BEDAPT",
+          "board": "HB",
+          "tariff": {
+            "code": null,
+            "charge": {
+              "amount": "20",
+              "currency": "EUR"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "booking_ref": "007003199",
+      "state": "IN_HOUSE",
+      "arrival": {
+        "date": "28 Aug 2024",
+        "time": "17:00"
+      },
+      "departure": {
+        "date": "01 Sep 2024"
+      },
+      "created_on": "21 Aug 2024",
+      "origin": {
+        "channel": null
+      },
+      "total": {
+        "amount": "870.00",
+        "currency": "USD"
+      },
+      "group_booking": false,
+      "guest": {
+        "first_name": "Dmitri",
+        "last_name": "Quintero",
+        "email": "dmitri.duarte@example.example",
+        "phone": "54325503000012000",
+        "document_id": null,
+        "country": "US",
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "02",
+          "room_class": "DBL",
+          "board": "HB",
+          "tariff": {
+            "code": null,
+            "charge": {
+              "amount": "870",
+              "currency": "USD"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "booking_ref": "007003204",
+      "state": "BOOKED",
+      "arrival": {
+        "date": "10 Aug 2024",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "16 Aug 2024"
+      },
+      "created_on": "22 Aug 2024",
+      "origin": {
+        "channel": null
+      },
+      "total": {
+        "amount": "435.00",
+        "currency": "USD"
+      },
+      "group_booking": true,
+      "occupants": {
+        "adults": 2,
+        "children": 0,
+        "babies": 0,
+        "youth": 0
+      },
+      "guest": {
+        "first_name": "Pavel",
+        "last_name": "Zavala",
+        "email": null,
+        "phone": null,
+        "document_id": null,
+        "country": "US",
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "303",
+          "room_class": "DBL",
+          "board": "HB",
+          "tariff": {
+            "code": null,
+            "charge": {
+              "amount": null,
+              "currency": "USD"
+            }
+          }
+        },
+        {
+          "room_no": "303",
+          "room_class": "DBL",
+          "board": "HB",
+          "tariff": {
+            "code": null,
+            "charge": {
+              "amount": null,
+              "currency": "USD"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "booking_ref": "007003206",
+      "state": "VOID",
+      "arrival": {
+        "date": "24 Aug 2024",
+        "time": "15:00"
+      },
+      "departure": {
+        "date": "26 Aug 2024"
+      },
+      "created_on": "23 Aug 2024",
+      "origin": {
+        "external_ref": "test0000000N1",
+        "channel": "Test"
+      },
+      "total": {
+        "amount": "200.00",
+        "currency": "USD"
+      },
+      "group_booking": false,
+      "guest": {
+        "first_name": "Dmitri",
+        "last_name": "Yilmaz",
+        "email": "bruno.berger@example.example",
+        "phone": "74833826",
+        "document_id": "7923322",
+        "country": "US",
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "02",
+          "room_class": "DBL",
+          "board": "CC",
+          "tariff": {
+            "code": null,
+            "charge": {
+              "amount": "200",
+              "currency": "USD"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "booking_ref": "007003207",
+      "state": "PROV4",
+      "arrival": {
+        "date": "24 Aug 2024",
+        "time": "14:00"
+      },
+      "departure": {
+        "date": "28 Aug 2024"
+      },
+      "created_on": "23 Aug 2024",
+      "origin": {
+        "external_ref": "test0000000N1",
+        "channel": "Test"
+      },
+      "total": {
+        "amount": "200.00",
+        "currency": "USD"
+      },
+      "group_booking": false,
+      "guest": {
+        "first_name": "Bruno",
+        "last_name": "Ueda",
+        "email": "mira.moreau@example.example",
+        "phone": "4358270226",
+        "document_id": null,
+        "country": "US",
+        "card_last4": "****"
+      },
+      "stays": [
+        {
+          "room_no": "02",
+          "room_class": "DBL",
+          "board": "CC",
+          "tariff": {
+            "code": null,
+            "charge": {
+              "amount": "200",
+              "currency": "USD"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

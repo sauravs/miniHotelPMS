@@ -1,0 +1,42 @@
+{
+  "schema": "demopms/v1",
+  "endpoint": "room-types",
+  "room_types": [
+    {
+      "code": "2BEDAPT",
+      "label": "Two bedroom apartment"
+    },
+    {
+      "code": "APT_SEA",
+      "label": "Apartment Sea View"
+    },
+    {
+      "code": "DBL",
+      "label": "Double room"
+    },
+    {
+      "code": "Executive",
+      "label": "Executive Room"
+    },
+    {
+      "code": "SNG",
+      "label": "MEGA TEST 2 Y 3"
+    },
+    {
+      "code": "Suite",
+      "label": "Suite"
+    },
+    {
+      "code": "TEST-DOUBLE",
+      "label": "TEST HAB DOBLE PERO QUE ACEPTA 3 GG"
+    },
+    {
+      "code": "TRP",
+      "label": "Triple Room"
+    },
+    {
+      "code": "Twin",
+      "label": "Twin Room"
+    }
+  ]
+}

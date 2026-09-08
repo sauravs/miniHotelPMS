@@ -17,6 +17,19 @@
           }
         },
         "call_cost": "1 + R: one population call plus one room-master call, whatever the number of stays. v1's query started from getRooms and asked the engine to cut a rooms response into stays, which it cannot do - the join it described in prose is now declared as a reference."
+      },
+      "demopms": {
+        "endpoint": "bookings",
+        "filters": {
+          "arrival": {
+            "from": "today",
+            "to": "today+90d"
+          }
+        },
+        "then": [
+          "rooms (all rooms, 1 call)"
+        ],
+        "call_cost": "O(1) - two bulk calls regardless of hotel size"
       }
     }
   },

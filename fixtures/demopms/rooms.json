@@ -1,0 +1,650 @@
+{
+  "schema": "demopms/v1",
+  "endpoint": "rooms",
+  "rooms": [
+    {
+      "room_no": "01",
+      "class": "DBL",
+      "out_of_service": {
+        "from": null,
+        "to": null
+      },
+      "housekeeping": "SOILED",
+      "bookable": true,
+      "limits": [
+        {
+          "kind": "adults",
+          "max": 6
+        },
+        {
+          "kind": "children",
+          "max": -1
+        },
+        {
+          "kind": "babies",
+          "max": -1
+        }
+      ]
+    },
+    {
+      "room_no": "101",
+      "class": "DBL",
+      "out_of_service": {
+        "from": null,
+        "to": null
+      },
+      "housekeeping": "SOILED",
+      "bookable": true,
+      "limits": [
+        {
+          "kind": "adults",
+          "max": -1
+        },
+        {
+          "kind": "children",
+          "max": -1
+        },
+        {
+          "kind": "babies",
+          "max": -1
+        }
+      ]
+    },
+    {
+      "room_no": "302",
+      "class": "DBL",
+      "out_of_service": {
+        "from": null,
+        "to": null
+      },
+      "housekeeping": "SOILED",
+      "bookable": true,
+      "limits": [
+        {
+          "kind": "adults",
+          "max": -1
+        },
+        {
+          "kind": "children",
+          "max": -1
+        },
+        {
+          "kind": "babies",
+          "max": -1
+        }
+      ]
+    },
+    {
+      "room_no": "606",
+      "class": "APT_SEA",
+      "out_of_service": {
+        "from": null,
+        "to": null
+      },
+      "housekeeping": "CLEAN",
+      "bookable": false,
+      "limits": [
+        {
+          "kind": "adults",
+          "max": 2
+        },
+        {
+          "kind": "children",
+          "max": -1
+        },
+        {
+          "kind": "babies",
+          "max": -1
+        }
+      ]
+    },
+    {
+      "room_no": "701",
+      "class": "2BEDAPT",
+      "out_of_service": {
+        "from": null,
+        "to": null
+      },
+      "housekeeping": "CLEAN",
+      "bookable": false,
+      "limits": [
+        {
+          "kind": "adults",
+          "max": -1
+        },
+        {
+          "kind": "children",
+          "max": -1
+        },
+        {
+          "kind": "babies",
+          "max": -1
+        }
+      ]
+    },
+    {
+      "room_no": "02",
+      "class": "DBL",
+      "out_of_service": {
+        "from": null,
+        "to": null
+      },
+      "housekeeping": "CLEAN",
+      "bookable": true,
+      "limits": [
+        {
+          "kind": "adults",
+          "max": 2
+        },
+        {
+          "kind": "children",
+          "max": 1
+        },
+        {
+          "kind": "babies",
+          "max": -1
+        }
+      ]
+    },
+    {
+      "room_no": "103",
+      "class": "Twin",
+      "out_of_service": {
+        "from": null,
+        "to": null
+      },
+      "housekeeping": "CLEAN",
+      "bookable": true,
+      "limits": [
+        {
+          "kind": "adults",
+          "max": -1
+        },
+        {
+          "kind": "children",
+          "max": -1
+        },
+        {
+          "kind": "babies",
+          "max": -1
+        }
+      ]
+    },
+    {
+      "room_no": "303",
+      "class": "DBL",
+      "out_of_service": {
+        "from": null,
+        "to": null
+      },
+      "housekeeping": "CLEAN",
+      "bookable": true,
+      "limits": [
+        {
+          "kind": "adults",
+          "max": -1
+        },
+        {
+          "kind": "children",
+          "max": -1
+        },
+        {
+          "kind": "babies",
+          "max": -1
+        }
+      ]
+    },
+    {
+      "room_no": "901",
+      "class": "2BEDAPT",
+      "out_of_service": {
+        "from": null,
+        "to": null
+      },
+      "housekeeping": "SOILED",
+      "bookable": false,
+      "limits": [
+        {
+          "kind": "adults",
+          "max": -1
+        },
+        {
+          "kind": "children",
+          "max": -1
+        },
+        {
+          "kind": "babies",
+          "max": -1
+        }
+      ]
+    },
+    {
+      "room_no": "Nemanja",
+      "class": "TRP",
+      "out_of_service": {
+        "from": null,
+        "to": null
+      },
+      "housekeeping": "CLEAN",
+      "bookable": true,
+      "limits": [
+        {
+          "kind": "adults",
+          "max": -1
+        },
+        {
+          "kind": "children",
+          "max": -1
+        },
+        {
+          "kind": "babies",
+          "max": -1
+        }
+      ]
+    },
+    {
+      "room_no": "9900",
+      "class": "Double",
+      "out_of_service": {
+        "from": null,
+        "to": null
+      },
+      "housekeeping": "CLEAN",
+      "bookable": false,
+      "limits": [
+        {
+          "kind": "adults",
+          "max": -1
+        },
+        {
+          "kind": "children",
+          "max": -1
+        },
+        {
+          "kind": "babies",
+          "max": -1
+        }
+      ]
+    },
+    {
+      "room_no": "104",
+      "class": "Twin",
+      "out_of_service": {
+        "from": null,
+        "to": null
+      },
+      "housekeeping": "CLEAN",
+      "bookable": true,
+      "limits": [
+        {
+          "kind": "adults",
+          "max": -1
+        },
+        {
+          "kind": "children",
+          "max": -1
+        },
+        {
+          "kind": "babies",
+          "max": -1
+        }
+      ]
+    },
+    {
+      "room_no": "304",
+      "class": "DBL",
+      "out_of_service": {
+        "from": null,
+        "to": null
+      },
+      "housekeeping": "CLEAN",
+      "bookable": true,
+      "limits": [
+        {
+          "kind": "adults",
+          "max": -1
+        },
+        {
+          "kind": "children",
+          "max": -1
+        },
+        {
+          "kind": "babies",
+          "max": -1
+        }
+      ]
+    },
+    {
+      "room_no": "902",
+      "class": "TRP",
+      "out_of_service": {
+        "from": null,
+        "to": null
+      },
+      "housekeeping": "CLEAN",
+      "bookable": true,
+      "limits": [
+        {
+          "kind": "adults",
+          "max": -1
+        },
+        {
+          "kind": "children",
+          "max": -1
+        },
+        {
+          "kind": "babies",
+          "max": -1
+        }
+      ]
+    },
+    {
+      "room_no": "9901",
+      "class": "Double",
+      "out_of_service": {
+        "from": null,
+        "to": null
+      },
+      "housekeeping": "CLEAN",
+      "bookable": false,
+      "limits": [
+        {
+          "kind": "adults",
+          "max": -1
+        },
+        {
+          "kind": "children",
+          "max": -1
+        },
+        {
+          "kind": "babies",
+          "max": -1
+        }
+      ]
+    },
+    {
+      "room_no": "102",
+      "class": "DBL",
+      "out_of_service": {
+        "from": null,
+        "to": null
+      },
+      "housekeeping": "SOILED",
+      "bookable": true,
+      "limits": [
+        {
+          "kind": "adults",
+          "max": -1
+        },
+        {
+          "kind": "children",
+          "max": -1
+        },
+        {
+          "kind": "babies",
+          "max": -1
+        }
+      ]
+    },
+    {
+      "room_no": "401",
+      "class": "Executive",
+      "out_of_service": {
+        "from": null,
+        "to": null
+      },
+      "housekeeping": "CLEAN",
+      "bookable": true,
+      "limits": [
+        {
+          "kind": "adults",
+          "max": 3
+        },
+        {
+          "kind": "children",
+          "max": -1
+        },
+        {
+          "kind": "babies",
+          "max": -1
+        }
+      ]
+    },
+    {
+      "room_no": "903",
+      "class": "2BEDAPT",
+      "out_of_service": {
+        "from": null,
+        "to": null
+      },
+      "housekeeping": "CLEAN",
+      "bookable": false,
+      "limits": [
+        {
+          "kind": "adults",
+          "max": -1
+        },
+        {
+          "kind": "children",
+          "max": -1
+        },
+        {
+          "kind": "babies",
+          "max": -1
+        }
+      ]
+    },
+    {
+      "room_no": "9902",
+      "class": "Double",
+      "out_of_service": {
+        "from": null,
+        "to": null
+      },
+      "housekeeping": "CLEAN",
+      "bookable": false,
+      "limits": [
+        {
+          "kind": "adults",
+          "max": -1
+        },
+        {
+          "kind": "children",
+          "max": -1
+        },
+        {
+          "kind": "babies",
+          "max": -1
+        }
+      ]
+    },
+    {
+      "room_no": "904",
+      "class": "2BEDAPT",
+      "out_of_service": {
+        "from": null,
+        "to": null
+      },
+      "housekeeping": "CLEAN",
+      "bookable": false,
+      "limits": [
+        {
+          "kind": "adults",
+          "max": 2
+        },
+        {
+          "kind": "children",
+          "max": -1
+        },
+        {
+          "kind": "babies",
+          "max": -1
+        }
+      ]
+    },
+    {
+      "room_no": "9903",
+      "class": "Suite",
+      "out_of_service": {
+        "from": null,
+        "to": null
+      },
+      "housekeeping": "CLEAN",
+      "bookable": false,
+      "limits": [
+        {
+          "kind": "adults",
+          "max": -1
+        },
+        {
+          "kind": "children",
+          "max": -1
+        },
+        {
+          "kind": "babies",
+          "max": -1
+        }
+      ]
+    },
+    {
+      "room_no": "501",
+      "class": "SNG",
+      "out_of_service": {
+        "from": null,
+        "to": null
+      },
+      "housekeeping": "CLEAN",
+      "bookable": true,
+      "limits": [
+        {
+          "kind": "adults",
+          "max": -1
+        },
+        {
+          "kind": "children",
+          "max": -1
+        },
+        {
+          "kind": "babies",
+          "max": -1
+        }
+      ]
+    },
+    {
+      "room_no": "9904",
+      "class": "Suite",
+      "out_of_service": {
+        "from": null,
+        "to": null
+      },
+      "housekeeping": "CLEAN",
+      "bookable": false,
+      "limits": [
+        {
+          "kind": "adults",
+          "max": -1
+        },
+        {
+          "kind": "children",
+          "max": -1
+        },
+        {
+          "kind": "babies",
+          "max": -1
+        }
+      ]
+    },
+    {
+      "room_no": "605",
+      "class": "DBL",
+      "out_of_service": {
+        "from": null,
+        "to": null
+      },
+      "housekeeping": "CLEAN",
+      "bookable": true,
+      "limits": [
+        {
+          "kind": "adults",
+          "max": -1
+        },
+        {
+          "kind": "children",
+          "max": -1
+        },
+        {
+          "kind": "babies",
+          "max": -1
+        }
+      ]
+    },
+    {
+      "room_no": "9905",
+      "class": "Suite",
+      "out_of_service": {
+        "from": null,
+        "to": null
+      },
+      "housekeeping": "CLEAN",
+      "bookable": false,
+      "limits": [
+        {
+          "kind": "adults",
+          "max": -1
+        },
+        {
+          "kind": "children",
+          "max": -1
+        },
+        {
+          "kind": "babies",
+          "max": -1
+        }
+      ]
+    },
+    {
+      "room_no": "301",
+      "class": "Twin",
+      "out_of_service": {
+        "from": null,
+        "to": null
+      },
+      "housekeeping": "CLEAN",
+      "bookable": true,
+      "limits": [
+        {
+          "kind": "adults",
+          "max": -1
+        },
+        {
+          "kind": "children",
+          "max": -1
+        },
+        {
+          "kind": "babies",
+          "max": -1
+        }
+      ]
+    },
+    {
+      "room_no": "808",
+      "class": "DBL",
+      "out_of_service": {
+        "from": null,
+        "to": null
+      },
+      "housekeeping": "CLEAN",
+      "bookable": true
+    },
+    {
+      "room_no": "809",
+      "class": "SNG",
+      "out_of_service": {
+        "from": null,
+        "to": null
+      },
+      "housekeeping": "SOILED",
+      "bookable": true
+    }
+  ]
+}

@@ -305,7 +305,7 @@ hotelcontrols/
   spec/           registry.py · ir.py · validate.py · tenant.py
   providers/      base.py · registry.py
                   minihotel/  adapter.py · paths.py · transforms.py · records.py · fixtures.py
-                  demopms/    adapter.py · transforms.py · fixtures.py
+                  demopms/    adapter.py · paths.py · records.py · transforms.py · fixtures.py
                   transport/  http.py · ratelimit.py · record.py     # opt-in, off by default
   evidence/       gather.py · population.py · reference.py · cache.py · budget.py
   evaluator/      record.py · population.py · predicates.py · intervals.py · logic.py
@@ -320,7 +320,7 @@ fixtures/         minihotel/  (pseudonymised captures + request fingerprints)
                   demopms/    (fictional, by construction)
 tests/            unit/ · integration/ · e2e/ · contract/
 docs/             every markdown document
-tools/            validate_spec.py · scrub_fixtures.py · probe.py · build_workbook.py
+tools/            validate_spec.py · scrub_fixtures.py · transcode_demopms.py · probe.py
 ```
 
 `spec/` is **data the engine reads at runtime**. Nothing in `hotelcontrols/` knows what control 6 is:
@@ -344,7 +344,14 @@ that needs someone else's server to be up is not a suite.
 
 The **contract suite** is the piece v1 did not have and the one that makes criterion 7 real: a single
 set of tests parameterised over every registered provider, so adding Mews means running an existing
-suite rather than writing a new one.
+suite rather than writing a new one. `providers/registry.py` discovers adapters by importing the
+sub-packages that declare themselves, so no module above an adapter names a PMS — a dictionary of
+`{"somepms": SomePmsAdapter}` would be the first place the boundary leaked.
+
+**The two fixture sets describe one hotel.** `fixtures/demopms/` is generated from the MiniHotel
+captures by `tools/transcode_demopms.py`, field by field, gaps included — so "the same hotel through
+two providers" is checked rather than asserted. A hand-written second fixture set would drift towards
+whatever answers looked best, which is exactly what v1's `fixtures/synthetic/` did.
 
 Every test names the IR clause or the risk id it protects. `PYTHONDONTWRITEBYTECODE=1` in CI —
 v1 recorded a real incident where a stale `.pyc` made the suite silently run old code and report a

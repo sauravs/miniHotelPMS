@@ -22,7 +22,7 @@ that adding a PMS is a new adapter plus a mapping file, not a change to any rule
 | v1 demo: control 6, four silos, 152 tests | **Done** — and measured: only 1 of its 10 controls ever answers |
 | v1 review, 20 findings | **Done** — `docs/old-codebase-improve.md` |
 | v2 documents | **Done** — prd, context, architecture, plan, open questions |
-| v2 code | **Not started.** Slice 0 opens on the owner's go-ahead. Track in `docs/plan.md` |
+| v2 code | **Slices 0–7 of 12 merged.** 903 tests, 95% coverage, 1003 spec checks, CI green. Track in `docs/plan.md` |
 
 ## Documents, in reading order
 
@@ -38,6 +38,13 @@ All prose lives in `docs/`. Root holds only this file and `README.md`.
 | `docs/open-questions.md` | **Every open question, with what the engine does today.** Read before asking "what is left?" |
 | `docs/QA.md` | Running Q&A transcript with the project owner. Appended by `/qa-log` |
 | `miniHotelLegacy/` | v1 in full, including the two source `.docx` files and `CONTROL_DRY_RUN.md` |
+
+Two adapters ship: **MiniHotel** (XML, real) and **DemoPMS** (JSON, fictional). Their quirks were
+chosen to disagree — one date format against three, a `-1` sentinel against an overloaded `0`, money
+self-describing against money split from its currency, occupancy nested against occupancy sibling —
+and `tests/contract/` runs one suite against both. Adding a third is a directory under
+`providers/`, a map in `spec/providers/`, a tenant file, and one key per IR. Nothing above the
+provider layer changes; the slice-7 diff is the evidence.
 
 ## The four ideas everything else follows from
 
@@ -88,6 +95,9 @@ UNKNOWN. That is the honest cost of not guessing.
   else's server to be up is not a suite.
 - **`spec/` is data, not code.** The engine reads it at runtime. Nothing in `hotelcontrols/` should
   know what control 6 is — it is one IR file among eleven.
+- **`fixtures/demopms/` is generated, never edited.** It is the MiniHotel captures re-encoded by
+  `tools/transcode_demopms.py`, gaps included, so "the same hotel through two providers" means
+  something. Change the tool and rebuild; a test asserts the rebuild is byte-identical.
 - **Money is `Decimal` and carries its currency.** A bare number is never money.
 - **All dates resolve through the property clock**, never the machine's. Hotel controls are
   questions about the hotel's calendar.
@@ -134,6 +144,7 @@ PYTHONDONTWRITEBYTECODE=1 python3 -m pytest -q     # the suite, offline
 python3 -m tools.validate_spec                     # spec + fixture checks
 python3 -m hotelcontrols.web.server                # the demo, http://127.0.0.1:8765/
 python3 -m tools.scrub_fixtures <in> <out>         # pseudonymise a raw capture
+python3 -m tools.transcode_demopms --check         # the demo fixtures match a rebuild
 python3 -m tools.probe --plan                      # print a probe plan; makes NO calls
 ```
 
