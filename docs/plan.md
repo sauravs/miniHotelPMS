@@ -11,7 +11,7 @@ Execution tracker. **Update the status table as slices close.** Design rationale
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | 0 | Foundation, kernel & CI | ☑ | — | — | ☑ | ☑ | **done** — PR #1 |
 | 1 | Spec layer & validator | ☑ | ☑ | — | ☑ | ☑ | **done** — PR #2 |
-| 2 | MiniHotel provider (structured) | ☑ | ☑ | — | ☐ | ☐ | **in review** |
+| 2 | MiniHotel provider (structured) | ☑ | ☑ | — | ☑ | ☑ | **done** — PR #4 |
 | 3 | Evidence, references & budget | ☐ | ☐ | — | ☐ | ☐ | not started |
 | 4 | Evaluator — record level | ☐ | ☐ | ☐ | ☐ | ☐ | not started |
 | 5 | Evaluator — population level | ☐ | ☐ | ☐ | ☐ | ☐ | not started |
