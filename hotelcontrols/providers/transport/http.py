@@ -28,6 +28,13 @@ exactly as it polices the evaluator. The request-to-HTTP encoding is the ADAPTER
 as a callable, and the credentials' environment variables are built from a provider name that
 arrives as data.
 
+ONLY WHAT COULD SUCCEED IS RETRIED
+-----------------------------------
+Issue #16. A `401` is not a flaky network, and retrying it three times is three authentication
+failures instead of one against a vendor who asked not to be queried hard (R8). So failures are
+classified by status: authentication is loud and immediate, a definite refusal is an evidence
+gap after one attempt, and only 5xx, timeouts and the two "try again" codes are retried.
+
 A GIVE-UP IS AN EVIDENCE GAP, NOT A CRASH
 ------------------------------------------
 `ResponseUnavailable` is a `ProviderError`, and the evidence layer turns one into an UNKNOWN
@@ -71,6 +78,17 @@ DEFAULT_ATTEMPTS = 3
 DEFAULT_BACKOFF = timedelta(seconds=2)
 DEFAULT_TIMEOUT = 60.0
 
+# WHICH FAILURES ARE WORTH TRYING AGAIN. Issue #16: everything used to be, including a 401.
+#
+# The split is by STATUS CODE, which is standard HTTP and needs no observation of this vendor.
+# What their error BODIES look like is still unknown and stays unguessed - nothing here parses
+# one. A failure carrying no status at all (a reset, a DNS failure, a timeout) is transient by
+# definition: nothing said no, nothing said anything, and that is the case retrying exists for.
+NOT_AUTHORISED = (401, 403)
+# 4xx that will say the same thing next time. 408 and 429 are the exceptions: one is "you were
+# too slow" and the other is "you were too fast", and both are invitations to try again.
+RETRYABLE_CLIENT_CODES = (408, 429)
+
 
 class TransportDisabled(RuntimeError):
     """The live transport was asked to make a call and is not armed.
@@ -78,6 +96,20 @@ class TransportDisabled(RuntimeError):
     A `RuntimeError` and deliberately NOT a `ProviderError`. A ProviderError becomes an UNKNOWN
     with a reason - the right answer for a call that failed - and a transport nobody enabled is
     not an evidence gap about a hotel. It is a mistake about this machine, and it must be loud.
+    """
+
+
+class NotAuthorised(RuntimeError):
+    """The provider refused the credentials. A `RuntimeError`, like `TransportDisabled`.
+
+    Issue #16, and the same distinction that one makes. A give-up becomes an UNKNOWN with a
+    reason, which is a statement about A HOTEL'S DATA - we looked and the evidence was not
+    there. A wrong password is a statement about THIS MACHINE, and letting it arrive dressed as
+    an evidence gap sends an operator looking for data that was never the problem.
+
+    It is also never retried. A password does not become right on the third attempt, and the
+    amplification would be `attempts` x every call in the run against a vendor who asked not to
+    be queried hard (R8).
     """
 
 
@@ -187,6 +219,42 @@ def open_socket(call: HttpCall, timeout: float = DEFAULT_TIMEOUT) -> str:
         return response.read().decode("utf-8", errors="replace")
 
 
+def status_of(error: Exception) -> int | None:
+    """The HTTP status an error carries, if it carries one.
+
+    Duck-typed rather than isinstance-checked against `urllib.error.HTTPError`, so an injected
+    dialer - the only kind any test uses - can raise the same shapes and be classified the same
+    way. That is what lets this be tested at all without a socket (criterion 11).
+    """
+    code = getattr(error, "code", None)
+    return code if isinstance(code, int) else None
+
+
+def is_transient(error: Exception) -> bool:
+    """Whether trying again could plausibly produce a different answer."""
+    code = status_of(error)
+    if code is None:
+        return True
+    return code >= 500 or code in RETRYABLE_CLIENT_CODES
+
+
+def retry_after(error: Exception) -> timedelta | None:
+    """What the vendor said to wait, if they said.
+
+    R8 in one header. The token bucket is our guess at a polite rate; `Retry-After` is their
+    own answer, and ignoring it while claiming to rate-limit would be the worst of both. It may
+    also be an HTTP date rather than a number of seconds, and a vendor may simply send
+    nonsense - neither is a reason to stop backing off, so an unreadable value falls through to
+    the ordinary backoff rather than being guessed at.
+    """
+    headers = getattr(error, "headers", None) or {}
+    try:
+        seconds = float(headers.get("Retry-After", ""))
+    except (TypeError, ValueError, AttributeError):
+        return None
+    return timedelta(seconds=seconds) if seconds >= 0 else None
+
+
 # --------------------------------------------------------------------------- the source
 class LiveSource:
     """A body of evidence fetched now, shaped exactly like a body of evidence replayed.
@@ -256,9 +324,28 @@ class LiveSource:
                 # attempts with backoff turns a loud instant failure into a slow confusing one.
                 raise
             except Exception as exc:                                     # noqa: BLE001
+                if status_of(exc) in NOT_AUTHORISED:
+                    # Loud, immediate, and about this machine rather than about the hotel.
+                    prefix = "HOTELCONTROLS_%s_" % self.provider.upper().replace("-", "_")
+                    # Spelled out in full rather than abbreviated: an operator reading this at
+                    # three in the morning should be able to copy the name, not assemble it.
+                    raise NotAuthorised(
+                        "%s refused these credentials (HTTP %d). They come from the "
+                        "environment with no default - check %s. This is a configuration "
+                        "error rather than an evidence gap, and it is not retried"
+                        % (self.provider, status_of(exc),
+                           ", ".join(prefix + name for name in
+                                     ("USER", "PASSWORD", "HOTEL")))) from exc
+                if not is_transient(exc):
+                    # A definite no. It is a real gap for the record that needed it - so it
+                    # still degrades one bundle to UNKNOWN - but it costs one call, not three.
+                    raise ResponseUnavailable(
+                        "%s refused %s (HTTP %d). Asking again would get the same answer, so "
+                        "the records that needed it are UNKNOWN rather than judged"
+                        % (self.provider, request.endpoint, status_of(exc))) from exc
                 last = exc
                 if attempt < self.attempts:
-                    self._wait(self.backoff * attempt)
+                    self._wait(retry_after(exc) or self.backoff * attempt)
                 continue
 
             if self.recorder is not None:

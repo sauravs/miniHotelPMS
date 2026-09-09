@@ -9,6 +9,7 @@ component, with the safety property intact.
 
     is_enabled()      lock 1: the HOTELCONTROLS_LIVE environment variable
     assert_armed()    lock 2: and no test runner in the process
+    is_transient()    whether a failure is worth trying again (issue #16)
     TokenBucket       pacing, as a pure function of an injected clock (R8)
     LiveSource        a body of evidence fetched now, shaped like one replayed
     Recorder          the response, written down with the question that produced it
@@ -19,8 +20,8 @@ canonical-boundary grep polices it exactly as it polices the evaluator: the requ
 encoding is the adapter's and arrives as a callable, and the credential variable names are
 built from a provider name that arrives as data.
 """
-from .http import (Credentials, HttpCall, LiveSource, MissingCredential, TransportDisabled,
-                   assert_armed, is_enabled, open_socket)
+from .http import (Credentials, HttpCall, LiveSource, MissingCredential, NotAuthorised,
+                   TransportDisabled, assert_armed, is_enabled, is_transient, open_socket)
 from .ratelimit import TokenBucket
 from .record import Recorder
 
@@ -29,10 +30,12 @@ __all__ = [
     "HttpCall",
     "LiveSource",
     "MissingCredential",
+    "NotAuthorised",
     "Recorder",
     "TokenBucket",
     "TransportDisabled",
     "assert_armed",
     "is_enabled",
+    "is_transient",
     "open_socket",
 ]

@@ -553,7 +553,8 @@ suite is a statement about what was asked, not about what works.**
 - [x] Retry backs off and gives up; a give-up is `ResponseUnavailable`, which the evidence layer
       turns into UNKNOWN with a reason. **A refusal to arm is never retried** — a disabled transport
       is a configuration mistake, and three attempts with backoff turns a loud instant failure into
-      a slow confusing one
+      a slow confusing one. **Nor is an authentication failure, nor any definite refusal** — see
+      issue #16 below, which the first probe plan surfaced before a single live call was made
 - [x] The per-run call ceiling reuses the existing `CallBudget` (R1, R8) — asserted by running
       `gather` over a live-shaped source. The honest footnote is recorded too: the budget counts
       LOGICAL calls, and one may cost up to `attempts` requests on a flaky network. That
@@ -601,6 +602,20 @@ that leaked a password the first time it was useful would be worse than no plan.
 **DemoPMS has no live request form and says so.** It is fictional; it can be replayed and it cannot
 be probed. Inventing a wire format for a PMS that does not exist would make this slice look more
 finished than it is.
+
+**Issue #16, found by reading the first probe plan and fixed before any live call.** The retry loop
+treated every failure as transient, and `urllib` raises `HTTPError` for every 4xx — so a `401` was
+retried three times with growing backoff and then reported as an *evidence gap*. Three things wrong,
+in increasing order of seriousness: a wrong password does not become right on the third attempt; the
+amplification is `attempts` × every call in the run, against a vendor who asked not to be queried
+hard (R8); and an UNKNOWN is a statement about *a hotel's data*, so a configuration error arrived
+dressed as one and would have sent an operator looking for data that was never missing.
+
+Now: `401`/`403` raise `NotAuthorised` immediately, naming the three environment variables in full;
+any other definite refusal is an evidence gap after **one** call; only 5xx, timeouts, `408` and
+`429` are retried; and `Retry-After` is honoured when the vendor sends it, because that header is
+the whole of R8 in one line. The classification is by status code — standard HTTP, no observation
+needed. What this vendor's error *bodies* look like is still unknown and stays unguessed.
 
 ---
 

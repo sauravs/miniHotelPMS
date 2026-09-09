@@ -475,3 +475,104 @@ class TestTheSmallGuardsAndWhatThingsLookLikeWhenPrinted:
         path = recorder.record(Request("thing"), "just some text")
         assert path.suffix == ".txt"
         assert path.read_text() == "just some text"
+
+
+# ---------------------------------------------------------------------------------------
+class TestItOnlyRetriesWhatCouldSucceed:
+    """Issue #16. The retry loop used to treat every failure as transient.
+
+    `urllib` raises `HTTPError` for every 4xx and 5xx, so a `401` was retried three times with
+    growing backoff before being reported as an evidence gap. Three things wrong with that, in
+    increasing order of seriousness: a wrong password does not become right on the third
+    attempt; the amplification is `attempts` x every call in the run, against a vendor who
+    asked not to be queried hard (R8); and a give-up becomes an UNKNOWN, which is a statement
+    about A HOTEL'S DATA. A wrong credential is a statement about THIS MACHINE, and dressing it
+    as an evidence gap sends an operator looking for data that was never the problem.
+
+    The classification is by STATUS CODE, which is standard HTTP and needs no observation. What
+    this vendor's error bodies look like is still unknown and stays unguessed.
+    """
+
+    class Refused(OSError):
+        """Shaped like `urllib.error.HTTPError`: an OSError carrying a status code."""
+
+        def __init__(self, code, headers=None):
+            super().__init__("HTTP %d" % code)
+            self.code = code
+            self.headers = headers or {}
+
+    def dialer_raising(self, error):
+        calls = []
+
+        def dial(call):
+            calls.append(call)
+            raise error
+        return dial, calls
+
+    @pytest.mark.parametrize("code", (401, 403))
+    def test_an_authentication_failure_is_loud_and_immediate(self, code):
+        """Not an evidence gap. `NotAuthorised` is a `RuntimeError` for the same reason
+        `TransportDisabled` is: it is a mistake about this machine's configuration, and it must
+        not be able to masquerade as a hotel whose data is incomplete."""
+        dial, calls = self.dialer_raising(self.Refused(code))
+        with pytest.raises(transport_http.NotAuthorised) as refusal:
+            a_source(dialer=dial, attempts=3).fetch(Request("anything"))
+        assert len(calls) == 1, "an authentication failure was retried"
+        assert "HOTELCONTROLS_SOMEPROVIDER_PASSWORD" in str(refusal.value)
+
+    @pytest.mark.parametrize("code", (400, 404, 410, 422))
+    def test_a_permanent_failure_is_an_evidence_gap_after_one_attempt(self, code):
+        """A folio this property does not have is a real gap for that record - so it degrades
+        one bundle to UNKNOWN, as it always did. What changes is that it costs one call rather
+        than three."""
+        dial, calls = self.dialer_raising(self.Refused(code))
+        with pytest.raises(ResponseUnavailable) as gap:
+            a_source(dialer=dial, attempts=3).fetch(Request("anything"))
+        assert len(calls) == 1
+        assert str(code) in str(gap.value)
+
+    @pytest.mark.parametrize("code", (408, 429, 500, 502, 503, 504))
+    def test_a_transient_failure_is_still_retried(self, code):
+        dial, calls = self.dialer_raising(self.Refused(code))
+        with pytest.raises(ResponseUnavailable):
+            a_source(dialer=dial, attempts=3).fetch(Request("anything"))
+        assert len(calls) == 3
+
+    def test_a_failure_with_no_status_at_all_is_still_retried(self):
+        """A connection reset, a DNS failure, a timeout. Nothing said no; nothing said
+        anything, and that is the case retrying was invented for."""
+        dial, calls = self.dialer_raising(OSError("connection reset"))
+        with pytest.raises(ResponseUnavailable):
+            a_source(dialer=dial, attempts=2).fetch(Request("anything"))
+        assert len(calls) == 2
+
+    def test_retry_after_is_honoured_because_it_is_the_vendor_naming_the_rate(self):
+        """R8 in one header. The token bucket is our guess at a polite rate; `Retry-After` is
+        the vendor's own answer, and ignoring it while claiming to rate-limit would be the
+        worst of both."""
+        slept = []
+        dial, _calls = self.dialer_raising(self.Refused(429, {"Retry-After": "37"}))
+        with pytest.raises(ResponseUnavailable):
+            a_source(dialer=dial, attempts=2, backoff=timedelta(seconds=1),
+                     sleeper=slept.append).fetch(Request("anything"))
+        assert 37.0 in slept, slept
+
+    def test_an_unreadable_retry_after_falls_back_to_the_backoff(self):
+        """`Retry-After` may be an HTTP date rather than seconds, and a vendor may send
+        nonsense. Neither is a reason to stop backing off."""
+        slept = []
+        dial, _calls = self.dialer_raising(
+            self.Refused(429, {"Retry-After": "Wed, 21 Oct 2026 07:28:00 GMT"}))
+        with pytest.raises(ResponseUnavailable):
+            a_source(dialer=dial, attempts=2, backoff=timedelta(seconds=5),
+                     sleeper=slept.append).fetch(Request("anything"))
+        assert 5.0 in slept, slept
+
+    def test_the_saving_is_the_whole_point_of_the_fix(self):
+        """R8, as arithmetic. A run over a hundred records with a stale password used to send
+        three hundred requests to somebody else's server before reporting a data gap."""
+        dial, calls = self.dialer_raising(self.Refused(401))
+        for _ in range(3):
+            with pytest.raises(transport_http.NotAuthorised):
+                a_source(dialer=dial, attempts=3).fetch(Request("anything"))
+        assert len(calls) == 3, "three records, three calls - not nine"
