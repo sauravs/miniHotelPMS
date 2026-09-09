@@ -193,7 +193,11 @@ class RunStore:
         Summaries rather than whole runs: a history page wants counts and a date, and loading
         every evidence table to render a list would make the cheap thing expensive.
         """
+        # `evidence_label` and `provider` are in the summary because a history row without them
+        # is not a history: two runs of one control over two different bodies of evidence are
+        # two different questions, and a list that cannot tell them apart is a list of dates.
         query = ("SELECT r.run_id, r.control_id, r.as_of, r.created_at, r.calls, r.blocked, "
+                 "  r.evidence_label, r.provider, "
                  "  SUM(v.outcome = 'PASS') AS passes, SUM(v.outcome = 'FAIL') AS fails, "
                  "  SUM(v.outcome = 'UNKNOWN') AS unknowns, "
                  "  SUM(v.outcome = 'EXCLUDED') AS excluded, COUNT(v.position) AS total "

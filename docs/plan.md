@@ -19,7 +19,7 @@ Execution tracker. **Update the status table as slices close.** Design rationale
 | 7 | Second provider — DemoPMS | ☑ | ☑ | ☑ | ☑ | ☑ | **done** — PR #11 |
 | 8 | Scheduling & freshness | ☑ | ☑ | — | ☑ | ☑ | **done** — PR #12 |
 | 9 | Compiler — English → IR | ☑ | ☑ | ☑ | ☑ | ☑ | **done** — PR #13 |
-| 10 | Web UI & JSON API | ☐ | ☐ | ☐ | ☐ | ☐ | not started |
+| 10 | Web UI & JSON API | ☑ | ☑ | ☑ | ☑ | ☑ | **done** — PR #14 |
 | 11 | Transport (opt-in) & probe tooling | ☐ | ☐ | — | ☐ | ☐ | not started |
 
 ---
@@ -487,21 +487,51 @@ filed beside it, so the two cannot drift apart: **1080 checks**, up from 1003.
 `hotelcontrols/web/` — thin on purpose. Its job is to prove a verdict is explainable.
 
 **Unit tests**
-- [ ] `handle(path)` is a pure function of the path — routing testable without a socket
-- [ ] Well-formed JSON for an empty population, a blocked run, and a run that concluded nothing
-- [ ] An unexpected error renders as a page, never a dropped connection
-- [ ] HTML escaping on every value that came from a provider
+- [x] `handle(path)` is a pure function of the path — routing testable without a socket. Path
+      segments are unquoted **individually, after splitting**, so a `%2F` inside an id cannot
+      silently reshape the route: `/run/..%2F..%2Fetc%2Fpasswd` stays one control id and reaches
+      the spec loader, which refuses it by name
+- [x] Well-formed JSON for an empty population, a blocked run, and a run that concluded nothing —
+      and a blocked run carries **no `counts` key at all**, because zeroes in a payload get
+      charted by somebody and a chart of a run that never happened is a chart of nothing
+- [x] An unexpected error renders as a page, never a dropped connection — and an error on an
+      `/api/` path renders as JSON, because an API that answers HTML breaks its client's parser at
+      the worst moment
+- [x] HTML escaping on every value that came from a provider: values, reasons, record ids,
+      provenance strings and the control's own sentence
 
 **Integration + E2E**
-- [ ] Every control × every evidence set renders — the full matrix, asserted
-- [ ] **UNKNOWN is distinguishable from FAIL by hue, border and wording** — asserted on text alone,
-      so the distinction survives a monochrome screen (criterion 2)
-- [ ] Every verdict block lists each field, its value with unit, and the call it came from (criterion 3)
-- [ ] Readiness appears on the index; history appears per control
+- [x] Every control × every evidence set renders — 11 controls × 2 properties × 2 captures, HTML
+      and JSON, asserted. Plus the cheapest useful guard in the file: no page ever contains
+      `" object at 0x"`, which is what a `Value` interpolated into a template looks like
+- [x] **UNKNOWN is distinguishable from FAIL by hue, border and wording** — the wording half is
+      asserted with every tag stripped, so it survives a monochrome screen, a printout and a
+      colour-blind reader: **VIOLATION** against **NO ANSWER**, each with a sentence saying which
+      of the four things happened. The hue and border halves are asserted against the stylesheet
+      itself, and all four outcomes carry a distinct border style — solid, double, dashed, dotted
+- [x] Every verdict block lists each field, its value with unit, and the call it came from
+      (criterion 3), asserted on the real overpaid folio: `007004348`, `-490.75 ILS`, from
+      `GetReservationBalance`
+- [x] Readiness appears on the index; history appears per control, newest first, re-read with
+      **zero provider calls** — asserted by counting the app's own call meter across the re-read
 
 **Gate**
-- [ ] Criteria 2, 3, 8 and 10 asserted
-- [ ] The demo runs offline with no dependencies
+- [x] Criteria 2, 3, 8 and 10 asserted
+- [x] The demo runs offline with no dependencies: no page loads a script, a font or any `http://`
+      resource, and the stylesheet is served from the package
+
+**The bug this slice found by running the thing rather than reading it**
+
+The suite was green and the demo answered `500 ProgrammingError: SQLite objects created in a
+thread can only be used in that same thread` on its first run page. `ThreadingHTTPServer` handles
+every request on a new thread; the run store is one `sqlite3` connection opened when the app was
+built. Nothing in the suite had ever crossed a thread — because `handle(path)` is a pure function
+of a string, which is exactly what makes this layer so pleasant to test.
+
+The server is now serial, which is right for a single-operator local demo, and the constraint is
+named in a test rather than hidden behind `check_same_thread=False` — that flag would have turned
+an exception into a data race. **The lesson is the one this project keeps relearning: a green
+suite is a statement about what was asked, not about what works.**
 
 ---
 
@@ -538,7 +568,7 @@ something.
 | # | Criterion | State |
 | --- | --- | --- |
 | 1 | ≥8 of 11 controls reach PASS or FAIL; the rest name their blocker | **NOT MET — 5 of 11.** The second half IS met: every non-concluding control names its blocker. See the assessment below |
-| 2 | All four outcomes from captured evidence; UNKNOWN distinct from FAIL | pending |
+| 2 | All four outcomes from captured evidence; UNKNOWN distinct from FAIL | **Met** — all four reached from captured evidence since slice 4, and the distinction is asserted three ways: wording with every tag stripped, border style, and hue |
 | 3 | Every verdict traces to its fields | **Met** — structurally; a `Verdict` cannot be built without evidence |
 | 4 | Call count is `1 + R + N`, asserted | **Met** — counted invocations, slice 3 and again end to end |
 | 5 | No PMS identifier above the provider layer | **Met** — 28 identifiers from **both** providers grepped over the tree, with the allowed directories discovered rather than listed |
@@ -546,7 +576,7 @@ something.
 | 7 | Same IR, two providers, same verdicts | **Met** — 11 controls × 3 as-of dates, per record id, with identical call counts. The demo fixtures are the vendor captures transcoded, gaps included |
 | 8 | A run that concluded nothing says so | **Met** — slice 6's coverage verdict |
 | 9 | English compiles to IR; unsupported sentences rejected by name | **Met** — 11 of 11 controls recompile from their own restricted-English sentence to the same rule and the same verdicts; an undeclared field, an unknown operator, an ambiguous operand and a population window are each refused by name |
-| 10 | Readiness reported per control per provider | **Met** in the API surface; the page lands in slice 10 |
+| 10 | Readiness reported per control per provider | **Met** — on the index, per control, for both providers, and at `/api/readiness/<control_id>` |
 | 11 | Offline, stdlib-only runtime, no test reaches the network | pending |
 | 12 | Every slice green in CI before the next opens | pending |
 

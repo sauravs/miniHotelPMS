@@ -144,3 +144,20 @@ class Registry:
 
     def __iter__(self) -> Iterable[FieldSpec]:
         return iter(self._fields.values())
+
+
+def provider_map(name: str, spec_dir: pathlib.Path | str = SPEC_DIR) -> dict[str, Any]:
+    """One provider's canonical-field map, as data.
+
+    Which fields a given PMS can supply is a question the readiness report asks and the page
+    answers, and both live above the provider layer. The NAME arrives from the provider
+    registry, which discovers adapters by import - so nothing here spells a vendor out, and a
+    third PMS is readable from the moment its directory exists.
+    """
+    path = pathlib.Path(spec_dir) / "providers" / ("%s.json" % name)
+    if not path.is_file():
+        raise SpecError(
+            "no provider map for %r in %s - an adapter without one can resolve nothing, and a "
+            "readiness report about it would be a report about an empty dictionary"
+            % (name, path.parent))
+    return json.loads(path.read_text(encoding="utf-8"))

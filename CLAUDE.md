@@ -22,7 +22,7 @@ that adding a PMS is a new adapter plus a mapping file, not a change to any rule
 | v1 demo: control 6, four silos, 152 tests | **Done** — and measured: only 1 of its 10 controls ever answers |
 | v1 review, 20 findings | **Done** — `docs/old-codebase-improve.md` |
 | v2 documents | **Done** — prd, context, architecture, plan, open questions |
-| v2 code | **Slices 0–9 of 12 merged.** 1280 tests, 95% coverage, 1080 spec checks, CI green. Track in `docs/plan.md` |
+| v2 code | **Slices 0–10 of 12 merged.** 1391 tests, 95% coverage, 1080 spec checks, CI green. Track in `docs/plan.md` |
 
 ## Documents, in reading order
 

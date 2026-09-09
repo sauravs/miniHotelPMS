@@ -271,13 +271,21 @@ stale run still shows every verdict, because staleness qualifies an answer rathe
 ### L7 · Web
 
 ```
-GET  /                                the controls the spec defines, with readiness
-GET  /run/<control_id>?evidence=&as_of=   run it and render every verdict
+GET  /?property=&evidence=            the controls the spec defines, with readiness
+GET  /run/<control_id>?property=&evidence=&as_of=   run it and render every verdict
 GET  /api/run/<control_id>            the same run as JSON
 GET  /api/runs/<run_id>               a stored run, re-read without a provider call
-GET  /history/<control_id>            past runs, with the trend
+GET  /history/<control_id>            past runs, newest first
 GET  /api/readiness/<control_id>      per-provider field availability
+GET  /style.css                       served from the package, never from a CDN
 ```
+
+**`as_of` defaults to the instant the evidence describes**, not to today. Each capture declares
+which moment it is a picture of, and asking it about that moment is the only honest default - a
+capture of July answers questions about July, and asking today's date instead would produce a
+page of refusals for a reason that has nothing to do with the controls. The page always states
+which instant it asked about, and `?as_of=` overrides it. A date the engine cannot read is
+refused rather than guessed at.
 
 Server-side rendering, no JavaScript. The demo's single job is to show that a verdict traces to the
 fields that produced it, and a page that assembles itself from an API call is a page a browser, a
