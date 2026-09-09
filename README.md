@@ -34,14 +34,29 @@ turns a limitation into a product path: *"connect your housekeeping system to en
 
 ## Status
 
-**Slices 0–8 of 12 are built and merged** — the kernel, the spec layer, both providers, evidence
-gathering, the evaluator, the runner, the contract suite and the execution model. 1086 tests, 95%
-coverage, 1003 spec checks, offline, green on Python 3.11 and 3.13. The English compiler, the web UI
-and the opt-in live transport are still to come.
+**All twelve slices are built and merged.** 1485 tests, 96% coverage, 1080 spec checks, offline,
+green on Python 3.11 and 3.13. **Eleven of the twelve success criteria are met**; the twelfth is
+recorded as *not met* with its arithmetic, which is the point of writing them down.
 
-The claim the architecture rests on is now checked rather than asserted: **the same rule, over the
-same hotel, through two completely different PMS wire formats, produces the same verdicts** — and
-adding the second one changed nothing above the provider layer.
+The claim the architecture rests on is checked rather than asserted: **the same rule, over the same
+hotel, through two completely different PMS wire formats, produces the same verdicts** — and adding
+the second one changed nothing above the provider layer.
+
+**Criterion 1 is not met: 5 of the 11 controls reach a PASS or a FAIL, where the PRD asks for 8.**
+Every one of the six shortfalls traces to a fact about the property or the provider rather than to
+a defect in the engine — no room in this property has ever had an out-of-service window set, 23 of
+28 rooms report their capacity as unconfigured, a rate code and a price-list code are different key
+spaces — and three of them would move on one sentence from the hotel or the vendor. The full
+assessment is in [`docs/plan.md`](docs/plan.md). v1 met all seven of its own criteria while nine of
+its ten controls answered nothing at all, and that is the mistake this number exists to avoid.
+
+Try it:
+
+```bash
+python3 -m pytest -q                          # 1485 tests, offline, no dependencies
+python3 -m hotelcontrols.web.server           # the demo at http://127.0.0.1:8765/
+python3 -m tools.probe --plan                 # what a live probe would ask. Makes no calls
+```
 
 v1 is preserved in `miniHotelLegacy/` — four silos, 152 passing tests, one control working end to
 end. Reviewing it produced 12 things worth keeping and 20 findings worth fixing; the headline is

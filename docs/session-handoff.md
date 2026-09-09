@@ -3,7 +3,9 @@
 Paste the block below into a fresh session to resume. Everything it references is in the
 repository; nothing depends on the previous conversation.
 
-**Last updated:** 2026-09-09, after slice 10 merged. **Next up: slice 11 — the opt-in transport and the probe tooling. That is the last slice.**
+**Last updated:** 2026-09-09, after slice 11 merged. **The twelve-slice build is complete.** What a
+fresh session does next is decided by the project owner, not by this plan — the open decisions are
+listed at the bottom.
 
 ---
 
@@ -14,31 +16,26 @@ Read these first, in order: CLAUDE.md, docs/plan.md, docs/prd.md, docs/architect
 docs/open-questions.md, docs/old-codebase-improve.md. They are the specification and the
 execution tracker; docs/plan.md is authoritative for what is done and what is next.
 
-STATE: slices 0-10 of 12 are merged (PRs #1-#8, #10-#14 on github.com/sauravs/miniHotelPMS).
-1391 tests, 95% coverage, 1080 spec checks, CI green on Python 3.11 and 3.13.
-Two providers ship and agree on every verdict. The execution model is live. A sentence
-compiles to a rule, and all 11 shipped controls recompile from their own restricted-English
-sentence to the same rule and the same verdicts. The demo serves offline at
-`python3 -m hotelcontrols.web.server`; nine of the twelve success criteria are met.
+STATE: ALL TWELVE SLICES ARE MERGED (PRs #1-#8, #10-#15 on github.com/sauravs/miniHotelPMS).
+1485 tests, 96% coverage, 1080 spec checks, CI green on Python 3.11 and 3.13.
+ELEVEN OF THE TWELVE SUCCESS CRITERIA ARE MET. Criterion 1 is recorded as NOT MET - 5 of 11
+controls reach a PASS or a FAIL where the PRD asks for 8 - with each of the six shortfalls
+traced to a fact about the property or the provider in docs/plan.md. DO NOT relax it.
 
-NEXT UP IS SLICE 11 - the opt-in transport and the probe tooling. Its scope is settled;
-do not re-open it:
+THERE IS NO SLICE 12. The build plan is finished. Before starting anything, read the
+"Where this leaves the build" section of docs/plan.md and the open decisions below - the
+most valuable things left are conversations rather than code, and two of them would move
+criterion 1.
 
-  - hotelcontrols/providers/transport/ - http.py, ratelimit.py, record.py. OFF unless an
-    environment variable is set, and NO TEST MAY BE ABLE TO SET IT. With the variable
-    unset, every path that would open a socket raises instead.
-  - Token-bucket rate limiter with an INJECTED clock (F11 applies here too). Bounded retry
-    with backoff; a give-up is UNKNOWN with a reason, never a crash.
-  - The per-run call ceiling reuses the existing CallBudget (R1, R8). Do not add a second
-    budget.
-  - Credentials from the environment with NO DEFAULT, so a missing one fails loudly (F15).
-  - Record mode writes a response AND its request fingerprint into the fixture set, in the
-    shape fixtures/*/index.json already uses.
-  - tools/probe.py is staged and bounded and PRINTS ITS PLAN BEFORE MAKING ANY CALL.
-    `python3 -m tools.probe --plan` makes none at all.
-  - tests/unit/test_stdlib_only.py forbids urllib.request/http.client/socket/ssl across the
-    engine and exempts web/server.py by path. The transport needs the same explicit
-    exemption, by path, and nothing broader.
+If asked to build something anyway, the candidates in rough order of value are:
+  - Mews as a third provider. It is the whole architectural thesis against a system nobody
+    here designed. Needs credentials that do not exist (open question 1.7).
+  - A scheduler daemon around next_evaluation(), and webhook ingestion. Both are scoped out
+    deliberately in architecture.md section 6, with what each would take.
+  - Wiring the ModelCompiler to a real model, as a dev-time tool under tools/ with the SDK
+    as a dev dependency. Decision D9 records how, and why it is not a runtime component.
+  - Free text as evidence (open question 1.5). Read it before agreeing: it is the sharpest
+    finding in the project and the most dangerous thing that could be built.
 
 Keep working the same way:
   - TDD. Failing test first, written from the specification rather than from the code you
@@ -75,28 +72,35 @@ validation gate; public repo with pseudonymised fixtures; PR-per-slice with a CI
 split into `checkout_money_owed` and `checkout_unrefunded_credit`; and **D9 — the model adapter
 is a seam exercised against a stub, not a wired model.**
 
-### What slices 9 and 10 built, in two paragraphs
+### What slices 9, 10 and 11 built, in three paragraphs
 
-**Slice 9, the compiler.** `hotelcontrols/compiler/` — `grammar.py`, `model.py`, `problems.py`.
-A restricted-English sentence compiles to an IR; the IR goes through `spec.validate`, unchanged
-and unbypassed. The model seam is one method — `propose(sentence) -> dict` — and its refusals
-are compared against `spec.validate` called directly on the same document, message for message.
-Two things about it are easy to misread as gaps and are not. Each control carries **two**
-sentences: `natural_language` is prose a person wrote, `restricted_language` is the controlled
-form — **the grammar parses 0 of the 11 prose sentences and 11 of 11 restricted forms**, and a
-test fails if the first number rises. And a sentence cannot supply a `population.provider_query`
-without naming a PMS (criterion 5), so the document is split: sentence owns the rule, a
-*deployment* dict owns the bounded query, trigger, freshness and action. Enforced both ways.
+**Slice 9, the compiler.** `hotelcontrols/compiler/` — a restricted-English sentence compiles to
+an IR; the IR goes through `spec.validate`, unchanged and unbypassed. The model seam is one
+method, `propose(sentence) -> dict`, and its refusals are compared against `spec.validate` called
+directly on the same document, message for message. Each control carries **two** sentences: the
+prose a person wrote, and the controlled form. **The grammar parses 0 of the 11 prose sentences
+and 11 of 11 restricted forms**, and a test fails if the first number rises — a lexicon that knew
+"still owes money" would be an eleven-entry phrase book. A sentence cannot supply a
+`population.provider_query` without naming a PMS, so the document splits: sentence owns the rule,
+a *deployment* dict owns the query, trigger, freshness and action.
 
-**Slice 10, the demo.** `hotelcontrols/web/` — `app.py` routes, `render.py` renders, `server.py`
-is the only file that knows a socket exists. `handle(path) -> (status, content_type, body)` is a
+**Slice 10, the demo.** `hotelcontrols/web/` — `handle(path) -> (status, content_type, body)` is a
 pure function of the path, so the whole demo is asserted as strings. UNKNOWN is told apart from
-FAIL by **wording** (VIOLATION / NO ANSWER, asserted with every tag stripped), border style and
-hue. A run that concluded nothing, and a run that was blocked, show **no count tiles** — that is
-finding F5 on screen. `as_of` defaults to the instant the capture declares it describes, because
-asking today's date would produce a page of refusals about nothing.
+FAIL by wording (asserted with every tag stripped), border style and hue. A run that concluded
+nothing, and a blocked run, show **no count tiles**. `as_of` defaults to the instant the capture
+declares it describes.
 
-### Success criterion 1 is still recorded as NOT MET
+**Slice 11, the transport.** `hotelcontrols/providers/transport/` is built, tested and **off**.
+Two locks: an environment variable, and a refusal to arm while a test runner is loaded — because
+an environment variable alone is a lock a test opens in one line. Exactly one file in the engine
+imports an outbound HTTP client. `providers/minihotel/live.py` holds the request forms,
+**transcribed from the calls that produced the captures**, never from documentation; `BulkARI` is
+refused because its request was never recorded. `python3 -m tools.probe --plan` prints the
+endpoint, the resolved window, the stage, the cost against the property's budget and the exact
+request body, with `<user>` and `<password>` where the credentials go — so the thing being
+approved (decision D3) is the thing that would happen.
+
+### Success criterion 1 is recorded as NOT MET, and stays that way
 
 5 of 11 controls reach a PASS or FAIL; the PRD asks for 8. **Do not relax the criterion.** The six
 shortfalls are traced one by one in `docs/plan.md`, and none is a defect in the engine. Three
@@ -135,6 +139,9 @@ this project exists to catch, and the number went down rather than the guard goi
 - The grammar refuses *"every reservation arriving within 24 hours must …"* — the shape the
   requirements doc uses. That is deliberate and is explained in the refusal itself: a window on
   arrival bounds the population, which is per-provider deployment data.
+- `--run` on the probe refuses even with `HOTELCONTROLS_LIVE=1` and `--yes`, inside a test. That
+  is lock 2 and it is deliberate. Outside a test it refuses too, at the missing credential — the
+  only thing between here and a live call is real credentials, which is exactly what D3 wants.
 - The demo's history is in-memory and empty when the server restarts. `RunStore(":memory:")`
   is the default; point it at a file to keep runs between sessions.
 - Every run over the 2026 captures reports its evidence as *captured after the instant asked
@@ -159,6 +166,9 @@ this project exists to catch, and the number went down rather than the guard goi
 | `hotelcontrols/runner/scheduling.py` | finding F7 — when a control runs, and whether its evidence was current |
 | `hotelcontrols/web/render.py` | criteria 2, 3 and 8 on screen. `WORDING` is the monochrome half of criterion 2 |
 | `hotelcontrols/web/server.py` | the only file that knows a socket exists. Serial on purpose — see the comment |
+| `hotelcontrols/providers/transport/http.py` | the two locks, and the only outbound client in the engine |
+| `hotelcontrols/providers/minihotel/live.py` | the request forms, transcribed from the calls that produced the captures |
+| `tools/probe.py` | `--plan` prints what would be asked and makes no calls. This is what D3 approves |
 | `tests/contract/` | one suite over every registered provider. Adding a PMS means running it, not writing it |
 | `tests/integration/test_compiler_roundtrip.py` | every shipped sentence recompiled, clause for clause, then run |
 | `tools/transcode_demopms.py` | the demo fixtures are generated from the vendor captures, gaps included |

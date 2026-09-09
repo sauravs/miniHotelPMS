@@ -20,7 +20,7 @@ Execution tracker. **Update the status table as slices close.** Design rationale
 | 8 | Scheduling & freshness | ☑ | ☑ | — | ☑ | ☑ | **done** — PR #12 |
 | 9 | Compiler — English → IR | ☑ | ☑ | ☑ | ☑ | ☑ | **done** — PR #13 |
 | 10 | Web UI & JSON API | ☑ | ☑ | ☑ | ☑ | ☑ | **done** — PR #14 |
-| 11 | Transport (opt-in) & probe tooling | ☐ | ☐ | — | ☐ | ☐ | not started |
+| 11 | Transport (opt-in) & probe tooling | ☑ | ☑ | — | ☑ | ☑ | **done** — PR #15 |
 
 ---
 
@@ -537,23 +537,70 @@ suite is a statement about what was asked, not about what works.**
 
 ## Slice 11 · Transport (opt-in) & probe tooling
 
-`hotelcontrols/providers/transport/` · `tools/probe.py` — **fixes F13**
+`hotelcontrols/providers/transport/` · `hotelcontrols/providers/minihotel/live.py` ·
+`tools/probe.py` — **fixes F13**
 
 **Unit tests**
-- [ ] The transport is **disabled unless an environment variable is set**, and a test cannot set it
-- [ ] Token-bucket rate limiter honours its interval, with an injected clock
-- [ ] Retry backs off and gives up; a give-up is UNKNOWN with a reason, never a crash
-- [ ] The per-run call ceiling reuses the existing budget (R1, R8)
-- [ ] **Record mode** writes a response plus its request fingerprint into the fixture set
-- [ ] Credentials come from the environment with **no default**; a missing credential fails loudly (F15)
+- [x] The transport is **disabled unless an environment variable is set, and a test cannot set it.**
+      Two locks, and the second one is the real one: an environment variable alone is a lock whose
+      key is one line of `monkeypatch.setenv` away, so the transport also refuses to arm while a
+      test runner is loaded in the process. The test that matters sets the variable and is refused
+      anyway
+- [x] Token-bucket rate limiter honours its interval, with an injected clock — and never sleeps:
+      it is asked "may I go now?" and answers "yes" or "wait this long". A limiter that slept could
+      only be tested by a test that slept, so it would be tested loosely, and a rate limiter that is
+      wrong is wrong in production on somebody else's infrastructure
+- [x] Retry backs off and gives up; a give-up is `ResponseUnavailable`, which the evidence layer
+      turns into UNKNOWN with a reason. **A refusal to arm is never retried** — a disabled transport
+      is a configuration mistake, and three attempts with backoff turns a loud instant failure into
+      a slow confusing one
+- [x] The per-run call ceiling reuses the existing `CallBudget` (R1, R8) — asserted by running
+      `gather` over a live-shaped source. The honest footnote is recorded too: the budget counts
+      LOGICAL calls, and one may cost up to `attempts` requests on a flaky network. That
+      amplification is bounded and asserted rather than hidden
+- [x] **Record mode** writes a response plus its request fingerprint into the fixture set — and
+      writes into `raw/`, which `.gitignore` covers, because a live response carries guest names,
+      emails and free-text remarks and this repository is public (D6, F15)
+- [x] Credentials come from the environment with **no default**; a missing one fails loudly naming
+      the variable, an empty one counts as missing, and the password never appears in a `repr` (F15)
 
 **Integration**
-- [ ] A recorded response replays through the frozen path and yields identical `Value`s
-- [ ] With the environment unset, every code path that would open a socket raises instead
+- [x] A recorded response replays through the frozen path and yields identical `Value`s — and a
+      whole control runs off a capture recorded seconds earlier, reaching the same verdicts as the
+      shipped one
+- [x] With the environment unset, every code path that would open a socket raises instead — the
+      dialer, a source with no injected dialer, and a whole `run()` through an unarmed transport
+- [x] **Exactly one file in the engine can reach the network at all**, asserted over the AST:
+      `providers/transport/http.py`. `urllib.parse` and `http.server` are deliberately not on that
+      list — splitting a URL and LISTENING on a port are not the capability R8 is about
 
 **Gate**
-- [ ] Criterion 11 asserted: no test can reach the network
-- [ ] `probe.py` is staged and bounded, and prints its plan before making any call
+- [x] Criterion 11 asserted: no test can reach the network
+- [x] `probe.py` is staged and bounded, and prints its plan before making any call.
+      `python3 -m tools.probe --plan` makes none, and a test asserts that by making
+      `FrozenSource.fetch` raise and running the whole plan anyway
+
+**The live request form, and where it comes from**
+
+`providers/minihotel/live.py` is the encoder: one canonical `Request` becomes the call this vendor
+actually accepts. Every form in it is **transcribed from a call that produced a response in
+`fixtures/minihotel/`** — not from documentation, which never states how to encode a request at all.
+Probing the WSDL showed the operations declare empty parameter types, so the service reads the raw
+body. That was discovered by trying it.
+
+Three things it refuses rather than guesses. `BulkARI`'s response is in the fixture set and the
+request that produced it was not recorded, so there is no form to send. An occupancy query with no
+window is the wide unbounded range R8 forbids. A filter with no captured form is refused rather than
+dropped — dropping one hands back a wider population than the control asked for.
+
+**The plan is the thing being approved.** `--plan` prints the endpoint, the resolved window, the
+stage, the cost against the property's budget, and **the exact request body**, with `<user>` and
+`<password>` where the credentials go — because a plan is made to be pasted into a message, and one
+that leaked a password the first time it was useful would be worse than no plan.
+
+**DemoPMS has no live request form and says so.** It is fictional; it can be replayed and it cannot
+be probed. Inventing a wire format for a PMS that does not exist would make this slice look more
+finished than it is.
 
 ---
 
@@ -577,8 +624,66 @@ something.
 | 8 | A run that concluded nothing says so | **Met** — slice 6's coverage verdict |
 | 9 | English compiles to IR; unsupported sentences rejected by name | **Met** — 11 of 11 controls recompile from their own restricted-English sentence to the same rule and the same verdicts; an undeclared field, an unknown operator, an ambiguous operand and a population window are each refused by name |
 | 10 | Readiness reported per control per provider | **Met** — on the index, per control, for both providers, and at `/api/readiness/<control_id>` |
-| 11 | Offline, stdlib-only runtime, no test reaches the network | pending |
-| 12 | Every slice green in CI before the next opens | pending |
+| 11 | Offline, stdlib-only runtime, no test reaches the network | **Met** — exactly one file in the engine imports an outbound client, and it refuses to arm both when the environment variable is unset AND while a test runner is loaded. A test that sets the variable is still refused |
+| 12 | Every slice green in CI before the next opens | **Met** — twelve slices, twelve green pipelines on Python 3.11 and 3.13, each merged before the next opened |
+
+### Criterion 1, assessed: 5 of 11, and where the other six went
+
+The number is measured by `tests/e2e/test_runs.py`, which holds the sets by name so a change in
+any of them turns a test red rather than passing quietly. It is asserted as **not met**, and the
+test says so in its own name.
+
+**Five conclude** on the 2026 capture: `checkout_money_owed`, `checkout_unrefunded_credit`,
+`duplicate_channel_reservation`, `inactive_room_future_stay`, `room_assignment_type_validity`.
+
+**One is blocked** — `resource_occupancy_consistency`. Its only occupancy capture covers
+2024-08-14..2024-08-21, and a run asking about any other week is refused rather than answered from
+the wrong one. Asked on 14 August 2024 it concludes perfectly well (2 PASS), which is asserted
+separately. **It counted towards criterion 1 until issue #9 was fixed**: it had been reaching two
+PASSes about July 2026 from segments captured in August 2024. The number went down and the guard
+stayed, which is the whole point of the project.
+
+**Five reach no conclusion**, and every reason is a fact about the property or the provider rather
+than a gap in the engine:
+
+| control | why it cannot answer |
+| --- | --- |
+| `ooo_room_protection` | no room in this property has ever had a closed-date window set, so the control correctly applies to none of the 28 (open question 2.4) |
+| `room_assignment_active_room` | the same closed-date window, from the reservation side — 111 stays, all excluded |
+| `room_capacity_compliance` | 23 of 28 rooms report adult capacity `0`, meaning *unconfigured* (R12). Reading those as real zeroes would be a wall of false FAILs |
+| `rate_room_category_consistency` | a rate code and the price-list code are different key spaces (R13), so no endpoint resolves the mapping at all (open question 1.6) |
+| `required_reservation_fields` | this property has nominated no rate codes, so the control applies to no reservation (open question 1.4) |
+
+**Three of those six would move on a conversation rather than on code.** One sentence naming this
+property's nominated rate codes takes `required_reservation_fields` from zero answers to real ones.
+One sentence from the vendor about what `OK4` and `WL` mean resolves 44 of the 217 reservations
+this project has ever seen. A rate-plan mapping supplied by the hotel unblocks control 9. The other
+three are the property being what it is — and reporting "compliant" about a mechanism nobody has
+ever seen working is exactly what v1 did.
+
+**The second half of criterion 1 IS met**: every control that does not conclude names its specific
+blocker, on screen and in the API, and a run that concluded nothing shows no count tiles.
+
+---
+
+## Where this leaves the build
+
+Twelve slices, twelve green pipelines, **eleven of twelve criteria met**. The one that is not is
+recorded above with its arithmetic, which is the outcome this document was written to make
+possible: v1 met all seven of its own success criteria while nine of its ten controls answered
+nothing at all.
+
+What exists at the end: a canonical vocabulary and a validation gate; two provider adapters that
+agree on every verdict over the same hotel through two deliberately incompatible wire formats; a
+bounded evidence layer whose cost is asserted rather than assumed; a four-outcome evaluator with
+Kleene logic and no path to a verdict without evidence; a runner that says when it concluded
+nothing; scheduling and freshness as pure functions; a compiler from restricted English that
+refuses vocabulary nobody declared, by name; a demo that shows the fields behind every answer; and
+a live transport that is built, tested, and cannot be switched on by a test.
+
+What does not exist, on purpose: Mews, a scheduler daemon, webhook ingestion, authentication,
+writes to any PMS, and free text as evidence. Each is listed in `architecture.md` §6 with what it
+would take.
 
 ## Checkpoints needing the project owner
 

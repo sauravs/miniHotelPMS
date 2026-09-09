@@ -19,6 +19,10 @@ So a provider package declares four names and this module finds them:
     FROZEN            the replay source.  FROZEN(capture) -> something with .fetch()
     CAPTURES          the bodies of evidence it can be replayed against
     DEFAULT_CAPTURE   which one to use when the caller does not say
+    ENCODER           OPTIONAL. encode(request, credentials) -> HttpCall, for the live
+                      transport. How a request looks on the wire is only knowable for a PMS
+                      somebody has actually called, so a provider may honestly have none - and
+                      one that has none can be replayed but not probed, which the probe says.
 
 There is no vendor name in this file, and adding a third PMS does not put one here. That is the
 mechanical form of the claim slice 7 exists to make: a new PMS is a directory and a mapping
@@ -51,6 +55,7 @@ class ProviderPackage:
     frozen: Any
     captures: tuple[str, ...]
     default_capture: str
+    encoder: Any = None
 
     def build(self, tenant, capture: str | None = None):
         """An adapter for this tenant, reading a frozen body of evidence.
@@ -88,7 +93,8 @@ def _discover() -> dict[str, ProviderPackage]:
             adapter=adapter,
             frozen=module.FROZEN,
             captures=tuple(module.CAPTURES),
-            default_capture=module.DEFAULT_CAPTURE)
+            default_capture=module.DEFAULT_CAPTURE,
+            encoder=getattr(module, "ENCODER", None))
     return found
 
 
