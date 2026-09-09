@@ -27,6 +27,37 @@ matters as much as the answer, and because reversing one of these is cheap now a
 | D7 | Git workflow? | **Branch per slice → PR → CI gate → squash-merge.** Bugs: Issue → `fix/` branch → PR closing it |
 | D8 | Does an overpaid folio deserve its own outcome? | **Split control 6 into two controls** — money owed (`lte 0`) and unrefunded credit (`gte 0`). Different business events, different severities, different queues |
 
+### D9 — 2026-09-09, before slice 9
+
+**Should the `ModelCompiler` be wired to a real model, and to which?**
+
+**Decision: no, not in slice 9. Build the seam; exercise it against a stub.** Four reasons, and the
+second one is the structural one:
+
+1. **A stub tests the gate harder than a real model does.** Slice 9's gate is that a sentence naming
+   vocabulary nobody defined is rejected *by name*. A stub emits exactly the proposals that exercise
+   it — an undeclared field, an unknown operator, an aggregate with no `group_by`, a predicate with
+   two right-hand sides. A real model mostly emits plausible IR, which exercises the validator least.
+   The thing under test is the gate, not the model.
+2. **D2 forces a placement decision that slice 9 must not pre-empt.** `hotelcontrols/` may never
+   import a third party, and reaching for `urllib` inside the engine to stay stdlib-pure would be
+   worse code wearing a rule as a costume. So if it is ever wired, the model adapter belongs in
+   `tools/` with the official SDK as a **dev dependency alongside pytest and coverage** — which is
+   also what it honestly is: a drafting aid producing a spec artifact a human reviews and commits,
+   never a runtime component. No verdict may ever depend on a model call.
+3. **Sequencing.** Slice 11 already builds *opt-in, off by default, env-gated, credentials from the
+   environment with no default, no test can enable it* for the PMS transport. Wiring a model in
+   slice 9 builds that machinery a second time, three slices early.
+4. **The seam is the irreversible part; the wiring is an afternoon.** What a real model buys is a
+   *measurement* — how often a real proposal survives `ir.validate` — and that is a product
+   experiment rather than a build gate. It is more interesting once there are more than eleven
+   controls to compile, and no harder for waiting.
+
+**If and when it is wired:** `claude-opus-5`, adaptive thinking, and **structured outputs**
+(`output_config.format`) fed from `spec/ir_schema.json` — so the proposal arrives schema-shaped and
+`ir.validate` is left testing *semantics* (does this field exist, does this join declare its key)
+rather than JSON shape. Recorded here so the design stays available rather than rediscovered.
+
 ---
 
 ## 1. Open — for the project owner

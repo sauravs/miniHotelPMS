@@ -424,7 +424,11 @@ left the fallback path untested.
       not compiled into a rule that quietly answers about nothing (§17)
 - [ ] An ambiguous sentence returns ambiguities rather than a confident guess
 - [ ] The `ModelCompiler` adapter is exercised with a **stubbed** model; its output goes through the
-      same validation, and a malformed proposal is rejected exactly as a human's would be
+      same validation, and a malformed proposal is rejected exactly as a human's would be —
+      **decision D9: the stub is the whole of slice 9.** No real model is wired
+- [ ] The stub emits each class of bad proposal: an undeclared field, an unknown operator, an
+      aggregate with no `group_by`, a predicate with two right-hand sides. Each is rejected exactly
+      as a hand-written IR would be, by the same code path
 - [ ] No test path can reach a real model or the network
 
 **Integration + E2E**
@@ -516,4 +520,4 @@ Recorded here so they are not discovered late.
 | 3 | **Approval for 3 read-only calls** (`getRooms`, `getRoomTypes`, `RoomStatusInquiry`) to confirm whether the 2024-era room findings still hold. The sandbox is known to have moved on; three controls rest on findings that are now *unverified since the system changed* |
 | 5 | Whether `007003206`/`007003207` — a cancelled booking and its recreation sharing one portal id — is a violation of control 14 or the expected OTA-modification pattern (R7). Affects the control's spec, not its code |
 | 6 | Which controls a property has **nominated rate codes** for. `required_reservation_fields` excluded 71 of 108 records in v1 for want of them |
-| 9 | Whether the LLM adapter should be wired to a real model, and to which |
+| ~~9~~ | ~~Whether the LLM adapter should be wired to a real model, and to which~~ — **answered 2026-09-09, decision D9: no, not in slice 9.** Build the seam, exercise it against a stub. The model adapter, if ever wired, is a dev-time tool under `tools/` and never a runtime component |
