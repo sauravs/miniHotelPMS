@@ -157,12 +157,23 @@ architectural thesis against a system nobody here designed.
 
 ### 1.8 Should the LLM adapter be wired to a real model?
 
-The compiler's deterministic grammar needs no model and is what CI runs. The `ModelCompiler` adapter
-exists so a sentence outside the grammar can still be proposed as an IR — but it needs a model, a
-key, a cost decision and a privacy decision (control text is a customer's own governance policy).
+**Answered for slice 9 by decision D9 above; the question itself stays open, because what is
+undecided is *later*, not *now*.** The compiler's deterministic grammar needs no model and is what
+CI runs. The `ModelCompiler` adapter exists so a sentence outside the grammar can still be proposed
+as an IR — but it needs a model, a key, a cost decision and a privacy decision (control text is a
+customer's own governance policy).
 
-**Today.** The adapter is built and tested against a stub. It is not wired to anything.
-**Checkpoint before slice 9.**
+**Today.** The seam is built and exercised against a stub: `propose(sentence) -> dict`, and whatever
+comes back goes through the same `spec.validate` a hand-written JSON file goes through. There is
+nothing in `hotelcontrols/compiler/` to reach a model with — no `urllib`, no `http`, no socket, no
+SDK — and a test asserts that over the AST.
+
+**What wiring it would buy** is a *measurement* — how often a real proposal survives the validator —
+which is a product experiment rather than a build gate, and it is more interesting once there are
+more than eleven controls to compile. D9 records how it would be done if it is: `claude-opus-5`,
+adaptive thinking, structured outputs fed from `spec/ir_schema.json`, living in `tools/` as a
+drafting aid whose output a person reviews and commits. **No verdict may ever depend on a model
+call.**
 
 ---
 

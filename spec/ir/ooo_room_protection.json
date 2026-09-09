@@ -4,6 +4,7 @@
   "source_control": "2",
   "name": "Out-of-Service Room Protection",
   "natural_language": "A room with an active out-of-service period must not have an arriving reservation.",
+  "restricted_language": "every room collecting occupancy by room.number to occupancy.room_number where room.closed_from exists must not have occupancy.reservation_id within room.closed_from to room.closed_to showing reservation.arrival_date and stay.room_number and reservation.status",
   "entity": "room",
   "population": {
     "description": "Rooms that currently have a closed window set; then reservations arriving inside that window.",

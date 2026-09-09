@@ -3,7 +3,7 @@
 Paste the block below into a fresh session to resume. Everything it references is in the
 repository; nothing depends on the previous conversation.
 
-**Last updated:** 2026-09-09, after slice 8 merged. **Next up: slice 9 — the English → IR compiler.**
+**Last updated:** 2026-09-09, after slice 9 merged. **Next up: slice 10 — the web UI and JSON API.**
 
 ---
 
@@ -14,23 +14,27 @@ Read these first, in order: CLAUDE.md, docs/plan.md, docs/prd.md, docs/architect
 docs/open-questions.md, docs/old-codebase-improve.md. They are the specification and the
 execution tracker; docs/plan.md is authoritative for what is done and what is next.
 
-STATE: slices 0-8 of 12 are merged (PRs #1-#8, #10, #11, #12 on github.com/sauravs/miniHotelPMS).
-1086 tests, 95% coverage, 1003 spec checks, CI green on Python 3.11 and 3.13.
-Two providers ship and agree on every verdict. The execution model is live.
+STATE: slices 0-9 of 12 are merged (PRs #1-#8, #10-#13 on github.com/sauravs/miniHotelPMS).
+1280 tests, 95% coverage, 1080 spec checks, CI green on Python 3.11 and 3.13.
+Two providers ship and agree on every verdict. The execution model is live. A sentence
+compiles to a rule, and all 11 shipped controls recompile from their own restricted-English
+sentence to the same rule and the same verdicts.
 
-NEXT UP IS SLICE 9 - the compiler, English -> Control IR. Its scope is settled; do not
-re-open it:
+NEXT UP IS SLICE 10 - the web UI and JSON API. Its scope is settled; do not re-open it:
 
-  - GrammarCompiler: a restricted-English parser. Deterministic, offline, no model. This is
-    what CI runs and what every test asserts against.
-  - ModelCompiler: the SEAM only - one method, propose(sentence) -> dict - exercised against
-    a STUB. Decision D9 in docs/open-questions.md: no real model is wired in this slice, and
-    the reasoning is recorded there. Do not add an SDK, an API key, a network path or a
-    `urllib` call to hotelcontrols/.
-  - Both front ends go through the IDENTICAL validation gate. A model's proposal is rejected
-    exactly as a human's is, by the same code path, with the missing vocabulary NAMED.
-  - The compiler emits IR only, never executable anything. Section 17 of the requirements doc
-    is explicit about why, and that rule outranks any convenience.
+  - hotelcontrols/web/ - app.py, render.py, server.py. Server-side rendering, no JavaScript,
+    no framework, stdlib http.server only. A page that assembles itself from an API call is
+    a page a browser, a CSP or a file:// open can break.
+  - handle(path) -> (status, content_type, body) is a PURE function of the path, so routing
+    is testable without a socket.
+  - Its single job is to prove a verdict traces to the fields that produced it. It is thin
+    on purpose; it is not trying to look like a product.
+  - UNKNOWN must be distinguishable from FAIL by HUE, BORDER and WORDING - three signals, so
+    the distinction survives a monochrome screen and a colour-blind reader. Criterion 2 is
+    asserted on the text alone, with colour stripped.
+  - A blocked run and a run that concluded nothing show NO COUNT TILES. Four reassuring
+    zeroes are what v1 shipped and what finding F5 is about.
+  - Every value that came from a provider is HTML-escaped. Guest names are in this data.
 
 Keep working the same way:
   - TDD. Failing test first, written from the specification rather than from the code you
@@ -67,25 +71,33 @@ validation gate; public repo with pseudonymised fixtures; PR-per-slice with a CI
 split into `checkout_money_owed` and `checkout_unrefunded_credit`; and **D9 — the model adapter
 is a seam exercised against a stub, not a wired model.**
 
-### Slice 9, in one paragraph
+### What slice 9 actually built, in one paragraph
 
-`hotelcontrols/compiler/` — `grammar.py`, `model.py`, `problems.py`. A sentence compiles to an
-IR; the IR is validated by the code that already exists (`spec/ir.py`, unchanged); a sentence
-naming vocabulary nobody declared is rejected **naming the missing fields**. The gate that makes
-this safe already works and is already tested: fed the requirements doc's own example — *"All VIP
-arrivals should have an assigned room that is clean by 2 PM"* — the validator answers with
-`reservation.vip` and `room.housekeeping_status_at`, the two canonical fields that do not exist.
-Slice 9 puts a front end on that, and the front end may not weaken it.
+`hotelcontrols/compiler/` — `grammar.py`, `model.py`, `problems.py`. A restricted-English
+sentence compiles to an IR; the IR goes through `spec.validate`, unchanged and unbypassed; a
+sentence naming vocabulary nobody declared is rejected **naming the missing fields**. The model
+seam is one method — `propose(sentence) -> dict` — and whatever comes back travels the identical
+path, which is tested by comparing the compiler's refusals against `spec.validate` called
+directly on the same document, message for message.
 
-**The measurable claim** is criterion 9 plus the second half of criterion 6: at least 6 of the 11
-shipped controls round-trip from their own `natural_language` field through the compiler and back
-to the same verdicts, and a *new* sentence compiles and runs with no code change.
+**Two things about it are easy to misread as gaps and are not.**
 
-**If the stub work goes quickly**, the honest extra is a measurement rather than a feature: how
-many of the eleven `natural_language` sentences the grammar can actually parse, recorded as a
-number in `docs/plan.md` the way criterion 1's 5-of-11 is. Do not tune the sentences to raise it.
+1. **Each control carries two sentences.** `natural_language` is prose a person wrote;
+   `restricted_language` is the same rule in the controlled language. **The grammar parses 0 of
+   the 11 prose sentences and 11 of 11 restricted forms**, and a test fails if the first number
+   ever rises. Teaching it that "still owes money" means `folio.balance_due at most 0` would be
+   an eleven-entry phrase book — and it would put the §17 gate to sleep, because the gate can
+   only answer "that field does not exist" *by name* if the author named a field.
+2. **A sentence cannot supply a population query, and does not try.** A `provider_query` is one
+   PMS's endpoint and filters, which criterion 5 forbids above the provider layer. So the
+   document is split: the sentence owns the rule, a *deployment* dict owns the bounded query,
+   the trigger, the freshness requirement and the action. The split is enforced both ways — a
+   deployment carrying a `scope` clause is refused.
 
-### Success criterion 1 is recorded as NOT MET
+`tools/validate_spec` recompiles every declared sentence on every run and compares it to the rule
+filed beside it, so a hand edit to a predicate that leaves the sentence behind fails the build.
+
+### Success criterion 1 is still recorded as NOT MET
 
 5 of 11 controls reach a PASS or FAIL; the PRD asks for 8. **Do not relax the criterion.** The six
 shortfalls are traced one by one in `docs/plan.md`, and none is a defect in the engine. Three
@@ -121,6 +133,9 @@ this project exists to catch, and the number went down rather than the guard goi
 - The two providers **disagree about scheduling, on purpose**: `resource_occupancy_consistency`
   is event-driven on MiniHotel and hourly on DemoPMS, because only one publishes
   `room.occupancy_updated`. Criterion 7 is about verdicts, and those are identical.
+- The grammar refuses *"every reservation arriving within 24 hours must …"* — the shape the
+  requirements doc uses. That is deliberate and is explained in the refusal itself: a window on
+  arrival bounds the population, which is per-provider deployment data.
 - Every run over the 2026 captures reports its evidence as *captured after the instant asked
   about*. That is true — the bytes were fetched in September for a question about July — and it
   is neither stale nor fresh.
@@ -132,7 +147,9 @@ this project exists to catch, and the number went down rather than the guard goi
 | | |
 | --- | --- |
 | `hotelcontrols/kernel/` | `Value`, `Money` (Decimal), `Outcome`, `Verdict`, `Clock`. Five guarantees enforced in constructors |
-| `hotelcontrols/spec/ir.py` | **The validation gate slice 9 puts a front end on.** Six checks beyond the schema; read this before writing a line of the compiler |
+| `hotelcontrols/spec/ir.py` | The validation gate everything writes through — six checks beyond the schema |
+| `hotelcontrols/compiler/grammar.py` | Restricted English → IR, and the refusals that make it safe |
+| `hotelcontrols/compiler/model.py` | The model seam. One method in, the same gate out, no network |
 | `hotelcontrols/providers/registry.py` | adapters discovered by import, so no module above one names a PMS |
 | `hotelcontrols/providers/*/paths.py` | structured addressing per wire format — the fix for the regex fragility in finding F4 |
 | `hotelcontrols/evidence/reference.py` | the join stage that took three controls from 111/111 UNKNOWN to 97–98% |
@@ -140,5 +157,6 @@ this project exists to catch, and the number went down rather than the guard goi
 | `hotelcontrols/runner/coverage.py` | finding F5 — a run that concluded nothing says so |
 | `hotelcontrols/runner/scheduling.py` | finding F7 — when a control runs, and whether its evidence was current |
 | `tests/contract/` | one suite over every registered provider. Adding a PMS means running it, not writing it |
+| `tests/integration/test_compiler_roundtrip.py` | every shipped sentence recompiled, clause for clause, then run |
 | `tools/transcode_demopms.py` | the demo fixtures are generated from the vendor captures, gaps included |
 | `tools/scrub_fixtures.py` | must run before any capture is committed |

@@ -4,6 +4,7 @@
   "source_control": "15",
   "name": "Required Reservation Fields",
   "natural_language": "Every reservation on a given rate must record the guest's email, phone and identification number.",
+  "restricted_language": "every reservation where reservation.status is not \"cancelled\" and stay.rate_code one of setting nominated_rate_codes must have reservation.guest.email exists and reservation.guest.phone exists and reservation.guest.id_number exists",
   "entity": "reservation",
   "population": {
     "description": "Non-cancelled reservations on the rate codes the hotel nominates, arriving from today onward.",

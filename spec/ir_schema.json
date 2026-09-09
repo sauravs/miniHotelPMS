@@ -44,6 +44,11 @@
       "minLength": 1,
       "description": "The sentence this rule came from, carried as data and shown on screen next to the verdict, so the chain 'rule as written -> answer -> evidence' is visible."
     },
+    "restricted_language": {
+      "type": "string",
+      "minLength": 1,
+      "description": "The same rule written in the controlled language `hotelcontrols/compiler/grammar.py` accepts. Optional, and deliberately SEPARATE from natural_language: the prose sentence is what a person wrote, and teaching a grammar to parse it would mean a phrase book with one entry per shipped control. Where this field is present, `tools/validate_spec` recompiles it and checks the rule that comes back is the rule that is filed here - so the compiler and the eleven hand-written controls cannot drift apart."
+    },
     "entity": {
       "enum": [
         "reservation",
