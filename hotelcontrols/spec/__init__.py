@@ -12,9 +12,10 @@ what control 6 is, the control index is the directory listing, and a twelfth con
 """
 from .errors import Problem, SpecError
 from .ir import ControlIR, available, load, load_schema, validate
-from .registry import FieldSpec, Registry
+from .registry import FieldSpec, Registry, provider_map
 from .schema import SchemaFeatureUnsupported
 from .tenant import TenantConfig
+from .tenant import available as available_tenants
 
 __all__ = [
     "ControlIR",
@@ -25,7 +26,9 @@ __all__ = [
     "SpecError",
     "TenantConfig",
     "available",
+    "available_tenants",
     "load",
     "load_schema",
+    "provider_map",
     "validate",
 ]

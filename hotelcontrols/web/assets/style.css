@@ -1,0 +1,120 @@
+/*
+ * The demo's stylesheet. Served from the engine, never fetched from a CDN: criterion 11 says
+ * the whole system runs offline, and a page that needs a network to look right is a page whose
+ * verdicts a reader will distrust for the wrong reason.
+ *
+ * THE RULES BELOW ARE A SUCCESS CRITERION, NOT A THEME.
+ *
+ * Criterion 2 says UNKNOWN must be distinguishable from FAIL by HUE, BORDER and WORDING. Three
+ * signals, because one is not enough: colour alone fails a monochrome screen, a printout and a
+ * colour-blind reader, and this is the distinction the entire product rests on. So each outcome
+ * gets its own hue AND its own border style - solid, dashed, dotted, double - and the wording
+ * lives in the markup, where a test can strip every tag and still tell them apart.
+ */
+
+:root {
+  --ink: #1a1a1a;
+  --quiet: #5a5f66;
+  --line: #d8dce1;
+  --paper: #ffffff;
+  --ground: #f6f7f9;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--ground);
+  color: var(--ink);
+  font: 15px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+main { max-width: 62rem; margin: 0 auto; padding: 1.5rem 1.25rem 4rem; }
+
+header.masthead { background: var(--paper); border-bottom: 1px solid var(--line); }
+header.masthead div { max-width: 62rem; margin: 0 auto; padding: 1rem 1.25rem; }
+header.masthead h1 { font-size: 1.05rem; margin: 0; letter-spacing: .01em; }
+header.masthead p { margin: .25rem 0 0; color: var(--quiet); font-size: .85rem; }
+
+a { color: #0b57d0; }
+h2 { font-size: 1rem; margin: 2rem 0 .75rem; }
+code, .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: .85em; }
+
+.card {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 1rem 1.1rem;
+  margin: 0 0 .85rem;
+}
+
+.sentence { font-size: 1.05rem; margin: 0 0 .35rem; }
+.meta { color: var(--quiet); font-size: .82rem; margin: .15rem 0; }
+.meta strong { color: var(--ink); font-weight: 600; }
+
+/* Count tiles. Rendered ONLY when a run concluded something - see finding F5 and the
+ * `no-conclusion` note below. */
+.tiles { display: flex; flex-wrap: wrap; gap: .6rem; margin: 1rem 0; padding: 0; list-style: none; }
+.tiles li {
+  flex: 1 1 7rem; background: var(--paper); border: 1px solid var(--line);
+  border-radius: 8px; padding: .6rem .75rem;
+}
+.tiles .n { display: block; font-size: 1.6rem; font-weight: 600; line-height: 1.1; }
+.tiles .k { display: block; font-size: .72rem; letter-spacing: .07em; color: var(--quiet); }
+
+/* A run that concluded nothing, and a run that could not happen at all. Neither shows tiles:
+ * four zeroes with one of them under FAIL reads as a clean bill of health, which is exactly
+ * what v1 shipped for a control that had never applied to a single record. */
+.no-conclusion, .blocked {
+  background: #fff8e6; border: 1px solid #e0c26a; border-left-width: 6px;
+  border-radius: 8px; padding: .9rem 1.1rem; margin: 1rem 0;
+}
+.blocked { background: #f2f3f5; border-color: #9aa0a6; }
+
+.stale { color: #6d4c00; }
+
+/* ------------------------------------------------------------------ criterion 2 */
+.verdict {
+  background: var(--paper); border: 1px solid var(--line);
+  border-radius: 8px; padding: .85rem 1rem; margin: 0 0 .7rem;
+}
+.verdict.PASS     { border-left: 6px solid  #1b5e20; background: #f4faf4; }
+.verdict.FAIL     { border-left: 6px double #b3261e; background: #fdf3f2; }
+.verdict.UNKNOWN  { border-left: 6px dashed #6d4c00; background: #fffaef; }
+.verdict.EXCLUDED { border-left: 6px dotted #5f6368; background: #f7f8f9; }
+
+.badge {
+  display: inline-block; font-size: .7rem; font-weight: 700; letter-spacing: .09em;
+  padding: .15rem .45rem; border-radius: 4px; border: 1px solid currentColor;
+}
+.verdict.PASS     .badge { color: #1b5e20; }
+.verdict.FAIL     .badge { color: #b3261e; }
+.verdict.UNKNOWN  .badge { color: #6d4c00; }
+.verdict.EXCLUDED .badge { color: #5f6368; }
+
+.verdict .record { font-weight: 600; margin-left: .5rem; }
+.verdict .says { margin: .45rem 0 .1rem; }
+.verdict .means { margin: .1rem 0 .6rem; color: var(--quiet); font-size: .85rem; }
+
+/* ------------------------------------------------------------------ criterion 3 */
+table.evidence { width: 100%; border-collapse: collapse; font-size: .85rem; }
+table.evidence th, table.evidence td {
+  text-align: left; padding: .3rem .5rem .3rem 0; border-top: 1px solid var(--line);
+  vertical-align: top;
+}
+table.evidence th { color: var(--quiet); font-weight: 600; font-size: .72rem;
+                    letter-spacing: .06em; text-transform: uppercase; border-top: 0; }
+table.evidence td.gap { color: #6d4c00; }
+table.evidence td.from { color: var(--quiet); }
+
+table.listing { width: 100%; border-collapse: collapse; font-size: .88rem; }
+table.listing th, table.listing td {
+  text-align: left; padding: .4rem .6rem .4rem 0; border-top: 1px solid var(--line);
+}
+
+.readiness { margin: .3rem 0 0; color: var(--quiet); font-size: .82rem; }
+.readiness .short { color: #6d4c00; }
+
+.evidence-picker { margin: .5rem 0 0; font-size: .82rem; }
+.evidence-picker a { margin-right: .5rem; }
+.evidence-picker .current { font-weight: 600; color: var(--ink); text-decoration: none; }

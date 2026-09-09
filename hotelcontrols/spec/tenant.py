@@ -141,3 +141,12 @@ class TenantConfig:
         one whose answer is correct (F11).
         """
         return PropertyClock(self.timezone, instant=instant)
+
+
+def available(spec_dir: pathlib.Path | str = SPEC_DIR) -> tuple[str, ...]:
+    """Every property this deployment knows about: whatever is in spec/tenants/, in id order.
+
+    The index IS the directory listing, exactly as it is for controls. A page offering a hand-
+    written list of properties would be a page that forgets the one somebody added yesterday.
+    """
+    return tuple(sorted(p.stem for p in (pathlib.Path(spec_dir) / "tenants").glob("*.json")))
