@@ -215,6 +215,35 @@ call.**
 
 ---
 
+### 1.9 Should this ever touch a production PMS, and whose credentials would those be?
+
+Raised by Q4 in `docs/QA.md`. Everything this project has ever seen came from
+`sandbox.minihotel.cloud`. Production is a different host, and it has never been touched.
+
+**Today.** Sandbox only, and that is the right target for verifying a control's logic: nothing about
+whether `folio.balance_due lte 0` holds is better tested against real guests. The transport is
+per-provider and reads its credentials from the environment keyed by provider name, so pointing it
+at another host is configuration rather than code.
+
+**What the vendor says.** *"Production credentials will be provided upon completion of the staging
+and testing phase"*, and *"before moving to production, it's essential to ensure your IPs are
+whitelisted with us"*. No pricing, no rate limits and no partner-certification process are published
+anywhere reachable — so whether production access costs anything is **unknown**, not free.
+
+**Why it is a decision rather than a task.** Production credentials are **per-property and the
+property's to give**. A hotel authorises access to its own data; this is not a key obtained once and
+reused across customers. That changes three things at once — real guest PII becomes a GDPR question
+rather than a style one (D6), R8 applies to a live property rather than a shared sandbox, and IP
+whitelisting makes the machine that runs it matter.
+
+**What it would buy.** Real data volumes, real status codes in the wild — which would settle §2.1's
+`OK4` and `WL` empirically rather than by asking — and real error behaviour, which is still
+unobserved. None of that is needed to finish verifying the controls against the sandbox first.
+
+**Recommendation.** Refresh the sandbox ([1.2](#12-are-the-2024-era-room-findings-still-true)), then
+pilot with a real property that authorises its own production access. Not before.
+
+
 ## 2. Questions for MiniHotel
 
 1. **Is there a published list of reservation status codes?** `OK4` (32 reservations) and `WL` (12)
