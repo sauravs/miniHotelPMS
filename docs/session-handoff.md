@@ -3,9 +3,13 @@
 Paste the block below into a fresh session to resume. Everything it references is in the
 repository; nothing depends on the previous conversation.
 
-**Last updated:** 2026-09-09, after slice 11 merged. **The twelve-slice build is complete.** What a
-fresh session does next is decided by the project owner, not by this plan — the open decisions are
-listed at the bottom.
+**Last updated:** 2026-09-09, after slice 11 and fix #16 merged. **The twelve-slice build is
+complete.** What a fresh session does next is decided by the project owner, not by this plan.
+
+**One thing is already queued and waiting on the owner** — the bounded three-call probe of the live
+sandbox. It is planned, printed, and blocked on one word and four environment variables. Read
+[The probe that is waiting approval](#the-probe-that-is-waiting-approval--the-first-todo) before
+anything else.
 
 ---
 
@@ -16,11 +20,25 @@ Read these first, in order: CLAUDE.md, docs/plan.md, docs/prd.md, docs/architect
 docs/open-questions.md, docs/old-codebase-improve.md. They are the specification and the
 execution tracker; docs/plan.md is authoritative for what is done and what is next.
 
-STATE: ALL TWELVE SLICES ARE MERGED (PRs #1-#8, #10-#15 on github.com/sauravs/miniHotelPMS).
-1485 tests, 96% coverage, 1080 spec checks, CI green on Python 3.11 and 3.13.
+STATE: ALL TWELVE SLICES ARE MERGED (PRs #1-#8, #10-#15, #17, #18 on
+github.com/sauravs/miniHotelPMS). 1501 tests, 96% coverage, 1080 spec checks, CI green on
+Python 3.11 and 3.13.
 ELEVEN OF THE TWELVE SUCCESS CRITERIA ARE MET. Criterion 1 is recorded as NOT MET - 5 of 11
 controls reach a PASS or a FAIL where the PRD asks for 8 - with each of the six shortfalls
 traced to a fact about the property or the provider in docs/plan.md. DO NOT relax it.
+
+TODO #1, AND IT IS WAITING ON THE OWNER, NOT ON CODE: a bounded three-call probe of the
+live MiniHotel sandbox is planned, printed and approved-pending. Print it and show it:
+
+    python3 -m tools.probe --plan --property sandbox --control room_assignment_type_validity
+    python3 -m tools.probe --plan --property sandbox --control resource_occupancy_consistency
+
+That is getRooms, getRoomTypes and RoomStatusInquiry - the three calls open question 1.2
+asks for. It refreshes four load-bearing findings that now rest on a 2024 snapshot of a
+system we KNOW has moved on. --plan makes no calls at all. DO NOT run --run without the
+owner saying yes to that specific probe, each time (decision D3). It will refuse anyway
+without HOTELCONTROLS_LIVE=1 and the four HOTELCONTROLS_MINIHOTEL_* credentials, which
+have no defaults. See "The probe that is waiting approval" in docs/session-handoff.md.
 
 THERE IS NO SLICE 12. The build plan is finished. Before starting anything, read the
 "Where this leaves the build" section of docs/plan.md and the open decisions below - the
@@ -111,11 +129,74 @@ about July 2026 from occupancy segments captured in August 2024, because the fro
 window guard checked three filter names instead of every window. **That is the shape of defect
 this project exists to catch, and the number went down rather than the guard going away.**
 
+### The probe that is waiting approval — the first TODO
+
+**Status: planned, printed, and blocked on the owner.** Not on code, not on a decision anybody
+here can make. Nothing about it is half-built — the plan exists, the transport exists, and the
+only missing inputs are one "yes" and four environment variables.
+
+**Print it first, always:**
+
+```bash
+python3 -m tools.probe --plan --property sandbox --control room_assignment_type_validity
+python3 -m tools.probe --plan --property sandbox --control resource_occupancy_consistency
+```
+
+`--plan` makes **no calls at all** — a test asserts that by making `FrozenSource.fetch` raise and
+running the whole plan anyway. It prints the endpoint, the resolved window, the stage, the cost
+against the property's budget, and the **exact request body**, with `<user>` and `<password>` where
+the credentials go. That is the artefact decision D3 approves: the thing being approved is the
+thing that happens.
+
+**The three calls, and what each settles** (open question 1.2):
+
+| call | what it settles |
+| --- | --- |
+| `getRooms` | Whether 23 of 28 rooms still report adult capacity `0` (R12 — the entire argument for `zero_is_unknown`); whether rooms 9900/9901/9902 still carry an undefined type (R11); and **whether any room now has a closed-date window set**, which is why `ooo_room_protection` and `room_assignment_active_room` currently exclude every record |
+| `getRoomTypes` | The other half of R11 — are the codes still the nine we have |
+| `RoomStatusInquiry` | A **7-day** window, deliberately small (R8). The only occupancy capture is stuck at one week of August 2024, which is why `resource_occupancy_consistency` is blocked on both evidence sets |
+
+**To run it, once the owner has said yes to this specific probe:**
+
+```bash
+export HOTELCONTROLS_LIVE=1
+export HOTELCONTROLS_MINIHOTEL_BASE_URL=...      # the sandbox host
+export HOTELCONTROLS_MINIHOTEL_USER=...
+export HOTELCONTROLS_MINIHOTEL_PASSWORD=...
+export HOTELCONTROLS_MINIHOTEL_HOTEL=...
+python3 -m tools.probe --run --yes --property sandbox --control room_assignment_type_validity
+```
+
+There are no defaults for any of those and there will not be any (F15). The transport refuses
+without them and names the variable that is missing. **Never put a credential in a file in this
+repository** — v1 hard-coded the vendor's published sandbox account in a file about to be pushed
+public, which was defensible and made the habit dangerous.
+
+**Afterwards, in this order:**
+
+1. Responses land in `fixtures/minihotel/raw/`, which git ignores, each with the request that
+   produced it. **Run `python3 -m tools.scrub_fixtures` before committing anything derived from
+   them** — a live response carries guest names, emails, phone numbers and free-text remarks, and
+   this repository is public (D6, F15).
+2. Compare against what the 2024 capture says and **update open question 1.2 with what was
+   actually found**, whichever way it goes. The four findings there are currently marked
+   *unverified since the system changed*, which is a different status from *verified* and a
+   different status again from *wrong*.
+3. If closed-date windows now exist, the occupancy **reference** request needs a window too — it
+   carries none today, so `providers/minihotel/live.py` refuses it as the unbounded query R8
+   forbids. Deliberately left: that control excludes all 28 rooms anyway while no window has ever
+   been seen. It becomes worth fixing the moment one is.
+4. The first real call is also the first observation of this vendor's **error** behaviour. Issue
+   #16 classified failures by status code, which is standard HTTP and needed no observation; what
+   their error *bodies* look like is still unknown and stays unguessed until one is seen.
+
+---
+
 ### Checkpoints that need the project owner
 
 | Before | Decision |
 | --- | --- |
-| any live call | Approval for a specific, bounded, staged probe (D3). Three calls — `getRooms`, `getRoomTypes`, `RoomStatusInquiry` — would refresh the 2024-era findings the review flagged as stale (open question 1.2) |
+| **now** | **Approval for the bounded three-call probe that is already planned and printed** — `getRooms`, `getRoomTypes`, `RoomStatusInquiry` (D3, open question 1.2). See the section above; this is the first TODO |
 | any time | **The cheapest open win:** which rate codes this property has nominated for control 15 (open question 1.4). One sentence takes `required_reservation_fields` from zero answers to real ones |
 | any time | Ask MiniHotel what `OK4` and `WL` mean (question 2.1). They cover 44 of the 217 reservations ever seen, and they are why the known duplicate pair resolves to UNKNOWN rather than to an answer |
 

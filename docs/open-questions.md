@@ -25,10 +25,11 @@ in any code that could be written this week, and only the project owner can supp
 Neither is a gap in the engine. Both are facts about a property and a vendor that the engine has
 correctly refused to guess at — which is the whole design working, and also the reason it is stuck.
 
-A third, one step behind them: **approval for the three read-only calls in
-[1.2](#12-are-the-2024-era-room-findings-still-true)**. `python3 -m tools.probe --plan` now prints
-the exact request bodies with placeholders where the credentials go, so there is something concrete
-to approve rather than an intention.
+A third, one step behind them and **already planned, printed and waiting**: approval for the three
+read-only calls in [1.2](#12-are-the-2024-era-room-findings-still-true). `python3 -m tools.probe
+--plan` prints the exact request bodies with placeholders where the credentials go, so there is
+something concrete to approve rather than an intention. It is the first TODO a fresh session
+should raise — see `docs/session-handoff.md`.
 
 ---
 
@@ -107,11 +108,27 @@ four load-bearing findings now rest on a 2024 snapshot of a system we know has c
   Medium, and the reason control 2 excluded 100% of records in v1
 - Bulk ARI is keyed by price-list code, not rate code (R13) — control 9 is unbuildable
 
-**Today.** v2 will build against the 2024 capture for these, marked as *unverified since the system
-changed* — which is a different status from *verified*.
+**Today.** v2 builds against the 2024 capture for these, marked as *unverified since the system
+changed* — which is a different status from *verified*, and a different status again from *wrong*.
 
-**Recommendation.** Three read-only calls settle it and cost nothing but permission. **This is a
-checkpoint before slice 3.**
+**Status: the probe is planned, printed, and waiting on one word.** Slice 11 built the transport
+and `tools/probe.py`, so there is now a concrete artefact to approve rather than an intention:
+
+```bash
+python3 -m tools.probe --plan --property sandbox --control room_assignment_type_validity
+python3 -m tools.probe --plan --property sandbox --control resource_occupancy_consistency
+```
+
+`--plan` makes **no calls at all** and prints the endpoint, the resolved window, the cost against
+this property's budget, and the **exact request body** with `<user>` and `<password>` where the
+credentials go. Between those two commands it covers all three calls: `getRooms`, `getRoomTypes`
+and `RoomStatusInquiry` over a deliberately small 7-day window (R8).
+
+Three read-only calls settle four load-bearing findings and cost nothing but permission. What is
+missing is the owner's yes to *this specific probe* (D3) and the four `HOTELCONTROLS_MINIHOTEL_*`
+credentials, which have no defaults and never will (F15). The full runbook — what to do with the
+responses, and why `tools/scrub_fixtures.py` runs before anything is committed — is in
+`docs/session-handoff.md`, "The probe that is waiting approval".
 
 ### 1.3 Is the cancel-and-recreate pair a duplicate, or the expected pattern?
 
