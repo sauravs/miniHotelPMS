@@ -4,6 +4,7 @@
   "source_control": "13",
   "name": "Inactive Room Assigned to Future Stay",
   "natural_language": "No future reservation may reference a room that is inactive or decommissioned.",
+  "restricted_language": "every stay joining room by stay.room_number to room.number where reservation.status is not \"cancelled\" and stay.room_number exists must have room.number resolved and room.closed_from missing showing reservation.arrival_date",
   "entity": "stay",
   "population": {
     "description": "Non-cancelled reservations arriving from today onward. The room master is joined as a reference, one call for the whole property, rather than being queried per stay.",

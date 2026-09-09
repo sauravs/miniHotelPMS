@@ -21,6 +21,7 @@ import json
 import pathlib
 import sys
 
+from hotelcontrols.compiler import compile_sentence, deployment_of
 from hotelcontrols.spec import (Problem, Registry, TenantConfig, available, load, load_schema,
                                 validate)
 
@@ -133,6 +134,54 @@ def _check_controls(checker: Checker, registry: Registry, ir_schema: dict,
             # count to mean something without pretending to a precision it does not have.
             checker.extend(found, len(ir.referenced_fields()) + len(list(ir.predicates())) + 6)
 
+        _check_it_compiles_from_its_own_sentence(checker, ir, registry, tenants)
+
+
+def _check_it_compiles_from_its_own_sentence(checker: Checker, ir, registry: Registry,
+                                             tenants: dict[str, TenantConfig]) -> None:
+    """The rule filed here is the rule its restricted-English sentence compiles to.
+
+    Slice 9 put a front end on this validator, and the risk that creates is DRIFT: someone
+    edits a predicate in the JSON, the sentence beside it stops describing the rule, and the
+    screen shows one thing while the engine does another. So the sentence is recompiled on
+    every spec run and the two are compared clause by clause.
+
+    `note` is excluded from the comparison. It is prose explaining WHY a predicate is shaped as
+    it is - "ARI says EXECUTIVE, the room-type master says Executive, and they are the same
+    type (R13)" - which is knowledge a person had and a compiler has no business inventing.
+    """
+    sentence = ir.get("restricted_language")
+    where = "control %s" % ir.control_id
+    if not sentence:
+        # Not an error. A control may be hand-written; the check is that a DECLARED sentence
+        # tells the truth, not that every control has one.
+        return
+
+    tenant = next(iter(tenants.values()), None)
+    result = compile_sentence(sentence, registry, deployment=deployment_of(ir.raw),
+                              tenant=tenant)
+    if not checker.check(result.ir is not None, where,
+                         "its restricted_language does not compile: %s"
+                         % "; ".join([str(p) for p in result.problems]
+                                     + list(result.ambiguities))):
+        return
+
+    for clause in ("entity", "references", "scope", "exceptions", "assertion"):
+        checker.check(_without_notes(result.ir[clause]) == _without_notes(ir[clause]), where,
+                      "its restricted_language compiles to a different %s than the one filed "
+                      "here - the sentence beside this rule no longer describes it" % clause)
+    checker.check({e["field"] for e in result.ir["required_evidence"]}
+                  == {e["field"] for e in ir["required_evidence"]}, where,
+                  "its restricted_language needs different evidence than the rule declares")
+
+
+def _without_notes(value):
+    if isinstance(value, dict):
+        return {k: _without_notes(v) for k, v in value.items() if k != "note"}
+    if isinstance(value, list):
+        return [_without_notes(item) for item in value]
+    return value
+
 
 # --------------------------------------------------------------------------- reporting
 def _report(checker: Checker, registry: Registry, providers: dict[str, dict],
@@ -148,6 +197,9 @@ def _report(checker: Checker, registry: Registry, providers: dict[str, dict],
           % (len(registry), len(registry.entities)))
     print("  %d controls, all schema-valid, no dangling field references"
           % len(available(SPEC)))
+    compilable = [c for c in available(SPEC) if load(c, SPEC).get("restricted_language")]
+    print("  %d of %d recompile from their own restricted-English sentence to the same rule"
+          % (len(compilable), len(available(SPEC))))
     print("  %d provider map(s): %s" % (len(providers), ", ".join(sorted(providers))))
     print("  %d tenant(s): %s" % (len(tenants), ", ".join(sorted(tenants))))
 

@@ -4,6 +4,7 @@
   "source_control": "14",
   "name": "Duplicate Channel Reservation",
   "natural_language": "Two active reservations must not share the same channel confirmation number.",
+  "restricted_language": "every reservation where reservation.status is not \"cancelled\" and reservation.channel_confirmation_id exists unless reservation.channel_confirmation_id is missing must have at most 1 reservation.id per reservation.channel_confirmation_id showing reservation.channel",
   "entity": "reservation",
   "population": {
     "description": "Reservations created or arriving in the window that carry a channel confirmation number, excluding cancelled ones.",

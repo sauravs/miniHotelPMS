@@ -4,6 +4,7 @@
   "source_control": "4",
   "name": "Room Capacity Compliance",
   "natural_language": "The number of guests assigned to a room must not exceed the room's configured occupancy capacity.",
+  "restricted_language": "every stay joining room by stay.room_number to room.number where reservation.status is not \"cancelled\" and stay.room_number exists must have reservation.guest_count.adults at most room.max_guests.adults and reservation.guest_count.children at most room.max_guests.children and reservation.guest_count.babies at most room.max_guests.babies showing reservation.guest_count.youth",
   "entity": "stay",
   "population": {
     "description": "Non-cancelled reservations with an assigned room, arriving from today onward.",

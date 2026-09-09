@@ -4,6 +4,7 @@
   "source_control": "6",
   "name": "Checkout With An Unrefunded Credit",
   "natural_language": "A reservation cannot be closed while the hotel still owes the guest a refund.",
+  "restricted_language": "every reservation where reservation.status is \"checked_out\" must have folio.balance_due at least 0 showing reservation.departure_date and folio.currency and reservation.currency",
   "entity": "reservation",
   "population": {
     "description": "Reservations that reached checked-out status in the last 24 hours. Bounding this set matters: the folio endpoint is one call per reservation.",

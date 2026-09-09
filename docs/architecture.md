@@ -289,8 +289,8 @@ distinction survives a monochrome screen or a colour-blind reader.
 ### L0 · Compiler
 
 ```python
-compile(sentence, registry) -> Compilation
-Compilation = { ir | None, problems: [Problem], confidence, ambiguities }
+compile(sentence, registry, deployment=None, tenant=None) -> Compilation
+Compilation = { ir | None, problems: [Problem], confidence, ambiguities, logic }
 ```
 
 Two front ends behind one interface:
@@ -299,7 +299,20 @@ Two front ends behind one interface:
   what CI runs and what the tests assert against.
 - **`ModelCompiler`** — an optional adapter that asks a language model for an IR. It is not trusted:
   its output goes through `ir.validate` unchanged, and a proposal that fails is shown to the author
-  with the missing vocabulary named.
+  with the missing vocabulary named. Decision D9: the seam is built and exercised against a stub;
+  no model is wired, and there is nothing in the package to wire one with.
+
+**The sentence is the rule; it is not the deployment.** An IR carries a
+`population.provider_query` — an endpoint and its filters, per provider — and a sentence that could
+name one would be a sentence that breaks criterion 5. So the document is split: the SENTENCE owns
+entity, references, scope, exceptions, the assertion and therefore the evidence; the DEPLOYMENT
+owns the bounded query, the trigger, the freshness requirement and the action, and arrives as data.
+The split is enforced both ways — a deployment carrying a `scope` clause is refused, because then
+the sentence printed beside a verdict would be a partial account of the rule that produced it.
+
+**`confidence` is reported, never acted on.** A deterministic parse is `1.0` because the parse is
+exact rather than probable. A model's proposal is `None`: nothing here established a number, and a
+model's opinion of itself is not evidence. No acceptance decision reads the field.
 
 **Neither may emit anything executable.** §17 of the requirements doc is explicit about why, and the
 gate that makes it safe already works: fed the doc's own example — *"All VIP arrivals should have an

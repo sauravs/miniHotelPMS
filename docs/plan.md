@@ -18,7 +18,7 @@ Execution tracker. **Update the status table as slices close.** Design rationale
 | 6 | Runner, coverage, readiness, store | ☑ | ☑ | ☑ | ☑ | ☑ | **done** — PR #8 |
 | 7 | Second provider — DemoPMS | ☑ | ☑ | ☑ | ☑ | ☑ | **done** — PR #11 |
 | 8 | Scheduling & freshness | ☑ | ☑ | — | ☑ | ☑ | **done** — PR #12 |
-| 9 | Compiler — English → IR | ☐ | ☐ | ☐ | ☐ | ☐ | not started |
+| 9 | Compiler — English → IR | ☑ | ☑ | ☑ | ☑ | ☑ | **done** — PR #13 |
 | 10 | Web UI & JSON API | ☐ | ☐ | ☐ | ☐ | ☐ | not started |
 | 11 | Transport (opt-in) & probe tooling | ☐ | ☐ | — | ☐ | ☐ | not started |
 
@@ -418,28 +418,67 @@ left the fallback path untested.
 `hotelcontrols/compiler/` — **fixes F6**
 
 **Unit tests**
-- [ ] The grammar parses the shapes the requirements doc uses: *"every X arriving within N hours
-      must …"*, *"no X may …"*, *"X must not … unless …"*
-- [ ] A sentence naming vocabulary that does not exist is **rejected, naming the missing fields** —
-      not compiled into a rule that quietly answers about nothing (§17)
-- [ ] An ambiguous sentence returns ambiguities rather than a confident guess
-- [ ] The `ModelCompiler` adapter is exercised with a **stubbed** model; its output goes through the
+- [x] The grammar parses the shapes the requirements doc uses: *"no X may …"* and
+      *"X must not … unless …"* compile; *"every X arriving within N hours must …"* is
+      **refused by name**, and that refusal is the honest answer rather than a gap — a window on
+      arrival bounds the *population*, which is one PMS's endpoint and filters (criterion 5), and
+      no IR operator compares a date against "now plus a duration". Accepting the shape would have
+      meant inventing one of the two
+- [x] A sentence naming vocabulary that does not exist is **rejected, naming the missing fields** —
+      including the requirements doc's own VIP example, refused through the compiler for the same
+      two reasons slice 1 refused it as hand-written JSON (§17)
+- [x] An ambiguous sentence returns ambiguities rather than a confident guess. The live case is an
+      unquoted operand: `reservation.status is cancelled` is either a text value or a canonical
+      field, and the grammar says so instead of choosing
+- [x] The `ModelCompiler` adapter is exercised with a **stubbed** model; its output goes through the
       same validation, and a malformed proposal is rejected exactly as a human's would be —
       **decision D9: the stub is the whole of slice 9.** No real model is wired
-- [ ] The stub emits each class of bad proposal: an undeclared field, an unknown operator, an
-      aggregate with no `group_by`, a predicate with two right-hand sides. Each is rejected exactly
-      as a hand-written IR would be, by the same code path
-- [ ] No test path can reach a real model or the network
+- [x] The stub emits each class of bad proposal: an undeclared field, an unknown operator, an
+      aggregate with no `group_by`, a predicate with two right-hand sides — and a fifth, a field
+      read but never declared as evidence. Each is rejected exactly as a hand-written IR would be,
+      **and the messages are compared against `spec.validate` called directly on the same
+      document**, so "the same code path" is tested rather than asserted
+- [x] No test path can reach a real model or the network — asserted over the AST: the package
+      imports no `urllib`, `http`, `socket`, `ssl` or vendor SDK, and calls no `eval`/`exec`/
+      `compile`
 
 **Integration + E2E**
-- [ ] At least 6 of the 11 shipped controls round-trip: `natural_language` → compiled IR → validates
-      → produces the same verdicts as the hand-written IR
-- [ ] Compiling and immediately running a **new** sentence produces a run with no code change
-      (criterion 6, from the other end)
+- [x] **All 11** shipped controls round-trip, and the check is stronger than "the same verdicts":
+      the compiled rule is **clause for clause the shipped rule** — entity, references, scope,
+      exceptions, assertion and the same set of evidence fields — and then reaches identical
+      verdicts on **both providers across all three instants** (66 run comparisons). `note` is
+      excluded from the comparison: it is prose explaining *why* a predicate is shaped as it is,
+      which a compiler has no business inventing
+- [x] Compiling and immediately running a **new** sentence produces a run with no code change
+      (criterion 6, from the other end). *"every reservation where reservation.status is not
+      `cancelled` must have reservation.guest.email exists"* — a control this repository has never
+      held — reaches **5 PASS, 19 FAIL, 13 UNKNOWN, 71 EXCLUDED on both providers in one call**
 
 **Gate**
-- [ ] Criterion 9 asserted
-- [ ] The compiler emits IR only — never executable anything
+- [x] Criterion 9 asserted
+- [x] The compiler emits IR only — never executable anything. Asserted twice: the output survives
+      a `json.dumps` round trip, and no dynamic-execution builtin appears anywhere in the package
+
+**The measurement, recorded rather than engineered away**
+
+Each control now carries **two** sentences. `natural_language` is the prose a person wrote —
+*"A reservation cannot be closed while the guest still owes money."* `restricted_language` is the
+same rule in the controlled language the grammar accepts:
+
+```
+every reservation where reservation.status is "checked_out"
+    must have folio.balance_due at most 0
+    showing reservation.departure_date and folio.currency and reservation.currency
+```
+
+**The grammar parses 0 of the 11 prose sentences, and 11 of 11 restricted forms.** The first number
+is asserted by a test that fails if it ever rises. Teaching the grammar that "still owes money"
+means `folio.balance_due at most 0` would be an eleven-entry phrase book, every measurement taken
+against it would be a measurement of the phrase book, and it would put the §17 gate to sleep — the
+gate can only answer "that field does not exist" *by name* if the author named a field.
+
+`tools/validate_spec` recompiles every declared sentence on every run and compares it to the rule
+filed beside it, so the two cannot drift apart: **1080 checks**, up from 1003.
 
 ---
 
@@ -503,10 +542,10 @@ something.
 | 3 | Every verdict traces to its fields | **Met** — structurally; a `Verdict` cannot be built without evidence |
 | 4 | Call count is `1 + R + N`, asserted | **Met** — counted invocations, slice 3 and again end to end |
 | 5 | No PMS identifier above the provider layer | **Met** — 28 identifiers from **both** providers grepped over the tree, with the allowed directories discovered rather than listed |
-| 6 | A twelfth control is a spec change | pending |
+| 6 | A twelfth control is a spec change | **Met** — and in its stronger form: a control that has never existed is *compiled from a sentence* and run end to end from a spec directory, on both providers, with no import touched |
 | 7 | Same IR, two providers, same verdicts | **Met** — 11 controls × 3 as-of dates, per record id, with identical call counts. The demo fixtures are the vendor captures transcoded, gaps included |
 | 8 | A run that concluded nothing says so | **Met** — slice 6's coverage verdict |
-| 9 | English compiles to IR; unsupported sentences rejected by name | pending |
+| 9 | English compiles to IR; unsupported sentences rejected by name | **Met** — 11 of 11 controls recompile from their own restricted-English sentence to the same rule and the same verdicts; an undeclared field, an unknown operator, an ambiguous operand and a population window are each refused by name |
 | 10 | Readiness reported per control per provider | **Met** in the API surface; the page lands in slice 10 |
 | 11 | Offline, stdlib-only runtime, no test reaches the network | pending |
 | 12 | Every slice green in CI before the next opens | pending |

@@ -4,6 +4,7 @@
   "source_control": "1a-1c",
   "name": "Room Assignment Validity - Room Exists and Type Is Allowed",
   "natural_language": "A reservation may only be assigned to a room that exists and whose type is one the hotel has defined, and the reservation's room type must match the room's actual type.",
+  "restricted_language": "every stay joining room by stay.room_number to room.number and the set of room_type.code where reservation.status is not \"cancelled\" and stay.room_number exists must have room.number resolved and room.type one of room_type.code and stay.room_type matching room.type",
   "entity": "stay",
   "population": {
     "description": "Non-cancelled reservations with an assigned room, staying or arriving from today onward.",

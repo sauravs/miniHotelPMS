@@ -4,6 +4,7 @@
   "source_control": "20",
   "name": "Resource Occupancy Consistency",
   "natural_language": "A room must not be occupied by two overlapping reservations at the same time.",
+  "restricted_language": "every occupancy where occupancy.status is not \"cancelled\" must have no overlapping occupancy.reservation_id from occupancy.from to occupancy.to per occupancy.room_number",
   "entity": "occupancy",
   "population": {
     "description": "The occupancy map for a short rolling window. MiniHotel asks integrators not to query wide date ranges, so this runs in small windows rather than as a full-horizon sweep.",

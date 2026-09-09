@@ -4,6 +4,7 @@
   "source_control": "9",
   "name": "Rate / Room-Category Consistency",
   "natural_language": "A reservation using a given rate may only be sold in the room categories that rate permits.",
+  "restricted_language": "every stay joining rate_plan from the hotel by stay.rate_code to rate_plan.code where reservation.status is not \"cancelled\" and stay.rate_code exists must have stay.room_type one of rate_plan.permitted_room_types",
   "entity": "stay",
   "population": {
     "description": "Non-cancelled reservations with a rate code and an assigned room type.",

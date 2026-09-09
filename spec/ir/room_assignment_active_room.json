@@ -4,6 +4,7 @@
   "source_control": "1d",
   "name": "Room Assignment Validity - Room Is Active",
   "natural_language": "A reservation must not be assigned to a room that is out of service on the stay dates.",
+  "restricted_language": "every stay joining room by stay.room_number to room.number where reservation.status is not \"cancelled\" and stay.room_number exists and room.closed_from exists must not have reservation.arrival_date within room.closed_from to room.closed_to",
   "entity": "stay",
   "population": {
     "description": "Non-cancelled reservations with an assigned room arriving from today onward, joined to rooms that have a closed window set.",
