@@ -166,7 +166,19 @@ name and the control is reported as blocked rather than crashing.
 
 **Transport is a separate, opt-in component.** It is off unless an environment variable enables it,
 carries a token-bucket rate limiter, bounded retry with backoff, and a record mode that writes each
-response into the fixture set with its request fingerprint. No test can switch it on.
+response into the fixture set with its request fingerprint.
+
+**No test can switch it on, and that needs two locks rather than one.** An environment variable
+alone is a lock whose key is one line of `monkeypatch.setenv` away, so the transport also refuses to
+arm while a test runner is loaded in the process — and the test that matters sets the variable and
+is refused anyway. Exactly one file in the engine imports an outbound HTTP client.
+
+The transport knows how to wait, how to retry, how to give up and how to write a response down. It
+knows nothing about any PMS: the request-to-HTTP encoding is the ADAPTER's, handed in as a callable,
+and the credential variable names are built from a provider name that arrives as data. So
+`providers/transport/` is policed by the canonical-boundary grep exactly as the evaluator is. A
+provider may honestly have no encoder at all — DemoPMS has none, because nobody has ever called it,
+and it can be replayed but not probed.
 
 ### L4 · Evidence
 
