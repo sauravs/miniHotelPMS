@@ -7,7 +7,28 @@ defensible, and a decision *changes* it rather than unblocks it.
 Four sections: decided (kept for the record), open for the project owner, questions for MiniHotel,
 and engineering gaps chosen deliberately.
 
-**Last reviewed:** 2026-09-08, at the start of the v2 build.
+**Last reviewed:** 2026-09-09, after the twelve-slice build closed.
+
+---
+
+## The two that are worth the most
+
+Everything below is open. These two are different, and they are recorded here at the top because
+the build being finished changes what is scarce: **there is more value in these two sentences than
+in any code that could be written this week, and only the project owner can supply them.**
+
+| | What is needed | What it changes |
+| --- | --- | --- |
+| **[1.4](#14-which-rate-codes-has-the-property-nominated)** | Which rate codes this property has **nominated** | `required_reservation_fields` currently excludes every reservation and answers nobody. One list turns it into a working control. It is the cheapest movement available on success criterion 1 |
+| **[2.1](#2-questions-for-minihotel)** | Ask MiniHotel what **`OK4`** and **`WL`** mean | **44 of the 217 distinct reservations this project has ever seen — one in five — carry one of those two codes**, and neither is documented anywhere. Each resolves to UNKNOWN, because a status nobody can name must not decide whether a control applies (A5). One sentence from the vendor resolves all 44, and it also settles [1.3](#13-is-the-cancel-and-recreate-pair-a-duplicate-or-the-expected-pattern) |
+
+Neither is a gap in the engine. Both are facts about a property and a vendor that the engine has
+correctly refused to guess at — which is the whole design working, and also the reason it is stuck.
+
+A third, one step behind them: **approval for the three read-only calls in
+[1.2](#12-are-the-2024-era-room-findings-still-true)**. `python3 -m tools.probe --plan` now prints
+the exact request bodies with placeholders where the credentials go, so there is something concrete
+to approve rather than an intention.
 
 ---
 
