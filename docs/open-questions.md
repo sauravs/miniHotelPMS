@@ -213,17 +213,18 @@ adaptive thinking, structured outputs fed from `spec/ir_schema.json`, living in 
 drafting aid whose output a person reviews and commits. **No verdict may ever depend on a model
 call.**
 
----
-
 ### 1.9 Should this ever touch a production PMS, and whose credentials would those be?
 
 Raised by Q4 in `docs/QA.md`. Everything this project has ever seen came from
 `sandbox.minihotel.cloud`. Production is a different host, and it has never been touched.
 
 **Today.** Sandbox only, and that is the right target for verifying a control's logic: nothing about
-whether `folio.balance_due lte 0` holds is better tested against real guests. The transport is
-per-provider and reads its credentials from the environment keyed by provider name, so pointing it
-at another host is configuration rather than code.
+whether `folio.balance_due lte 0` holds is better tested against real guests. Pointing the transport
+at another host is configuration rather than code — but only for **one** property. Credentials are
+keyed by provider alone (`HOTELCONTROLS_<PROVIDER>_{USER,PASSWORD,HOTEL,BASE_URL}`,
+`Credentials.from_environment`), and the only caller passes `tenant.provider` and discards
+`tenant.tenant_id` (`tools/probe.py`). Two properties on the same PMS therefore cannot hold distinct
+credentials today; the second would overwrite the first.
 
 **What the vendor says.** *"Production credentials will be provided upon completion of the staging
 and testing phase"*, and *"before moving to production, it's essential to ensure your IPs are
@@ -234,7 +235,10 @@ anywhere reachable — so whether production access costs anything is **unknown*
 property's to give**. A hotel authorises access to its own data; this is not a key obtained once and
 reused across customers. That changes three things at once — real guest PII becomes a GDPR question
 rather than a style one (D6), R8 applies to a live property rather than a shared sandbox, and IP
-whitelisting makes the machine that runs it matter.
+whitelisting makes the machine that runs it matter. It also outgrows the keying above: a
+per-property credential model needs the environment keyed by tenant, not by provider, which is a
+code change rather than configuration. A single-property pilot does not hit this; a second property
+on the same PMS does.
 
 **What it would buy.** Real data volumes, real status codes in the wild — which would settle §2.1's
 `OK4` and `WL` empirically rather than by asking — and real error behaviour, which is still
@@ -243,6 +247,7 @@ unobserved. None of that is needed to finish verifying the controls against the 
 **Recommendation.** Refresh the sandbox ([1.2](#12-are-the-2024-era-room-findings-still-true)), then
 pilot with a real property that authorises its own production access. Not before.
 
+---
 
 ## 2. Questions for MiniHotel
 
