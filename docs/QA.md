@@ -190,6 +190,10 @@ The mapping table above is generated, not asserted.
 
 **Status:** answered
 
+**Correction:** three numbers in this entry are wrong — 6 IRs should be 5, "5 source controls" is
+compared against a target counted in IRs, and the 14 calls were all made in 2026. See Q5.
+(2026-09-10)
+
 ---
 
 ## Q4 — 2026-09-09
@@ -287,3 +291,89 @@ call.
 
 **Status:** answered in part — `open — see docs/open-questions.md §1.9` for whether this should ever
 touch a production PMS, and whose credentials those would be
+
+**Correction:** the phrase "in 2024 and September 2026" is wrong — all 14 calls were made in 2026.
+See Q5. (2026-09-10)
+
+---
+
+## Q5 — 2026-09-10
+
+**Q:** *Not an owner question.* This entry corrects Q3 and Q4 after a code review of commit
+b557685 on 2026-09-10. It is recorded as a new entry because this file is append-only: a wrong
+answer is corrected by an entry, never by an edit.
+
+**A:**
+
+Three numbers in Q3 are wrong, and one date phrase is wrong in both Q3 and Q4. Everything else in
+both entries reproduces exactly and stands.
+
+### 1. "6 IRs — 5 source controls" should be **5 IRs — 4 source controls**
+
+Q3's summary table claims six IRs reach a real PASS or FAIL. The repository's own measurement says
+five: `docs/plan.md` §"Criterion 1, assessed" and `tests/e2e/test_runs.py`, which pins the set by
+name (`CONCLUDING`) and asserts `len(concluding) == 5` so that a change turns a test red.
+
+The sixth was `resource_occupancy_consistency`. It is `BLOCKED` on both standard evidence sets —
+its only occupancy capture covers 2024-08-14..2024-08-21, and a run asking about any other week is
+refused rather than answered from the wrong one. It concludes only at the extra 2024-08-14 instant.
+That is precisely the control **issue #9 removed from this count**, because it had been reaching two
+PASSes about July 2026 from segments captured in August 2024. Q3's table did carry the qualifier —
+*"only over the one week its capture covers"* — but the qualifier does not travel with the headline
+number, and the number is what a reader takes away. Counting it re-widens a verdict the guard was
+built to narrow.
+
+The five that do conclude are `checkout_money_owed`, `checkout_unrefunded_credit`,
+`duplicate_channel_reservation`, `inactive_room_future_stay` and `room_assignment_type_validity` —
+which map to **four** source controls, not five: 1 (rows 1a–1c), 6 (twice), 13, 14.
+
+### 2. "5 source controls. Not 8" compares two different units
+
+`docs/prd.md` §7 criterion 1 asks for *"at least 8 of the **11 controls**"* — 8 IRs. Q3 answers in
+source controls and sets the result against a target counted in IRs. The two units happen to print
+the same digit here, which is what made the mismatch invisible: Q3's headline "5 reaching real
+verdicts" looks like it agrees with plan.md's "5 of 11" while actually counting something else, and
+the same entry's table two screens earlier said 6.
+
+Stated once, in each unit:
+
+| unit | conclude | target |
+| --- | --- | --- |
+| **IRs** (criterion 1's unit) | **5 of 11** | 8 of 11 — **not met** |
+| source controls | 4 of the 10 built | criterion 1 does not measure this |
+
+### 3. The 14 sandbox calls were all made in **2026**, not "in 2024 and September 2026"
+
+The phrase appears three times — Q3 twice ("v1 made 14 read-only calls in 2024 and September 2026";
+"real responses, but taken in 2024 and September 2026") and Q4 once ("14 read-only calls, by v1, in
+2024 and September 2026"). No call was ever made in 2024. All 14 entries under `responses` in
+`fixtures/minihotel/index.json` carry a 2026 `captured_at`: six on 2026-09-01, one on 2026-09-04,
+seven on 2026-09-08 — matching the timeline in `docs/context.md`, which dates every live probe to
+2026.
+
+**2024 is the vintage of the data the sandbox was holding, not the date of the call.** The
+distinction matters and is the reason open question [1.2](open-questions.md) exists: the sandbox had
+moved on to 2026 data between the September 1 and September 8 probes, which is how the 2024-era room
+findings became stale without any of them being re-tested. Collapsing "called in 2026, saw 2024
+data" into "called in 2024" loses exactly that.
+
+The count of **14** is correct.
+
+### What is unchanged
+
+Every other figure in Q3 and Q4 was re-checked and reproduces: 20 controls in the docx; 21 rows in
+the feasibility workbook at 9 Yes / 10 Partial / 2 No; 10 rows built as 11 IRs, matching `prd.md` §6
+with no scope drift; all 11 `source_control` values; the per-control results (27 PASS, 111 excluded,
+28 excluded, 40 UNKNOWN, 37 UNKNOWN, the −490.75 ILS FAIL); the eleven not built and their reasons;
+and all of Q4 — sandbox-only, production never touched, `0` calls by the v2 transport, DemoPMS being
+ours and offline by construction.
+
+**Corrected headline for Q3:** 10 of 21 rows implemented (100% of what was rated buildable),
+**5 of 11 IRs** reaching real verdicts against a target of 8, 0 re-verified live.
+
+**Evidence:** `tests/e2e/test_runs.py:24-40,111-119` (the `CONCLUDING` and `BLOCKED` sets and the
+assertions over them); `docs/plan.md:260,289,297,632,645-679`; `docs/prd.md:138`; `source_control`
+read from all 11 files in `spec/ir/`; `fixtures/minihotel/index.json` parsed with `json` and its
+`responses` entries counted by `captured_at`; `docs/context.md:12-19`. No call was made.
+
+**Status:** answered
