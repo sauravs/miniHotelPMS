@@ -58,8 +58,10 @@
    │ the vocabulary every other layer speaks. Depends on nothing                      │
    └─────────────────────────────────────────────────────────────────────────────────┘
 
-   L0 · COMPILER  (English -> IR)  runs BESIDE the stack, not inside it: it produces spec
-                  artifacts that L2 validates. Nothing at runtime depends on it.
+   L0 · COMPILER  (prose -> English -> IR)  runs BESIDE the stack, not inside it: it produces
+                  spec artifacts that L2 validates. Nothing at runtime depends on it.
+                  A sentence PROPOSER is injected from tools/, never imported - which is what
+                  keeps the engine stdlib-only while a model can still draft a sentence (D10).
 ```
 
 Three properties matter more than the boxes.
@@ -373,8 +375,9 @@ hotelcontrols/
   runner/         run.py · coverage.py · readiness.py · scheduling.py
   store/          sqlite.py · schema.sql
   web/            app.py · render.py · server.py · assets/
-  compiler/       grammar.py · model.py · problems.py
+  compiler/       grammar.py · sentences.py · model.py · problems.py
 spec/             canonical_fields.json · ir_schema.json · ir/*.json
+                  drafts/ir/*.json        # composed from prose, runnable, UNREVIEWED
                   providers/minihotel.json · providers/demopms.json
                   tenants/*.json
 fixtures/         minihotel/  (pseudonymised captures + request fingerprints)
@@ -382,6 +385,9 @@ fixtures/         minihotel/  (pseudonymised captures + request fingerprints)
 tests/            unit/ · integration/ · e2e/ · contract/
 docs/             every markdown document
 tools/            validate_spec.py · scrub_fixtures.py · transcode_demopms.py · probe.py
+                  serve.py                # the demo WITH the compose front end wired
+                  proposers/  base.py · local.py · anthropic_api.py · stub.py
+                              # every model client. OUTSIDE the engine, injected in.
 ```
 
 `spec/` is **data the engine reads at runtime**. Nothing in `hotelcontrols/` knows what control 6 is:
@@ -401,6 +407,7 @@ that needs someone else's server to be up is not a suite.
 | **Unit** | Does this transformation do what the spec says? | Literal values, no files |
 | **Integration** | Does this layer work on real captured responses? | Pseudonymised fixtures |
 | **Contract** | Does every provider honour the `Provider` protocol identically? | One shared suite, run against both adapters |
+| **Locks** | Can a test reach the network, or a model? | Asserted negatively: the transport and every proposer refuse inside a test process **with their variable set** |
 | **End to end** | Does a run produce the right verdicts with their evidence? | Full stack, frozen source |
 
 The **contract suite** is the piece v1 did not have and the one that makes criterion 7 real: a single
@@ -413,6 +420,13 @@ sub-packages that declare themselves, so no module above an adapter names a PMS 
 captures by `tools/transcode_demopms.py`, field by field, gaps included — so "the same hotel through
 two providers" is checked rather than asserted. A hand-written second fixture set would drift towards
 whatever answers looked best, which is exactly what v1's `fixtures/synthetic/` did.
+
+**The compose front end is tested against a stub and nothing else.** `tools/proposers/stub.py` is a
+dictionary of fixed replies chosen to reach each outcome — a sentence that compiles, one naming an
+undeclared field, one carrying a population word, one that asks a policy question, and one that
+raises. A stub exercises the validator harder than a real model would, because a real model mostly
+emits plausible sentences. No test reaches a model; both live backends refuse to arm while a test
+runner is loaded, and the test that sets their environment variable is refused anyway.
 
 Every test names the IR clause or the risk id it protects. `PYTHONDONTWRITEBYTECODE=1` in CI —
 v1 recorded a real incident where a stale `.pyc` made the suite silently run old code and report a

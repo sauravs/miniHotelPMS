@@ -15,7 +15,8 @@ miniHotelPMS/
 │   └── drafts/        COMPOSED RULES. Runnable, unreviewed, uncounted.
 ├── fixtures/          THE EVIDENCE. Captured API responses. Never edited.
 ├── tests/             THE PROOF.   1,501 tests. Offline. Four layers.
-├── tools/             THE UTILITIES. Validate, pseudonymise, transcode, probe.
+├── tools/             THE UTILITIES. Validate, pseudonymise, transcode, probe —
+│   └── proposers/     and every MODEL BACKEND, deliberately outside the engine.
 ├── docs/              THE PROSE.   Including this folder.
 └── miniHotelLegacy/   v1, PRESERVED. The mistake this codebase was built to avoid.
 ```
@@ -388,6 +389,10 @@ tests/
 | `integration/test_transcode_fidelity.py` | 20 | The DemoPMS fixtures still match a rebuild, byte for byte |
 | `unit/test_clock_is_always_injected.py` | 5 | An **AST walk over the whole engine**: `kernel/clock.py` is the only module allowed to read a wall clock |
 | `unit/test_stdlib_only.py` | 2 | Walks the source tree and asserts the engine contains no outbound HTTP client at all |
+| `unit/test_web_compose.py` | 41 | The compose window: off by default, an absence *stated* not 404'd, a refusal that names the field, a question with no run button, and **still no JavaScript** |
+| `unit/test_compose_normalise.py` | 29 | Prose → sentence → rule against a stub. §17's gate and §18's restraint, plus reply parsing across five wrapping styles |
+| `unit/test_proposers_refuse_in_tests.py` | 25 | **No test reaches a model.** Both live backends refuse inside a test process *with their variable set* — the transport's own proof pattern |
+| `integration/test_draft_lifecycle.py` | 15 | A rule composed from prose runs on **both** providers with identical verdicts and identical call counts |
 
 > **`PYTHONDONTWRITEBYTECODE=1` is a correctness gate, not hygiene.** An edit that changes neither a
 > file's size nor its mtime-second leaves a stale `.pyc` valid, so the suite runs the *old* code and

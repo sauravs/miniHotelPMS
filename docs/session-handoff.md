@@ -20,9 +20,35 @@ Read these first, in order: CLAUDE.md, docs/plan.md, docs/prd.md, docs/architect
 docs/open-questions.md, docs/old-codebase-improve.md. They are the specification and the
 execution tracker; docs/plan.md is authoritative for what is done and what is next.
 
-STATE: ALL TWELVE SLICES ARE MERGED (PRs #1-#8, #10-#15, #17, #18 on
+STATE: ALL TWELVE SLICES ARE MERGED, PLUS SLICE 13 (PRs #1-#8, #10-#15, #17, #18, #23 on
 github.com/sauravs/miniHotelPMS). 1610 tests, 96% coverage, 1080 spec checks, CI green on
 Python 3.11 and 3.13.
+
+SLICE 13 ADDED A MODEL, AND IT IS NARROWER THAN IT SOUNDS. `/compose` turns prose into a
+RESTRICTED SENTENCE, which the same deterministic grammar and the same validator then turn
+into a rule (decision D10). The model drafts TEXT. It never produces IR, never touches the
+evidence layer or the evaluator, and NO VERDICT DEPENDS ON A MODEL CALL - a composed control
+carries confidence == 1.0 and source == "grammar", because the parse was exact whatever
+drafted the text it parsed.
+
+Every model backend lives in tools/proposers/, OUTSIDE the engine, and is injected by
+tools/serve.py. hotelcontrols/ still imports only the standard library: both AST guards -
+test_stdlib_only.py and test_compiler_grammar.py's network guard - PASSED WITHOUT BEING
+EDITED. Do not move a backend into the engine to "tidy up"; the guards will fail, and that
+is the alarm working.
+
+Default backend is a model on the operator's own machine (Ollama, free, offline, stdlib
+urllib). A hosted one is opt-in and paid. `--llm stub` needs nothing installed and is the
+only backend any test wires. The whole front end is OFF unless started via tools/serve.py:
+`python3 -m hotelcontrols.web.server` behaves exactly as it always has.
+
+COMPOSED CONTROLS ARE DRAFTS. They land in spec/drafts/, are badged unreviewed, and are
+EXCLUDED from the criterion-1 figure below. Do not count one. Promotion is a deliberate
+`git mv` into spec/ir/ plus `python3 -m tools.validate_spec`.
+
+STILL UNVERIFIED: no live model call has ever been made from this repository. Nothing was
+installed and no key was set when slice 13 shipped, so the first `--llm local` run is the
+first real test of the Ollama round-trip itself. Everything either side of it is tested.
 ELEVEN OF THE TWELVE SUCCESS CRITERIA ARE MET. Criterion 1 is recorded as NOT MET - 5 of 11
 controls reach a PASS or a FAIL where the PRD asks for 8 - with each of the six shortfalls
 traced to a fact about the property or the provider in docs/plan.md. DO NOT relax it.
@@ -89,6 +115,22 @@ the second provider; a deterministic grammar compiler with an LLM adapter behind
 validation gate; public repo with pseudonymised fixtures; PR-per-slice with a CI gate; control 6
 split into `checkout_money_owed` and `checkout_unrefunded_credit`; and **D9 — the model adapter
 is a seam exercised against a stub, not a wired model.**
+
+### What slice 13 built, in one paragraph
+
+A third way into the compiler, one step earlier than the other two. `compiler/sentences.py`
+holds a `SentenceProposer` protocol and `normalise()`, which asks an INJECTED proposer for a
+sentence and hands it to `compile_sentence` - the same function `tools/validate_spec.py` has
+used on the eleven shipped controls since slice 9. The sentence is shown in an editable box
+before anything compiles, so what runs is what a person committed to rather than what a model
+said. A proposer that cannot write the rule without inventing hotel policy asks a QUESTION
+instead, and a question gets no button to run anything (§18). The system prompt is GENERATED
+from spec/canonical_fields.json, the grammar's own OPERATOR_PHRASES and six shipped sentences,
+so it cannot drift from the language it describes - a hand-written prompt would be a second
+copy of the operator table that fails silently the day somebody adds an operator. Web: two new
+routes behind a second entry point, `handle_post(path, body)`, so `handle(path)` stays a pure
+function of a string and every docstring about that stays true. CSP is unchanged and the page
+loads no JavaScript.
 
 ### What slices 9, 10 and 11 built, in three paragraphs
 
@@ -201,6 +243,18 @@ public, which was defensible and made the habit dangerous.
 | any time | Ask MiniHotel what `OK4` and `WL` mean (question 2.1). They cover 44 of the 217 reservations ever seen, and they are why the known duplicate pair resolves to UNKNOWN rather than to an answer |
 
 ### Things that will look like bugs and are not
+
+**`/compose` says "No proposer is wired".** Correct. The front end is opt-in. Start it with
+`HOTELCONTROLS_COMPOSE=1 python3 -m tools.serve --llm stub`.
+
+**A proposer refuses with "refuses to arm inside a test process".** Correct, and deliberate.
+That is lock 2. An environment variable alone is one `monkeypatch.setenv` away, so there are
+two. The local backend is held to it as well: localhost is still a socket.
+
+**A drafted sentence gets refused naming a field that does not exist.** Correct - that is
+§17's gate, and it is the behaviour the whole design is for. Do not add the field to the
+vocabulary to make the refusal go away; a field no provider can supply is a fact about the
+vocabulary, not a bug.
 
 - `ooo_room_protection` excludes all 28 rooms, and `room_assignment_active_room` all 111 stays.
   No room in this property has ever had a closed-date window set (open question 2.4). The

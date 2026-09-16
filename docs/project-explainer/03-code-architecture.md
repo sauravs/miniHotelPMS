@@ -57,11 +57,13 @@ CANONICAL BOUNDARY — no PMS name, endpoint, path or wire format appears above 
  │ the vocabulary every other layer speaks. Depends on nothing                      │
  └─────────────────────────────────────────────────────────────────────────────────┘
 
- L0 · COMPILER  (English -> IR)  runs BESIDE the stack, not inside it: it produces spec
-                artifacts that L2 validates. Nothing at runtime depends on it.
+ L0 · COMPILER  (prose -> English -> IR)  runs BESIDE the stack, not inside it: it produces
+                spec artifacts that L2 validates. Nothing at runtime depends on it. A sentence
+                PROPOSER is injected from tools/, never imported - which is how a model can
+                draft a sentence while the engine stays standard-library-only (D10).
 ```
 
-**Three properties matter more than the boxes:**
+**Four properties matter more than the boxes:**
 
 1. **UNKNOWN originates at every layer.** It is not an error path. Any layer can legitimately
    produce it, and it must reach the screen without being flattened into a pass or a failure.
@@ -69,10 +71,12 @@ CANONICAL BOUNDARY — no PMS name, endpoint, path or wire format appears above 
    rewrite.
 3. **Purity is load-bearing at L5.** The evaluator is a function of `(IR, evidence)` and nothing
    else — which is the difference between an audit trail and an anecdote.
+4. **A model, if present at all, sits outside the stack entirely.** It drafts the sentence L0
+   parses. It has no path to L4 or L5, and **no verdict depends on a model call** (D10).
 
 ---
 
-## 2. The six-stage pipeline
+## 2. The pipeline — six stages, and an optional one before them
 
 §17 of the design brief is explicit: **never `LLM → executable JSON` directly.** So a sentence
 becomes *data*, and that data has to survive a validation gate before anything can run it.
