@@ -6,13 +6,21 @@ Stage 1 of the six `control_rule_architecture.docx` section 17 specifies, and th
 not have (finding F6). It runs BESIDE the stack rather than inside it: it produces a spec
 artifact that L2 validates, and nothing at runtime depends on it.
 
-Two front ends, one gate.
+Three front ends, one gate.
 
     GrammarCompiler   restricted English, deterministic, offline, no model. What CI runs and
                       what every test asserts against.
-    ModelCompiler     the seam for a proposal from a language model. Decision D9: built and
-                      exercised against a stub; no model is wired, and there is nothing in this
-                      package to wire one with.
+    normalise()       PROSE, via an injected sentence proposer, which rewrites it into
+                      restricted English and then hands it to the grammar above. Decision D10.
+                      The intermediate is a SENTENCE a person can read and correct, so nothing
+                      new decides what a rule means.
+    ModelCompiler     the seam for a proposal that is already IR. Decision D9: built and
+                      exercised against a stub.
+
+None of the three finds a model, holds a key, or makes a request - a proposer is always handed
+in, and every model client in this repository lives under `tools/`, outside the engine. That is
+what keeps criterion 11 true and keeps `tests/unit/test_compiler_grammar.py`'s network guard
+passing unchanged.
 
 Both end in `grammar.finish`, which calls `spec.validate` - the same function that has policed
 hand-written IR files since slice 1. A model's proposal is rejected exactly as a person's is,
@@ -29,6 +37,7 @@ from .grammar import GrammarCompiler, compile_sentence, finish
 from .model import ModelCompiler, Proposer
 from .problems import (DEPLOYMENT_KEYS, LOGIC_KEYS, OPTIONAL_DEPLOYMENT_KEYS, SENTENCE_KEYS,
                        Compilation, deployment_of)
+from .sentences import Normalisation, SentenceProposer, Turn, normalise, split_reply
 
 __all__ = [
     "Compilation",
@@ -36,10 +45,15 @@ __all__ = [
     "GrammarCompiler",
     "LOGIC_KEYS",
     "ModelCompiler",
+    "Normalisation",
     "OPTIONAL_DEPLOYMENT_KEYS",
     "Proposer",
     "SENTENCE_KEYS",
+    "SentenceProposer",
+    "Turn",
     "compile_sentence",
     "deployment_of",
     "finish",
+    "normalise",
+    "split_reply",
 ]

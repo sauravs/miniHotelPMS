@@ -125,7 +125,11 @@ Named here so nobody mistakes thin for unfinished.
 - **Authentication and multi-user access.** Single-operator demo.
 - **Webhook ingestion.** The IR declares its events; nothing subscribes yet.
 - **Reading unstructured free text as evidence** — see open question 3.
-- **A rule editor UI.** Controls arrive as sentences through the compiler or as IR files.
+- **A model in the verdict path.** Decision D10 wires a model to *draft a sentence*; nothing a model
+  produces reaches the evidence layer or the evaluator, and no verdict depends on a model call.
+- **A rule editor UI.** Controls arrive as sentences through the compiler or as IR files. Slice 13
+  adds a *compose* window that turns prose into a restricted sentence, but the rule is still built
+  by the deterministic grammar and a composed control is filed as a **draft** — see decision D10.
 
 ---
 
@@ -145,7 +149,7 @@ Each is a test, an observable behaviour, or a number. None is a matter of opinio
 | 8 | **A run that concluded nothing says so.** A run where `PASS + FAIL == 0` never renders as a clean result | Rendering test on the 100%-excluded case |
 | 9 | **A restricted-English sentence compiles to a valid IR**, and an unsupported sentence is rejected naming the missing vocabulary | Compiler tests, offline, no model in the loop |
 | 10 | **Readiness is reported per control per provider** — "MiniHotel 4/5 fields · DemoPMS 5/5" | API and page test |
-| 11 | **The whole system runs offline with no runtime dependencies beyond the standard library**, and no test can reach the network | CI runs with networking asserted unused; transport is opt-in via environment only |
+| 11 | **The ENGINE runs offline with no runtime dependencies beyond the standard library**, and no test can reach the network or a model | CI runs with networking asserted unused. The PMS transport and the compose proposers are both opt-in via environment only, both live behind two locks, and neither is importable from `hotelcontrols/` — asserted over the AST |
 | 12 | **Every slice is green in CI before the next opens** | GitHub Actions required on every PR |
 
 ### Anti-criteria — things that would mean we failed even if everything above passes

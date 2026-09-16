@@ -290,6 +290,9 @@ GET  /api/runs/<run_id>               a stored run, re-read without a provider c
 GET  /history/<control_id>            past runs, newest first
 GET  /api/readiness/<control_id>      per-provider field availability
 GET  /style.css                       served from the package, never from a CDN
+GET  /compose                         the compose window, or a page saying it is switched off
+POST /compose                         one turn: prose in, a sentence or a question out
+POST /compose/accept                  compile the sentence in the box, file a draft, run it
 ```
 
 **`as_of` defaults to the instant the evidence describes**, not to today. Each capture declares
@@ -298,6 +301,10 @@ capture of July answers questions about July, and asking today's date instead wo
 page of refusals for a reason that has nothing to do with the controls. The page always states
 which instant it asked about, and `?as_of=` overrides it. A date the engine cannot read is
 refused rather than guessed at.
+
+`handle(path)` stays a pure function of the path. The two routes that write get a second entry
+point, `handle_post(path, body)`, so that signature and everything asserted about it stay true.
+Nothing here writes to a PMS — what a POST writes is our own `spec/drafts/` and our own run store.
 
 Server-side rendering, no JavaScript. The demo's single job is to show that a verdict traces to the
 fields that produced it, and a page that assembles itself from an API call is a page a browser, a
@@ -313,14 +320,24 @@ compile(sentence, registry, deployment=None, tenant=None) -> Compilation
 Compilation = { ir | None, problems: [Problem], confidence, ambiguities, logic }
 ```
 
-Two front ends behind one interface:
+Three front ends behind one gate:
 
 - **`GrammarCompiler`** — a restricted-English parser. Deterministic, offline, no model. This is
   what CI runs and what the tests assert against.
-- **`ModelCompiler`** — an optional adapter that asks a language model for an IR. It is not trusted:
-  its output goes through `ir.validate` unchanged, and a proposal that fails is shown to the author
-  with the missing vocabulary named. Decision D9: the seam is built and exercised against a stub;
-  no model is wired, and there is nothing in the package to wire one with.
+- **`normalise(prose, proposer, ...)`** — decision D10, slice 13. Takes an **injected**
+  `SentenceProposer` that rewrites prose into restricted English, then hands that sentence to the
+  grammar above. The intermediate is a sentence a person reads and edits, so nothing new decides
+  what a rule means: a composed control still carries `confidence == 1.0` and `source ==
+  "grammar"`, because the parse was exact whatever drafted the text.
+- **`ModelCompiler`** — an optional adapter that asks a language model for an IR directly. It is not
+  trusted: its output goes through `ir.validate` unchanged. Decision D9: built, exercised against a
+  stub, no model wired.
+
+**None of the three finds a model, holds a key, or makes a request.** A proposer is always handed
+in, and every backend lives in `tools/proposers/`, outside the engine — which is what keeps
+criterion 11 true for `hotelcontrols/` and keeps both AST guards passing unchanged. A live backend
+sits behind the same two locks as the transport: an environment variable, **and** a refusal to arm
+while a test runner is loaded.
 
 **The sentence is the rule; it is not the deployment.** An IR carries a
 `population.provider_query` — an endpoint and its filters, per provider — and a sentence that could
@@ -415,7 +432,11 @@ Each is recoverable later without reworking what is built now.
 - **Unstructured text as evidence.** Open question 3 — and if it is ever answered yes, the extractor
   must return a value only with the exact quotation it relied on, and UNKNOWN whenever the text is
   ambiguous.
-- **A rule-editing UI.** Sentences arrive through the compiler; IRs arrive as files.
+- **A rule-editing UI.** Sentences arrive through the compiler; IRs arrive as files. The slice-13
+  compose window is a chat box over `normalise`, not an editor: it files **drafts** into
+  `spec/drafts/`, and promoting one into `spec/ir/` is a deliberate manual step.
+- **A model anywhere near a verdict.** D10 puts one in front of the *compiler*. The evidence layer
+  and the evaluator never learn it exists.
 
 ---
 

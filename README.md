@@ -34,8 +34,8 @@ turns a limitation into a product path: *"connect your housekeeping system to en
 
 ## Status
 
-**All twelve slices are built and merged.** 1485 tests, 96% coverage, 1080 spec checks, offline,
-green on Python 3.11 and 3.13. **Eleven of the twelve success criteria are met**; the twelfth is
+**All twelve slices are built and merged, plus a thirteenth.** 1610 tests, 96% coverage, 1080 spec
+checks, offline, green on Python 3.11 and 3.13. **Eleven of the twelve success criteria are met**; the twelfth is
 recorded as *not met* with its arithmetic, which is the point of writing them down.
 
 The claim the architecture rests on is checked rather than asserted: **the same rule, over the same
@@ -50,12 +50,32 @@ spaces — and three of them would move on one sentence from the hotel or the ve
 assessment is in [`docs/plan.md`](docs/plan.md). v1 met all seven of its own criteria while nine of
 its ten controls answered nothing at all, and that is the mistake this number exists to avoid.
 
+## Two ways a control gets in
+
+A control is a **JSON file in `spec/ir/`** — which is what makes a twelfth control a config change
+rather than a code change. Since slice 13 it can also arrive as **prose**:
+
+```
+prose → [model] → restricted English → [grammar] → IR → [validate] → run
+                   ↑ you read and edit   ↑ deterministic, confidence 1.0
+```
+
+The model drafts a **sentence**, never the rule. The deterministic grammar that has compiled the
+eleven shipped controls since slice 9 still builds the IR, the same validator still accepts or
+refuses it, and a wrong field name is refused **by name**. A composed rule is filed as a *draft* and
+is not counted among the eleven. The default backend is a model on your own machine — free, offline,
+and no dependency; a hosted one is opt-in. **No verdict depends on a model call**, and no model
+client exists inside the engine.
+
 Try it:
 
 ```bash
-python3 -m pytest -q                          # 1485 tests, offline, no dependencies
+python3 -m pytest -q                          # 1610 tests, offline, no dependencies
 python3 -m hotelcontrols.web.server           # the demo at http://127.0.0.1:8765/
 python3 -m tools.probe --plan                 # what a live probe would ask. Makes no calls
+
+HOTELCONTROLS_COMPOSE=1 python3 -m tools.serve --llm stub    # + /compose, no model needed
+HOTELCONTROLS_COMPOSE=1 python3 -m tools.serve --llm local   # + /compose, backed by Ollama
 ```
 
 v1 is preserved in `miniHotelLegacy/` — four silos, 152 passing tests, one control working end to
@@ -77,6 +97,7 @@ Start with **[`docs/plan.md`](docs/plan.md)** for where the build is, or
 | [`docs/old-codebase-improve.md`](docs/old-codebase-improve.md) | The v1 review |
 | [`docs/open-questions.md`](docs/open-questions.md) | Everything we know we do not know |
 | [`docs/QA.md`](docs/QA.md) | Running Q&A transcript |
+| [`docs/project-explainer/`](docs/project-explainer/) | Business case → code, for a newcomer: overview, file map, architecture diagrams, and one record traced end to end |
 
 ## Running it
 
@@ -102,8 +123,11 @@ python3 -m tools.transcode_demopms --check                 # the demo fixtures a
 file's size nor its mtime-second leaves a stale `.pyc` valid, so the suite runs the old code and
 reports a green that means nothing. That happened twice during v1.
 
-**No test touches the network** — `tests/unit/test_stdlib_only.py` enforces it by walking the source
-tree and asserting the engine contains no outbound HTTP client at all.
+**No test touches the network, or a model** — `tests/unit/test_stdlib_only.py` walks the source tree
+and asserts the engine contains no outbound HTTP client at all, and
+`tests/unit/test_proposers_refuse_in_tests.py` asserts the same about model backends: they live
+outside the engine, and both refuse to arm inside a test process even with their environment
+variable set.
 
 ## A note on the data
 

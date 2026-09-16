@@ -102,7 +102,8 @@ def error_json(status: int, message: str) -> str:
 
 # --------------------------------------------------------------------------- index
 def index_page(entries: Iterable[tuple], properties: Iterable[tuple],
-               current: tuple[str, str]) -> str:
+               current: tuple[str, str], compose: str = "",
+               drafts: Iterable = ()) -> str:
     """Every control the spec defines, with what each provider could answer about it.
 
     Criterion 10, and finding F8 behind it. v1 had every ingredient - `required_evidence[]
@@ -126,6 +127,16 @@ def index_page(entries: Iterable[tuple], properties: Iterable[tuple],
         "?as_of=. Asking a capture about a window it never covered is refused rather than "
         "answered with an empty population."))
 
+    # The compose entry point, and only when a proposer is actually wired. An advertised
+    # feature that answers "switched off" is worse than one that is not advertised.
+    if compose:
+        chooser.append(
+            '<div class="card"><p class="sentence"><a href="/compose">Compose a control from '
+            'prose</a></p><p class="meta">Describe a rule in your own words and the '
+            '<strong>%s</strong> proposer rewrites it as a restricted sentence, which the same '
+            'deterministic grammar and the same validator then turn into a rule. Composed '
+            'rules are filed as drafts.</p></div>' % _e(compose))
+
     cards = ["<h2>Controls</h2>"]
     for ir, reports in entries:
         cards.append(
@@ -141,6 +152,19 @@ def index_page(entries: Iterable[tuple], properties: Iterable[tuple],
         cards.append('<p class="meta"><a href="/history/%s">history</a> &middot; '
                      '<a href="/api/readiness/%s">readiness JSON</a></p></div>'
                      % (_e(ir.control_id), _e(ir.control_id)))
+
+    # Drafts last and visibly separated. They are runnable and unreviewed, and mixing them in
+    # with the eleven would blur exactly the line docs/plan.md's criterion-1 figure depends on.
+    for ir in drafts:
+        cards.append(
+            '<div class="card"><p class="sentence">'
+            '<a href="/run/%s?property=%s&amp;evidence=%s">%s</a> '
+            '<span class="draft-badge">draft &middot; unreviewed</span></p>'
+            '<p class="meta">%s</p>'
+            '<p class="meta"><code>%s</code> &middot; one record is one %s &middot; '
+            "not counted in the criterion-1 figure</p></div>"
+            % (_e(ir.control_id), _e(tenant_id), _e(capture), _e(ir.name),
+               _e(ir.natural_language), _e(ir.control_id), _e(ir["entity"])))
 
     return page("Controls", "Every control the specification defines, and what each PMS could "
                             "answer about it.", "".join(chooser) + "".join(cards))
@@ -368,3 +392,225 @@ def _readiness_json(report) -> dict[str, Any]:
         "unresolvable": list(report.unresolvable),
         "tenant_supplied": list(report.tenant_supplied),
     }
+
+
+# --------------------------------------------------------------------------- compose
+def redirect(location: str) -> str:
+    """A 303 body. Browsers follow the header; this is for everything that reads the body.
+
+    The compose flow ends in a redirect so that filing a draft and then viewing its run are two
+    different requests. Re-reading the run page must not re-file the draft, and a reload after a
+    POST that answered with a page would do exactly that.
+    """
+    # A meta refresh as well as the header, and it is not belt-and-braces: it is what the
+    # location is READ BACK OUT OF by `server._location`. An `href` would not do - the page
+    # shell already carries one for the stylesheet, and parsing "the first href" sent a reader
+    # to /style.css. This attribute appears exactly once and only in a redirect.
+    return page("Filed", "The draft was written.",
+                '<meta http-equiv="refresh" content="0; url=%s">'
+                '<div class="card"><p class="sentence">Draft filed</p>'
+                '<p>Continue to <a href="%s">the run</a>.</p></div>'
+                % (_e(location), _e(location)))
+
+
+def compose_page(proposer: str, conversation: str, transcript: Iterable,
+                 templates: Iterable[tuple[str, str]], selection: tuple[str, str],
+                 template: str = "", drafts: Iterable = (), result=None, compilation=None,
+                 sentence: str | None = None) -> str:
+    """The chat window: prose in, a restricted sentence out, a draft filed only on request.
+
+    THE SENTENCE IS EDITABLE, AND THAT IS THE DESIGN. What the model returns is a suggestion in
+    a text box. What compiles is whatever is in that box when the button is pressed, so the
+    rule that runs is one a person committed to. Decision D10 rests on this: the model drafts,
+    the deterministic grammar decides, and a human is between them.
+    """
+    tenant_id, capture = selection
+
+    if not proposer:
+        return page("Compose", "This front end is switched off.", _off_page())
+
+    body = [
+        '<div class="card">',
+        '<p class="sentence">Compose a control</p>',
+        '<p class="meta">Describe a rule in your own words. The <strong>%s</strong> proposer '
+        'rewrites it as a restricted sentence; the deterministic grammar turns that sentence '
+        'into the rule. You can edit the sentence before anything runs.</p>' % _e(proposer),
+        "</div>",
+        _transcript(transcript),
+    ]
+
+    if result is not None:
+        body.append(_proposal(result, templates, template, conversation, tenant_id, capture))
+    if compilation is not None:
+        # Reached when a person edited the sentence and pressed the button on something the
+        # grammar refuses. The reasons are the same ones a hand-written IR would get.
+        body.append(_refusal(compilation, sentence or ""))
+
+    body.append(_ask_form(conversation, templates, template))
+    body.append(_drafts_card(drafts, tenant_id, capture))
+
+    return page("Compose", "Prose in, a restricted sentence out, and the same validator as "
+                           "every hand-written rule.", "".join(body))
+
+
+def _off_page() -> str:
+    return (
+        '<div class="card blocked">'
+        '<p class="sentence">No proposer is wired</p>'
+        "<p>The compose front end is opt-in, because it is the only part of this system that "
+        "talks to a model at all. The engine itself imports nothing outside the standard "
+        "library and contains no HTTP client; every model backend lives under "
+        "<code>tools/</code> and is handed in at startup.</p>"
+        "<p class=\"meta\">Start it with one of:</p>"
+        "<pre>HOTELCONTROLS_COMPOSE=1 python3 -m tools.serve --llm stub    "
+        "# no model, fixed replies, nothing to install\n"
+        "HOTELCONTROLS_COMPOSE=1 python3 -m tools.serve --llm local   "
+        "# a model on this machine, free\n"
+        "HOTELCONTROLS_COMPOSE=1 python3 -m tools.serve --llm claude  "
+        "# the hosted API, paid</pre>"
+        '<p class="meta"><a href="/">Back to the controls</a></p></div>')
+
+
+def _transcript(transcript: Iterable) -> str:
+    turns = list(transcript)
+    if not turns:
+        return ""
+    rows = ['<div class="card"><p class="meta"><strong>This conversation</strong></p>']
+    for turn in turns:
+        rows.append('<p class="says"><span class="who">you</span> %s</p>' % _e(turn.prose))
+        if turn.sentence:
+            rows.append('<p class="proposed"><code>%s</code></p>' % _e(turn.sentence))
+        if turn.question:
+            rows.append('<p class="asked"><span class="who">asked</span> %s</p>'
+                        % _e(turn.question))
+        for problem in turn.problems:
+            rows.append('<p class="refused">refused &middot; %s</p>' % _e(problem))
+    rows.append("</div>")
+    return "".join(rows)
+
+
+def _proposal(result, templates, template: str, conversation: str, tenant_id: str,
+              capture: str) -> str:
+    """The latest turn, and the button that files it.
+
+    A question gets no button. That is section 18 made structural: a proposer that declined to
+    invent hotel policy has not produced a rule, and offering to run one anyway would undo the
+    restraint that makes the answer worth having.
+    """
+    if result.is_question and not result.sentence:
+        return (
+            '<div class="card verdict UNKNOWN">'
+            '<p><span class="badge">A QUESTION, NOT A RULE</span></p>'
+            "<p class=\"says\">%s</p>"
+            '<p class="means">The proposer declined to guess at hotel policy. Answer it below '
+            "and it will try again - a question is a better answer than a rule the hotel did "
+            "not ask for.</p></div>" % _e(result.question))
+
+    if not result.ok:
+        return _refusal(result.compilation, result.sentence, extra=result.problems)
+
+    ir = result.compilation.ir
+    fields = ir.get("required_evidence", [])
+    return "".join([
+        '<div class="card verdict PASS">',
+        '<p><span class="badge">THIS COMPILES</span></p>',
+        '<p class="means">The grammar parsed it and the validator accepted it. Nothing has '
+        "been filed or run yet.</p>",
+        '<form method="post" action="/compose/accept">',
+        '<input type="hidden" name="conversation" value="%s">' % _e(conversation),
+        '<input type="hidden" name="property" value="%s">' % _e(tenant_id),
+        '<input type="hidden" name="evidence" value="%s">' % _e(capture),
+        '<label for="sentence">The rule, as it will be compiled</label>',
+        '<textarea id="sentence" name="sentence" rows="4">%s</textarea>' % _e(result.sentence),
+        '<p class="meta">Edit this freely. What runs is what is in the box.</p>',
+        '<p class="meta">Reads %d field(s): %s</p>'
+        % (len(fields), _e(", ".join(entry["field"] for entry in fields))),
+        '<label for="control_id">File it as</label>',
+        '<input id="control_id" name="control_id" value="" placeholder="guest_email_on_file">',
+        '<label for="name">Shown as</label>',
+        '<input id="name" name="name" value="" placeholder="Guest Email On File">',
+        _template_picker(templates, "template", template),
+        '<button type="submit">File as draft and run it</button>',
+        "</form></div>",
+    ])
+
+
+def _refusal(compilation, sentence: str, extra: Iterable = ()) -> str:
+    """Why a sentence is not a rule, in the validator's own words.
+
+    The sentence is shown even though it failed. An author cannot correct something they were
+    never shown, and "the model said something wrong" is far less useful than seeing what.
+    """
+    reasons = [str(problem) for problem in extra]
+    if compilation is not None:
+        reasons += [str(problem) for problem in compilation.problems]
+        reasons += ["Ambiguous, and it will not be guessed at: %s" % a
+                    for a in compilation.ambiguities]
+
+    rows = [
+        '<div class="card verdict FAIL">',
+        '<p><span class="badge">REFUSED</span></p>',
+    ]
+    if sentence:
+        rows.append('<p class="proposed"><code>%s</code></p>' % _e(sentence))
+    rows.append("<ul>")
+    for reason in reasons or ["No reason was recorded, which is itself a defect."]:
+        rows.append("<li>%s</li>" % _e(reason))
+    rows.append("</ul>")
+    rows.append('<p class="means">This is the same gate a hand-written rule goes through, and '
+                "it names what is missing rather than guessing. Rephrase below, or edit the "
+                "sentence and try again.</p>")
+    rows.append("</div>")
+    return "".join(rows)
+
+
+def _ask_form(conversation: str, templates, template: str = "") -> str:
+    return "".join([
+        '<div class="card"><form method="post" action="/compose">',
+        '<input type="hidden" name="conversation" value="%s">' % _e(conversation),
+        '<label for="prose">Describe the rule</label>',
+        '<textarea id="prose" name="prose" rows="3" '
+        'placeholder="a reservation cannot be closed while the guest still owes money">'
+        "</textarea>",
+        _template_picker(templates, "template", template),
+        '<button type="submit">Ask</button>',
+        "</form></div>",
+    ])
+
+
+def _template_picker(templates, name: str, current: str = "") -> str:
+    """Which existing control's bounded population a draft borrows.
+
+    A sentence cannot name an endpoint without breaking criterion 5, so this half of the
+    document arrives as data - and the honest source is a control that already runs over the
+    records the new rule is about. `population` is also what bounds the call count to `1 + R +
+    N`, so a draft without one is not runnable at any price (R1, R8).
+    """
+    options = []
+    for control_id, entity in templates:
+        options.append('<option value="%s"%s>%s &middot; one record is one %s</option>'
+                       % (_e(control_id), " selected" if control_id == current else "",
+                          _e(control_id), _e(entity)))
+    return ('<label for="%s">Records to check</label>'
+            '<select id="%s" name="%s">%s</select>'
+            '<p class="meta">Borrowed from an existing control, because a sentence may not '
+            "name an endpoint or a date window.</p>"
+            % (_e(name), _e(name), _e(name), "".join(options)))
+
+
+def _drafts_card(drafts, tenant_id: str, capture: str) -> str:
+    irs = list(drafts)
+    if not irs:
+        return ""
+    rows = ['<div class="card"><p class="meta"><strong>Drafts</strong> &middot; runnable, '
+            "not reviewed, and not counted in the criterion-1 figure</p>"]
+    for ir in irs:
+        rows.append(
+            '<p class="sentence"><a href="/run/%s?property=%s&amp;evidence=%s">%s</a> '
+            '<span class="draft-badge">draft &middot; unreviewed</span></p>'
+            '<p class="meta"><code>%s</code></p>'
+            % (_e(ir.control_id), _e(tenant_id), _e(capture), _e(ir.name),
+               _e(ir["restricted_language"] or ir.natural_language)))
+    rows.append('<p class="meta">Promoting one is deliberate and manual - see '
+                "<code>spec/drafts/README.md</code>.</p></div>")
+    return "".join(rows)

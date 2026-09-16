@@ -19,6 +19,8 @@ interface would be a demo that published it.
 from __future__ import annotations
 
 import argparse
+import html
+import re
 from http.server import BaseHTTPRequestHandler, HTTPServer
 
 from .app import App
@@ -44,31 +46,81 @@ SERVER = HTTPServer
 SECURITY_POLICY = "default-src 'none'; style-src 'self'; img-src 'self'"
 
 
-def respond(app: App, path: str) -> tuple[int, dict[str, str], bytes]:
+# How much form body this server will read. A compose turn is a sentence and a couple of
+# identifiers; anything past this is not a control being described.
+MAX_BODY = 64 * 1024
+
+
+def respond(app: App, path: str, body: str | None = None) -> tuple[int, dict[str, str], bytes]:
     """One request, as a value: status, headers, body bytes.
 
     Extracted from the handler so the socket half of this file is six lines that decide
     nothing. Everything worth asserting - the status, the content type, the byte length, the
     encoding, the policy header - is asserted here, without binding a port.
+
+    `body` is None for a GET, which is every route but the two the compose front end adds.
     """
-    status, content_type, body = app.handle(path)
-    payload = body.encode("utf-8")
+    status, content_type, page = (app.handle(path) if body is None
+                                  else app.handle_post(path, body))
+    payload = page.encode("utf-8")
     headers = {
         "Content-Type": content_type,
         "Content-Length": str(len(payload)),
         "Content-Security-Policy": SECURITY_POLICY,
     }
+    # A 303 is how the compose flow stops a reload from re-filing a draft: the POST answers
+    # with "look over there", and the reader's next request is an ordinary GET of the run page.
+    if status == 303:
+        headers["Location"] = _location(page)
     return status, headers, payload
 
 
+def _location(page: str) -> str:
+    """Where a redirect body points, read back out of the page it rendered.
+
+    Read from the body rather than passed alongside it so that `Response` keeps its three
+    fields and every existing `status, content_type, body = ...` unpacking keeps working. A
+    page is still a value; this reads one attribute of it.
+
+    It reads the META REFRESH and not an `href`, because the page shell carries an href for the
+    stylesheet - "the first href in the body" sent a reader to /style.css, which a test caught.
+    The meta refresh appears exactly once and only in a redirect body, and it is also what
+    makes the redirect work for a client that ignores the header.
+    """
+    match = re.search(r'<meta http-equiv="refresh" content="0; url=([^"]+)">', page)
+    return html.unescape(match.group(1)) if match else "/"
+
+
 class Handler(BaseHTTPRequestHandler):
-    """One method, and it is GET. This engine is read-only, permanently (`prd.md` §6)."""
+    """GET everywhere, and POST on the two compose routes.
+
+    This engine is still read-only against a PMS, permanently (`prd.md` §6) - it has no client
+    that could write to one. What a POST writes is our own `spec/drafts/` directory and our own
+    run store, and it exists because filing a draft and asking a model a question are both
+    things a link should not do.
+    """
 
     app = App()
     server_version = "hotelcontrols"
 
     def do_GET(self) -> None:                                          # noqa: N802
-        status, headers, payload = respond(self.app, self.path)
+        self._reply(respond(self.app, self.path))
+
+    def do_POST(self) -> None:                                         # noqa: N802
+        try:
+            length = int(self.headers.get("Content-Length") or 0)
+        except ValueError:
+            length = 0
+        if length > MAX_BODY:
+            # Refused without reading it. A body this large is not a rule being described, and
+            # reading it first to find that out is the part worth avoiding.
+            self._reply(respond(self.app, "/nowhere-this-body-is-too-large"))
+            return
+        raw = self.rfile.read(length) if length else b""
+        self._reply(respond(self.app, self.path, raw.decode("utf-8", errors="replace")))
+
+    def _reply(self, response: tuple[int, dict[str, str], bytes]) -> None:
+        status, headers, payload = response
         self.send_response(status)
         for name, value in headers.items():
             self.send_header(name, value)
