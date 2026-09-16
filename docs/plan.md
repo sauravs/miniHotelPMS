@@ -21,6 +21,8 @@ Execution tracker. **Update the status table as slices close.** Design rationale
 | 9 | Compiler — English → IR | ☑ | ☑ | ☑ | ☑ | ☑ | **done** — PR #13 |
 | 10 | Web UI & JSON API | ☑ | ☑ | ☑ | ☑ | ☑ | **done** — PR #14 |
 | 11 | Transport (opt-in) & probe tooling | ☑ | ☑ | — | ☑ | ☑ | **done** — PR #15 |
+| 12 | Documentation & explainers | — | — | — | ☑ | ☑ | **done** — PRs #16–#21 |
+| 13 | Compose front end (prose → sentence → rule) | ☑ | ☑ | — | ☑ | ☐ | **done** — decision D10 |
 
 ---
 
@@ -639,7 +641,7 @@ something.
 | 8 | A run that concluded nothing says so | **Met** — slice 6's coverage verdict |
 | 9 | English compiles to IR; unsupported sentences rejected by name | **Met** — 11 of 11 controls recompile from their own restricted-English sentence to the same rule and the same verdicts; an undeclared field, an unknown operator, an ambiguous operand and a population window are each refused by name |
 | 10 | Readiness reported per control per provider | **Met** — on the index, per control, for both providers, and at `/api/readiness/<control_id>` |
-| 11 | Offline, stdlib-only runtime, no test reaches the network | **Met** — exactly one file in the engine imports an outbound client, and it refuses to arm both when the environment variable is unset AND while a test runner is loaded. A test that sets the variable is still refused |
+| 11 | Offline, stdlib-only runtime, no test reaches the network **or a model** | **Met** — exactly one file in the engine imports an outbound client. Slice 13 added model backends and put them **outside** the engine in `tools/proposers/`, so `hotelcontrols/` still imports only the standard library and **both AST guards passed unchanged**. Every live backend refuses to arm when its variable is unset AND while a test runner is loaded; the tests that set the variable are still refused |
 | 12 | Every slice green in CI before the next opens | **Met** — twelve slices, twelve green pipelines on Python 3.11 and 3.13, each merged before the next opened |
 
 ### Criterion 1, assessed: 5 of 11, and where the other six went
@@ -710,3 +712,72 @@ Recorded here so they are not discovered late.
 | 5 | Whether `007003206`/`007003207` — a cancelled booking and its recreation sharing one portal id — is a violation of control 14 or the expected OTA-modification pattern (R7). Affects the control's spec, not its code |
 | 6 | Which controls a property has **nominated rate codes** for. `required_reservation_fields` excluded 71 of 108 records in v1 for want of them |
 | ~~9~~ | ~~Whether the LLM adapter should be wired to a real model, and to which~~ — **answered 2026-09-09, decision D9: no, not in slice 9.** Build the seam, exercise it against a stub. The model adapter, if ever wired, is a dev-time tool under `tools/` and never a runtime component |
+
+---
+
+## Slice 13 · Compose front end — prose → sentence → rule
+
+Decision **D10**. Both authoring paths, switchable: controls filed as spec files, and controls
+composed from prose in a chat window. Constraint from the project owner: **free to run.**
+
+### What it is
+
+```
+prose → [proposer] → restricted English → [GrammarCompiler] → IR → [spec.validate] → run
+                      ↑ shown and editable   ↑ deterministic, confidence 1.0
+```
+
+The model produces a **sentence**, not IR. Three reasons, and the third is why it was chosen: the
+intermediate is readable and correctable; nothing new decides what a rule means; and a 7B model run
+locally for free can rewrite a sentence into a template, where it cannot reliably emit a valid
+six-key nested IR.
+
+### Where the code went, and why that mattered most
+
+`hotelcontrols/compiler/sentences.py` holds a `SentenceProposer` **protocol** and a `normalise()`
+that takes one as a parameter. Every backend lives in `tools/proposers/` — outside the engine —
+and `tools/serve.py` injects one.
+
+**Both existing AST guards passed without being edited**, which was the design target rather than a
+lucky outcome: `test_stdlib_only.py` still finds no HTTP client in `hotelcontrols/`, and
+`test_compiler_grammar.py`'s network guard still finds nothing in the compiler that could reach a
+model. `hotelcontrols/compiler/sentences.py` imports `re`, `dataclasses` and `typing`, and that is
+asserted too.
+
+### Backends
+
+| name | what | cost |
+| --- | --- | --- |
+| `local` | Ollama on this machine, stdlib `urllib` | **free**, zero dependencies — the default |
+| `claude` | `claude-haiku-4-5`, vocabulary cached | ~¼¢ per attempt, optional `anthropic` extra |
+| `stub` | fixed replies, no model | free, nothing to install — **the only backend tests wire** |
+| `off` | nothing | identical to `python3 -m hotelcontrols.web.server` |
+
+### The prompt is generated, not written
+
+Assembled at call time from `spec/canonical_fields.json`, the grammar's own `OPERATOR_PHRASES` and
+keyword tables, and six shipped `restricted_language` sentences. It therefore cannot drift from the
+language it describes — a hand-written prompt listing operators would be a second copy of
+`OPERATOR_PHRASES`, and the day somebody added one the model would be told about a language the
+compiler no longer speaks, **silently**.
+
+### Drafts are not shipped controls
+
+Composed rules are filed in `spec/drafts/`, runnable, badged `draft · unreviewed`, and **excluded
+from the criterion-1 figure above**. Promotion is a deliberate `git mv` into `spec/ir/` plus
+`tools.validate_spec`. `spec/drafts/README.md` carries the procedure.
+
+### Gate
+
+- [x] Prose → sentence → grammar → validator → a filed draft that runs, through the app
+- [x] An undeclared field is refused **by name**, on screen — §17's gate, unchanged
+- [x] A population word in a sentence is refused — criterion 5 holds for composed rules
+- [x] A policy question comes back as **a question, with no button to run anything** — §18
+- [x] A proposer that raises becomes a stated reason, never a traceback
+- [x] **The same composed draft yields identical verdicts and identical call counts on both
+      providers** — criterion 7, for a rule that arrived as prose
+- [x] A draft may not shadow a reviewed control; an id from a text box cannot escape the directory
+- [x] Every live backend refuses inside a test process **with its variable set**
+- [x] `python3 -m hotelcontrols.web.server` behaves exactly as before — proposer defaults to `None`
+- [x] CSP still forbids script entirely; the page loads no JavaScript
+- [x] 1610 tests pass (+105), 1,080 spec checks pass, coverage 96%

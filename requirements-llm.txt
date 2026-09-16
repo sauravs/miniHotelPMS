@@ -1,0 +1,15 @@
+# OPTIONAL. The engine does not need this and must never import it.
+#
+# `hotelcontrols/` imports only the standard library (success criterion 11), asserted over the
+# AST by tests/unit/test_stdlib_only.py and again by tests/unit/test_compiler_grammar.py. This
+# package is used by ONE file, tools/proposers/anthropic_api.py, which lives outside the engine
+# and is injected into the demo at startup by tools/serve.py.
+#
+# You only need it for the PAID compose backend:
+#     python3 -m tools.serve --llm claude
+#
+# The default backend is a model on your own machine and needs nothing from this file:
+#     python3 -m tools.serve --llm local
+# and the stub backend needs no model at all:
+#     python3 -m tools.serve --llm stub
+anthropic>=1.0

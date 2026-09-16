@@ -118,3 +118,51 @@ table.listing th, table.listing td {
 .evidence-picker { margin: .5rem 0 0; font-size: .82rem; }
 .evidence-picker a { margin-right: .5rem; }
 .evidence-picker .current { font-weight: 600; color: var(--ink); text-decoration: none; }
+
+/* ------------------------------------------------------------------ compose (slice 13)
+   The chat window. No JavaScript anywhere: it is two forms and a re-rendered page, so the
+   Content-Security-Policy in server.py still forbids script entirely. */
+form label {
+  display: block; margin: .7rem 0 .2rem;
+  font-size: .72rem; letter-spacing: .07em; text-transform: uppercase; color: var(--quiet);
+}
+form textarea, form input[type="text"], form input:not([type]), form select {
+  width: 100%; box-sizing: border-box; padding: .45rem .5rem;
+  border: 1px solid var(--line); border-radius: 3px;
+  font: inherit; color: var(--ink); background: var(--paper);
+}
+form textarea { resize: vertical; }
+form button {
+  margin-top: .9rem; padding: .5rem .9rem;
+  border: 1px solid #0b57d0; border-radius: 3px;
+  background: #0b57d0; color: #fff; font: inherit; cursor: pointer;
+}
+form button:hover { background: #0846a6; }
+
+/* The transcript. `who` is a word rather than an icon, for the same reason a verdict carries
+   wording as well as a hue: the distinction has to survive a monochrome screen. */
+.who {
+  display: inline-block; min-width: 3.4rem;
+  font-size: .68rem; letter-spacing: .08em; text-transform: uppercase; color: var(--quiet);
+}
+.proposed { margin: .2rem 0 .5rem; }
+.proposed code {
+  display: block; padding: .45rem .55rem;
+  background: var(--ground); border-left: 3px solid var(--line); border-radius: 2px;
+  font-size: .85rem; line-height: 1.5; white-space: pre-wrap;
+}
+.asked { margin: .2rem 0 .5rem; }
+.refused { margin: .2rem 0; color: #b3261e; font-size: .82rem; }
+
+/* A draft is marked everywhere it appears. It is runnable and unreviewed, and those two facts
+   have to travel together or the criterion-1 figure stops meaning anything. */
+.draft-badge {
+  display: inline-block; margin-left: .4rem; padding: .1rem .4rem;
+  border: 1px dashed #6d4c00; border-radius: 2px;
+  font-size: .66rem; letter-spacing: .06em; text-transform: uppercase; color: #6d4c00;
+}
+pre {
+  padding: .6rem .7rem; overflow-x: auto;
+  background: var(--ground); border: 1px solid var(--line); border-radius: 3px;
+  font-size: .78rem; line-height: 1.5;
+}

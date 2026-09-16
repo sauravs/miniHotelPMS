@@ -21,7 +21,7 @@ docs/open-questions.md, docs/old-codebase-improve.md. They are the specification
 execution tracker; docs/plan.md is authoritative for what is done and what is next.
 
 STATE: ALL TWELVE SLICES ARE MERGED (PRs #1-#8, #10-#15, #17, #18 on
-github.com/sauravs/miniHotelPMS). 1501 tests, 96% coverage, 1080 spec checks, CI green on
+github.com/sauravs/miniHotelPMS). 1610 tests, 96% coverage, 1080 spec checks, CI green on
 Python 3.11 and 3.13.
 ELEVEN OF THE TWELVE SUCCESS CRITERIA ARE MET. Criterion 1 is recorded as NOT MET - 5 of 11
 controls reach a PASS or a FAIL where the PRD asks for 8 - with each of the six shortfalls

@@ -22,7 +22,7 @@ that adding a PMS is a new adapter plus a mapping file, not a change to any rule
 | v1 demo: control 6, four silos, 152 tests | **Done** — and measured: only 1 of its 10 controls ever answers |
 | v1 review, 20 findings | **Done** — `docs/old-codebase-improve.md` |
 | v2 documents | **Done** — prd, context, architecture, plan, open questions |
-| v2 code | **All 12 slices merged.** 1485 tests, 96% coverage, 1080 spec checks, CI green. 11 of 12 criteria met; criterion 1 is recorded as **not met** with its arithmetic in `docs/plan.md` |
+| v2 code | **All 12 slices merged**, plus slice 13 (compose). 1610 tests, 96% coverage, 1080 spec checks, CI green. 11 of 12 criteria met; criterion 1 is recorded as **not met** with its arithmetic in `docs/plan.md` |
 
 ## Documents, in reading order
 
@@ -87,7 +87,9 @@ UNKNOWN. That is the honest cost of not guessing.
 
 - **Zero runtime dependencies.** Standard library only: `xml.etree`, `decimal`, `sqlite3`,
   `http.server`, `zoneinfo`, `json`. `pytest` and `coverage` are dev dependencies, used by tests and
-  CI and never imported by `hotelcontrols/`.
+  CI and never imported by `hotelcontrols/`. **`anthropic` is an optional extra used by exactly one
+  file under `tools/`** (`requirements-llm.txt`) and is never importable from the engine — two AST
+  tests enforce that.
 - **TDD, with gates.** Failing test first, written **from the specification** rather than from the
   code you intend to write. A slice's unit *and* integration tests must pass, and CI must be green,
   before the next slice opens. See `docs/plan.md`.
@@ -108,6 +110,11 @@ UNKNOWN. That is the honest cost of not guessing.
 
 ## Rules
 
+- **A model may draft a sentence; it may never decide a rule.** Decision D10. Every model backend
+  lives in `tools/proposers/` and is *injected* — nothing under `hotelcontrols/` may import one, and
+  `tests/unit/test_proposers_refuse_in_tests.py` asserts it over the AST. A composed control is a
+  **draft** in `spec/drafts/`, is badged unreviewed, and is **never counted** in the criterion-1
+  figure. No verdict depends on a model call.
 - **Do not hit the MiniHotel API without asking.** MiniHotel asks integrators not to query wide
   ranges without agreement (R8). Fixtures already hold what the tests need. Live calls are opt-in,
   staged, bounded, and approved **individually** by the project owner.
@@ -144,6 +151,8 @@ The issue is written **before** the fix, while the reproduction is still known.
 PYTHONDONTWRITEBYTECODE=1 python3 -m pytest -q     # the suite, offline
 python3 -m tools.validate_spec                     # spec + fixture checks
 python3 -m hotelcontrols.web.server                # the demo, http://127.0.0.1:8765/
+HOTELCONTROLS_COMPOSE=1 python3 -m tools.serve --llm stub    # the demo + /compose, no model needed
+HOTELCONTROLS_COMPOSE=1 python3 -m tools.serve --llm local   # ...backed by Ollama. Free, offline
 python3 -m tools.scrub_fixtures <in> <out>         # pseudonymise a raw capture
 python3 -m tools.transcode_demopms --check         # the demo fixtures match a rebuild
 python3 -m tools.probe --plan                      # print a probe plan; makes NO calls

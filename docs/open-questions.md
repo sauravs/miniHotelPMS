@@ -80,6 +80,69 @@ second one is the structural one:
 `ir.validate` is left testing *semantics* (does this field exist, does this join declare its key)
 rather than JSON shape. Recorded here so the design stays available rather than rediscovered.
 
+### D10 — 2026-09-16, slice 13. **Supersedes D9's placement clause.**
+
+**Asked for:** both paths — controls filed as spec files *and* controls composed from prose in a
+chat window in the UI, switchable. Constraint: **free to run.**
+
+**Decision: build it, with the model producing a SENTENCE rather than an IR.**
+
+```
+prose → [model] → restricted English → [GrammarCompiler] → IR → [spec.validate] → run
+                   ↑ shown, editable     ↑ deterministic, confidence 1.0
+```
+
+**What changed from D9, and what did not.**
+
+D9 said the model adapter, if ever wired, is "a drafting aid producing a spec artifact a human
+reviews and commits, never a runtime component. No verdict may ever depend on a model call."
+
+The second sentence is **kept, in full**. A model drafts a *sentence*; the deterministic grammar
+builds the rule; the validator accepts or refuses it; the evidence layer and evaluator never learn
+that any of it happened. A composed control carries `confidence == 1.0` and `source == "grammar"`,
+because the parse was exact whatever drafted the text. **No verdict depends on a model call.**
+
+The first clause is what moved: the drafting aid is now reachable from the demo rather than only
+from a script. D9's own reasoning survives the move intact — the client lives in `tools/`, the
+engine imports nothing, and the proposer is *injected*:
+
+- `hotelcontrols/compiler/sentences.py` holds a `SentenceProposer` **protocol** and takes one as a
+  parameter. It cannot acquire one.
+- Every backend lives in `tools/proposers/`. Nothing under `hotelcontrols/` imports it, asserted
+  over the AST in `tests/unit/test_proposers_refuse_in_tests.py`.
+- **Criterion 11 is unchanged and still met**, verbatim, for the engine. Both existing AST guards —
+  `test_stdlib_only.py` and `test_compiler_grammar.py`'s network guard — pass **without being
+  edited**, which was the design target rather than a happy accident.
+
+**Why a sentence and not IR JSON.** Three reasons; the third decided it:
+
+1. The intermediate is **readable and editable**. A person sees the restricted sentence and corrects
+   it before anything compiles. Raw IR is reviewable in principle and unreviewed in practice.
+2. **Nothing new decides anything.** A wrong field name is not bad IR that slipped through — it is a
+   sentence the grammar refuses *by name*, which is §17's gate doing its job.
+3. **It makes a free model adequate.** A 7B local model cannot reliably emit a valid six-key nested
+   IR; it can reliably rewrite a sentence into a template. "Free to run" was a requirement, and
+   asking for less is what satisfies it.
+
+**Backends, pluggable behind one method.** `local` (Ollama on this machine, stdlib `urllib`, **zero
+dependencies, zero cost** — the default) · `claude` (`claude-haiku-4-5`, ~¼¢ per attempt with the
+vocabulary cached, optional `anthropic` extra) · `stub` (fixed replies, no model, what every test
+wires) · `off`.
+
+**Two locks, copied from the transport.** A live backend refuses unless `HOTELCONTROLS_COMPOSE=1`
+**and** no test runner is loaded in the process. The local backend is held to this too: `localhost`
+is still a socket, and a rule with one exception acquires a second. The test that sets the variable
+is refused anyway.
+
+**Drafts are not shipped controls.** A composed rule is filed in `spec/drafts/`, runnable
+immediately, badged `draft · unreviewed`, and **excluded from the criterion-1 figure** — that number
+is the most carefully-kept figure in this repository and a machine-drafted rule does not get to move
+it. Promotion is a deliberate `git mv` plus `tools.validate_spec`.
+
+**What is still not built:** no model is wired *by default* (the default backend is one you run
+yourself), and the compose front end is off unless `tools/serve.py` starts it. `python3 -m
+hotelcontrols.web.server` behaves exactly as it always has.
+
 ---
 
 ## 1. Open — for the project owner
