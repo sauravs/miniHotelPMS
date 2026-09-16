@@ -188,14 +188,14 @@ the way it does. The clauses that bind:
 | § | What the brief demanded | Where it lives now |
 | --- | --- | --- |
 | §1 | **The rule must not contain PMS-specific information.** Not `mews.reservation.paymentState == ...` | The canonical boundary, enforced by `tests/unit/test_canonical_boundary.py` |
-| §2 | The customer types a sentence and immediately sees the compiled control **plus field availability** — *"MiniHotel: 4/4 fields available"* | `hotelcontrols/compiler/` + `hotelcontrols/runner/readiness.py` |
+| §2 | The customer types a sentence and immediately sees the compiled control **plus field availability** — *"MiniHotel: 4/4 fields available"* | `hotelcontrols/compiler/` + `runner/readiness.py`, and since slice 13 the text box itself at **`/compose`** — see §10 |
 | §4, §22 | **Logic and execution are separate objects.** *"The logic doesn't care whether we check every 5 minutes or every hour"* | The IR's `assertion` vs its `execution` block |
 | §5–§12, §23 | Four trigger classes (event / time-window / periodic / batch), plus a **freshness requirement** per control | `hotelcontrols/runner/scheduling.py`, as pure functions |
 | §13 | Canonical field → per-provider *endpoint + path + transformation* | `spec/providers/minihotel.json`, `spec/providers/demopms.json` |
 | §14 | **PASS / FAIL / UNKNOWN.** *"We must not fail the reservation"* for missing evidence | `hotelcontrols/kernel/outcome.py` — plus a fourth, EXCLUDED |
 | §15–16 | **Readiness:** *"Control readiness: 1 of 2 evidence sources connected"* | `hotelcontrols/runner/readiness.py` |
-| §17 | A six-stage pipeline. **Never LLM → executable JSON directly.** *"That's risky"* | `hotelcontrols/compiler/grammar.py` emits data; `spec.validate` is the gate |
-| §18 | Ambiguity must be **reported, never resolved.** *"LLM can interpret language, but it cannot invent hotel policy"* | The grammar refuses ambiguous operands by name |
+| §17 | A six-stage pipeline. **Never LLM → executable JSON directly.** *"That's risky"* | `hotelcontrols/compiler/grammar.py` emits data; `spec.validate` is the gate. A model, when used, sits one step *before* stage 1 and drafts a **sentence** |
+| §18 | Ambiguity must be **reported, never resolved.** *"LLM can interpret language, but it cannot invent hotel policy"* | The grammar refuses ambiguous operands by name, and a proposer that cannot commit **asks a question instead**, with no button to run anything |
 | §20 | Every violation must be **explainable with an evidence table** | `Verdict` cannot be constructed without evidence — a structural guarantee |
 | §24 | The compiler produces a **population query, not an IF statement** | `hotelcontrols/evidence/population.py` |
 
@@ -291,6 +291,7 @@ right.
 | "Every answer has receipts" | Audit is the product. An unexplained verdict is an anecdote | `kernel/verdict.py` — `Verdict(outcome, reason, evidence[])` | The constructor **raises `NotAuditable`** if evidence is empty or the reason is blank. You cannot build a verdict without proof |
 | "We won't hammer your vendor" | The vendor asked. Goodwill is a dependency | `evidence/budget.py` — a `CallBudget` counting every invocation | Cost is asserted as `1 + R + N` by **counting invocations** in tests, not assumed. Exceeding it **raises and stops the run** rather than truncating |
 | "Money is money" | A reconciliation control must be trustworthy to the cent | `kernel/money.py` — `Decimal` + a mandatory currency | Two amounts in different currencies **refuse to compare** (they raise). Floats are rejected at construction |
+| "A hotel can state a rule in its own words" | §2 of the design brief, and the demo people actually ask for | `compiler/sentences.py` + `tools/proposers/` | The model drafts a **sentence**, which the deterministic grammar then compiles. A composed rule carries `confidence == 1.0` because the *parse* was exact; a bad field name is refused **by name** |
 | "Adding a control is a config change" | Sales can promise a new control this week | `spec/ir/*.json` — read at runtime | A never-before-seen control is compiled from a sentence into a temp directory and run end-to-end on both providers, no import touched |
 | "We tell you what your PMS can answer" | Integration roadmap driven by customer demand, not by guessing | `runner/readiness.py` | Rendered per control per provider on the index page: *"MiniHotel 4/5 fields · DemoPMS 5/5"* |
 | "It runs anywhere" | A demo with an install step is a demo that fails in the meeting | Standard library only: `xml.etree`, `decimal`, `sqlite3`, `http.server`, `zoneinfo`, `json` | `tests/unit/test_stdlib_only.py` walks the tree and asserts the engine contains no outbound HTTP client at all |
@@ -404,7 +405,7 @@ Listed so nobody mistakes thin for unfinished. Each is recoverable without rewor
 | **Writing to a PMS** | Read-only, permanently. The hotel types *controls*, not commands | Not planned. Ever |
 | **Authentication / multi-user** | Single-operator local demo | Standard work, deliberately deferred |
 | **Free text as evidence** | VIP status and manager approvals exist only as Hebrew free text in a remarks field. Whether that counts is [open question 1.5](../open-questions.md) | An extractor that returns a value **only with the exact quotation it relied on**, and UNKNOWN whenever the text is ambiguous |
-| **A rule-editor UI** | Sentences arrive through the compiler; IRs arrive as files | A form over the compiler |
+| **A rule-editor UI** | `/compose` is a chat box, not an editor — it files **drafts** and promoting one is manual. There is no screen for editing a shipped control | A form over the compiler, plus a versioning story (§19 of the brief) |
 | **A model anywhere near a verdict** | Decision D10 wired a model to *draft a sentence* (see §10 below). Nothing it produces reaches the evidence layer or the evaluator, and no verdict depends on a model call | Not planned. This one stays out |
 
 ---

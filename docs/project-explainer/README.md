@@ -15,6 +15,10 @@ long version.
 | 3 | [03-code-architecture.md](03-code-architecture.md) | The eight layers, the request lifecycle, the control flow, the data shapes, and the decision logic — as diagrams. | ~20 min |
 | 4 | [04-edge-cases.md](04-edge-cases.md) | **Part A:** the seven facts about the real API that shaped the whole design. **Part B:** one real reservation traced field-by-field from raw XML to the pixel on screen. | ~15 min |
 
+Composing a control from prose — the chat window, and why the model drafts a *sentence* rather than
+a rule — is [01-project-overview.md §10](01-project-overview.md). The decision behind it is **D10**
+in [`docs/open-questions.md`](../open-questions.md).
+
 If you have five minutes and not an hour, read §1 and §2 of
 [01-project-overview.md](01-project-overview.md) and the first diagram in
 [03-code-architecture.md](03-code-architecture.md).
@@ -49,7 +53,7 @@ docs/
   prd.md                     ← the contract: what we build, 12 falsifiable criteria
   context.md                 ← the history: how we got here, every decision + why
   architecture.md            ← the design: 8 layers, interfaces, what each hides
-  plan.md                    ← the build log: 12 slices, test gates, honest scorecard
+  plan.md                    ← the build log: 13 slices, test gates, honest scorecard
   open-questions.md          ← what we know we don't know
   old-codebase-improve.md    ← the v1 post-mortem: 12 keeps, 20 fixes
   QA.md                      ← running transcript with the project owner

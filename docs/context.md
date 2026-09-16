@@ -17,6 +17,8 @@ design see `architecture.md`; for the build order see `plan.md`. For what v1 tau
 | 2026-09-04 → 09-08 | v1 built: four silos, 152 tests, one control working end to end |
 | 2026-09-08 | **Checkout probe** — seven more calls. Found the sandbox had moved on to 2026 data and held seven checked-out reservations. Control 6 reached PASS, FAIL and UNKNOWN on real records |
 | 2026-09-08 | **v1 reviewed and measured.** Ran all 10 controls × 3 evidence sets: only 1 of 10 answers. v2 commissioned |
+| 2026-09-09 → 09-15 | v2 built: twelve slices, twelve green pipelines. 11 of 12 criteria met, criterion 1 recorded as not met with its arithmetic |
+| 2026-09-16 | **Slice 13 — the compose front end.** Prose → restricted sentence → the same grammar and the same validator. Decision D10 |
 
 ## The two source documents
 
@@ -32,13 +34,13 @@ that bind v2:
 | § | What it requires | v1 | v2 |
 | --- | --- | --- | --- |
 | 1 | The rule must not contain PMS-specific information | done | kept |
-| 2 | The customer types a sentence and sees a compiled control with field availability | **missing** | slice 9 + readiness |
+| 2 | The customer types a sentence and sees a compiled control with field availability | **missing** | slice 9 + readiness; **slice 13 completes it** — `/compose` is the text box, and readiness was already on the page |
 | 4, 22 | Logic and execution are separate objects | done in the IR | kept |
 | 5–12, 23 | Trigger classification, freshness requirement, execution policy | declared, **ignored** | slice 8, as pure functions |
 | 13 | Canonical field → per-provider endpoint + path + transformation | done | kept, made structural |
 | 14 | PASS / FAIL / **UNKNOWN** — must not fail for missing evidence | done | kept, non-negotiable |
 | 15, 16 | Readiness: "control readiness, 1 of 2 evidence sources connected" | **missing** | slice 6 |
-| 17 | Six-stage pipeline, **never LLM → executable JSON directly** | 5 of 6 stages | all six, gate unchanged |
+| 17 | Six-stage pipeline, **never LLM → executable JSON directly** | 5 of 6 stages | all six, gate unchanged. Slice 13 adds a stage *before* stage 1 — prose → sentence — and the gate is still the only way through |
 | 20 | Every violation must be explainable with an evidence table | done | kept, extended |
 | 24 | The compiler produces a **population query**, not an IF statement | done | kept, plus reference sets |
 | closing | Run 10 real controls through the architecture by hand before coding | done — `CONTROL_DRY_RUN.md` | that dry run is v2's specification input |
@@ -94,10 +96,17 @@ recorded here as decided.
 | **Dependencies** | Stdlib-only runtime; `pytest` + coverage as dev dependencies | The demo keeps its "no install step" property. TDD gets real tooling and CI gets a coverage floor. `xml.etree`, `decimal`, `sqlite3`, `http.server`, `zoneinfo` are all stdlib |
 | **Live API** | Allowed, with per-call approval | Honours R8. Lets us refresh the 2024-era room findings the review flagged as stale, without opening the door to casual querying |
 | **Second provider** | A fictional **DemoPMS speaking JSON** | Mews has no credentials and may not for months. The portability claim is the whole thesis and can be tested today for nothing. JSON rather than XML because the difference is the point |
-| **NL compiler** | Deterministic grammar core, with an LLM adapter behind the same interface | §17 forbids LLM → executable directly. A grammar is testable offline and is what CI runs; a model becomes an optional front end whose output must pass the same validation |
+| **NL compiler** | Deterministic grammar core, with an LLM adapter behind the same interface | §17 forbids LLM → executable directly. A grammar is testable offline and is what CI runs; a model becomes an optional front end whose output must pass the same validation. **Slice 13 took the optional front end up on this**, with the model one step further back still: it drafts the *sentence* the grammar parses (D10) |
 | **Repository** | Public, with fixtures **pseudonymised** and credentials in environment only | The capture contains 27 guest emails and 30 phone numbers from someone else's sandbox. Stable fake identities keep tests deterministic; raw captures stay local and git-ignored |
 | **Git workflow** | Branch per slice → PR → CI gate → squash-merge; bugs as Issue → `fix/` branch → PR closing it | Every slice reviewable, the gate mechanical rather than remembered |
 | **Overpaid folio** | **Split control 6 into two controls** | Money owed is a collections problem and a probable loss; an unrefunded credit is a liability with a different urgency and often a different team. One queue makes severity meaningless for both. It is a spec change, and therefore also the first real test of criterion 6 |
+
+### Added later
+
+| When | Decision | Chosen | Why |
+| --- | --- | --- | --- |
+| 2026-09-09 | **D9** — wire the model adapter now? | **No. Build the seam, exercise it against a stub** | A stub tests the §17 gate harder than a real model does: it emits exactly the proposals that exercise it, where a real model mostly emits plausible IR. Full reasoning in `open-questions.md` |
+| 2026-09-16 | **D10** — both authoring paths, with a chat window, **free to run** | **Yes — and the model produces a SENTENCE, not IR** | The intermediate is readable and editable; nothing new decides what a rule means; and a free 7B model run locally can rewrite a sentence into a template where it cannot reliably emit a valid six-key IR. Supersedes D9's "never a runtime component" clause only — D9's substance, *no verdict depends on a model call*, is kept verbatim |
 
 ## Scope decisions inherited from the project owner
 
@@ -105,6 +114,22 @@ recorded here as decided.
 - **Read-only.** The hotel types *controls*, not operational commands. We never write to a PMS.
 - The dry run used the **10 controls rated Yes**, rather than a spread across difficulty. Those ten
   are v2's specification input.
+
+## What slice 13 did not change
+
+Listed because a model appearing in a project that spent twelve slices avoiding one invites the
+question. None of the following moved:
+
+- **The engine still imports only the standard library.** Every model backend lives in
+  `tools/proposers/` and is *injected*. Both AST guards — the stdlib walk and the compiler's
+  network guard — passed **without being edited**, which was the design target.
+- **The validator is unchanged and is still the only way through.** A drafted sentence is refused by
+  the same code, with the same messages, as a hand-written IR file.
+- **No verdict depends on a model call.** The evidence layer and the evaluator never learn a model
+  exists. A composed control carries `confidence == 1.0` and `source == "grammar"`.
+- **The criterion-1 figure is untouched.** Composed rules are drafts in `spec/drafts/` and are
+  excluded from it by construction.
+- **The default demo is unchanged.** `python3 -m hotelcontrols.web.server` wires no proposer.
 
 ## What carries over from v1 unchanged
 
