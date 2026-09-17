@@ -7,7 +7,8 @@
 
 ## 1. Start with the hotel, not the software
 
-A hotel group owns eight properties. Somewhere in a compliance binder there is a list of rules
+A hotel group owns four hotels — three small boutique properties and one flagship, the large
+well-known one the brand is built around. Somewhere in a compliance binder there is a list of rules
 that are supposed to always hold:
 
 > *"A guest cannot check out while still owing money."*
@@ -27,23 +28,95 @@ tells you, with receipts, which rules held and which did not.**
 
 Three things make that much harder than it sounds, and only the first is obvious.
 
-### Obstacle 1 — every property runs a different till
+### Obstacle 1 — the four hotels run different software
 
-The group runs **MiniHotel** at three boutique properties and **Mews** at the flagship. Those are
-Property Management Systems (PMS) — the software that actually holds the bookings, the rooms and
-the money. They agree on nothing:
+The three boutique properties run **MiniHotel**. The flagship runs **Mews**. Both are Property
+Management Systems — a PMS is the software that actually holds the bookings, the rooms and the
+money, and every hotel has one.
 
-| | MiniHotel | A different PMS |
-| --- | --- | --- |
-| Wire format | XML | JSON |
-| A booking is called | `Booking` | `booking` / `reservation` / `stay` |
-| Departure date lives at | `Booking/ResGlobalInfo/Timespan@departure` | `booking.departure` |
-| Date format | `07/07/2026` — and two *other* formats elsewhere in the same API | `07 Jul 2026` |
-| The balance is called | `Balance/TotalDebit` | `ledger.balance.amount` |
+Nobody plans a mixed estate like this; it accumulates. The flagship has the most rooms, the most
+staff and the most revenue, so at some point it was worth putting on a more capable system, while
+the small ones stayed on something cheaper. That is the normal shape of a hotel group.
 
-The **rule** — *"no checkout with money owed"* — is identical at all eight properties. The
-**plumbing** underneath it is completely different. Write the rule once against MiniHotel's field
-names and you have written eight rules, seven of which do not exist yet.
+**The two systems describe the same facts and agree on nothing.** Here is one real reservation —
+`007004348`, captured from a live sandbox and used throughout this project — as each system returns
+it.
+
+MiniHotel answers in **XML**:
+
+```xml
+<Booking Minihotel_reservation_id="007004348" createDateTime="07/07/2026" Status="OUT">
+  <RoomStays><RoomStay roomNumber="301" roomTypeID="Twin" mealStatus="BB"/></RoomStays>
+  <PrimaryGuest><Name givenName="Dmitri" surname="Almeida"/></PrimaryGuest>
+  <ResGlobalInfo>
+    <Timespan arrival="06/07/2026" departure="07/07/2026"/>
+    <Total AmountAfterTaxes="124.00" CurrencyCode="USD"/>
+  </ResGlobalInfo>
+</Booking>
+```
+
+The other system answers in **JSON**:
+
+```json
+{ "booking_ref": "007004348",  "state": "DEPARTED",
+  "arrival":   { "date": "06 Jul 2026", "time": "14:00" },
+  "departure": { "date": "07 Jul 2026" },
+  "total":     { "amount": "124.00", "currency": "USD" },
+  "guest":     { "first_name": "Dmitri", "last_name": "Almeida" },
+  "stays":   [ { "room_no": "301", "room_class": "Twin", "board": "BB" } ] }
+```
+
+Dmitri Almeida, room 301, a Twin room, 124 USD, arrived 6 July, departed 7 July. **Identical facts.
+Not one identical label.** Five differences matter, and they get worse as you go down:
+
+| | MiniHotel | The other system | Why it matters |
+| --- | --- | --- | --- |
+| **The format** | XML — `<angle brackets>` | JSON — `{braces}` | Not a small difference. Code that reads one cannot read the other *at all* |
+| **What a booking is called** | `Booking` | `booking` | To a computer, capital `B` and small `b` are different words. Code hunting for the wrong one finds nothing — and "no reservations found" looks exactly like a quiet hotel |
+| **Where the departure date lives** | `Booking` → `ResGlobalInfo` → `Timespan` → `@departure`<br>*four levels deep, in an attribute* | `booking.departure`<br>*one level down* | The same question — *when did they leave?* — needs completely different directions for finding the answer |
+| **How a date is written** | `07/07/2026` | `07 Jul 2026` | And the nasty part: MiniHotel uses **three** date formats inside its own API — `07/07/2026` on bookings, `20260707` on folio lines, `2026-07-07` on availability. You cannot write one date reader even for one vendor |
+| **Where the money is** | `Balance/TotalDebit` — and the **currency is stored somewhere else entirely** | `ledger.balance.amount`, with `currency` beside it | This row can lose real money. See below |
+
+That last row is worth looking at properly, because it is the one that bites hardest. On this
+booking MiniHotel reports:
+
+```xml
+<Total AmountAfterTaxes="124.00" CurrencyCode="USD"/>      the reservation:  124 USD
+<Currency>ILS</Currency> <TotalDebit>-490.75</TotalDebit>   the folio:     -490.75 ILS
+```
+
+Two different currencies, on one booking, with the amount and its currency sitting in separate
+parts of the response — and **no exchange rate anywhere in the API**. The other system keeps them
+together, as `{"amount": "-490.75", "currency": "ILS"}`. Miss that and you compare 124 against
+−490.75 and get a confident, meaningless answer.
+
+### Why this is a design problem and not a plumbing problem
+
+The **rule** — *"no checkout with money owed"* — is the same sentence at all four hotels. The
+**plumbing** underneath is different at each. So where you write the rule decides everything.
+
+It is the difference between two recipes:
+
+> ❌ *"Add what's in the third drawer down, left of the sink."*
+>
+> ✅ *"Add one tablespoon of salt."*
+
+The first recipe works in exactly one kitchen. The second works in every kitchen, because each cook
+already knows where their own salt is.
+
+A rule that says **"read `Balance/TotalDebit`"** is the first recipe. It runs at the three MiniHotel
+properties and is meaningless at the flagship — so you would write a second version for Mews, a
+third for the next system, and until you do, those hotels are simply not being checked. One rule
+becomes four rules, three of which do not exist yet.
+
+A rule that says **"read `folio.balance_due`"** is the second recipe. `folio.balance_due` names no
+PMS; it is a neutral word this project made up. You write the rule once, and each system gets a
+small translation table saying where *its* balance lives.
+
+Those translation tables are real files you can go and read: `spec/providers/minihotel.json` and
+`spec/providers/demopms.json`. The list of neutral words is `spec/canonical_fields.json` — 53 of
+them. And the rule that a control may **never** mention `TotalDebit` is what this codebase calls
+the **canonical boundary**, which §7 comes back to.
 
 ### Obstacle 2 — most rules have a half nobody records
 
@@ -77,7 +150,7 @@ integrators not to hammer it.
 
 ### The building inspector who only reports what they actually saw
 
-Imagine hiring a building inspector for eight buildings. A **bad** inspector walks in, cannot find
+Imagine hiring a building inspector for a group of buildings. A **bad** inspector walks in, cannot find
 the fire-door certificate, assumes it does not exist, and writes **VIOLATION**. You spend a week
 proving them wrong. Next time, you ignore their report.
 
