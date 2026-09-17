@@ -297,7 +297,7 @@ scorecard is written the way it is.
 Twelve slices, each a branch → PR → green CI → squash-merge. Measured today:
 
 ```
-1,501 tests passing, offline, in 8.6 seconds
+1,610 tests passing, offline, in about 10 seconds
 1,080 spec-validation checks passing
 zero runtime dependencies
 11 controls, 2 providers, 8 layers
