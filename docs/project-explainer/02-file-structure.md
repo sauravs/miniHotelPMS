@@ -14,7 +14,7 @@ miniHotelPMS/
 ├── spec/              THE RULES.   JSON data, read at runtime. 11 controls live here.
 │   └── drafts/        COMPOSED RULES. Runnable, unreviewed, uncounted.
 ├── fixtures/          THE EVIDENCE. Captured API responses. Never edited.
-├── tests/             THE PROOF.   1,501 tests. Offline. Four layers.
+├── tests/             THE PROOF.   1,610 tests. Offline. Four layers.
 ├── tools/             THE UTILITIES. Validate, pseudonymise, transcode, probe —
 │   └── proposers/     and every MODEL BACKEND, deliberately outside the engine.
 ├── docs/              THE PROSE.   Including this folder.
@@ -41,14 +41,14 @@ flowchart LR
         FIX["fixtures/<br/><i>captured API responses</i>"]
     end
 
-    ENG["hotelcontrols/<br/><b>the engine</b><br/><i>~8,900 lines</i>"]
+    ENG["hotelcontrols/<br/><b>the engine</b><br/><i>~9,700 lines</i>"]
 
     subgraph outputs[" PRODUCED "]
         WEB["a web page<br/>+ JSON API"]
         DB["runs.sqlite<br/><i>run history</i>"]
     end
 
-    TESTS["tests/<br/><i>1,501 tests</i>"]
+    TESTS["tests/<br/><i>1,610 tests</i>"]
     TOOLS["tools/<br/><i>validate · scrub ·<br/>transcode · probe</i>"]
 
     SPEC --> ENG
@@ -114,7 +114,7 @@ Note the two `spec`s: `hotelcontrols/spec/` is **code that reads**; `spec/` at t
 | `ir.py` | 361 | Loads and validates a Control IR before anything tries to run it. Includes the cross-check that anything used in scope/exceptions/assertions is *also* declared as required evidence |
 | `schema.py` | 193 | A deliberately small JSON-Schema validator. `jsonschema` is not in the standard library, and criterion 11 says the engine imports nothing that is not — so this implements exactly the subset `spec/ir_schema.json` uses, and **refuses** any keyword it does not support rather than ignoring it |
 | `tenant.py` | 152 | One hotel's vocabulary and policy as data: status map, department map, timezone, call budget, nominated rate codes. In v1 these were dictionaries in a Python module, which made onboarding a second property a code change |
-| `errors.py` | 42 | Spec failures. Each means: *fix the spec, not the engine* |
+| `errors.py` | 59 | Spec failures. Each means: *fix the spec, not the engine* |
 
 ### L3 · `providers/` — **the canonical boundary**
 
@@ -125,7 +125,7 @@ Note the two `spec`s: `hotelcontrols/spec/` is **code that reads**; `spec/` at t
 | File | Lines | What it is |
 | --- | --- | --- |
 | `base.py` | 118 | The `Provider` protocol — 9 methods — plus `Request`, and the error types (`ResponseUnavailable`, `RecordBoundaryUnknown`) that callers turn into UNKNOWN rather than into a verdict |
-| `registry.py` | 124 | **Discovers** adapters by importing sub-packages that declare themselves (`ADAPTER`, `FROZEN`, `CAPTURES`, `DEFAULT_CAPTURE`). A hard-coded `{"minihotel": MiniHotelAdapter}` would be the first place the boundary leaked |
+| `registry.py` | 163 | **Discovers** adapters by importing sub-packages that declare themselves (`ADAPTER`, `FROZEN`, `CAPTURES`, `DEFAULT_CAPTURE`). A hard-coded `{"minihotel": MiniHotelAdapter}` would be the first place the boundary leaked |
 
 #### `providers/minihotel/` — XML, real, captured from the vendor sandbox
 
@@ -179,8 +179,8 @@ reproducible six months later, and it is asserted by a test rather than assumed.
 
 | File | Lines | What it is |
 | --- | --- | --- |
-| `record.py` | 162 | One record → one Verdict. The order is fixed: **scope → exceptions → assertion** |
-| `population.py` | 265 | Questions about a *group*. "Two active reservations must not share a confirmation number" is not a property of a reservation — it is a property of the set. A second shape, not a special case of the first |
+| `record.py` | 144 | One record → one Verdict. The order is fixed: **scope → exceptions → assertion** |
+| `population.py` | 78 | Questions about a *group*. "Two active reservations must not share a confirmation number" is not a property of a reservation — it is a property of the set. A second shape, not a special case of the first |
 | `predicates.py` | 245 | One IR clause applied to one record's evidence. Every predicate returns **three** answers: holds, does not hold, or cannot tell |
 | `intervals.py` | 64 | `within` / `not_within` / `overlaps`. v1 declared these in its schema and implemented none of them |
 
@@ -199,9 +199,9 @@ reproducible six months later, and it is asserted by a test rather than assumed.
 | --- | --- | --- |
 | `store/sqlite.py` | 212 | Run history. A verdict that cannot be re-read is not an audit trail — and re-reading must not cost a provider call |
 | `store/schema.sql` | — | Three timestamps that are three different facts: `as_of` (what date it describes), `observed_at` (when the evidence was obtained), `created_at` (when the run happened) |
-| `web/app.py` | 267 | `handle(path) -> (status, content_type, body)`. **A pure function of the path** — which is why the whole demo is testable without a socket |
-| `web/render.py` | 370 | Pure functions from objects to strings. UNKNOWN is distinguished from FAIL by **hue, border style *and* wording** — three signals, so it survives a monochrome screen or a colour-blind reader |
-| `web/server.py` | 106 | The only file in the engine that knows a socket exists. Eleven lines of work around `handle()` |
+| `web/app.py` | 523 | `handle(path) -> (status, content_type, body)`. **A pure function of the path** — which is why the whole demo is testable without a socket |
+| `web/render.py` | 616 | Pure functions from objects to strings. UNKNOWN is distinguished from FAIL by **hue, border style *and* wording** — three signals, so it survives a monochrome screen or a colour-blind reader |
+| `web/server.py` | 158 | The only file in the engine that knows a socket exists. Eleven lines of work around `handle()` |
 | `web/assets/style.css` | — | Served from the package, never from a CDN |
 
 ### L0 · `compiler/` — English → IR. Runs *beside* the stack.
@@ -212,7 +212,7 @@ Nothing at runtime depends on it. It produces spec artefacts that L2 then valida
 | --- | --- | --- |
 | `grammar.py` | 633 | A restricted-English parser. Deterministic, offline, no model. Emits **data**, then hands it to the same `spec.validate` that has policed hand-written rules since slice 1 |
 | `model.py` | 111 | The seam for a proposal that is already IR — and not one gram of extra trust. Decision D9: built, exercised against a stub, no model wired. Its output goes through `ir.validate` unchanged |
-| `sentences.py` | 236 | **Decision D10.** A `SentenceProposer` protocol and `normalise()`: prose → restricted English → the grammar above. Takes an injected proposer and **cannot acquire one** — which is what keeps this package free of anything that could open a socket |
+| `sentences.py` | 235 | **Decision D10.** A `SentenceProposer` protocol and `normalise()`: prose → restricted English → the grammar above. Takes an injected proposer and **cannot acquire one** — which is what keeps this package free of anything that could open a socket |
 | `problems.py` | 119 | What a compilation is, and `DEPLOYMENT_KEYS` — the list of things a *sentence* is not allowed to contain, because a sentence naming an endpoint would break criterion 5 |
 
 ---
@@ -364,7 +364,7 @@ produced must say so.
 
 ---
 
-## 6. `tests/` — 1,501 tests, four layers, zero network
+## 6. `tests/` — 1,610 tests, four layers, zero network
 
 ```
 tests/
