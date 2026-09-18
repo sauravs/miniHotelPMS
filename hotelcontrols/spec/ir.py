@@ -375,10 +375,8 @@ def _check_tenant_settings(ir: ControlIR, tenant: TenantConfig, where: str) -> l
                            "character."
                            % (name, predicate["operator"], tenant.tenant_id,
                               type(supplied).__name__)))
-    for reference in ir.references:
-        if reference.get("source") == "tenant":
-            # A tenant-sourced reference needs the hotel to have supplied the mapping. An
-            # empty one is legitimate - it means the control answers UNKNOWN, which is the
-            # "connect this to enable the control" path rather than a spec error.
-            continue
+    # A tenant-sourced REFERENCE is deliberately not checked here. An empty mapping is
+    # legitimate: it means the control answers UNKNOWN, which is the "connect this to enable
+    # the control" path rather than a spec error. This was a loop over `ir.references` whose
+    # only body was `continue` - it read as a check and was not one.
     return problems
