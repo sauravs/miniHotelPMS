@@ -222,6 +222,22 @@ def _membership(left, right):
         raise UnknownValue(left.reason)
     if right is None:
         raise UnsupportedPredicate("the collection to test membership against is not available")
+    # A COLLECTION, or nothing. `tuple(right)` used to accept anything iterable, and the one
+    # that matters is a bare string: `tuple("RACK")` is `('R','A','C','K')`, so `"RACK" in
+    # tuple("RACK")` is False and the rule reported a value absent from a collection that was
+    # exactly that value. The screen read `rate_plan.code is RACK, which does not satisfy
+    # 'in the property's nominated rate codes'` - a sentence contradicting itself.
+    #
+    # A hotel with one nominated rate code writing "RACK" for ["RACK"] is the likely mistake,
+    # not an exotic one, and onboarding a property is documented as editing one JSON file. So
+    # this refuses rather than guessing what the author meant: an operand this engine cannot
+    # recognise as a collection is a reason to say so, never a verdict. `spec/ir.py` names the
+    # setting before a run; this is the lock that holds when the value arrives some other way.
+    if not isinstance(right, (list, tuple, set, frozenset)):
+        raise UnsupportedPredicate(
+            "membership needs a collection to test against, and %r is a %s - a single value "
+            "is not a one-item collection here, because testing a string tests its characters"
+            % (right, type(right).__name__))
     return left.payload in tuple(right)
 
 

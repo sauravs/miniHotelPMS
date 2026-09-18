@@ -24,6 +24,8 @@ tests/contract/. This file is about the quirks themselves.
 """
 from decimal import Decimal
 
+import pytest
+
 from hotelcontrols.kernel import Money
 from hotelcontrols.providers.demopms import transforms as t
 
@@ -194,3 +196,16 @@ def test_every_transform_the_provider_map_can_name_is_registered():
     assert t.TRANSFORMS[None] is t.text
     for name, function in t.TRANSFORMS.items():
         assert name is None or callable(function)
+
+
+@pytest.mark.parametrize("raw", ["NaN", "Infinity", "-Infinity", "sNaN"])
+def test_money_object_refuses_a_non_finite_amount(raw):
+    """The same hole as MiniHotel's `to_money`, reached through the other wire format.
+
+    This provider's amounts are self-describing, so the currency is never the problem here -
+    the amount itself is. `{"amount": "NaN", "currency": "ILS"}` is well-formed JSON carrying
+    something that is not a number, and a KNOWN NaN compares False against zero.
+    """
+    value = t.money_object({"amount": raw, "currency": "ILS"})
+    assert value.is_known is False
+    assert value.reason

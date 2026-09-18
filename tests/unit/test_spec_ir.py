@@ -280,3 +280,42 @@ class TestLoading:
     def test_an_unknown_control_is_a_spec_error_not_a_file_not_found(self):
         with pytest.raises(SpecError):
             load("no_such_control")
+
+
+class TestATenantSettingUsedAsACollection:
+    """`_check_tenant_settings` checked that a setting EXISTS, never that it is usable.
+
+    Its own docstring names the hazard it was written against: "the setting resolves to an
+    empty default, the scope predicate matches nothing, and the control reports a clean run
+    over zero records - which is finding F5 arriving by a different route." A setting supplied
+    as a string walks straight past it - the setting is declared, so presence passes - and
+    produces exactly that outcome, because `in` over a string tests its characters.
+
+    Onboarding a property is documented as editing one JSON file and writing no Python, so a
+    hotel with a single nominated rate code writing `"RACK"` for `["RACK"]` is the likely
+    mistake rather than an exotic one. It has to be caught here, where the reason can name the
+    setting, rather than at verdict time where it reads as a fact about the hotel.
+    """
+
+    def test_a_membership_setting_that_is_not_a_collection_is_refused_by_name(
+            self, valid_ir, registry, ir_schema):
+        valid_ir["scope"] = [{"field": "stay.rate_code", "operator": "in",
+                              "tenant_setting": "nominated_rate_codes"}]
+        valid_ir["required_evidence"].append(
+            {"field": "stay.rate_code", "source": "pms", "resolvable": True})
+        string_tenant = TenantConfig.from_dict({
+            "tenant_id": "test", "provider": "minihotel", "timezone": "Asia/Jerusalem",
+            "settings": {"nominated_rate_codes": "RACK",
+                         "rate_plan_permitted_room_types": {}}})
+        found = problems(valid_ir, registry, ir_schema, string_tenant)
+        assert any("nominated_rate_codes" in p for p in found), found
+
+    def test_a_membership_setting_supplied_as_a_list_still_validates(
+            self, valid_ir, registry, ir_schema, tenant):
+        """An EMPTY list stays legitimate - it means the control excludes every record
+        honestly, which is the "connect this to enable the control" path, not an error."""
+        valid_ir["scope"] = [{"field": "stay.rate_code", "operator": "in",
+                              "tenant_setting": "nominated_rate_codes"}]
+        valid_ir["required_evidence"].append(
+            {"field": "stay.rate_code", "source": "pms", "resolvable": True})
+        assert problems(valid_ir, registry, ir_schema, tenant) == []

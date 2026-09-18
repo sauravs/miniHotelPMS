@@ -104,6 +104,11 @@ def zero_is_unknown(raw: str, unit: str | None = None) -> Value:
         number = Decimal(str(raw).strip())
     except (InvalidOperation, ArithmeticError, ValueError):
         return Value.unknown("%r is not a number" % (raw,))
+    if not number.is_finite():
+        # `Decimal` accepts "NaN" and "Infinity", and the checks below could not survive one:
+        # `int(Decimal("NaN"))` raises ValueError and `Money(NaN, unit)` is refused by the
+        # kernel. Both escaped this function as an exception rather than as a named gap.
+        return Value.unknown("%r is not a finite number" % (raw,))
     if number == 0:
         return Value.unknown(
             "0 means unconfigured in this provider, not zero (R10/R12)", risk="R12")

@@ -348,10 +348,33 @@ def _check_tenant_settings(ir: ControlIR, tenant: TenantConfig, where: str) -> l
     problems: list[Problem] = []
     for _, predicate in ir.predicates():
         name = predicate.get("tenant_setting")
-        if name and not tenant.has_setting(name):
+        if not name:
+            continue
+        if not tenant.has_setting(name):
             problems.append(Problem(
                 where, "names tenant setting %r, which tenant %r does not declare"
                        % (name, tenant.tenant_id)))
+            continue
+        # PRESENCE was not enough, which is the hazard this function's docstring already
+        # names arriving by one more route. A membership operator tests a COLLECTION, and a
+        # setting supplied as a bare string is declared - so presence passes - and then `in`
+        # tests its CHARACTERS: `"RACK" in tuple("RACK")` is False. The scope matched nothing
+        # and the control reported a clean run over zero records, indistinguishable on screen
+        # from the legitimate empty-list case.
+        #
+        # A hotel with one nominated rate code writing "RACK" for ["RACK"] is the likely
+        # mistake, and onboarding a property is documented as editing this one JSON file and
+        # writing no Python. So it is caught here, where the reason can name the setting.
+        if predicate.get("operator") in ("in", "not_in"):
+            supplied = tenant.setting(name)
+            if not isinstance(supplied, (list, tuple, set, frozenset)):
+                problems.append(Problem(
+                    where, "uses tenant setting %r with %r, which tests membership of a "
+                           "collection, but tenant %r supplies a %s. Write it as a list, even "
+                           "for one entry - a bare string would be tested character by "
+                           "character."
+                           % (name, predicate["operator"], tenant.tenant_id,
+                              type(supplied).__name__)))
     for reference in ir.references:
         if reference.get("source") == "tenant":
             # A tenant-sourced reference needs the hotel to have supplied the mapping. An

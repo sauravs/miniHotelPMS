@@ -643,3 +643,46 @@ def test_a_compilation_says_whether_it_produced_a_rule(registry, deployment):
     assert good.ok and not bad.ok
     assert "checkout_money_owed" in repr(good)
     assert "rejected" in repr(bad) and "1 problem" in repr(bad)
+
+
+class TestOneOfNeedsACollection:
+    """`one of` takes a COLLECTION, and the grammar has no syntax for an inline list.
+
+    `_operand` has a single scalar slot by design - a quoted string, a number, a bool, a
+    canonical field or a tenant setting - and all three shipped uses of `one of` name a
+    collection rather than a literal:
+
+        stay.room_type  one of rate_plan.permitted_room_types     (a field)
+        stay.rate_code  one of setting nominated_rate_codes       (a setting)
+        room.type       one of room_type.code                     (a reference set)
+
+    So `one of "checked_out"` was never an expressible rule, yet it compiled cleanly and then
+    evaluated `"checked_out" in tuple("checked_out")` - False, scope matched nothing, and every
+    record came back EXCLUDED. Criterion 9 says an unsupported sentence is refused BY NAME;
+    this one was accepted and answered wrongly instead.
+    """
+
+    @pytest.mark.parametrize("literal", ['"checked_out"', "4", "true"])
+    def test_one_of_a_scalar_literal_is_refused_by_name(self, literal, registry, deployment):
+        result = compiled('every reservation where reservation.status is one of %s '
+                          'must have reservation.guest.email exists' % literal,
+                          registry, deployment)
+        assert result.ir is None, "compiled a rule that can never match: %s" % literal
+        named = " ".join(str(p) for p in result.problems) + " ".join(result.ambiguities)
+        assert "one of" in named, named
+
+    def test_one_of_a_canonical_field_still_compiles(self, registry, deployment, tenant):
+        """The shipped shape must keep working - the refusal is about literals only."""
+        ir = ir_of('every stay joining rate_plan from the hotel by stay.rate_code to '
+                   'rate_plan.code where stay.rate_code exists '
+                   'must have stay.room_type one of rate_plan.permitted_room_types',
+                   registry, deployment, tenant)
+        predicate = ir["assertion"]["predicates"][0]
+        assert predicate["operator"] == "in"
+        assert predicate["compare_to"] == "rate_plan.permitted_room_types"
+
+    def test_one_of_a_tenant_setting_still_compiles(self, registry, deployment, tenant):
+        ir = ir_of('every reservation where stay.rate_code one of setting nominated_rate_codes '
+                   'must have reservation.guest.email exists',
+                   registry, deployment, tenant)
+        assert ir["scope"][0]["tenant_setting"] == "nominated_rate_codes"

@@ -54,6 +54,19 @@ class Money:
                 "Money.parse() so no precision is lost (F10)")
         if not isinstance(self.amount, Decimal):
             raise TypeError("money amount must be a Decimal, got %r" % type(self.amount).__name__)
+        # NaN and infinity are what `Decimal` hands back for the strings "NaN", "sNaN" and
+        # "Infinity", all of which a wire format can carry. They are refused HERE rather than
+        # in `parse` because `parse` is not the only door - a transform that parsed its own
+        # Decimal and called `Money(number, unit)` walked straight past it.
+        #
+        # Non-finite is not a small kind of wrong. `compare` goes through `_sign`, whose `>`
+        # and `<` raise InvalidOperation on a NaN - uncaught, so a 500 - while `equals` goes
+        # through `==`, which answers a confident False. A balance that was never a number
+        # would read on screen as a violation established about it.
+        if not self.amount.is_finite():
+            raise MoneyParseError(
+                "%s is not a finite amount - it is not comparable to anything, and an amount "
+                "that cannot be compared is not evidence (R9)" % self.amount)
         if not (self.currency or "").strip():
             raise ValueError("an amount without a currency is not evidence (R9)")
         object.__setattr__(self, "currency", self.currency.strip())
