@@ -433,6 +433,17 @@ reproduce the mock, because reproducing the mock is what following the spec look
    the format differs from the docs, they would **silently pass everything**.
 5. **Does any endpoint resolve a reservation's rate code to permitted room types?** (Control 9.)
 6. **Agreed rate limits and windows** for a production integration (R8).
+7. **Is there a partner or multi-property credential model, or is it strictly one credential set per
+   property?** Raised 2026-10-02 by Q10. Everything we have seen is per-property: `Credentials`
+   carries a `hotel` field, and the vendor's own words are that *"production credentials will be
+   provided upon completion of the staging and testing phase"* and that IPs must be whitelisted —
+   with **no partner-certification process published anywhere reachable**. So whether one
+   integration identity can act for many properties, or forty properties mean forty credential
+   sets and forty whitelisted IPs, is **unknown**. It decides how
+   [1.9](#19-should-this-ever-touch-a-production-pms-and-whose-credentials-would-those-be) and
+   issue #22 are built, and it is the first thing a hotel group of any size will ask. **It does not
+   affect our own isolation work either way** — our rules, runs and verdicts never reach MiniHotel,
+   so no credential model the vendor offers can isolate them (Q10).
 
 ---
 

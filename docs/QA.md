@@ -838,3 +838,138 @@ open earlier in this session.
 by the documents themselves, and the credential half is already **issue #22** / open question 1.9.
 The *modelling choice* — Raymond as one tenant with four properties, versus four tenants — is a
 scope call for the project owner and is recommended above rather than decided here.
+
+---
+
+## Q10 — 2026-10-02
+
+**Q:** another followup on multi-tenant ,if every new customer(hotel/property) on minihotel pms will receive its own crredential,t then how rules from Hilton hotel would collide raymond hotel? I am still confused here.Also does miniHotel sotware support multi-tenant? What would be advantage of making this software multi-tenant?
+
+**A:**
+
+Follow-up to **Q8** and **Q9**.
+
+### 1 · The collision is not in the data we read — it is in the data we produce
+
+The intuition is right about one thing, and that is what hides the problem. MiniHotel **does** issue
+each property its own credential, and that credential **does** correctly fence off their data. But
+three different things are in play and credentials touch only one:
+
+| Thing | Where it lives | Protected by a per-hotel MiniHotel credential? |
+| --- | --- | --- |
+| Reservations, rooms, folios — **data we read** | MiniHotel's servers | **Yes.** Working as intended |
+| **The rules themselves** | **our** `spec/ir/` | **No.** MiniHotel has never heard of them |
+| Run results, verdicts, evidence, history | **our** SQLite | **No.** Same |
+
+**Credentials protect the data we READ. Nothing protects the data we PRODUCE.** Three concrete
+collisions follow.
+
+**Collision A — rules have no owner, so they are *shared* rather than colliding.** The IR schema has
+18 keys and **not one** is `tenant`, `owner`, `customer` or `property`; checked by listing them. And
+the control index is literally the directory:
+
+```python
+return tuple(sorted(p.stem for p in directory.glob("*.json")))
+```
+
+So Hilton's rules would not collide with Raymond's — **Raymond would see them**, on their own index
+page. That is arguably worse than a collision: a hotel's control set is commercially sensitive. It
+says which properties the chain does not trust on payment guarantees, and where it suspects staff of
+overriding policy.
+
+(Six IRs do contain the word "tenant", but only as `"tenant_setting": "nominated_rate_codes"` — a
+rule *consuming* this hotel's configuration, not a rule *having an owner*.)
+
+**Collision A2 — the id namespace is flat, so the same name overwrites.** The draft write is
+unconditional:
+
+```python
+path = self.draft_dir / "ir" / ("%s.json" % control_id)
+path.write_text(json.dumps(compilation.ir, indent=2) + "\n")
+```
+
+Hilton creates `late_checkout_policy`; Raymond creates `late_checkout_policy`; the second **silently
+replaces** the first. The code already knows why that is dangerous — the existing guard stopping a
+draft from shadowing a reviewed control says *"two rules under one id would make a stored run
+ambiguous about which rule produced it."* Exactly right, one namespace up: today two **customers**
+can do to each other what that guard prevents one operator doing to themselves.
+
+**Collision B — results are pooled.** Per Q9, `history()` takes no tenant parameter.
+
+**And the credential problem (issue #22) is a third, separate thing** — where the blame inverts.
+MiniHotel separates Hilton's and Raymond's credentials perfectly. The failure is **ours**: we have
+one drawer per PMS.
+
+> The bank gives each property its own safe-deposit key. Our office has **one hook by the door
+> labelled "MINIHOTEL"**. Hang Raymond's key on it and Hilton's is gone.
+
+`HOTELCONTROLS_MINIHOTEL_USER` is a single global slot, so the vendor's separation is irrelevant if
+we can hold only one key at a time.
+
+### 2 · Does MiniHotel support multi-tenancy? Two senses, one of them unknown
+
+**Is MiniHotel itself multi-tenant — yes, evidently.** It serves many hotels; `Credentials` carries
+a `hotel` field, so one credential set is scoped to one property; and each property customises its
+own status codes and posting categories (risk **A5**, which is the entire reason tenant *config*
+exists in this repository).
+
+**Does it offer a PARTNER model — one integration identity acting for many properties? Unknown.
+UNVERIFIED.** Everything seen is per-property. The vendor's own words are that production
+credentials arrive *"upon completion of the staging and testing phase"* and that IPs must be
+whitelisted, with **no partner-certification process published anywhere reachable**. Whether forty
+properties means forty credential sets and forty whitelisted IPs is genuinely open. **Added as
+question 2.7** to the MiniHotel list: it is the first thing a group of any size will ask, and it
+decides how issue #22 and open question 1.9 get built.
+
+**Does MiniHotel's tenancy help ours? Barely, and this is the part to take away.** Even a perfect
+partner model would only tidy the credential drawer. It would do **nothing** for rules, results,
+verdicts or history, because none of those ever go near MiniHotel. **The vendor's multi-tenancy is
+not a substitute for ours.**
+
+### 3 · What multi-tenancy buys
+
+**Commercially**
+
+- **Customer N+1 is configuration, not a deployment** — no install inside the sales cycle.
+- **One deployment to patch and monitor.** Fix a control bug once and every customer has it. The
+  alternative is version skew across fifty installs, and bugs that exist only at customer 12 because
+  nobody upgraded them.
+- **One database, one process** rather than fifty of each.
+- A **precondition for consolidated group reporting** across a brand's properties (Q9).
+- Without it **D3 §86's Definition of Done cannot be met** — it names an isolated SaaS tenant
+  explicitly.
+
+**For correctness, which is underrated here**
+
+- **The isolation tests become possible.** D3 §80 calls them mandatory; today there is no boundary
+  to attack, so there is nothing to test.
+- **"Whose is this?" becomes answerable.** An auditor asking *who ran this control, under whose
+  authority, against whose property* has no answer today beyond a `tenant_id` nobody checked.
+
+**The honest counterpoint, because it is not free**
+
+- Single-tenant-per-customer has real advantages — smaller blast radius, data residency, and some
+  enterprise procurement teams simply require it. The documents allow for it: a shared database with
+  tenant-scoped rows *"unless specific customer/security requirements justify a separate database"*
+  (D1 §46).
+- It levies a **permanent tax**: every query must be tenant-scoped forever, and one missed `WHERE`
+  clause is a data breach rather than a bug. That is why Phase F's exit test includes a **structural
+  test**, in the style of the existing canonical-boundary grep, asserting that no tenant-owned query
+  lacks a tenant predicate. Discipline will not hold; a test will.
+
+**Evidence:** read and enumerated — `spec/ir_schema.json` (all 18 top-level properties listed, none
+of them an owner), `spec/ir/*.json` (the eight `tenant` occurrences shown to be `tenant_setting`
+references, not ownership), `hotelcontrols/spec/ir.py:144-151` and `tenant.py:146-152` (both
+`available()` functions are a directory glob with no tenant filter),
+`hotelcontrols/web/app.py:262-296` (the unconditional draft write and the shadow guard whose own
+wording is quoted), `hotelcontrols/providers/transport/http.py:142-157` (`Credentials` carries
+`hotel`; `from_environment` takes only the provider), `hotelcontrols/store/sqlite.py`. For the vendor
+half: `docs/open-questions.md` §1.9 and `docs/QA.md` Q4, which hold the only statements we have from
+MiniHotel — **both are quotations of vendor prose, not behaviour we observed**, and the partner-model
+answer is therefore recorded as UNVERIFIED rather than inferred. **No PMS call was made and no code
+was changed.**
+
+**Status:** answered, with one part open. The partner/multi-property credential model is now
+**question 2.7 for MiniHotel** in `docs/open-questions.md` — unknown, and not answerable from
+anything in this repository. Everything about *our* isolation is answered: G5 in
+`docs/stayops-gap-analysis.md`, Phase F of its roadmap, and issue #22 for the credential half.
