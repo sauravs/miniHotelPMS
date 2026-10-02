@@ -712,3 +712,129 @@ run against a PMS and no code was changed** — this is an assessment of the exi
 **Status:** answered. The gap itself is tracked as **G5** in `docs/stayops-gap-analysis.md` with
 Phase F of its roadmap; the credential half is **issue #22** and open question 1.9. No new open
 question raised — the *decision* to build it is a scope call for the project owner, not an unknown.
+
+---
+
+## Q9 — 2026-10-02
+
+**Q:** another followup on my above  multi-tenant question....with respect to PMS(for eg minihotel here) and hotels ,suppose I have hotel brand name "Raymond Hotels" which have 4 properties , Raymond Hotel-1 ,  Raymond Hotel-2 ,  Raymond Hotel-3,  Raymond Hotel-4...and suppose all using miniHotel PMS,then will it call as multi-teanant because I have more than one hotel properties listed? And what if  Raymond Hotel-1 use different PMS for eg MEWS  than other three properties ( Raymond Hotel-2 ,  Raymond Hotel-3,  Raymond
+  Hotel-4 using miniHotel) ,how this will affect multi-tenanty? I am confueed about multiteancy
+
+**A:**
+
+Follow-up to **Q8**. The confusion is natural, because three independent things all get called
+"multi-something".
+
+### The short answer: no. Four properties is not multi-tenancy
+
+| Axis | The question it answers | Raymond Hotels | State here |
+| --- | --- | --- | --- |
+| **Multi-property** | How many *buildings* does one customer have? | 4 | **works today** |
+| **Multi-provider** | How many *different PMSs* are in play? | 2 | **works today** |
+| **Multi-tenancy** | How many *mutually-untrusting parties* share the deployment? | **1 — just Raymond** | absent |
+
+**The one-line test: count the parties who would sue each other, not the buildings.** Raymond
+Hotel-2 and Raymond Hotel-3 are the same company, the same staff, the same accounts department.
+Nobody needs walling off from anybody — that is **one tenant with four properties**. Multi-tenancy
+appears only when Raymond Hotels *and* Hilton *and* an independent B&B share one deployment and
+Raymond must never see Hilton's reservations. It is about **who is asking**, never about how many
+buildings or how many PMSs.
+
+### The four properties already work — run, not reasoned
+
+The exact scenario was built as four tenant files in a scratch spec directory (three on MiniHotel,
+one on a different PMS) and the same control run against all four:
+
+```
+raymond1  Raymond Hotel-1 (different PMS)  provider=demopms    calls=2  PASS=27 UNKNOWN=13 EXCLUDED=71
+raymond2  Raymond Hotel-2                  provider=minihotel  calls=2  PASS=27 UNKNOWN=13 EXCLUDED=71
+raymond3  Raymond Hotel-3                  provider=minihotel  calls=2  PASS=27 UNKNOWN=13 EXCLUDED=71
+raymond4  Raymond Hotel-4                  provider=minihotel  calls=2  PASS=27 UNKNOWN=13 EXCLUDED=71
+```
+
+**Zero code changed — four JSON files**, each run carrying its own `tenant_id`. So multi-property
+and mixed-PMS are both already solved, which is what the canonical boundary was built for:
+`provider` is a field on a property's config and nothing above the adapter layer knows or cares.
+
+**Therefore the PMS half of the question has a clean answer: mixing PMSs affects multi-tenancy not
+at all.** Moving Raymond-1 to Mews is one line in one file.
+
+### The counterintuitive part: mixing PMSs does not hurt, SHARING one does
+
+Raymond-2, -3 and -4 are all on MiniHotel, and each property authorises its own API access, so they
+need three different credential sets. Credentials are keyed by **provider only**. With one MiniHotel
+credential set in the environment, all three were asked for theirs:
+
+```
+raymond2  provider=minihotel  ->  user=shared_user  hotel=H1
+raymond3  provider=minihotel  ->  user=shared_user  hotel=H1
+raymond4  provider=minihotel  ->  user=shared_user  hotel=H1
+```
+
+Identical. `Credentials.from_environment(provider)` **never consults `tenant_id`**. Three properties
+on one PMS collide on one credential set — while Raymond-1, the odd one out on another PMS, is fine,
+because its variables do not clash. That is **issue #22** and open question 1.9, and this group is
+its perfect illustration: it bites on the *second property on the same PMS*, which is the common
+case rather than an edge case.
+
+This affects **live** calls only. Replaying captured fixtures needs no credentials, which is why all
+four ran above.
+
+### The isolation gap, in Raymond's own terms
+
+All four runs were saved to one store and history requested:
+
+```
+history('inactive_room_future_stay')        ->  4 runs
+history(self, control_id=None, limit=50)        <- no tenant parameter exists
+```
+
+There is no way to *ask* for one property's runs. If Hilton were also on this deployment, Raymond's
+front desk would receive Hilton's runs. `tenant_id` is faithfully stored on every row and never
+filtered — Q8's finding, now shown against a four-property group.
+
+### The sharpest thing to take away
+
+**What is currently called `TenantConfig` is really a `PropertyConfig`.** Its contents —
+`provider`, `timezone`, `call_budget`, `status_map` — are all attributes of one building. One file =
+one property = one PMS.
+
+So **Raymond's four properties cannot be modelled as one customer today, because the only container
+that exists IS the property.** The isolation boundary has to sit *above* today's `TenantConfig`:
+
+```
+TODAY                      WHAT THE DOCUMENTS WANT
+TenantConfig (=property)   Tenant/Organisation -- "Raymond Hotels"   <- the lock lives here
+  provider, timezone,        +-- Property "Raymond Hotel-1"  provider=mews
+  status_map, budget         +-- Property "Raymond Hotel-2"  provider=minihotel
+                             +-- Property "Raymond Hotel-3"  provider=minihotel
+                             +-- Property "Raymond Hotel-4"  provider=minihotel
+```
+
+The documents anticipate this group exactly. D1 §5: *"For the initial implementation: Tenant =
+Hotel"*, but *"the data model should allow a future hotel group structure: Organization → Hotel
+A/B/C."* D1 §48 adds that if a customer operates 50 hotels the architecture must not prevent it,
+*"but this is not required for the first release."*
+
+**One consequence of the v1 "Tenant = Hotel" shortcut, worth knowing before choosing it:** under it
+Raymond is *four* tenants, so Raymond's group finance director needs four separate grants and gets
+**no consolidated view across their own four hotels**. For a four-property brand that is probably
+the wrong model, and it is exactly why D1 §5 wants Organization in the data model from the start
+even if the UI ignores it.
+
+**Evidence:** **run, not reasoned.** A scratch copy of `spec/` was made outside the repository with
+four added tenant files (`raymond1`–`raymond4`); `available_tenants()` discovered all six
+properties; `run("inactive_room_future_stay", …)` executed against each via
+`providers.registry.load(tenant.provider)` with a `FixedClock` at 2026-07-08, producing the table
+above. `Credentials.from_environment` called for all three MiniHotel properties with one credential
+set in the environment, returning identical values. Four runs saved to an in-memory `RunStore` and
+`history()` called, returning 4; `inspect.signature(RunStore.history)` confirms no tenant parameter.
+Read: `hotelcontrols/spec/tenant.py`, `hotelcontrols/providers/transport/http.py:146-157`,
+`hotelcontrols/store/sqlite.py`. **No repository file was modified and no PMS call was made** — the
+scratch spec directory lives outside the tree and the credentials were fake. Issue #22 confirmed
+open earlier in this session.
+
+**Status:** answered. No new open question: the group/property hierarchy is D1 §5 and §48, deferred
+by the documents themselves, and the credential half is already **issue #22** / open question 1.9.
+The *modelling choice* — Raymond as one tenant with four properties, versus four tenants — is a
+scope call for the project owner and is recommended above rather than decided here.
