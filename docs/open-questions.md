@@ -7,7 +7,14 @@ defensible, and a decision *changes* it rather than unblocks it.
 Four sections: decided (kept for the record), open for the project owner, questions for MiniHotel,
 and engineering gaps chosen deliberately.
 
-**Last reviewed:** 2026-09-09, after the twelve-slice build closed.
+**Last reviewed:** 2026-10-02, after reading the three StayOps documents the manager supplied
+and comparing them against this engine. That comparison added
+[1.10](#110-does-stayops-act-on-a-decision-or-advise-a-human),
+[1.11](#111-which-of-the-nine-disagreements-between-the-three-stayops-documents-stand) and
+[1.12](#112-do-our-four-outcomes-and-the-coverage-verdict-become-part-of-the-specification), and
+changed what [1.5](#15-is-unstructured-free-text-an-evidence-source), [1.7](#17-mews) and
+[1.9](#19-should-this-ever-touch-a-production-pms-and-whose-credentials-would-those-be) are worth.
+Full report: `docs/stayops-gap-analysis.md`.
 
 ---
 
@@ -30,6 +37,14 @@ read-only calls in [1.2](#12-are-the-2024-era-room-findings-still-true). `python
 --plan` prints the exact request bodies with placeholders where the credentials go, so there is
 something concrete to approve rather than an intention. It is the first TODO a fresh session
 should raise — see `docs/session-handoff.md`.
+
+**And since 2026-10-02, one of a different kind, which outranks all three for *sequencing* while
+being worth less than either of the two above for *unblocking*.**
+[1.10](#110-does-stayops-act-on-a-decision-or-advise-a-human) asks whether StayOps carries out
+what it decides or hands it to a person. The two questions above would each move a number this
+week; 1.10 moves nothing today and decides what roughly half of the StayOps roadmap is allowed to
+be. It is recorded down in section 1 rather than up here because the distinction this section draws
+is *scarcity*, and 1.10 is not scarce — it needs a decision, not a fact somebody else holds.
 
 ---
 
@@ -309,6 +324,97 @@ unobserved. None of that is needed to finish verifying the controls against the 
 
 **Recommendation.** Refresh the sandbox ([1.2](#12-are-the-2024-era-room-findings-still-true)), then
 pilot with a real property that authorises its own production access. Not before.
+
+### 1.10 Does StayOps act on a decision, or advise a human?
+
+**Raised 2026-10-02 by the three StayOps documents. Gap G2 / question N1 in
+`docs/stayops-gap-analysis.md`, where it is called the highest-value question in that report.**
+
+Those documents add a second product capability — **Guest Service Rules** — in which a guest asks
+for something and StayOps decides. *"Can I check out at 3 PM?"* → `APPROVED_WITH_FEE`, $25. And the
+documents then describe what follows a decision: *calculate charge → create/modify service
+request → respond to guest*, a maintenance request **created** and engineering notified, action
+types `CREATE_SERVICE_REQUEST` and `CREATE_MAINTENANCE_REQUEST`.
+
+**Today.** Nothing of guest services exists, and the engine **cannot write anywhere**. That is not
+an omission — it is `prd.md` §6 (*"the hotel types controls, not commands. Read-only,
+permanently"*), it is one file in the engine that imports an outbound client, and it is two locks:
+the transport refuses unless its environment variable is set **and** refuses while a test runner is
+loaded in the process, so the test that sets the variable is refused anyway.
+
+**What it decides.** Which of two different products gets built:
+
+| | What StayOps does | Cost |
+| --- | --- | --- |
+| **(a) advisory** | Decides, and hands staff a task. *"Late checkout until 3 PM: approved, $25. Confirm at the desk."* | The read-only rule survives untouched. Degrades honestly: if the charge is never posted, StayOps was still right |
+| **(b) acting** | Posts the charge and creates the request in the hotel's system | **Reverses a founding constraint.** The HTTP client is the cheap part; the cost is that every write needs idempotency, rollback thinking, a model of who may authorise a charge, and credentials from each vendor that can write — none of which has ever been observed, read about or priced |
+
+**Recommendation, and it keeps both futures open.** Ship **(a)**, and model every action as a
+*record with a state* — `pending`, `done`, `dismissed` — performed by a human. If (b) is ever
+chosen, an adapter performs the same record later and **the decision path does not change**. That
+costs one indirection now and is the only version of this that does not have to be redone.
+
+**Why it cannot be deferred quietly.** It is the difference between blast radius 2 and blast radius
+5 on roughly half the roadmap, and *"we'll decide when we get there"* is in practice a decision for
+(a) made without noticing — which is the right answer, but it should be the owner's.
+
+### 1.11 Which of the nine disagreements between the three StayOps documents stand?
+
+**Raised 2026-10-02. Question N2 in `docs/stayops-gap-analysis.md` §6, where all nine are listed
+with what each one breaks.**
+
+The three documents are drafts at versions 1.0, 1.1 and 1.0, and they contradict each other in nine
+places. Three need ruling before anything stores data, and they are the three a developer would
+otherwise resolve silently — and resolve some of them wrongly:
+
+| | The disagreement | Why it cannot wait |
+| --- | --- | --- |
+| **#1** | The guest decision set is four outcomes in one section of doc 02 and five in another, and `NEEDS_STAFF_REVIEW` in one place against `STAFF_REVIEW` in three | It becomes a stored enum on every decision ever made |
+| **#2** | The flagship late-checkout template has **four different parameter name sets** across the three documents, in two different casings | The names go into a tenant's stored parameters and into a generated compiler prompt |
+| **#9** | Build order. One document's seven-day plan never mentions multi-tenancy; another makes it Phase 1 and says *"implement before building the policy engine"*, while its own closing section says *"resist building a platform before proving the product — 1 hotel, 1 PMS, 1 control"* | They prescribe opposite first moves |
+
+**Today.** None of it is built, so nothing is wrong yet — which is exactly why this is cheap now.
+The gap report takes a position on #9 and says so openly (build the parameter mechanism against the
+eleven controls that already exist and are already tested, then guest services inherits it), but a
+position in a report is not a ruling.
+
+**One that is *not* a disagreement**, recorded so nobody fixes it: the suggested directory layout
+(`stayops/apps/`, `services/policy/`). That document says itself that the architectural requirement
+matters more than the layout and that an existing codebase should not be restructured to match. We
+compare responsibilities, not folder names.
+
+### 1.12 Do our four outcomes and the coverage verdict become part of the specification?
+
+**Raised 2026-10-02. Question N3 in `docs/stayops-gap-analysis.md`. Unlike 1.10 and 1.11 this one
+asks the owner to carry something *upward*, to the manager.**
+
+The StayOps documents specify **three** outcomes. This engine has four, and the fourth is
+load-bearing: **EXCLUDED** means the control does not apply to this record, and it is separate from
+PASS because a record nobody examined has not passed. Every run also carries a **coverage verdict**
+— `evaluated = PASS + FAIL`, and a run where that is zero renders as *"reached no conclusion"* with
+no count tiles at all.
+
+**Today.** Both are in the engine, enforced by tests, and inherited unchanged from v1. Neither is
+in the documents.
+
+**Why it needs saying out loud rather than leaving implied.** One of those documents contains a mock
+dashboard: *8 Active · 1,284 Passed · 17 Failed · 6 Unknown*. No EXCLUDED tile, no coverage line.
+Build that faithfully and a run where every record was out of scope renders as a clean bill of
+health — and that is **measured, not hypothetical**: v1 reported 28 EXCLUDED / 0 FAIL for a control
+on a property where the underlying mechanism had never been observed working, and on screen it was
+indistinguishable from compliance. The next developer handed those documents and no ruling will
+reproduce the mock, because reproducing the mock is what following the spec looks like.
+
+**Three things to ask for, and the third is the cheapest and the most valuable:**
+
+1. **EXCLUDED** as a fourth outcome.
+2. **A coverage line** on any results screen, so `PASS + FAIL == 0` cannot read as success.
+3. **`UNKNOWN` as a member of every canonical enumeration, including reservation status.** Both
+   documents require that an unmapped provider value must never be guessed at and must resolve to
+   UNKNOWN — and then define `ReservationStatus` as a closed set of six values with no UNKNOWN
+   member, so **the rule cannot be implemented in the type they specify.** Here that is not
+   theoretical: `OK4` and `WL` are one in five of every reservation this project has ever seen
+   ([2.1](#2-questions-for-minihotel)), and the specified enum cannot represent any of them.
 
 ---
 
