@@ -377,3 +377,217 @@ read from all 11 files in `spec/ir/`; `fixtures/minihotel/index.json` parsed wit
 `responses` entries counted by `captured_at`; `docs/context.md:12-19`. No call was made.
 
 **Status:** answered
+
+---
+
+## Q6 — 2026-10-02
+
+**Q:** how this The compose window — http://127.0.0.1:8766/compose is working behind the scene? Are we using any llm here?which model is produing the result?
+
+**A:**
+
+### For the server that was running at the time: no LLM at all
+
+That server was started with `--llm stub`. `StubProposer` is a **hardcoded lookup table** — nine
+`(fragment, reply)` pairs in `tools/proposers/stub.py:22`. It lowercases the prose, returns the
+reply for the first fragment found in it, and falls back to a fixed refusal. No model, no network,
+no configuration.
+
+Demonstrated live rather than asserted: a `POST /compose` carrying
+*"find me guests who left owing money"* matched the fragment `owing` and returned
+
+```
+every reservation where reservation.status is "checked_out" must have folio.balance_due at most 0
+```
+
+which is why it is instant and why it always answers. It exists for two reasons, both on the
+record in D9: the compose UI is demonstrable with **nothing installed**, and *a stub tests the §17
+gate harder than a real model does* — it emits exactly the proposals that exercise the validator
+(an undeclared field, a population word, an ambiguous operand, a bare question, a crash), where a
+real model mostly emits plausible sentences.
+
+### The pipeline, and where a model sits if one is wired
+
+```
+prose
+  ↓
+[proposer]   ← the ONLY place a model appears. Lives in tools/, outside the engine, INJECTED
+  ↓
+restricted-English SENTENCE   ← shown and editable. Never IR, never executable
+  ↓
+GrammarCompiler  ← deterministic. confidence 1.0, source "grammar"
+  ↓
+spec.validate    ← the same validator a hand-written IR file goes through, unchanged
+  ↓
+a draft in spec/drafts/, badged `draft · unreviewed` → runs
+```
+
+The load-bearing choice is D10's: **the model may not emit a rule.** It drafts a sentence a person
+reads; the deterministic grammar builds the rule. A wrong field name is therefore not bad IR that
+slipped past a schema — it is a sentence the grammar refuses **by name**. No verdict depends on a
+model call, and the evidence layer and evaluator never learn one exists.
+
+### The four backends
+
+| `--llm` | What produces the sentence | Cost | Default |
+| --- | --- | --- | --- |
+| `local` | **Ollama on this machine**, default `qwen2.5:7b`, over stdlib `urllib` | free, offline | **yes** |
+| `claude` | **`claude-haiku-4-5`** via the optional `anthropic` SDK, `max_tokens=512` | ~¼¢/attempt | no |
+| `stub` | a dict of fixed strings | free | no — but it is what was running |
+| `off` | nothing | — | no |
+
+`local` is the default because *free to run* was a stated requirement from the project owner, not a
+preference. Both live backends set `temperature: 0`: the same prose must give the same sentence
+twice, and a sampling proposer in front of a stateless compiler would reintroduce nondeterminism
+into the thing a person approves.
+
+The `claude` backend marks the vocabulary `cache_control: ephemeral` and places it first, because
+it is byte-identical on every turn of a session. `anthropic` is declared in
+`requirements-llm.txt` and imported **inside `__init__`** rather than at module scope, so every
+backend stays importable with nothing installed.
+
+### Two things worth recording
+
+**The prompt is generated, never written.** Regenerated during this answer: **7,925 characters,
+~1,981 tokens**, assembled at startup from `spec/canonical_fields.json`, the grammar's own
+`OPERATOR_PHRASES` and keyword tables, and six shipped `restricted_language` sentences. It
+therefore cannot drift from the language the compiler actually speaks — a hand-written prompt
+listing operators would be a second copy of `OPERATOR_PHRASES`, and the day somebody added one the
+model would be told about a language the compiler no longer accepts, **silently**.
+
+**Two locks, and the local backend is held to both.** `base.assert_armed` refuses unless
+`HOTELCONTROLS_COMPOSE=1` **and** no test runner is loaded in the process. Its own reasoning:
+*"`localhost` is still a socket, and a rule with one exception is a rule somebody will find a
+second exception to."* The test that sets the variable is refused anyway. This is why
+`hotelcontrols/compiler/sentences.py` imports only `re`, `dataclasses` and `typing` — it holds a
+`SentenceProposer` **protocol** and takes one as a parameter; it cannot acquire one. And
+`normalise()` catches every exception a proposer raises and turns it into a **stated reason**,
+because a traceback out of a compose step reads as an engine defect when the honest report is
+*"the thing we asked could not answer"*.
+
+**To see a real model do it:**
+
+```bash
+brew install ollama && ollama pull qwen2.5:7b && ollama serve
+HOTELCONTROLS_COMPOSE=1 python3 -m tools.serve --llm local --port 8767
+```
+
+**Evidence:** read in full — `tools/proposers/stub.py`, `tools/proposers/local.py`,
+`tools/proposers/anthropic_api.py:1-70` and its `messages.create` call, `requirements-llm.txt`,
+`tools/proposers/base.py` (`assert_armed`, `vocabulary`, `system_prompt`),
+`hotelcontrols/compiler/sentences.py` (`normalise`, `split_reply`, and its import list),
+`tools/serve.py:5-8,36-78`. Run: `python3 -m tools.serve --help`; `system_prompt()` generated and
+measured at 7,925 chars; a live `POST /compose` against the stub server on port 8766; a
+cross-provider grep (`openai|langchain_openai|google.generativeai|mistralai|cohere|ollama`)
+confirming Ollama is the only non-Anthropic backend referenced anywhere. **No model was called and
+no network request left this machine** — the stub needs neither.
+
+**Status:** answered. The *current* behaviour is fully verified above; whether a model should be
+wired by default remains open question 1.8 in `docs/open-questions.md`, unchanged by this answer.
+
+---
+
+## Q7 — 2026-10-02
+
+> **Ordering note.** This question was asked *before* Q6 in the same session and logged after it.
+> Numbering is sequential by logging order and never renumbered, so the two entries sit in reverse
+> order of asking. Recorded here so the transcript is not read as a chronology.
+
+**Q:** how can i run the ui ? I want to see visually how this app is working end to end in ui
+
+**A:**
+
+### Two commands
+
+```bash
+python3 -m hotelcontrols.web.server                        # the demo → http://127.0.0.1:8765/
+HOTELCONTROLS_COMPOSE=1 python3 -m tools.serve --llm stub   # + the compose chat box
+```
+
+No install step, no dependencies, no network. Both were started and every route below returned
+HTTP 200 before being written down.
+
+### A guided tour — seven stops, each demonstrating one thing the architecture exists to do
+
+Every number below was read from the running app via `/api/run/<control_id>`, on property
+`sandbox` (MiniHotel captures), at the default `as_of` of **2026-07-08**.
+
+| # | URL | What it shows |
+| --- | --- | --- |
+| 1 | `/` | Eleven controls with per-provider readiness; two properties in the selector — `sandbox` (minihotel) and `demo` (demopms); four captures — `sandbox2024/2026`, `demo2024/2026` |
+| 2 | `/run/checkout_unrefunded_credit` | **A real FAIL with its evidence.** `1 PASS, 1 FAIL`, 3 calls |
+| 3 | `/run/inactive_room_future_stay` | **Three outcomes on one page.** `27 PASS · 13 UNKNOWN · 71 EXCLUDED` of 111, 2 calls |
+| 4 | `/run/ooo_room_protection` | **The thing v1 got wrong.** `28 EXCLUDED`, `concluded=False` |
+| 5 | `/run/room_capacity_compliance` | **A wall of UNKNOWN that is correct.** `40 UNKNOWN · 71 EXCLUDED`, `concluded=False` |
+| 6 | `/run/resource_occupancy_consistency` | **A control that refuses to answer.** Blocked. Add `?as_of=2024-08-14` → `2 PASS` |
+| 7 | both `?property=` values | **The whole thesis.** Identical verdicts, identical call counts, two wire formats |
+
+**Stop 2, exactly as the app reports it.** The FAIL is reservation `007004348`:
+
+```
+FAIL   record=007004348   folio.balance_due is -490.75 ILS, which does not satisfy `gte 0`
+PASS   record=007004351   folio.balance_due is 0 ILS, which satisfies `gte 0`
+```
+
+The guest overpaid and was never refunded. Note the evidence line carries the **currency**, which
+is why this control asserts against literal zero rather than against the reservation total (R9).
+
+**Stop 3** is the page to study: UNKNOWN is distinguished from FAIL by hue, border style **and**
+wording, so the distinction survives a monochrome screen. EXCLUDED has its own tile — those 71
+records were never checked, and folding them into PASS would report "98 passed".
+
+**Stop 4 — and this is stronger than "no tiles are shown".** A blocked run's JSON has **no
+`counts` key at all**, verified by comparing key sets: `resource_occupancy_consistency` →
+`counts present=False`, `checkout_money_owed` → `counts present=True`. And the rendered page
+contains **zero** occurrences of `PASS`, `FAIL` or a tile class. So four reassuring zeroes are not
+merely hidden by the template — they are structurally unavailable to it. v1 rendered this exact
+case (28 EXCLUDED / 0 FAIL) indistinguishably from a clean bill of health.
+
+**Stop 5.** 23 of 28 rooms report adult capacity `0`, meaning *unconfigured* (R12). Reading those
+as real zeroes would produce 40 false accusations.
+
+**Stop 7, measured both ways:**
+
+```
+/run/inactive_room_future_stay?property=sandbox  → minihotel  sandbox2026 (synthetic=False)  2 calls  27 PASS · 13 UNKNOWN · 71 EXCLUDED
+/run/inactive_room_future_stay?property=demo     → demopms    demo2026    (synthetic=True)   2 calls  27 PASS · 13 UNKNOWN · 71 EXCLUDED
+```
+
+One rule, two PMSs — one XML with three date formats, one JSON carrying month names. Identical
+verdicts **and** identical call counts. That is success criterion 7, and it is why adding Mews is
+an adapter rather than a rewrite.
+
+Also worth opening: `/history/<control_id>` (past runs, re-read with **zero** provider calls, R1),
+`/api/readiness/<control_id>`, and `/api/run/<control_id>` for the structure behind any page.
+
+### The compose window — `:8766/compose`
+
+The `stub` backend needs no model and always answers. Fragments that reach a specific outcome:
+`owing`/`balance` → compiles and runs · `inspect` → refused by name, `room.inspection_status` is
+undeclared · `tomorrow` → refused, a sentence may not choose its own population · `corporate` →
+comes back as a **question** with no button to run anything. On `:8765` the same URL says compose
+is switched off. Full mechanics in **Q6**.
+
+### Stopping, and one caveat
+
+```bash
+pkill -f hotelcontrols.web.server; pkill -f tools.serve
+```
+
+`as_of` defaults to **2026-07-08**, the instant the captured evidence describes — **not today**. A
+July capture answers questions about July; asking it about today would produce a page of refusals
+for reasons that have nothing to do with the controls. Every page states which instant it asked
+about, and `?as_of=` overrides it.
+
+**Evidence:** both servers started (`python3 -m hotelcontrols.web.server` on 8765;
+`HOTELCONTROLS_COMPOSE=1 python3 -m tools.serve --llm stub --port 8766`) and left running. Every
+route in the tour confirmed HTTP 200 by `curl`. All eleven controls' outcomes, call counts, `as_of`
+and coverage read from `/api/run/<control_id>` and **re-read a second time before being recorded**.
+The `007004348 / −490.75 ILS` detail was asserted in conversation from `CLAUDE.md` and then
+**verified against the live verdict and its evidence line**, which is the only reason it appears
+here as fact. The blocked-run claim was tightened on verification: the JSON omits `counts`
+entirely, which is a stronger statement than the "no count tiles" originally given.
+`python3 -m tools.serve --help` for the backend list. **No PMS call was made** — every run replays
+captured fixtures.
+
+**Status:** answered
