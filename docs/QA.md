@@ -591,3 +591,124 @@ entirely, which is a stronger statement than the "no count tiles" originally giv
 captured fixtures.
 
 **Status:** answered
+
+---
+
+## Q8 — 2026-10-02
+
+**Q:** related to stayops-gap-analysis.md ,what does multi-tenant means? Pls explain by giving simple analogy ,and did our current codebase implemented that?if not is it possible to implement in our current project structure?if not,pls also provide reasons
+
+**A:**
+
+### 1 · What multi-tenant means — an apartment building, not a row of houses
+
+Build each customer their own house and you maintain fifty roofs, fifty boilers, fifty sets of
+plumbing; fix a leak and you fix it fifty times. That is custom-deployment-per-customer, and it is
+why selling to the next hotel would mean a rebuild.
+
+Multi-tenant is **one building, many flats**. One roof, one boiler, one lift — shared and maintained
+once. But every flat has its own front door with its own key, and **no tenant can ever get into
+another's flat**.
+
+In StayOps terms: the code, the evaluator, the adapters and the templates are the building. Each
+hotel's rules, credentials, results and users are a flat.
+
+**The word means two different things in this project, and that is the trap this answer exists to
+prevent.** `spec/tenants/*.json` already exists — but those files are a hotel's *vocabulary and
+policy*: status-code map, timezone, call budget, nominated rate codes. That is the **furniture in
+the flat**. The documents mean the **locks on the doors**. We have the furniture and none of the
+locks. Finding the word "tenant" here and concluding multi-tenancy is half-done is like finding a
+`users.json` that holds font preferences and concluding the app has accounts.
+
+### 2 · Did we implement it? No — verified two ways
+
+**The front door has no lock.** `App._selection(query)` reads `?property=` straight from the URL and
+falls back to the first configured property if it names nothing. There is no authentication
+anywhere; `web/server.py` says so in its own module docstring: *"This demo has no authentication —
+that is scoped out in `prd.md`."*
+
+**The flats have doors and nobody checks the keys.** `runs.tenant_id` exists and every run records
+it. Every query in `store/sqlite.py` was listed, and **not one filters on it**:
+
+```
+SELECT * FROM runs     WHERE run_id     = ?      <- not tenant
+SELECT * FROM verdicts WHERE run_id     = ?      <- not tenant
+SELECT ... FROM runs   WHERE control_id = ?      <- not tenant
+```
+
+The column D1 §46 requires is present; the enforcement D1 §44 requires is absent. `history()` asked
+by one hotel would return every hotel's runs.
+
+### 3 · Is it possible in the current structure? Yes, and the structure helps
+
+Three things are already true, which is better than expected:
+
+**`tenant` is already a first-class parameter, not an afterthought.** It is required positionally in
+the deepest call in the system, and threaded onward through providers, evidence and the evaluator:
+
+```python
+def run(control_id: str, tenant: TenantConfig, adapter, clock: Clock, ...)
+    budget   = budget or CallBudget(tenant.call_budget)
+    evidence = gather(ir, adapter, tenant, clock, budget)
+    verdicts = evaluate_population(ir, evidence.bundles, tenant.settings)
+```
+
+**A property is already data, loaded by id.** `TenantConfig.load(tenant_id)` reads a file and
+`available_tenants()` discovers them from the directory — adding a hotel is already a file rather
+than a code change (review finding F12, fixed in slice 1).
+
+**Layers 1–5 need zero change.** Kernel, spec, providers, evidence and evaluator are pure or
+data-driven; they do not know who is asking and do not need to. That is exactly why the gap report
+scored this blast radius **4 rather than 5**: it adds a layer on top instead of reversing anything
+underneath.
+
+The work is bounded and almost entirely **additive**:
+
+| What | Size |
+| --- | --- |
+| Auth layer + user/role model | **New** — does not exist at all |
+| `_selection()` takes the tenant from the session, not the URL | one function |
+| Tenant predicate on store reads — only `load` and `history`; `save` already carries it | **two methods** |
+| Credentials keyed by tenant+provider rather than provider alone | one signature, but it changes the env contract |
+| A structural test that no tenant-owned query lacks a tenant predicate | one test, in the style of the existing canonical-boundary grep |
+
+### 4 · The honest caveats — "possible" is not "small"
+
+**One change is genuinely code rather than configuration.**
+`Credentials.from_environment(cls, provider: str)` keys on the provider alone
+(`HOTELCONTROLS_<PROVIDER>_{USER,PASSWORD,HOTEL,BASE_URL}`), so two properties on the same PMS
+cannot hold distinct credentials — the second overwrites the first. Already filed as **issue #22**
+and open question 1.9. That is the second customer, not a scaling worry.
+
+**The serial server is load-bearing, and the ordering matters.** `server.py` is explicit that this
+is *"a correctness decision rather than a simplification"*: the store is one `sqlite3` connection, a
+threading server answered its first run page with `500 ProgrammingError` **with the entire suite
+green**, and *"`check_same_thread=False` would have turned an exception into a data race."* Its own
+conclusion is the sequencing rule — *"if this is ever made threaded, the store has to become
+thread-safe first."* For a pilot of a few properties, serial is fine, and the documents themselves
+prescribe a shared database with tenant-scoped rows as the right initial choice.
+
+**It is the largest single item in the roadmap** (effort 5, exposure 20) — but nothing gets undone.
+Contrast guest-service *actions* (question 1.10), which would reverse a founding constraint.
+Multi-tenancy reverses nothing.
+
+**Why it was not built:** the PRD scopes out *"Authentication and multi-user access. Single-operator
+demo."* The engine existed to prove a PMS-agnostic control can be evaluated honestly, and a login
+screen proves nothing about that. It is a bank vault with excellent locks on the deposit boxes and
+no front door on the building. Both matter, the order they were built in was not wrong, and the
+building cannot open for business.
+
+**Evidence:** read — `hotelcontrols/web/app.py` (`_selection`, `_tenant`, `_execute`),
+`hotelcontrols/store/sqlite.py` (every `SELECT`/`WHERE`/`INSERT` enumerated by grep; public method
+list: `close`, `save`, `load`, `history`), `hotelcontrols/store/schema.sql`,
+`hotelcontrols/runner/run.py:111-123` (the `run()` signature), `hotelcontrols/spec/tenant.py` in
+full, `hotelcontrols/providers/transport/http.py:146-157`
+(`Credentials.from_environment(provider)`), `hotelcontrols/web/server.py:12-20,30-40` (the no-auth
+and serial-server rationale, quoted verbatim above), `spec/tenants/sandbox.json`. Counted which
+engine subdirectories already mention `tenant` (all nine). `docs/stayops-gap-analysis.md` §G5 and
+`docs/prd.md` §6 for the scope decision. Issue #22 confirmed open via `gh issue list`. **Nothing was
+run against a PMS and no code was changed** — this is an assessment of the existing tree.
+
+**Status:** answered. The gap itself is tracked as **G5** in `docs/stayops-gap-analysis.md` with
+Phase F of its roadmap; the credential half is **issue #22** and open question 1.9. No new open
+question raised — the *decision* to build it is a scope call for the project owner, not an unknown.
