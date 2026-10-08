@@ -22,6 +22,15 @@ fixtures/**/raw/
 # run over it and the credentials moved to the environment.
 miniHotelLegacy/
 
+# ---------------------------------------------------------------- Anish's POC
+# ruleEngineAnishLegacy/ is a separate 727-line proof of concept built against
+# the SAME three StayOps requirement documents, kept locally as the input for
+# the comparison report in docs/. NOT committed: it is someone else's codebase,
+# it carries a seeded poc.db of working state, and the report quotes what a
+# reader needs. Same treatment as miniHotelLegacy/ above, and for the same
+# reason - this repository is public.
+ruleEngineAnishLegacy/
+
 # ---------------------------------------------------------------- generated
 runs/
 *.sqlite3
