@@ -1,26 +1,30 @@
 /**
- * The controls, each a link to the page that can run it. Deliberately minimal in this PR - the
- * index proper (readiness per provider, the evidence picker) is the next one.
+ * The index: every control, its readiness per provider (criterion 10), and the evidence picker.
+ * Three requests, all free - the spec, the properties and the drafts. Nothing here runs anything,
+ * so this page is safe to load, reload and prefetch.
  */
-import Link from "next/link";
-import { getControls } from "@/lib/api";
+import { IndexView, selectionFrom } from "@/components/IndexView";
+import { getControls, getDrafts, getProperties } from "@/lib/api";
 
 export const dynamic = "force-dynamic";
 
-export default async function Index() {
-  const { controls } = await getControls();
+export default async function Index({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const [query, { controls }, properties, { drafts }] = await Promise.all([
+    searchParams,
+    getControls(),
+    getProperties(),
+    getDrafts(),
+  ]);
   return (
-    <div className="card">
-      <p className="sentence">Controls</p>
-      <ul>
-        {controls.map((control) => (
-          <li key={control.control_id}>
-            {/* A prefetch of this link is harmless: the page it leads to runs nothing on GET. */}
-            <Link href={`/run/${encodeURIComponent(control.control_id)}`}>{control.name}</Link>
-            <p className="meta">{control.natural_language}</p>
-          </li>
-        ))}
-      </ul>
-    </div>
+    <IndexView
+      controls={controls}
+      properties={properties}
+      selection={selectionFrom(query, properties)}
+      drafts={drafts}
+    />
   );
 }

@@ -99,7 +99,9 @@ def test_trap_7_html_is_never_injected():
 def test_help_is_never_a_title_attribute():
     """Invisible on a touch screen, stripped by a text extraction, unreliable for a screen
     reader. The engine's surface banned it in slice 14; this one never starts."""
-    found = offenders(r"\btitle=", source(".tsx", ".jsx"))
+    # An ATTRIBUTE - `title=` followed by a quote or a brace - so prose explaining the ban is not
+    # itself banned.
+    found = offenders(r"""\btitle=["'{]""", source(".tsx", ".jsx"))
     assert not found, found
 
 
