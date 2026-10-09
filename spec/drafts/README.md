@@ -9,15 +9,20 @@ It is **not** one of the shipped controls:
   number in `docs/plan.md`. That number is the most carefully-kept figure in this repository and
   a machine-drafted rule does not get to change it.
 - `tools/validate_spec.py` gates `spec/ir/`. A draft has passed `spec.validate` — it could not
-  have run otherwise — but not the 1,080 spec checks, and not a person.
+  have run otherwise — but not the full spec checks, not the spec lock, and not a person.
 
 **Promoting one** is deliberate and manual:
 
 ```bash
 git mv spec/drafts/ir/<control_id>.json spec/ir/<control_id>.json
+python3 -m tools.lock_spec              # record its version and digest in spec/ir.lock.json
 python3 -m tools.validate_spec          # now gates it like any shipped control
 PYTHONDONTWRITEBYTECODE=1 python3 -m pytest -q
 ```
+
+The lock step is since v3 slice 16. A promoted control is a reviewed rule, so its version is
+recorded beside the digest of what it says. An edit after that needs a version bump, or
+`validate_spec` refuses it. Skip the step and the suite's lock check fails, naming this command.
 
 `canonical_fields.json` and `ir_schema.json` are symlinks to the parent directory, so this is a
 valid spec root that `available()` and `load()` read with no change to the spec layer, and the
