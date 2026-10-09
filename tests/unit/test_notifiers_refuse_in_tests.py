@@ -206,5 +206,27 @@ class TestWhatTheBackendWouldSay:
 
         monkeypatch.setattr("tools.notifiers.smtp.assert_armed", lambda what: None)
         monkeypatch.setattr("smtplib.SMTP", refuse)
-        with pytest.raises(NotifyFailed, match="SMTPConnectError"):
+        with pytest.raises(NotifyFailed, match="SMTPConnectError: the server answered 421"):
             smtp().send(MESSAGE)
+
+    @pytest.mark.parametrize("error", [
+        "recipients", "data", "socket"], ids=["refused-recipients", "smtp-code", "os-error"])
+    def test_a_failure_never_carries_an_address_into_the_note(self, monkeypatch, error):
+        """`SMTPRecipientsRefused` carries the refused addresses. The note on a task - and so
+        the queue page, and slice 20's log - names the failure, never the people."""
+        import smtplib
+
+        address = "finance.lead@example.test"
+        raised = {"recipients": smtplib.SMTPRecipientsRefused({address: (550, b"no such user")}),
+                  "data": smtplib.SMTPDataError(554, ("rejected for %s" % address).encode()),
+                  "socket": ConnectionRefusedError(61, "refused %s" % address)}[error]
+
+        def refuse(*args, **kwargs):
+            raise raised
+
+        monkeypatch.setattr("tools.notifiers.smtp.assert_armed", lambda what: None)
+        monkeypatch.setattr("smtplib.SMTP", refuse)
+        with pytest.raises(NotifyFailed) as caught:
+            smtp().send(MESSAGE)
+        assert address not in str(caught.value)
+        assert type(raised).__name__ in str(caught.value)

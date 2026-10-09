@@ -80,6 +80,20 @@ class SmtpNotifier:
                     server.login(self.user, self.password or "")
                 server.send_message(email)
         except (smtplib.SMTPException, OSError) as exc:
-            # A named delivery failure: the task stays unsent and says why. The message is the
-            # library's, which names the server's refusal and never the password.
-            raise NotifyFailed("%s: %s" % (type(exc).__name__, exc)) from None
+            # A named delivery failure: the task stays unsent and says why. The library's own
+            # text is NOT copied: `SMTPRecipientsRefused` carries the refused addresses, and a
+            # staff address in a task's note (or a log line) is personal data in a place
+            # nobody routes it from. What is kept is the kind of failure and the SMTP code.
+            raise NotifyFailed(describe(exc)) from None
+
+
+def describe(exc: BaseException) -> str:
+    """A delivery failure, named without anything it may carry about a person."""
+    if isinstance(exc, smtplib.SMTPRecipientsRefused):
+        return ("SMTPRecipientsRefused: the server refused all %d recipient(s) of this "
+                "audience's route" % len(exc.recipients))
+    code = getattr(exc, "smtp_code", None)
+    if code is not None:
+        return "%s: the server answered %s" % (type(exc).__name__, code)
+    errno = getattr(exc, "errno", None)
+    return "%s%s" % (type(exc).__name__, " (errno %s)" % errno if errno is not None else "")
