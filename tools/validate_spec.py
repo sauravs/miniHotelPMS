@@ -3,6 +3,7 @@
 Validate everything in spec/ - the vocabulary, the rules, the provider maps, the tenants.
 
     python3 -m tools.validate_spec
+    python3 -m tools.validate_spec --spec DIR     another spec root (tests validate a copy)
 
 Run after ANY change under spec/. It is not ceremony: v1's equivalent had already caught two
 claims that were wrong about the data, and this one caught four rules whose joins read a field
@@ -24,6 +25,7 @@ import sys
 from hotelcontrols.compiler import compile_sentence, deployment_of
 from hotelcontrols.spec import (Problem, Registry, TenantConfig, available, load, load_schema,
                                 validate)
+from hotelcontrols.spec import lock as spec_lock
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 SPEC = ROOT / "spec"
@@ -47,25 +49,28 @@ class Checker:
         self.problems.extend(problems)
 
 
-def main() -> int:
+def main(argv: list[str] | None = None) -> int:
+    argv = list(argv or [])
+    spec = pathlib.Path(argv[argv.index("--spec") + 1]) if "--spec" in argv else SPEC
     checker = Checker()
-    registry = Registry.load(SPEC)
-    ir_schema = load_schema(SPEC)
+    registry = Registry.load(spec)
+    ir_schema = load_schema(spec)
 
-    tenants = _load_tenants(checker)
-    providers = _check_providers(checker, registry)
+    tenants = _load_tenants(checker, spec)
+    providers = _check_providers(checker, registry, spec)
     _check_registry(checker, registry, providers)
-    _check_controls(checker, registry, ir_schema, tenants)
+    _check_controls(checker, registry, ir_schema, tenants, spec)
+    _check_lock(checker, spec)
 
-    return _report(checker, registry, providers, tenants)
+    return _report(checker, registry, providers, tenants, spec)
 
 
 # --------------------------------------------------------------------------- sections
-def _load_tenants(checker: Checker) -> dict[str, TenantConfig]:
+def _load_tenants(checker: Checker, spec: pathlib.Path) -> dict[str, TenantConfig]:
     tenants: dict[str, TenantConfig] = {}
-    for path in sorted((SPEC / "tenants").glob("*.json")):
+    for path in sorted((spec / "tenants").glob("*.json")):
         try:
-            tenant = TenantConfig.load(path.stem, SPEC)
+            tenant = TenantConfig.load(path.stem, spec)
         except Exception as exc:                       # a bad tenant file is a spec error
             checker.check(False, "tenant %s" % path.stem, str(exc))
             continue
@@ -79,9 +84,10 @@ def _load_tenants(checker: Checker) -> dict[str, TenantConfig]:
     return tenants
 
 
-def _check_providers(checker: Checker, registry: Registry) -> dict[str, dict]:
+def _check_providers(checker: Checker, registry: Registry,
+                     spec: pathlib.Path) -> dict[str, dict]:
     providers: dict[str, dict] = {}
-    for path in sorted((SPEC / "providers").glob("*.json")):
+    for path in sorted((spec / "providers").glob("*.json")):
         provider = json.loads(path.read_text(encoding="utf-8"))
         providers[provider["provider"]] = provider
         where = "provider %s" % provider["provider"]
@@ -122,9 +128,9 @@ def _check_registry(checker: Checker, registry: Registry, providers: dict[str, d
 
 
 def _check_controls(checker: Checker, registry: Registry, ir_schema: dict,
-                    tenants: dict[str, TenantConfig]) -> None:
-    for control_id in available(SPEC):
-        ir = load(control_id, SPEC)
+                    tenants: dict[str, TenantConfig], spec: pathlib.Path) -> None:
+    for control_id in available(spec):
+        ir = load(control_id, spec)
         checker.check(ir.control_id == control_id, "control %s" % control_id,
                       "control_id %r does not match its filename" % ir.control_id)
 
@@ -135,6 +141,19 @@ def _check_controls(checker: Checker, registry: Registry, ir_schema: dict,
             checker.extend(found, len(ir.referenced_fields()) + len(list(ir.predicates())) + 6)
 
         _check_it_compiles_from_its_own_sentence(checker, ir, registry, tenants)
+
+
+def _check_lock(checker: Checker, spec: pathlib.Path) -> None:
+    """Slice 16 (G6b): no reviewed rule changed its verdict-bearing content without its version.
+
+    One check per control. The lock (`spec/ir.lock.json`, written by `tools/lock_spec.py`)
+    records each rule's version beside the digest of what it says; a rule whose digest moved
+    under the same version would store its verdicts under the reviewed rule's name. A version
+    that went backwards is refused too. A bump the lock has not recorded yet passes here and is
+    reported below - the suite's lock check is what stops it merging unrecorded.
+    """
+    problems = spec_lock.lock_problems(spec)
+    checker.extend(problems, len(available(spec)))
 
 
 def _check_it_compiles_from_its_own_sentence(checker: Checker, ir, registry: Registry,
@@ -185,7 +204,7 @@ def _without_notes(value):
 
 # --------------------------------------------------------------------------- reporting
 def _report(checker: Checker, registry: Registry, providers: dict[str, dict],
-            tenants: dict[str, TenantConfig]) -> int:
+            tenants: dict[str, TenantConfig], spec: pathlib.Path) -> int:
     if checker.problems:
         print("FAILED - %d of %d checks\n" % (len(checker.problems), checker.checks))
         for problem in checker.problems:
@@ -196,10 +215,13 @@ def _report(checker: Checker, registry: Registry, providers: dict[str, dict],
     print("  %d canonical fields across %d entities"
           % (len(registry), len(registry.entities)))
     print("  %d controls, all schema-valid, no dangling field references"
-          % len(available(SPEC)))
-    compilable = [c for c in available(SPEC) if load(c, SPEC).get("restricted_language")]
+          % len(available(spec)))
+    compilable = [c for c in available(spec) if load(c, spec).get("restricted_language")]
     print("  %d of %d recompile from their own restricted-English sentence to the same rule"
-          % (len(compilable), len(available(SPEC))))
+          % (len(compilable), len(available(spec))))
+    print("  %d of %d match the spec lock (%s): no rule changed without its version"
+          % (len(available(spec)) - len(spec_lock.unlocked(spec)), len(available(spec)),
+             spec_lock.LOCK_FILE))
     print("  %d provider map(s): %s" % (len(providers), ", ".join(sorted(providers))))
     print("  %d tenant(s): %s" % (len(tenants), ", ".join(sorted(tenants))))
 
@@ -208,8 +230,15 @@ def _report(checker: Checker, registry: Registry, providers: dict[str, dict],
     gaps = registry.unresolvable()
     if gaps:
         print("\n  Evidence gaps (these drive UNKNOWN, they are not validation failures):")
-        for spec in gaps:
-            print("    - %s (%s)" % (spec.field, spec.risk or "no risk id"))
+        for gap in gaps:
+            print("    - %s (%s)" % (gap.field, gap.risk or "no risk id"))
+
+    # Not a failure either, but not finished: a bump (or a new control) the lock has not
+    # recorded yet. The suite's lock check refuses to let it merge in this state.
+    pending = spec_lock.unlocked(spec)
+    if pending:
+        print("\n  Controls not yet locked (bumped or new): %s" % ", ".join(pending))
+        print("    Run `python3 -m tools.lock_spec` before this merges.")
 
     empty = [t.tenant_id for t in tenants.values()
              if not any(t.settings.get(k) for k in t.settings)]
@@ -220,4 +249,4 @@ def _report(checker: Checker, registry: Registry, providers: dict[str, dict],
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    sys.exit(main(sys.argv[1:]))

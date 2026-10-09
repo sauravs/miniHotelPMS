@@ -12,6 +12,8 @@
   "created_at": "2024-09-01T00:00:00+03:00",
   "calls": 1,
   "run_id": "41db7746abbb3b14",
+  "policy_version": 2,
+  "policy_digest": "sha256:af9c9b94c599e35620c48e3fcdac33b56ed0d7eb6fd7fa01522adcdbf96db13e",
   "blocked": "This control needs evidence this body of responses does not hold: this capture cannot answer that question: ArrivalDate was captured for 2024-08-01..2024-08-31 and the run asks for 2024-09-01..2024-11-30. An empty population here would look exactly like 'no violations found', and a population from the WRONG window would look like an answer, so it is refused instead",
   "coverage": {
     "evaluated": 0,

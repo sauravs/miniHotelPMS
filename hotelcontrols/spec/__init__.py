@@ -10,6 +10,7 @@ nothing.
 That is what makes success criterion 6 true rather than claimed: nothing in the engine knows
 what control 6 is, the control index is the directory listing, and a twelfth control is a file.
 """
+from . import lock
 from .errors import Problem, SpecError
 from .ir import ControlIR, available, load, load_schema, validate
 from .registry import FieldSpec, Registry, provider_map
@@ -29,6 +30,7 @@ __all__ = [
     "available_tenants",
     "load",
     "load_schema",
+    "lock",
     "provider_map",
     "validate",
 ]

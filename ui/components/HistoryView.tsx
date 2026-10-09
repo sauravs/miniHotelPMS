@@ -14,6 +14,7 @@
  */
 import type { ControlEntry, History, HistoryRow, Outcomes } from "@/lib/types";
 import { Explainer } from "./Explainer";
+import { Policy, policyGroups } from "./Policy";
 
 export function HistoryView({
   control,
@@ -38,6 +39,12 @@ export function HistoryView({
           <strong>As of</strong> is the instant each run asked about, and <strong>evidence</strong>{" "}
           is which capture it replayed. Two runs that disagree usually asked different questions
           rather than got different answers.
+        </p>
+        <p>
+          <strong>Runs are grouped by the version of the rule that judged them</strong>, with the
+          digest of what that version says. Runs under v2 and v3 answered two different rules. A run
+          stored before rules carried a version says <em>version not recorded</em> rather than
+          borrowing today&apos;s.
         </p>
         <p>
           A run that <strong>reached no conclusion</strong> shows the reason instead of counts:
@@ -65,7 +72,10 @@ export function HistoryView({
         <div className="card">
           <div className="scroller">
             <table className="listing">
-              <caption>Every run of this control, newest first</caption>
+              <caption>
+                Every run of this control, newest first, grouped by the version of the rule that
+                judged it
+              </caption>
               <thead>
                 <tr>
                   <th scope="col">run</th>
@@ -76,24 +86,31 @@ export function HistoryView({
                   <th scope="col">outcome</th>
                 </tr>
               </thead>
-              <tbody>
-                {history.runs.map((run) => (
-                  <tr key={run.run_id} data-run-id={run.run_id}>
-                    <td className="mono">
-                      <a href={`/runs/${encodeURIComponent(run.run_id)}`}>{run.run_id}</a>
-                    </td>
-                    <td>{run.created_at}</td>
-                    <td>
-                      {run.evidence_label} ({run.provider})
-                    </td>
-                    <td>{run.as_of}</td>
-                    <td>{run.calls}</td>
-                    <td>
-                      <Outcome run={run} outcomes={outcomes} />
-                    </td>
+              {policyGroups(history.runs).map((group) => (
+                <tbody key={group.key} data-policy={group.key}>
+                  <tr className="policy">
+                    <th colSpan={6} scope="rowgroup">
+                      <Policy version={group.rows[0].policy_version} digest={group.rows[0].policy_digest} />
+                    </th>
                   </tr>
-                ))}
-              </tbody>
+                  {group.rows.map((run) => (
+                    <tr key={run.run_id} data-run-id={run.run_id}>
+                      <td className="mono">
+                        <a href={`/runs/${encodeURIComponent(run.run_id)}`}>{run.run_id}</a>
+                      </td>
+                      <td>{run.created_at}</td>
+                      <td>
+                        {run.evidence_label} ({run.provider})
+                      </td>
+                      <td>{run.as_of}</td>
+                      <td>{run.calls}</td>
+                      <td>
+                        <Outcome run={run} outcomes={outcomes} />
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              ))}
             </table>
           </div>
           <p className="meta">Re-reading any of these costs no provider call (R1).</p>

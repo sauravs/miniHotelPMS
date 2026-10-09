@@ -26,7 +26,13 @@ CREATE TABLE IF NOT EXISTS runs (
     -- Both nullable: a run made before this column existed cannot say, and a run that cannot
     -- say is reported as stale rather than assumed fresh.
     observed_at           TEXT,
-    maximum_age           TEXT
+    maximum_age           TEXT,
+    -- Slice 16 (G6b): which version of the rule judged this run, and the SHA-256 of that rule's
+    -- verdict-bearing content. Both nullable for the same reason as the two above: a run stored
+    -- before rules were versioned cannot say, and it reads back as "version not recorded"
+    -- rather than borrowing today's version.
+    policy_version        INTEGER,
+    policy_digest         TEXT
 );
 
 CREATE TABLE IF NOT EXISTS verdicts (

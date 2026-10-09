@@ -111,9 +111,12 @@ class RunStore:
         """
         existing = {row["name"] for row in
                     self._connection.execute("PRAGMA table_info(runs)")}
-        for column in ("observed_at", "maximum_age"):
+        # Slice 16 adds the policy pair the same way. A run stored before it reads back with
+        # neither, which the surfaces show as "version not recorded" - never as today's version.
+        for column, kind in (("observed_at", "TEXT"), ("maximum_age", "TEXT"),
+                             ("policy_version", "INTEGER"), ("policy_digest", "TEXT")):
             if column not in existing:
-                self._connection.execute("ALTER TABLE runs ADD COLUMN %s TEXT" % column)
+                self._connection.execute("ALTER TABLE runs ADD COLUMN %s %s" % (column, kind))
 
     def close(self) -> None:
         self._connection.close()
@@ -128,13 +131,19 @@ class RunStore:
     def save(self, run: Run) -> str:
         run_id = run.run_id or make_run_id(run)
         with self._connection:
+            # Columns NAMED rather than positional. A migrated database gains its columns in the
+            # order they were added and a fresh one in the order the schema lists them; naming
+            # them is what makes those two orders irrelevant.
             self._connection.execute(
-                "INSERT OR REPLACE INTO runs VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                "INSERT OR REPLACE INTO runs (run_id, control_id, control_name, "
+                "natural_language, tenant_id, provider, evidence_label, evidence_is_synthetic, "
+                "as_of, created_at, calls, blocked, observed_at, maximum_age, policy_version, "
+                "policy_digest) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
                 (run_id, run.control_id, run.control_name, run.natural_language, run.tenant_id,
                  run.provider, run.evidence_label, int(run.evidence_is_synthetic), run.as_of,
                  run.created_at.isoformat(), run.calls, run.blocked,
                  run.observed_at.isoformat() if run.observed_at else None,
-                 run.maximum_age or None))
+                 run.maximum_age or None, run.policy_version, run.policy_digest))
             self._connection.execute("DELETE FROM verdicts WHERE run_id = ?", (run_id,))
             self._connection.execute("DELETE FROM evidence WHERE run_id = ?", (run_id,))
             for position, verdict in enumerate(run.verdicts):
@@ -185,7 +194,8 @@ class RunStore:
             verdicts=verdicts, blocked=row["blocked"], run_id=run_id,
             observed_at=(datetime.fromisoformat(row["observed_at"])
                          if row["observed_at"] else None),
-            maximum_age=row["maximum_age"] or "")
+            maximum_age=row["maximum_age"] or "",
+            policy_version=row["policy_version"], policy_digest=row["policy_digest"])
 
     def history(self, control_id: str | None = None, limit: int = 50) -> list[dict]:
         """Past runs, newest first, as summaries.
@@ -196,8 +206,10 @@ class RunStore:
         # `evidence_label` and `provider` are in the summary because a history row without them
         # is not a history: two runs of one control over two different bodies of evidence are
         # two different questions, and a list that cannot tell them apart is a list of dates.
+        # The policy pair is in the summary because history groups by it (slice 16): two runs
+        # of one control under v2 and v3 of its rule answered two different rules.
         query = ("SELECT r.run_id, r.control_id, r.as_of, r.created_at, r.calls, r.blocked, "
-                 "  r.evidence_label, r.provider, "
+                 "  r.evidence_label, r.provider, r.policy_version, r.policy_digest, "
                  "  SUM(v.outcome = 'PASS') AS passes, SUM(v.outcome = 'FAIL') AS fails, "
                  "  SUM(v.outcome = 'UNKNOWN') AS unknowns, "
                  "  SUM(v.outcome = 'EXCLUDED') AS excluded, COUNT(v.position) AS total "

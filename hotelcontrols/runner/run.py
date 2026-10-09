@@ -70,6 +70,13 @@ class Run:
     # What the control asks for, carried on the run so a stored run can still answer "was this
     # current?" months later without re-reading the IR it was made from.
     maximum_age: str = ""
+    # WHICH RULE JUDGED IT (slice 16, G6b): the IR's version, and the digest of its
+    # verdict-bearing content. Both, because a version kept by hand can lie and the digest
+    # cannot. None means the run cannot say - a run stored before rules were versioned - and
+    # it is shown as "version not recorded", never as today's version. The freshness rule,
+    # applied to identity: what was not recorded is not assumed.
+    policy_version: int | None = None
+    policy_digest: str | None = None
 
     @property
     def counts(self) -> dict[str, int]:
@@ -147,7 +154,11 @@ def run(control_id: str, tenant: TenantConfig, adapter, clock: Clock,
         verdicts=verdicts,
         blocked=blocked,
         observed_at=observed_at if observed_at is not None else _observed(source, clock),
-        maximum_age=ir["freshness_requirement"]["maximum_age"])
+        maximum_age=ir["freshness_requirement"]["maximum_age"],
+        # Read from the IR this run actually loaded, not from the lock: if the file on disk was
+        # edited without its bump, the digest says so even when the version does not.
+        policy_version=ir.version,
+        policy_digest=ir.digest)
 
 
 def _observed(source, clock: Clock) -> datetime | None:

@@ -332,6 +332,12 @@ table.listing th {
   letter-spacing: .07em; text-transform: uppercase; border-top: 0; white-space: nowrap;
 }
 table.listing tr:hover td { background: var(--ground); }
+/* Slice 16: a history group's header names the rule that judged the runs under it. It is a
+ * sentence, not a column heading - normal case, so a digest is shown exactly as it is. */
+table.listing tr.policy th {
+  color: var(--ink); font-weight: 400; font-size: .82rem; letter-spacing: normal;
+  text-transform: none; white-space: normal; padding-top: .9rem;
+}
 
 /* A table caption carries what the table is for. Quiet rather than hidden: with the stylesheet
  * switched off it simply becomes an ordinary line of text, which is the property that makes it

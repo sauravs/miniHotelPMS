@@ -86,6 +86,13 @@ export interface RunPayload {
   created_at: string;
   calls: number;
   run_id: string;
+  /**
+   * Which version of the rule judged this run, and the SHA-256 of what that version says
+   * (slice 16). BOTH null on a run stored before rules carried a version: that is "version not
+   * recorded", and it is never filled in with today's version.
+   */
+  policy_version: number | null;
+  policy_digest: string | null;
   /** The reason the run could not happen, or null. A blocked run has no `counts` key at all. */
   blocked: string | null;
   coverage: Coverage;
@@ -144,6 +151,9 @@ export interface HistoryRow {
   evidence_label: string;
   as_of: string;
   calls: number;
+  /** The rule that judged it, exactly as on a run. Both null: version not recorded. */
+  policy_version: number | null;
+  policy_digest: string | null;
   /** The reason the run could not happen, or null. A blocked row has no counts and no headline. */
   blocked: string | null;
   /** THE gate for the counts - exactly as on a run (trap 1). */
