@@ -1,0 +1,28 @@
+{
+  "conversation": "golden",
+  "template": "checkout_money_owed",
+  "proposer": "stub",
+  "result": {
+    "prose": "VIP rooms must be inspected",
+    "sentence": "every reservation where reservation.vip is \"true\" must have room.inspection_status is \"clean\"",
+    "question": "",
+    "is_question": false,
+    "ok": false,
+    "problems": [
+      "checkout_money_owed - references undeclared canonical field 'reservation.vip'",
+      "checkout_money_owed - references undeclared canonical field 'room.inspection_status'"
+    ],
+    "fields": []
+  },
+  "transcript": [
+    {
+      "prose": "VIP rooms must be inspected",
+      "sentence": "every reservation where reservation.vip is \"true\" must have room.inspection_status is \"clean\"",
+      "question": "",
+      "problems": [
+        "checkout_money_owed - references undeclared canonical field 'reservation.vip'",
+        "checkout_money_owed - references undeclared canonical field 'room.inspection_status'"
+      ]
+    }
+  ]
+}

@@ -1,18 +1,17 @@
 /**
  * The engine is a separate process; the browser never talks to it. Data is fetched server-side
- * (lib/api.ts). The one thing the browser does fetch from the engine is its stylesheet, so the
- * two surfaces share one set of criterion-2 rules - and it arrives through this rewrite, on this
- * origin, so no CORS header is ever needed and the engine's policy is untouched.
+ * (lib/api.ts), and even the engine's stylesheet is served from this origin by a route handler
+ * (app/style.css/route.ts) - so no CORS header is ever needed and the engine's policy is
+ * untouched.
+ *
+ * No `rewrites()`: Next compiles them at build time, which froze the stylesheet to the build's
+ * engine address while every data request read HOTELCONTROLS_API_URL at run time.
  */
-const ENGINE = process.env.HOTELCONTROLS_API_URL ?? "http://127.0.0.1:8765";
 
 /** @type {import('next').NextConfig} */
 const config = {
   reactStrictMode: true,
   poweredByHeader: false,
-  async rewrites() {
-    return [{ source: "/style.css", destination: `${ENGINE}/style.css` }];
-  },
 };
 
 export default config;

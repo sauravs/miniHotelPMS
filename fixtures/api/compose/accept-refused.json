@@ -1,0 +1,8 @@
+{
+  "error": "This sentence does not compile, so nothing was filed.",
+  "status": 422,
+  "sentence": "rooms should be nice",
+  "problems": [
+    "sentence 'rooms should be nice' - a rule starts with 'all' or 'each' or 'every' or 'no', and this one starts with 'rooms'"
+  ]
+}

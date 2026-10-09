@@ -193,18 +193,26 @@ class App:
             return self._drafts_json()
         if parts == ["api", "outcomes"]:
             return self._outcomes_json()
+        if parts == ["api", "compose"]:
+            return self._compose_state_json(query)
 
         raise _Refused(404, "There is nothing at /%s. The controls are listed at /."
                        % "/".join(parts))
 
     def route_post(self, segments: tuple[str, ...], form: dict) -> Response:
-        """The two routes that write. Both belong to the compose front end."""
+        """The routes that write. All belong to the compose front end, in HTML and in JSON."""
         parts = list(segments)
 
         if parts == ["compose"]:
             return self._compose_turn(form)
         if parts == ["compose", "accept"]:
             return self._compose_accept(form)
+        # Slice 15, with the owner's sign-off: the same two writes, as JSON, for the second
+        # surface. Same proposer, same grammar, same validator, same draft file.
+        if parts == ["api", "compose"]:
+            return self._compose_turn_json(form)
+        if parts == ["api", "compose", "accept"]:
+            return self._compose_accept_json(form)
 
         raise _Refused(405, "Nothing at /%s accepts a form. The controls are listed at /."
                        % "/".join(parts))
@@ -231,6 +239,12 @@ class App:
 
     def _compose_turn(self, form: dict) -> Response:
         """One exchange: prose in, a sentence or a question out, nothing written."""
+        conversation, template, result = self._turn(form)
+        return self._compose_page({**form, "conversation": conversation,
+                                   "template": template}, result=result)
+
+    def _turn(self, form: dict):
+        """The exchange itself, shared by the HTML and the JSON window so they cannot differ."""
         proposer = self._require_proposer()
         prose = (form.get("prose") or "").strip()
         conversation = form.get("conversation") or uuid.uuid4().hex[:12]
@@ -246,9 +260,7 @@ class App:
         self.conversations[conversation] = (history + (result.as_turn(),))[-12:]
         if len(self.conversations) > 64:
             self.conversations.pop(next(iter(self.conversations)))
-
-        return self._compose_page({**form, "conversation": conversation,
-                                   "template": template}, result=result)
+        return conversation, template, result
 
     def _compose_accept(self, form: dict) -> Response:
         """Compile the sentence as it now stands, write it to the drafts directory, and run it.
@@ -256,6 +268,19 @@ class App:
         The sentence compiled here is whatever is in the BOX, which may be what a person edited
         rather than what the proposer said. That is deliberate: the model's output is a
         suggestion, and the rule that runs is the one a human pressed the button on.
+        """
+        control_id, sentence, compilation = self._file_draft(form)
+        if not compilation.ok:
+            return self._compose_page(form, compilation=compilation, sentence=sentence)
+        tenant_id, capture = self._selection(form)
+        return Response(303, HTML, render.redirect(
+            "/run/%s?property=%s&evidence=%s" % (control_id, tenant_id, capture)))
+
+    def _file_draft(self, form: dict):
+        """Compile the sentence in the box and, only if it compiles, write it as a draft.
+
+        Shared by the HTML and the JSON window. Returns the compilation either way, so each
+        surface can show the validator's own reasons for a refusal.
         """
         if self.draft_dir is None:
             raise _Refused(409, "There is nowhere to file a draft: this app was built without "
@@ -295,16 +320,69 @@ class App:
         compilation = compile_sentence(sentence, self.registry, deployment=deployment,
                                        tenant=self._tenant(self._selection(form)[0]),
                                        ir_schema=self._schema())
+        if compilation.ok:
+            path = self.draft_dir / "ir" / ("%s.json" % control_id)
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text(json.dumps(compilation.ir, indent=2) + "\n", encoding="utf-8")
+        return control_id, sentence, compilation
+
+    # ------------------------------------------------------------------ compose, as JSON
+    def _compose_state_json(self, query: dict) -> Response:
+        """Whether compose is wired, by which proposer, and one conversation's transcript.
+
+        Read-only, and an absence is STATED: with no proposer this answers `wired: false`
+        rather than 404, exactly as the HTML window explains itself instead of vanishing.
+        """
+        conversation = query.get("conversation") or ""
+        return Response(200, JSON, json.dumps({
+            "wired": self.proposer is not None,
+            "proposer": self._proposer_name() or None,
+            "drafts_wired": self.draft_dir is not None,
+            "templates": [{"control_id": c, "entity": e} for c, e in self._templates()],
+            "template": self._template_id(query.get("template")),
+            "conversation": conversation,
+            "transcript": [_turn_json(t) for t in self.conversations.get(conversation, ())],
+        }, indent=2))
+
+    def _compose_turn_json(self, form: dict) -> Response:
+        """One exchange, as data. Writes nothing but the in-memory transcript."""
+        conversation, template, result = self._turn(form)
+        ok = result.ok
+        return Response(200, JSON, json.dumps({
+            "conversation": conversation,
+            "template": template,
+            "proposer": self._proposer_name(),
+            "result": {
+                "prose": result.prose,
+                "sentence": result.sentence,
+                "question": result.question,
+                "is_question": result.is_question,
+                "ok": ok,
+                # Exactly the reasons the HTML refusal lists, from the same objects.
+                "problems": list(result.as_turn().problems),
+                "fields": ([entry["field"] for entry in
+                            result.compilation.ir.get("required_evidence", [])] if ok else []),
+            },
+            "transcript": [_turn_json(t) for t in self.conversations.get(conversation, ())],
+        }, indent=2))
+
+    def _compose_accept_json(self, form: dict) -> Response:
+        """File the sentence sent back as a draft - 201 - or say why not - 422.
+
+        Does NOT run it. Running spends provider calls, and the client decides that as a
+        separate, deliberate step; the answer names the property and evidence to run it on.
+        """
+        control_id, sentence, compilation = self._file_draft(form)
         if not compilation.ok:
-            return self._compose_page(form, compilation=compilation, sentence=sentence)
-
-        path = self.draft_dir / "ir" / ("%s.json" % control_id)
-        path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text(json.dumps(compilation.ir, indent=2) + "\n", encoding="utf-8")
-
+            reasons = ([str(p) for p in compilation.problems]
+                       + ["ambiguous: %s" % a for a in compilation.ambiguities])
+            return Response(422, JSON, json.dumps({
+                "error": "This sentence does not compile, so nothing was filed.",
+                "status": 422, "sentence": sentence, "problems": reasons}, indent=2))
         tenant_id, capture = self._selection(form)
-        return Response(303, HTML, render.redirect(
-            "/run/%s?property=%s&evidence=%s" % (control_id, tenant_id, capture)))
+        return Response(201, JSON, json.dumps({
+            "control_id": control_id, "property": tenant_id, "evidence": capture,
+            "reviewed": False}, indent=2))
 
     # ------------------------------------------------------------------ compose helpers
     def _require_proposer(self):
@@ -609,6 +687,12 @@ class App:
     def captures_for(self, tenant_id: str) -> tuple[str, ...]:
         """Every body of evidence this property's provider can be replayed against."""
         return providers.load(self._tenant(tenant_id).provider).captures
+
+
+def _turn_json(turn: Turn) -> dict:
+    """One exchange of a transcript, as data."""
+    return {"prose": turn.prose, "sentence": turn.sentence, "question": turn.question,
+            "problems": list(turn.problems)}
 
 
 def _slug(value: str) -> str:

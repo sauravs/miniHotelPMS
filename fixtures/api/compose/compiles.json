@@ -1,0 +1,40 @@
+{
+  "conversation": "golden",
+  "template": "checkout_money_owed",
+  "proposer": "stub",
+  "result": {
+    "prose": "every reservation must record a guest email",
+    "sentence": "every reservation where reservation.status is not \"cancelled\" must have reservation.guest.email exists",
+    "question": "",
+    "is_question": false,
+    "ok": true,
+    "problems": [],
+    "fields": [
+      "reservation.status",
+      "reservation.guest.email"
+    ]
+  },
+  "transcript": [
+    {
+      "prose": "VIP rooms must be inspected",
+      "sentence": "every reservation where reservation.vip is \"true\" must have room.inspection_status is \"clean\"",
+      "question": "",
+      "problems": [
+        "checkout_money_owed - references undeclared canonical field 'reservation.vip'",
+        "checkout_money_owed - references undeclared canonical field 'room.inspection_status'"
+      ]
+    },
+    {
+      "prose": "corporate rates must belong to an approved company",
+      "sentence": "",
+      "question": "Which rate codes count as corporate at this property? I will not guess at hotel policy.",
+      "problems": []
+    },
+    {
+      "prose": "every reservation must record a guest email",
+      "sentence": "every reservation where reservation.status is not \"cancelled\" must have reservation.guest.email exists",
+      "question": "",
+      "problems": []
+    }
+  ]
+}

@@ -17,14 +17,18 @@ cd ui && npm ci && npm run build && npm start   # this UI, :3000
 ## How it is built, and why
 
 - **The browser never talks to the engine.** Data is fetched in Server Components through one
-  module, `lib/api.ts`. The engine's stylesheet comes through a rewrite on this origin. So no
-  CORS header exists anywhere, and the engine's CSP is untouched.
+  module, `lib/api.ts`. The engine's stylesheet is served on this origin by a route handler
+  (`app/style.css/route.ts`). Both read the engine's address at run time. So no CORS header
+  exists anywhere, and the engine's CSP is untouched.
 - **A run is a POST, then a redirect.** `GET /api/run/` spends provider calls and writes the store.
   The Run button is a Server Action. It runs once, then sends the reader to `/runs/<run_id>`, which
   re-reads the stored run for free and can be reloaded, prefetched and bookmarked.
 - **One stylesheet for both surfaces.** The markup uses the engine's class names, and
-  `/style.css` is the engine's own file. So the criterion-2 rules (four hues, four border styles)
+  `/style.css` is the engine's own file, fetched at run time. So the criterion-2 rules (four hues, four border styles)
   have one source, which the Python suite already parses.
+- **Compose is the one write path, and it never touches a PMS.** Asking and filing are Server
+  Actions (POSTs) through `/api/compose` and `/api/compose/accept`. They write only the engine's
+  drafts directory, and a filed draft is run once, then read back from `/runs/<run_id>`.
 - **One source of wording.** Badges and meanings come from `/api/outcomes`, which serves the
   engine's `WORDING`. They are never typed here.
 - **A real CSP** (`proxy.ts`): scripts only with this request's nonce, nothing inline, nothing

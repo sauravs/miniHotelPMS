@@ -2,7 +2,8 @@
  * The shell every page shares: a whole document, its language declared, a skip link, and the
  * engine's own stylesheet.
  *
- * ONE STYLESHEET FOR BOTH SURFACES. `/style.css` is rewritten to the engine (next.config.mjs),
+ * ONE STYLESHEET FOR BOTH SURFACES. `/style.css` is the engine's own file, served on this origin
+ * by app/style.css/route.ts,
  * and the markup here uses the engine's class names. The criterion-2 rules - four hues, four
  * border styles - therefore have exactly one source, and tests/unit/test_web_routing.py already
  * parses it. A second copy here would be a second set of rules free to drift from the first.

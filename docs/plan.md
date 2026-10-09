@@ -794,5 +794,5 @@ any `slice/15-*` branch that changes an engine file other than `web/app.py`.
 | #36 | Fix #35: history page showed counts for a run that concluded nothing (found building #34) | **Merged** |
 | #37 | `ui/` scaffold and the run page. `/api/outcomes`, parity harness, Playwright, CSP, `ui` CI job | **Merged** |
 | #38 | Index: readiness per provider (criterion 10), the evidence picker, drafts kept apart | **Merged** |
-| 4/5 | History, with `headline` on `/api/history` rows; our own 404 and error pages, which the CSP needed | Open |
-| 5/5 | Compose | — |
+| #39 | History, with `headline` on `/api/history` rows; our own 404 and error pages, which the CSP needed | **Merged** |
+| 5/5 | Compose as JSON (the slice's one write path, owner-approved), the React compose window, the stylesheet served at run time | Open |

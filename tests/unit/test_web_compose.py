@@ -458,3 +458,120 @@ class TestSlice15DraftsAsData:
         app.handle_post("/compose/accept", EMAIL_RULE)
         listed = [c["control_id"] for c in json.loads(app.handle("/api/controls").body)["controls"]]
         assert "my_draft" not in listed
+
+
+# ---------------------------------------------------------------------------------------
+class TestSlice15ComposeAsJson:
+    """The compose window as JSON, for the second surface - the first WRITE path slice 15 adds,
+    taken with the owner's sign-off. It mirrors the HTML routes exactly: the same proposer, the
+    same deterministic grammar, the same validator, the same draft file. What a POST writes is
+    still only our own drafts directory and our own run store; nothing ever writes to a PMS.
+
+    D10 holds on this surface too: the model drafts a sentence, the grammar decides, and the
+    sentence that is FILED is whatever the person sent back - not what the proposer said."""
+
+    COMPILES = "prose=every+reservation+must+record+a+guest+email"
+    REFUSED = "prose=VIP+rooms+must+be+inspected"
+    QUESTION = "prose=corporate+rates+must+belong+to+an+approved+company"
+
+    @staticmethod
+    def post(app, path, body):
+        status, content_type, text = app.handle_post(path, body)
+        assert content_type.startswith("application/json"), text[:200]
+        return status, json.loads(text)
+
+    def test_the_state_says_when_compose_is_switched_off(self):
+        """An absence stated, never a 404 - as the HTML window does."""
+        status, _ct, body = App().handle("/api/compose")
+        payload = json.loads(body)
+        assert status == 200
+        assert payload["wired"] is False and payload["proposer"] is None
+        assert payload["transcript"] == []
+
+    def test_the_state_names_the_proposer_and_the_populations_a_draft_may_borrow(self, app):
+        from hotelcontrols.spec import available
+        payload = json.loads(app.handle("/api/compose").body)
+        assert payload["wired"] is True and payload["proposer"]
+        assert [t["control_id"] for t in payload["templates"]] == list(available())
+        assert payload["template"] == available()[0]
+        assert payload["drafts_wired"] is True
+
+    def test_asking_with_nothing_wired_is_refused_in_json(self):
+        status, payload = self.post(App(), "/api/compose", self.COMPILES)
+        assert status == 409 and "error" in payload
+
+    def test_a_sentence_that_compiles_comes_back_with_the_fields_it_reads(self, app, drafts):
+        status, payload = self.post(app, "/api/compose", self.COMPILES)
+        assert status == 200
+        result = payload["result"]
+        assert result["ok"] is True and result["is_question"] is False
+        assert "reservation.guest.email" in result["sentence"]
+        assert "reservation.guest.email" in result["fields"]
+        assert result["problems"] == []
+        assert payload["conversation"]
+        assert list((drafts / "ir").iterdir()) == [], "asking must not write anything"
+
+    def test_a_refusal_names_the_missing_vocabulary_and_offers_nothing_to_file(self, app):
+        result = self.post(app, "/api/compose", self.REFUSED)[1]["result"]
+        assert result["ok"] is False
+        assert any("room.inspection_status" in p for p in result["problems"])
+        assert result["fields"] == []
+
+    def test_a_question_is_a_question_not_an_error(self, app):
+        result = self.post(app, "/api/compose", self.QUESTION)[1]["result"]
+        assert result["is_question"] is True and result["ok"] is False
+        assert "rate codes" in result["question"]
+
+    def test_the_conversation_carries_its_transcript_forward(self, app):
+        first = self.post(app, "/api/compose", self.REFUSED)[1]
+        second = self.post(app, "/api/compose",
+                           self.COMPILES + "&conversation=" + first["conversation"])[1]
+        assert second["conversation"] == first["conversation"]
+        assert [t["prose"] for t in second["transcript"]] == [
+            "VIP rooms must be inspected", "every reservation must record a guest email"]
+        assert second["transcript"][0]["problems"], "a refusal's reasons travel with it"
+        state = json.loads(app.handle("/api/compose?conversation=" + first["conversation"]).body)
+        assert state["transcript"] == second["transcript"]
+
+    def test_accepting_files_the_draft_and_names_where_to_run_it(self, app, drafts):
+        status, payload = self.post(app, "/api/compose/accept", EMAIL_RULE)
+        assert status == 201
+        assert payload == {"control_id": "my_draft", "property": "sandbox",
+                           "evidence": "sandbox2026", "reviewed": False}
+        assert (drafts / "ir" / "my_draft.json").is_file()
+        listed = json.loads(app.handle("/api/drafts").body)["drafts"]
+        assert [d["control_id"] for d in listed] == ["my_draft"]
+
+    def test_what_is_filed_is_the_sentence_sent_back_not_the_proposal(self, app, drafts):
+        """D10: a person is between the model and the rule."""
+        edited = EMAIL_RULE.replace("at+most+0", "at+most+5")
+        self.post(app, "/api/compose/accept", edited)
+        filed = json.loads((drafts / "ir" / "my_draft.json").read_text())
+        assert "at most 5" in filed["restricted_language"]
+        assert "5" in json.dumps(filed["assertion"])
+
+    def test_a_sentence_the_grammar_refuses_is_422_with_its_reasons_and_nothing_written(
+            self, app, drafts):
+        status, payload = self.post(app, "/api/compose/accept",
+                                    "sentence=rooms+should+be+nice&control_id=nice"
+                                    "&template=checkout_money_owed")
+        assert status == 422
+        assert payload["problems"] and payload["sentence"] == "rooms should be nice"
+        assert list((drafts / "ir").iterdir()) == []
+
+    def test_a_draft_may_not_shadow_a_reviewed_control(self, app):
+        status, payload = self.post(app, "/api/compose/accept",
+                                    EMAIL_RULE.replace("control_id=my_draft",
+                                                       "control_id=checkout_money_owed"))
+        assert status == 409 and "reviewed control" in payload["error"]
+
+    def test_accepting_with_nowhere_to_file_is_refused(self):
+        status, payload = self.post(App(proposer=StubProposer()), "/api/compose/accept",
+                                    EMAIL_RULE)
+        assert status == 409 and "error" in payload
+
+    def test_the_html_window_is_untouched(self, app):
+        """Both UIs ship. The JSON routes are an addition, not a replacement."""
+        body = app.handle_post("/compose", self.COMPILES)[2]
+        assert "THIS COMPILES" in text_of(body)
+        assert app.handle_post("/compose/accept", EMAIL_RULE).status == 303

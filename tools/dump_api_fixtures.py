@@ -27,6 +27,7 @@ WHAT IS WRITTEN - the path mirrors the route
     run/<control>.<property>.<evidence>.json              the FULL matrix, live
     runs/<run_id>.json                                    every one of those, re-read from store
     history/<control>.json                                after the whole matrix has run
+    compose/*.json                                        off, wired, and three kinds of turn
 
 `run/` and `runs/` are both complete so that every `run_id` a history row names resolves to a
 file - the same promise the live API makes. `drafts.json` is the unwired state (`App()` with no
@@ -86,7 +87,48 @@ def build() -> dict[str, str]:
     for control_id in controls:
         take("/api/history/%s" % control_id, "history/%s.json" % control_id)
 
+    built.update(_compose())
     return built
+
+
+def _compose() -> dict[str, str]:
+    """The compose window's payloads: switched off, switched on, and the three kinds of turn.
+
+    The stub proposer is deterministic and the conversation id is FIXED, so these rebuild
+    byte-identically. The drafts directory is a throwaway: a golden payload is never allowed to
+    write into spec/drafts/.
+    """
+    import shutil
+    import tempfile
+
+    from hotelcontrols.spec.registry import SPEC_DIR
+    from hotelcontrols.web import App
+    from tools.proposers import StubProposer
+
+    out: dict[str, str] = {}
+    out["compose/off.json"] = App().handle("/api/compose").body + "\n"
+    with tempfile.TemporaryDirectory() as scratch:
+        drafts = pathlib.Path(scratch) / "drafts"
+        (drafts / "ir").mkdir(parents=True)
+        for name in ("canonical_fields.json", "ir_schema.json"):
+            shutil.copy(SPEC_DIR / name, drafts / name)
+        app = App(proposer=StubProposer(), draft_dir=drafts)
+        out["compose/wired.json"] = app.handle("/api/compose").body + "\n"
+        for name, prose in (("refused", "VIP+rooms+must+be+inspected"),
+                            ("question", "corporate+rates+must+belong+to+an+approved+company"),
+                            ("compiles", "every+reservation+must+record+a+guest+email")):
+            status, _ct, body = app.handle_post(
+                "/api/compose", "conversation=golden&prose=%s" % prose)
+            if status != 200:
+                raise SystemExit("compose turn %r answered %d:\n%s" % (name, status, body[:400]))
+            out["compose/%s.json" % name] = body + "\n"
+        status, _ct, body = app.handle_post(
+            "/api/compose/accept", "sentence=rooms+should+be+nice&control_id=nice"
+                                   "&template=checkout_money_owed")
+        if status != 422:
+            raise SystemExit("a refused accept answered %d, not 422" % status)
+        out["compose/accept-refused.json"] = body + "\n"
+    return out
 
 
 def main(argv: list[str]) -> int:
