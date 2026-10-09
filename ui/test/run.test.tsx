@@ -16,7 +16,7 @@ import { afterEach, describe, expect, it } from "vitest";
 import { RunView } from "@/components/RunView";
 import { Verdict } from "@/components/Verdict";
 import type { OutcomeName, RunPayload, VerdictPayload } from "@/lib/types";
-import { outcomes, run } from "./goldens";
+import { outcomes, run, stored } from "./goldens";
 
 afterEach(cleanup);
 
@@ -162,3 +162,19 @@ describe("grouping - a work queue that hides nothing", () => {
 });
 
 export type { RunPayload };
+
+describe("F7's line on a stored run - when this control runs next", () => {
+  it("a stored run carries no plan; the one served beside it is shown, word for word as live", () => {
+    const live = run("checkout_money_owed.sandbox.sandbox2026.json");
+    const past = stored(`${live.run_id}.json`);
+    expect(past.execution).toBeUndefined();
+    const { container } = render(<RunView run={past} outcomes={outcomes} plan={live.execution} />);
+    expect(textOf(container)).toContain(live.execution!.headline);
+  });
+
+  it("with neither, there is simply no plan line - nothing is invented", () => {
+    const live = run("checkout_money_owed.sandbox.sandbox2026.json");
+    const { container } = render(<RunView run={stored(`${live.run_id}.json`)} outcomes={outcomes} />);
+    expect(textOf(container)).not.toContain(live.execution!.headline);
+  });
+});

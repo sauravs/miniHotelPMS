@@ -1119,3 +1119,42 @@ class TestSlice15HistoryRowsCarryTheEnginesSentence:
                    "&evidence=sandbox2026")
         (row,) = _json(app, "/api/history/resource_occupancy_consistency")[1]["runs"]
         assert row["blocked"] and row["headline"] is None
+
+
+class TestSlice15ThePlanForAStoredRun:
+    """`/api/plan/<id>?property=&as_of=`: when this control runs next, and whether it fell back -
+    finding F7's line - for a run read back from the store, which does not carry it.
+
+    A plan is a fact about the SPEC (the control's declared trigger, the provider's events, an
+    instant), exactly like readiness, so it is served beside the stored run rather than bolted
+    into it: every existing route and golden stays byte-identical."""
+
+    def test_it_is_the_same_plan_the_live_run_reported(self):
+        app = App()
+        live = json.loads(app.handle(
+            "/api/run/checkout_money_owed?property=sandbox&evidence=sandbox2026").body)
+        status, plan = _json(app, "/api/plan/checkout_money_owed?property=sandbox&as_of=%s"
+                             % live["as_of"])
+        assert status == 200
+        assert {k: plan[k] for k in live["execution"]} == live["execution"]
+        assert (plan["control_id"], plan["property"], plan["as_of"]) == (
+            "checkout_money_owed", "sandbox", live["as_of"])
+
+    def test_it_costs_no_provider_call_and_writes_no_run(self, monkeypatch):
+        _no_run_may_happen(monkeypatch)
+        app = App()
+        assert _json(app, "/api/plan/checkout_money_owed?property=sandbox&as_of=2026-07-08")[0] \
+            == 200
+        assert app.provider_calls == 0 and app.store.history() == []
+
+    def test_an_unknown_control_is_the_same_404(self):
+        assert _json(App(), "/api/plan/no_such_control?as_of=2026-07-08")[0] == 404
+
+    def test_an_instant_is_required_because_a_plan_is_relative_to_one(self):
+        """Defaulting to today would describe a different question from the stored run's."""
+        status, payload = _json(App(), "/api/plan/checkout_money_owed?property=sandbox")
+        assert status == 400 and "as_of" in payload["error"]
+
+    def test_an_unreadable_date_is_refused_not_guessed(self):
+        status, payload = _json(App(), "/api/plan/checkout_money_owed?as_of=next+tuesday")
+        assert status == 400 and "YYYY-MM-DD" in payload["error"]

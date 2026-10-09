@@ -195,6 +195,8 @@ class App:
             return self._outcomes_json()
         if parts == ["api", "compose"]:
             return self._compose_state_json(query)
+        if len(parts) == 3 and parts[:2] == ["api", "plan"]:
+            return self._plan_json(parts[2], query)
 
         raise _Refused(404, "There is nothing at /%s. The controls are listed at /."
                        % "/".join(parts))
@@ -454,12 +456,12 @@ class App:
         links = {capture: "/run/%s?property=%s&evidence=%s" % (control_id, tenant.tenant_id,
                                                                capture)
                  for capture in providers.load(tenant.provider).captures}
-        return Response(200, HTML, render.run_page(result, plan=self._plan(ir, tenant, result),
+        return Response(200, HTML, render.run_page(result, plan=self._plan(ir, tenant, result.as_of),
                                                    readiness=self._readiness(ir), links=links))
 
     def _run_json(self, control_id: str, query: dict) -> Response:
         result, ir, tenant = self._execute(control_id, query)
-        return Response(200, JSON, render.run_json(result, plan=self._plan(ir, tenant, result),
+        return Response(200, JSON, render.run_json(result, plan=self._plan(ir, tenant, result.as_of),
                                                    readiness=self._readiness(ir)))
 
     def _stored_run(self, run_id: str) -> Response:
@@ -516,6 +518,35 @@ class App:
                           "open": outcome in render.OPEN_GROUPS}
                          for outcome in render.TILE_ORDER],
             "group_order": [outcome.value for outcome in render.GROUP_ORDER]}, indent=2))
+
+    def _plan_json(self, control_id: str, query: dict) -> Response:
+        """When this control runs next on this property's provider, as of a given instant.
+
+        For a run read back from the store, which does not carry its plan. A plan is a fact
+        about the spec - the declared trigger, the provider's events, an instant - like
+        readiness, so it is served beside the stored run rather than bolted into it, and every
+        existing route stays byte-identical. Costs no provider call: building an adapter reads
+        no evidence, and `events()` is a declaration.
+
+        `as_of` is REQUIRED. A plan is relative to an instant, and defaulting to today would
+        answer a different question from the stored run it is shown beside.
+        """
+        ir = self._ir(control_id)
+        tenant_id, _capture = self._selection(query)
+        tenant = self._tenant(tenant_id)
+        as_of = query.get("as_of")
+        if not as_of:
+            raise _Refused(400, "A plan is relative to an instant: give as_of=YYYY-MM-DD, the "
+                                "instant the run asked about.")
+        try:
+            plan = self._plan(ir, tenant, as_of)
+        except (TypeError, ValueError):
+            raise _Refused(400, "%r is not a date this engine can read. Write it as "
+                                "YYYY-MM-DD." % as_of) from None
+        return Response(200, JSON, json.dumps({
+            "control_id": ir.control_id, "property": tenant_id, "as_of": as_of,
+            "mode": plan.mode, "declared_mode": plan.declared_mode,
+            "fell_back": plan.fell_back, "headline": plan.headline}, indent=2))
 
     def _control_json(self, ir: ControlIR, reviewed: bool) -> dict:
         return {"control_id": ir.control_id, "name": ir.name,
@@ -598,7 +629,7 @@ class App:
         self.provider_calls += result.calls
         return replace(result, run_id=self.store.save(result)), ir, tenant
 
-    def _plan(self, ir: ControlIR, tenant: TenantConfig, result) -> object:
+    def _plan(self, ir: ControlIR, tenant: TenantConfig, as_of: str) -> object:
         """When this control runs next on this provider - finding F7, on the page at last.
 
         Rendered beside the verdicts because the two answer different halves of one question:
@@ -607,8 +638,7 @@ class App:
         """
         package = providers.load(tenant.provider)
         adapter, _source = package.build(tenant, package.default_capture)
-        return next_evaluation(ir, adapter.events(),
-                               FixedClock.at(result.as_of, tenant.timezone))
+        return next_evaluation(ir, adapter.events(), FixedClock.at(as_of, tenant.timezone))
 
     def _readiness(self, ir: ControlIR) -> tuple:
         """What every provider could answer about this control, from the spec alone (F8)."""
