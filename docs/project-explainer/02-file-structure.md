@@ -44,7 +44,7 @@ flowchart LR
         FIX["fixtures/<br/><i>captured API responses</i>"]
     end
 
-    ENG["hotelcontrols/<br/><b>the engine</b><br/><i>~9,700 lines</i>"]
+    ENG["hotelcontrols/<br/><b>the engine</b><br/><i>~10,400 lines</i>"]
 
     subgraph outputs[" PRODUCED "]
         WEB["a web page<br/>+ JSON API"]
@@ -107,7 +107,7 @@ than trusting callers.
 | File | Lines | What it is | The specific disaster it prevents |
 | --- | --- | --- | --- |
 | `value.py` | 209 | `Value = known(payload, unit) \| unknown(reason, risk)` — the only thing the provider layer hands upwards | **This is the heart of the product.** An unknown *raises* if you compare it. Without that, `PASS if v == 0 else FAIL` reports FAIL for a balance that was never established |
-| `money.py` | 166 | `Decimal` amount + a mandatory currency | A reservation in USD meeting its own folio in ILS. Two currencies **refuse to compare** — except against literal zero, which means the same everywhere |
+| `money.py` | 179 | `Decimal` amount + a mandatory currency | A reservation in USD meeting its own folio in ILS. Two currencies **refuse to compare** — except against literal zero, which means the same everywhere |
 | `outcome.py` | 51 | `PASS · FAIL · UNKNOWN · EXCLUDED`, plus `is_answer` | Folding EXCLUDED into PASS, which turns "90 records were out of scope" into "90 passed" |
 | `verdict.py` | 98 | `Verdict(outcome, reason, evidence[])` + `EvidenceLine` | The constructor **raises `NotAuditable`** on empty evidence or a blank reason. A verdict without receipts cannot be built at all |
 | `clock.py` | 112 | `Clock` protocol, `PropertyClock`, `FixedClock` | Every date is a question about the **hotel's** calendar, never the server's. Enforced since slice 8 by an AST test: this is the only module allowed to read a wall clock |
@@ -121,10 +121,10 @@ Note the two `spec`s: `hotelcontrols/spec/` is **code that reads**; `spec/` at t
 | File | Lines | What it is |
 | --- | --- | --- |
 | `registry.py` | 163 | The canonical vocabulary. A rule may reference `folio.balance_due`; it may **not** reference whatever one PMS happens to call it. This is what makes "the rule never names a PMS" enforceable rather than aspirational |
-| `ir.py` | 361 | Loads and validates a Control IR before anything tries to run it. Includes the cross-check that anything used in scope/exceptions/assertions is *also* declared as required evidence |
+| `ir.py` | 382 | Loads and validates a Control IR before anything tries to run it. Includes the cross-check that anything used in scope/exceptions/assertions is *also* declared as required evidence |
 | `schema.py` | 193 | A deliberately small JSON-Schema validator. `jsonschema` is not in the standard library, and criterion 11 says the engine imports nothing that is not — so this implements exactly the subset `spec/ir_schema.json` uses, and **refuses** any keyword it does not support rather than ignoring it |
 | `tenant.py` | 152 | One hotel's vocabulary and policy as data: status map, department map, timezone, call budget, nominated rate codes. In v1 these were dictionaries in a Python module, which made onboarding a second property a code change |
-| `errors.py` | 59 | Spec failures. Each means: *fix the spec, not the engine* |
+| `errors.py` | 42 | Spec failures. Each means: *fix the spec, not the engine* |
 
 ### L3 · `providers/` — **the canonical boundary**
 
@@ -134,8 +134,8 @@ Note the two `spec`s: `hotelcontrols/spec/` is **code that reads**; `spec/` at t
 
 | File | Lines | What it is |
 | --- | --- | --- |
-| `base.py` | 118 | The `Provider` protocol — 9 methods — plus `Request`, and the error types (`ResponseUnavailable`, `RecordBoundaryUnknown`) that callers turn into UNKNOWN rather than into a verdict |
-| `registry.py` | 163 | **Discovers** adapters by importing sub-packages that declare themselves (`ADAPTER`, `FROZEN`, `CAPTURES`, `DEFAULT_CAPTURE`). A hard-coded `{"minihotel": MiniHotelAdapter}` would be the first place the boundary leaked |
+| `base.py` | 118 | The `Provider` protocol — 10 methods — plus `Request`, and the error types (`ResponseUnavailable`, `RecordBoundaryUnknown`) that callers turn into UNKNOWN rather than into a verdict |
+| `registry.py` | 124 | **Discovers** adapters by importing sub-packages that declare themselves (`ADAPTER`, `FROZEN`, `CAPTURES`, `DEFAULT_CAPTURE`). A hard-coded `{"minihotel": MiniHotelAdapter}` would be the first place the boundary leaked |
 
 #### `providers/minihotel/` — XML, real, captured from the vendor sandbox
 
@@ -144,7 +144,7 @@ Note the two `spec`s: `hotelcontrols/spec/` is **code that reads**; `spec/` at t
 | `adapter.py` | 295 | `resolve(field, record) -> Value`. The entire interface the layer above sees |
 | `paths.py` | 183 | Addressing a value inside a document **tree**. Replaces v1's regexes-over-raw-XML, where reordering two attributes silently turned a known date into UNKNOWN and XML entities were never decoded |
 | `records.py` | 131 | Where one record ends and the next begins. Get this wrong and field 3 of booking 1 pairs with field 7 of booking 2 |
-| `transforms.py` | 221 | Every MiniHotel quirk, one named function each: three date formats, `0`-means-unset, tenant status/department maps, `to_money` |
+| `transforms.py` | 226 | Every MiniHotel quirk, one named function each: three date formats, `0`-means-unset, tenant status/department maps, `to_money` |
 | `fixtures.py` | 230 | Replays captured responses **and replays the filters the way the live server would**. A request for a window the capture never covered **raises**, because "no data" and "nothing wrong" are different answers |
 | `live.py` | 204 | What one of these calls looks like on the wire. Adapter knowledge, so it lives here — the transport itself knows no PMS |
 
@@ -189,9 +189,9 @@ reproducible six months later, and it is asserted by a test rather than assumed.
 
 | File | Lines | What it is |
 | --- | --- | --- |
-| `record.py` | 144 | One record → one Verdict. The order is fixed: **scope → exceptions → assertion** |
-| `population.py` | 78 | Questions about a *group*. "Two active reservations must not share a confirmation number" is not a property of a reservation — it is a property of the set. A second shape, not a special case of the first |
-| `predicates.py` | 245 | One IR clause applied to one record's evidence. Every predicate returns **three** answers: holds, does not hold, or cannot tell |
+| `record.py` | 162 | One record → one Verdict. The order is fixed: **scope → exceptions → assertion** |
+| `population.py` | 265 | Questions about a *group*. "Two active reservations must not share a confirmation number" is not a property of a reservation — it is a property of the set. A second shape, not a special case of the first |
+| `predicates.py` | 261 | One IR clause applied to one record's evidence. Every predicate returns **three** answers: holds, does not hold, or cannot tell |
 | `intervals.py` | 64 | `within` / `not_within` / `overlaps`. v1 declared these in its schema and implemented none of them |
 
 ### L6 · `runner/` — orchestration and judgement
@@ -207,7 +207,7 @@ reproducible six months later, and it is asserted by a test rather than assumed.
 
 | File | Lines | What it is |
 | --- | --- | --- |
-| `store/sqlite.py` | 212 | Run history. A verdict that cannot be re-read is not an audit trail — and re-reading must not cost a provider call |
+| `store/sqlite.py` | 215 | Run history. A verdict that cannot be re-read is not an audit trail — and re-reading must not cost a provider call |
 | `store/schema.sql` | — | Three timestamps that are three different facts: `as_of` (what date it describes), `observed_at` (when the evidence was obtained), `created_at` (when the run happened) |
 | `web/app.py` | 749 | `handle(path) -> (status, content_type, body)`. **A pure function of the path** — which is why the whole demo is testable without a socket. Since slice 15 it also serves the JSON a second client needs: `/api/controls`, `/api/properties`, `/api/history/<id>`, `/api/drafts`, `/api/outcomes`, `/api/plan/<id>`, and compose as JSON (its one write path, which never touches a PMS) |
 | `web/render.py` | 998 | Pure functions from objects to strings. UNKNOWN is distinguished from FAIL by **hue, border style *and* wording** — three signals, so it survives a monochrome screen or a colour-blind reader |
@@ -220,7 +220,7 @@ Nothing at runtime depends on it. It produces spec artefacts that L2 then valida
 
 | File | Lines | What it is |
 | --- | --- | --- |
-| `grammar.py` | 633 | A restricted-English parser. Deterministic, offline, no model. Emits **data**, then hands it to the same `spec.validate` that has policed hand-written rules since slice 1 |
+| `grammar.py` | 652 | A restricted-English parser. Deterministic, offline, no model. Emits **data**, then hands it to the same `spec.validate` that has policed hand-written rules since slice 1 |
 | `model.py` | 111 | The seam for a proposal that is already IR — and not one gram of extra trust. Decision D9: built, exercised against a stub, no model wired. Its output goes through `ir.validate` unchanged |
 | `sentences.py` | 235 | **Decision D10.** A `SentenceProposer` protocol and `normalise()`: prose → restricted English → the grammar above. Takes an injected proposer and **cannot acquire one** — which is what keeps this package free of anything that could open a socket |
 | `problems.py` | 119 | What a compilation is, and `DEPLOYMENT_KEYS` — the list of things a *sentence* is not allowed to contain, because a sentence naming an endpoint would break criterion 5 |
@@ -429,7 +429,7 @@ tests/
 | Command | What it does | Why it exists |
 | --- | --- | --- |
 | `python3 -m tools.validate_spec` | Validates the vocabulary, the rules, the provider maps, the tenants — **1,080 checks** | Not ceremony. It caught four rules whose joins read a field they never declared, **on its first real run.** It is also the gate that makes a natural-language compiler safe to add |
-| `python3 -m tools.scrub_fixtures <in> <out>` | Pseudonymises a raw capture | The captures carry **27 email addresses and 30 phone numbers** from someone else's sandbox, plus free-text remarks naming a guest. This repository is public |
+| `python3 -m tools.scrub_fixtures <in> <out>` | Pseudonymises a raw capture | The largest capture alone (`9_departures_2026-07.xml`, 138 reservations) carries **27 distinct email addresses and 30 phone numbers** from someone else's sandbox - 66 and 61 across all of them - plus free-text remarks naming a guest. This repository is public |
 | `python3 -m tools.transcode_demopms --check` | Rebuilds the DemoPMS fixtures and verifies nothing changed | Makes "the same hotel through two providers" a checked claim rather than a decorative one |
 | `python3 -m tools.dump_api_fixtures --check` | Rebuilds `fixtures/api/` from the engine and verifies nothing changed | The React UI's tests render from these files. A payload change has to be a visible diff here, not a surprise there |
 | `python3 -m tools.probe --plan` | Prints exactly what a live probe *would* ask. **Makes no calls** | The vendor asks integrators not to query wide ranges without agreement. Live calls are opt-in, staged, bounded, and approved individually |

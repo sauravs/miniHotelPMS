@@ -17,6 +17,11 @@ anything else.
 ```
 Continue building miniHotelPMS. Working directory: /Users/sauravs/Desktop/Work/miniHotelPMS
 
+FIRST, before reading anything: run `git status` and `git branch --no-merged main`. Anything
+listed is work that never reached main - push it and open a PR, or delete it on purpose, but do
+not leave it. Two branches sat unpushed for three weeks before anyone looked (one held the fix
+that became issue #44), and no CI can see a branch that was never pushed.
+
 Read these first, in order: CLAUDE.md, docs/plan.md, docs/prd.md, docs/architecture.md,
 docs/open-questions.md, docs/old-codebase-improve.md. They are the specification and the
 execution tracker; docs/plan.md is authoritative for what is done and what is next.

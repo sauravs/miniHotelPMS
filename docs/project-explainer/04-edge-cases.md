@@ -270,7 +270,7 @@ drives *"connect your finance mapping to enable this control"* rather than a wro
 | **Answering from the wrong week** | Issue #9: `resource_occupancy_consistency` was answering about **July 2026** from occupancy captured in **August 2024**. It counted towards criterion 1 | Fixed. **The score fell from 6 to 5 and the guard stayed** |
 | **Hand-written second fixtures** | v1's `fixtures/synthetic/` drifted towards whatever answers looked best | `fixtures/demopms/` is **generated** from the real captures, gaps included; a test asserts a byte-identical rebuild |
 | **The machine's clock** | v1 called `date.today()` throughout. Every control here is a question about the **hotel's** calendar | An **AST walk over the whole engine**: only `kernel/clock.py` may read a wall clock |
-| **Committing someone else's guests** | The captures carry **27 email addresses and 30 phone numbers**, plus remarks naming a guest and a manager's approval | `tools/scrub_fixtures.py`; `raw/` is git-ignored |
+| **Committing someone else's guests** | The largest capture alone (138 reservations) carries **27 distinct email addresses and 30 phone numbers** - 66 and 61 across all captures - plus remarks naming a guest and a manager's approval | `tools/scrub_fixtures.py`; `raw/` is git-ignored |
 
 ---
 
@@ -291,9 +291,18 @@ drives *"connect your finance mapping to enable this control"* rather than a wro
 "exceptions": [],
 "assertion": { "mode": "all",
                "predicates": [{ "field": "folio.balance_due", "operator": "gte", "value": 0 }] },
-"required_evidence": [ "reservation.status", "reservation.departure_date",
-                       "folio.balance_due", "folio.currency", "reservation.currency" ]
+"required_evidence": [
+  { "field": "reservation.status",         "source": "pms", "resolvable": true },
+  { "field": "reservation.departure_date", "source": "pms", "resolvable": true },
+  { "field": "folio.balance_due",          "source": "pms", "resolvable": true },
+  { "field": "folio.currency",             "source": "pms", "resolvable": true },
+  { "field": "reservation.currency",       "source": "pms", "resolvable": true }
+]
 ```
+
+> Abridged: the real file also carries a `note` on the assertion predicate and on
+> `reservation.currency`. Every evidence entry is an **object**, not a bare name - `source` and
+> `resolvable` are what [02 §4](02-file-structure.md) describes and what readiness reads.
 
 The same file also carries the **deployment** half — the part that *does* name endpoints, and is
 therefore data rather than sentence:
