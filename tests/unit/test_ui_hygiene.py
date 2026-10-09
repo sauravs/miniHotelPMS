@@ -154,3 +154,14 @@ def test_no_inline_style_attribute_which_the_csp_refuses():
     `app/not-found.tsx` replaced it. Styling lives in the engine's stylesheet, by class."""
     found = offenders(r"""\bstyle=\{""", source(".tsx", ".jsx", tests=False))
     assert not found, found
+
+
+def test_the_engine_address_is_never_frozen_into_the_build():
+    """Next compiles `rewrites()` at BUILD time. A rewrite to the engine froze the stylesheet to
+    the build's engine address while every data request read HOTELCONTROLS_API_URL at RUN time,
+    so a UI pointed at a second engine rendered unstyled. Everything reaches the engine through
+    lib/api.ts, at run time."""
+    config = (UI / "next.config.mjs").read_text(encoding="utf-8")
+    # The CODE, not the comment that explains why the rewrite is gone.
+    code = re.sub(r"/\*.*?\*/|//[^\n]*", "", config, flags=re.S)
+    assert "rewrites" not in code and "HOTELCONTROLS_API_URL" not in code

@@ -6,6 +6,7 @@
  * so it happens only when a person presses the button - never on a page load or a prefetch.
  */
 import type { ControlEntry, Properties } from "@/lib/types";
+import { EvidenceChoice } from "./EvidenceChoice";
 import type { Selection } from "./IndexView";
 
 export function AskForm({
@@ -38,35 +39,7 @@ export function AskForm({
       ))}
       <form action={action}>
         <input type="hidden" name="control_id" value={control.control_id} />
-        <fieldset>
-          <legend>Which property, and which body of evidence</legend>
-          {properties.properties.map((property) => (
-            <div key={property.id}>
-              <label>
-                <input
-                  type="radio"
-                  name="property"
-                  value={property.id}
-                  defaultChecked={property.id === selection.property}
-                />{" "}
-                <strong>{property.name}</strong> ({property.provider})
-              </label>{" "}
-              <label>
-                evidence{" "}
-                <select
-                  name={`evidence:${property.id}`}
-                  defaultValue={property.id === selection.property ? selection.evidence : property.default_capture}
-                >
-                  {property.captures.map((capture) => (
-                    <option key={capture} value={capture}>
-                      {capture}
-                    </option>
-                  ))}
-                </select>
-              </label>
-            </div>
-          ))}
-        </fieldset>
+        <EvidenceChoice properties={properties} selection={selection} />
         <p className="meta">
           Running spends provider calls - for some evidence, one per record. The result is saved,
           and re-reading it afterwards costs nothing.

@@ -8,9 +8,20 @@
  * else, so a component cannot quietly start running controls from a render or an effect.
  *
  * The browser never talks to the engine: these run in Server Components and one Server Action,
- * so there is no CORS to configure and the engine's Content-Security-Policy is untouched.
+ * and one route handler (the stylesheet), so there is no CORS to configure and the engine's
+ * Content-Security-Policy is untouched. Every one reads the engine's address at RUN time.
  */
-import type { ControlEntry, History, Outcomes, Properties, ReadinessReport, RunPayload } from "./types";
+import type {
+  AcceptRefused,
+  ComposeState,
+  ComposeTurnResponse,
+  ControlEntry,
+  History,
+  Outcomes,
+  Properties,
+  ReadinessReport,
+  RunPayload,
+} from "./types";
 
 /** Where the engine listens. Not a secret, so it has a default: the engine's own default port. */
 const ENGINE = process.env.HOTELCONTROLS_API_URL ?? "http://127.0.0.1:8765";
@@ -36,9 +47,30 @@ async function read<T>(path: string): Promise<T> {
   return body as T;
 }
 
+/** A form POST to one of the engine's compose routes. Fields are an explicit allow-list. */
+async function send(path: string, fields: Record<string, string>): Promise<{ status: number; body: unknown }> {
+  const response = await fetch(ENGINE + path, {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams(fields).toString(),
+    cache: "no-store",
+  });
+  return { status: response.status, body: await response.json() };
+}
+
+function refuse(status: number, body: unknown): never {
+  throw new EngineRefused(status, String((body as { error?: string })?.error ?? status));
+}
+
 const id = encodeURIComponent;
 
 // ---------------------------------------------------------------- free: no provider call
+/** The engine's own stylesheet, so both surfaces share one set of criterion-2 rules. */
+export async function getStylesheet(): Promise<string> {
+  const response = await fetch(ENGINE + "/style.css", { cache: "no-store" });
+  if (!response.ok) throw new EngineRefused(response.status, "the engine did not serve its stylesheet");
+  return response.text();
+}
 export const getControls = () => read<{ controls: ControlEntry[] }>("/api/controls");
 export const getProperties = () => read<Properties>("/api/properties");
 export const getOutcomes = () => read<Outcomes>("/api/outcomes");
@@ -63,3 +95,27 @@ export const runControlOnce = (controlId: string, property: string, evidence: st
   read<RunPayload>(
     `/api/run/${id(controlId)}?property=${id(property)}&evidence=${id(evidence)}`,
   );
+
+// ---------------------------------------------------------------- compose: writes OUR drafts only
+/** Whether compose is wired, and one conversation's transcript. Free. */
+export const getComposeState = () => read<ComposeState>("/api/compose");
+
+/** One exchange with the proposer. Writes nothing but the engine's in-memory transcript. */
+export async function composeTurn(fields: { prose: string; conversation: string; template: string }) {
+  const { status, body } = await send("/api/compose", fields);
+  if (status !== 200) refuse(status, body);
+  return body as ComposeTurnResponse;
+}
+
+/**
+ * File the sentence sent back as an unreviewed draft in the engine's drafts directory. Never a
+ * PMS. 201 when filed; 422 - with the validator's reasons - when the grammar refuses it.
+ */
+export async function composeAccept(fields: Record<string, string>) {
+  const { status, body } = await send("/api/compose/accept", fields);
+  if (status === 201) {
+    return { status, body: body as { control_id: string; property: string; evidence: string; reviewed: false } } as const;
+  }
+  if (status === 422) return { status, body: body as AcceptRefused } as const;
+  return refuse(status, body);
+}

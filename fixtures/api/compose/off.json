@@ -1,0 +1,54 @@
+{
+  "wired": false,
+  "proposer": null,
+  "drafts_wired": false,
+  "templates": [
+    {
+      "control_id": "checkout_money_owed",
+      "entity": "reservation"
+    },
+    {
+      "control_id": "checkout_unrefunded_credit",
+      "entity": "reservation"
+    },
+    {
+      "control_id": "duplicate_channel_reservation",
+      "entity": "reservation"
+    },
+    {
+      "control_id": "inactive_room_future_stay",
+      "entity": "stay"
+    },
+    {
+      "control_id": "ooo_room_protection",
+      "entity": "room"
+    },
+    {
+      "control_id": "rate_room_category_consistency",
+      "entity": "stay"
+    },
+    {
+      "control_id": "required_reservation_fields",
+      "entity": "reservation"
+    },
+    {
+      "control_id": "resource_occupancy_consistency",
+      "entity": "occupancy"
+    },
+    {
+      "control_id": "room_assignment_active_room",
+      "entity": "stay"
+    },
+    {
+      "control_id": "room_assignment_type_validity",
+      "entity": "stay"
+    },
+    {
+      "control_id": "room_capacity_compliance",
+      "entity": "stay"
+    }
+  ],
+  "template": "checkout_money_owed",
+  "conversation": "",
+  "transcript": []
+}

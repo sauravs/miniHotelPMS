@@ -47,11 +47,14 @@ export function IndexView({
   properties,
   selection,
   drafts = [],
+  compose = null,
 }: {
   controls: ControlEntry[];
   properties: Properties;
   selection: Selection;
   drafts?: ControlEntry[];
+  /** The wired proposer's name, or null. Compose is offered only when it can actually answer. */
+  compose?: string | null;
 }) {
   return (
     <>
@@ -107,6 +110,19 @@ export function IndexView({
           it never covered is refused rather than answered with an empty population.
         </p>
       </nav>
+
+      {compose ? (
+        <div className="card">
+          <p className="sentence">
+            <a href="/compose">Compose a control from prose</a>
+          </p>
+          <p className="meta">
+            Describe a rule in your own words and the <strong>{compose}</strong> proposer rewrites it
+            as a restricted sentence, which the same grammar and validator then turn into a rule.
+            Composed rules are filed as drafts.
+          </p>
+        </div>
+      ) : null}
 
       <h2>Controls</h2>
       <div data-reviewed="">

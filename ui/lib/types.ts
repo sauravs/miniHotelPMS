@@ -158,3 +158,50 @@ export interface History {
   control_id: string;
   runs: HistoryRow[];
 }
+
+/** One exchange of a compose conversation. */
+export interface ComposeTurn {
+  prose: string;
+  sentence: string;
+  question: string;
+  /** Why it did not compile, in the validator's own words. Empty when it did. */
+  problems: string[];
+}
+
+/** What compose can do here: whether a proposer is wired, and what a draft may borrow. */
+export interface ComposeState {
+  wired: boolean;
+  proposer: string | null;
+  drafts_wired: boolean;
+  templates: { control_id: string; entity: string }[];
+  template: string;
+  conversation: string;
+  transcript: ComposeTurn[];
+}
+
+/** The latest turn, in full. `ok` means the grammar parsed it AND the validator accepted it. */
+export interface ComposeResult {
+  prose: string;
+  sentence: string;
+  question: string;
+  is_question: boolean;
+  ok: boolean;
+  problems: string[];
+  fields: string[];
+}
+
+export interface ComposeTurnResponse {
+  conversation: string;
+  template: string;
+  proposer: string;
+  result: ComposeResult;
+  transcript: ComposeTurn[];
+}
+
+/** A sentence sent back to be filed that the grammar refused. Nothing was written. */
+export interface AcceptRefused {
+  error: string;
+  status: 422;
+  sentence: string;
+  problems: string[];
+}
