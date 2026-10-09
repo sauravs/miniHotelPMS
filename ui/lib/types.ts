@@ -243,6 +243,12 @@ export interface ActionRecord {
   /** A PASS since the newest failure, under the same rule. An annotation, never a state. */
   cleared: { run_id: string; at: string; as_of: string } | null;
   annotation: string | null;
+  /**
+   * Slice 19: what happened to the task's email. PRESENT ONLY when the engine has a notifier
+   * wired (or the task carries a delivery fact from a session that had one). Absent is not
+   * "not sent" - it is "email is not part of this engine's setup".
+   */
+  delivery?: { channel: string | null; sent_at: string | null; note: string | null };
 }
 
 /** What a control's latest run lets the queue say. Only "concluded" is a conclusion. */
@@ -271,4 +277,6 @@ export interface Queue {
   pending: number;
   records: ActionRecord[];
   controls: QueueControl[];
+  /** Slice 19: present only when a notifier is wired. Absent means nobody is emailed. */
+  email?: { wired: boolean; via: string };
 }

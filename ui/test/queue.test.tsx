@@ -121,3 +121,29 @@ describe("the page states what it cannot promise", () => {
     expect(textOf(container)).toContain("A run never closes a task.");
   });
 });
+
+describe("email delivery, when the engine has a notifier wired (slice 19)", () => {
+  // CONSTRUCTED: the goldens are built with no notifier, which is the default, so the delivery
+  // fields are added here in the exact shape the engine's wired payload carries.
+  const wired = (delivery: NonNullable<Queue["records"][0]["delivery"]>): Queue => {
+    const q = queue("sandbox");
+    return { ...q, email: { wired: true, via: "smtp" }, records: [{ ...q.records[0], delivery }] };
+  };
+
+  it("an unwired engine says nobody is emailed, and no task carries a delivery line", () => {
+    const container = show(queue("sandbox"));
+    expect(textOf(container.querySelector("[data-email]")!)).toContain("Email is not wired");
+    expect(container.querySelector(".delivery")).toBeNull();
+  });
+
+  it("a sent task says when, and to which audience", () => {
+    const container = show(wired({ channel: "email", sent_at: "2026-10-09T09:30:00+03:00", note: null }));
+    expect(textOf(container.querySelector("[data-email]")!)).toContain("Email is wired (smtp)");
+    expect(textOf(container.querySelector(".delivery")!)).toBe("Emailed to finance at 2026-10-09T09:30:00+03:00.");
+  });
+
+  it("an unsent task says why, in the engine's words", () => {
+    const container = show(wired({ channel: null, sent_at: null, note: "no route configured for audience finance" }));
+    expect(textOf(container.querySelector(".delivery")!)).toBe("Not emailed: no route configured for audience finance.");
+  });
+});

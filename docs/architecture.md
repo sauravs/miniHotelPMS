@@ -278,6 +278,11 @@ actions.findings_from(run, ir)                         -> Findings   # pure; onl
 store.record_findings(findings)                        -> int        # how many tasks are NEW
 store.actions(*, tenant_id) / store.action(action_id, *, tenant_id)
 store.transition(action_id, state, *, tenant_id, at, actor)          # pending -> done | dismissed
+
+# slice 19 - email. A PROTOCOL in the engine; every backend in tools/notifiers/, injected
+Notifier = { name, channel, route(audience) -> (address, ...), send(Message) }
+actions.dispatch(run, findings, store, notifier, *, public_url, at) -> (Delivery, ...)
+store.claim_notification / release_notification / note_notification(action_id, *, tenant_id, ...)
 ```
 
 Hides: orchestrating four layers · labelling which body of evidence a run used and whether it is
@@ -322,6 +327,21 @@ with an actor (`operator` until slice 24). A later run updates the task's receip
 run still finding it failing) or annotates it (*no longer failing as of run X*); it never
 closes it. The `actions` table is tenant-owned under slice 17's structural guard, discovered
 from `schema.sql`.
+
+**A task is emailed once, and only when somebody wired email** (slice 19, G8). The engine holds
+a `Notifier` protocol and imports no backend. The SMTP backend lives in `tools/notifiers/`, is
+the only file in the repository that imports `smtplib`, and is injected by `tools/serve.py
+--notify smtp`, exactly as `tools/proposers/` is (D10). It refuses unless
+`HOTELCONTROLS_NOTIFY=1` is set **and** no test runner is loaded, and it requires verified
+STARTTLS. `dispatch` is scoped to the run's own FAILs, so a run that concluded nothing or was
+blocked sends nothing by construction. **An email carries a record id, the control, the amount
+with its currency and a link, and never the verdict's reason**, which is built from field
+values and could quote a guest. Only `Money` evidence is copied, because it cannot hold
+personal data. Routes come from `HOTELCONTROLS_NOTIFY_<AUDIENCE>` with no default and are never
+committed. An audience with no route leaves the task unsent, saying *"no route configured for
+audience finance"*. The sent marker lives on the task: it is claimed before the send by a
+guarded `UPDATE` and released with the reason if the send fails. So a task gets one email per
+channel however often dispatch runs.
 
 **Scheduling is a pure function.** `next_evaluation` reads the IR's `execution`, asks the provider
 what events it publishes, and returns a `Plan`: a subscription, a due time, or `unschedulable`. A
@@ -406,6 +426,9 @@ client:
   identity. What slice 17 guarantees is that the selection is honoured all the way down.
 - **Drafts are per property**: filed under `<drafts>/<property>/ir/`, listed and run only for that
   property. Reviewed controls in `spec/ir/` stay one shared library by design.
+- **`email` and each task's `delivery` are present only when a notifier is wired** (slice 19).
+  Absent means email is not part of this engine's setup, not that nothing was sent. When wired,
+  `delivery` is `{channel, sent_at, note}`, and `note` says why an unsent task is unsent.
 - **An empty findings queue is not an all-clear** (slice 18). `records: []` says nothing by
   itself: `controls` says, per control, whether its latest run was `not_run`, `blocked`,
   reached `no_conclusion`, or `concluded`, with the engine's `label` and `headline`. A client
@@ -490,7 +513,9 @@ tests/            unit/ · integration/ · e2e/ · contract/
 docs/             every markdown document
 tools/            validate_spec.py · lock_spec.py · scrub_fixtures.py · transcode_demopms.py
                   probe.py
-                  serve.py                # the demo WITH the compose front end wired
+                  serve.py                # the demo WITH compose (and, opt-in, email) wired
+                  notifiers/  base.py · smtp.py · stub.py
+                              # every email backend. OUTSIDE the engine, injected in
                   proposers/  base.py · local.py · anthropic_api.py · stub.py
                               # every model client. OUTSIDE the engine, injected in.
                   dump_api_fixtures.py    # writes fixtures/api/ from the live API

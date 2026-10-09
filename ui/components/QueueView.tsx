@@ -82,6 +82,13 @@ export function QueueView({
         <p className={queue.persistent ? "meta" : "meta stale"} data-persistence="">
           {queue.persistence}
         </p>
+        {/* Slice 19. "Nobody was emailed" and "email is not wired" are different facts, and a
+            reader of a task with no delivery line needs to know which one is true. */}
+        <p className="meta" data-email="">
+          {queue.email?.wired
+            ? `Email is wired (${queue.email.via}): each new task is emailed once to its audience's route.`
+            : "Email is not wired on this engine, so nobody is emailed about a task."}
+        </p>
       </div>
 
       <h2>
@@ -177,6 +184,7 @@ function Task({ record, badge, action }: { record: ActionRecord; badge: string; 
         <Policy version={record.policy_version} digest={record.policy_digest} />
       </p>
       {record.annotation ? <p className="means">{record.annotation}</p> : null}
+      <Delivery record={record} />
       {record.state === "pending" ? (
         <div className="moves">
           {(
@@ -201,6 +209,21 @@ function Task({ record, badge, action }: { record: ActionRecord; badge: string; 
       )}
     </article>
   );
+}
+
+/** What happened to a task's email (slice 19), or nothing when there is nothing to say. */
+function Delivery({ record }: { record: ActionRecord }) {
+  const delivery = record.delivery;
+  if (!delivery) return null;
+  if (delivery.sent_at) {
+    return (
+      <p className="meta delivery">
+        Emailed to {record.audience ?? "its audience"} at {delivery.sent_at}.
+      </p>
+    );
+  }
+  if (delivery.note) return <p className="meta delivery">Not emailed: {delivery.note}.</p>;
+  return null;
 }
 
 function ControlRow({ control, property }: { control: QueueControl; property: string }) {

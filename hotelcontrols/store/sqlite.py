@@ -158,6 +158,13 @@ class RunStore:
                              ("policy_version", "INTEGER"), ("policy_digest", "TEXT")):
             if column not in existing:
                 self._connection.execute("ALTER TABLE runs ADD COLUMN %s %s" % (column, kind))
+        # Slice 19 adds the sent marker to slice 18's `actions` table the same way. A task
+        # stored before it reads back as never sent - which is true.
+        existing = {row["name"] for row in
+                    self._connection.execute("PRAGMA table_info(actions)")}
+        for column in ("notified_at", "notified_via", "notify_note"):
+            if column not in existing:
+                self._connection.execute("ALTER TABLE actions ADD COLUMN %s TEXT" % column)
 
     @property
     def persistent(self) -> bool:
@@ -426,6 +433,37 @@ class RunStore:
         return self.action(action_id, tenant_id=tenant_id)
 
 
+    # ------------------------------------------------------------------ the sent marker
+    # Slice 19. One email per task per channel: the marker is claimed before a send, so
+    # exactly one caller ever owns it, and released with the reason if the send fails.
+    def claim_notification(self, action_id: str, *, tenant_id: str, channel: str,
+                           at: datetime) -> bool:
+        """Mark a task as being sent. True for exactly one caller; False if it already was, or
+        if this property has no such task."""
+        with self._connection:
+            claimed = self._connection.execute(
+                "UPDATE actions SET notified_at = ?, notified_via = ?, notify_note = NULL "
+                "WHERE action_id = ? AND tenant_id = ? AND notified_at IS NULL",
+                (at.isoformat(), channel, action_id, tenant_id))
+        return claimed.rowcount == 1
+
+    def release_notification(self, action_id: str, *, tenant_id: str,
+                             note: str | None) -> None:
+        """Undo a claim whose send failed, saying why, so the next dispatch can try again."""
+        with self._connection:
+            self._connection.execute(
+                "UPDATE actions SET notified_at = NULL, notified_via = NULL, notify_note = ? "
+                "WHERE action_id = ? AND tenant_id = ?", (note, action_id, tenant_id))
+
+    def note_notification(self, action_id: str, *, tenant_id: str, note: str) -> None:
+        """Say why an unsent task is unsent - never on one that was sent."""
+        with self._connection:
+            self._connection.execute(
+                "UPDATE actions SET notify_note = ? "
+                "WHERE action_id = ? AND tenant_id = ? AND notified_at IS NULL",
+                (note, action_id, tenant_id))
+
+
 def _action_record(row) -> ActionRecord:
     def instant(text):
         return datetime.fromisoformat(text) if text else None
@@ -441,4 +479,6 @@ def _action_record(row) -> ActionRecord:
         state_changed_at=instant(row["state_changed_at"]),
         state_changed_by=row["state_changed_by"], last_failing_run=row["last_failing_run"],
         last_failing_at=instant(row["last_failing_at"]), cleared_by_run=row["cleared_by_run"],
-        cleared_at=instant(row["cleared_at"]), cleared_as_of=row["cleared_as_of"])
+        cleared_at=instant(row["cleared_at"]), cleared_as_of=row["cleared_as_of"],
+        notified_at=instant(row["notified_at"]), notified_via=row["notified_via"],
+        notify_note=row["notify_note"])

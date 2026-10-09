@@ -1077,12 +1077,17 @@ def persistence_sentence(persistent: bool) -> str:
             "the server with --store PATH to keep both in a file.")
 
 
-def action_json(record) -> dict[str, Any]:
-    """One task as data. One shape, used by the listing, the single read and every move."""
+def action_json(record, delivery: bool = False) -> dict[str, Any]:
+    """One task as data. One shape, used by the listing, the single read and every move.
+
+    `delivery` (slice 19) is added when a notifier is wired - or when the task already carries
+    a delivery fact from a session that had one - and never otherwise, so the unwired payload is
+    byte-identical to slice 18's.
+    """
     def instant(value):
         return value.isoformat() if value is not None else None
 
-    return {
+    payload = {
         "action_id": record.action_id,
         "property": record.tenant_id,
         "control_id": record.control_id,
@@ -1110,6 +1115,21 @@ def action_json(record) -> dict[str, Any]:
                      "as_of": record.cleared_as_of}),
         "annotation": record.annotation,
     }
+    if delivery or record.notified_at is not None or record.notify_note is not None:
+        payload["delivery"] = {"channel": record.notified_via,
+                               "sent_at": instant(record.notified_at),
+                               "note": record.notify_note}
+    return payload
+
+
+def delivery_sentence(record) -> str | None:
+    """What happened to a task's email, in a sentence - or None if there is nothing to say."""
+    if record.notified_at is not None:
+        return "Emailed to %s at %s." % (record.audience or "its audience",
+                                         record.notified_at.isoformat())
+    if record.notify_note:
+        return "Not emailed: %s." % record.notify_note
+    return None
 
 
 # How each control's latest run is labelled in the queue's coverage table. Words, not only a
@@ -1123,7 +1143,7 @@ STATUS_WORDS = {
 
 
 def queue_page(tenant_id: str, properties: Iterable[str], records: Iterable, controls: list,
-               persistent: bool) -> str:
+               persistent: bool, email: str = "") -> str:
     """One property's findings queue: what is still to do, what was closed, and - beside it -
     what each control last concluded, so an empty queue cannot pass for an all-clear."""
     records = list(records)
@@ -1143,6 +1163,13 @@ def queue_page(tenant_id: str, properties: Iterable[str], records: Iterable, con
     parts.append("</p>")
     parts.append('<p class="meta%s">%s</p>' % ("" if persistent else " stale",
                                                _e(persistence_sentence(persistent))))
+    # Slice 19: whether anybody is told. Stated either way - "nobody was emailed" and "email is
+    # not wired" are different facts, and a reader of an empty delivery column needs the second.
+    parts.append('<p class="meta">%s</p>' % _e(
+        "Email is wired (%s): each new task is emailed once to its audience's route." % email
+        if email else
+        "Email is not wired here, so nobody is emailed about a task. It is opt-in: "
+        "python3 -m tools.serve --notify smtp, behind HOTELCONTROLS_NOTIFY=1."))
     parts.append("</div>")
 
     parts.append('<h2>To do <span class="count">%d task%s</span></h2>'
@@ -1221,6 +1248,8 @@ def _task(record, tenant_id: str) -> str:
     ]
     if record.annotation:
         lines.append('<p class="means">%s</p>' % _e(record.annotation))
+    if delivery_sentence(record):
+        lines.append('<p class="meta delivery">%s</p>' % _e(delivery_sentence(record)))
     if record.is_pending:
         lines.append('<div class="moves">')
         for state, label in (("done", "Mark done"), ("dismissed", "Dismiss")):
