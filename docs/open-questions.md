@@ -20,6 +20,14 @@ Full report: `docs/stayops-gap-analysis.md`.
 (a second, React surface) and three deliberate engineering gaps it made visible. No open question
 changed.
 
+**Updated 2026-10-09 again, for v3 planning** (`docs/plan-v3.md`). The owner decided D12–D16: guest
+services in v3 as `LATE_CHECKOUT` only, the build order, where authentication lives, the guest
+decision set and parameter names, and an evidence-refresh slice. That **closes 1.11 #1, #2 and #9**
+and records the owner's position on **1.12**. Verification for the plan also found two claims that
+did not survive a run: [1.4](#14-which-rate-codes-has-the-property-nominated) is **corrected**
+(issue #49), and a new question for MiniHotel, [2.8](#2-questions-for-minihotel), comes from
+issue #48.
+
 ---
 
 ## The two that are worth the most
@@ -30,7 +38,7 @@ in any code that could be written this week, and only the project owner can supp
 
 | | What is needed | What it changes |
 | --- | --- | --- |
-| **[1.4](#14-which-rate-codes-has-the-property-nominated)** | Which rate codes this property has **nominated** | `required_reservation_fields` currently excludes every reservation and answers nobody. One list turns it into a working control. It is the cheapest movement available on success criterion 1 |
+| **[1.4](#14-which-rate-codes-has-the-property-nominated)** | Which rate codes a **real** property has **nominated** | `required_reservation_fields` answers nobody. **Corrected 2026-10-09 (issue #49): one list is not enough.** `stay.rate_code` is absent from every captured reservation, so the control also needs a capture taken with room prices (v3 slice 23). And the sandbox is the vendor's test property: nobody can honestly nominate its codes |
 | **[2.1](#2-questions-for-minihotel)** | Ask MiniHotel what **`OK4`** and **`WL`** mean | **44 of the 217 distinct reservations this project has ever seen — one in five — carry one of those two codes**, and neither is documented anywhere. Each resolves to UNKNOWN, because a status nobody can name must not decide whether a control applies (A5). One sentence from the vendor resolves all 44, and it also settles [1.3](#13-is-the-cancel-and-recreate-pair-a-duplicate-or-the-expected-pattern) |
 
 Neither is a gap in the engine. Both are facts about a property and a vendor that the engine has
@@ -199,6 +207,24 @@ now describes two surfaces, with the owner's sign-off.
    can re-fire a GET for reasons nobody chose: a double render, a refetch on focus, a prefetch. The
    UI runs a control only from a button, then reads the stored run back for free.
 
+### D12–D16 — 2026-10-09, planning v3
+
+Put to the project owner in two batches while `docs/plan-v3.md` was written, after the gap report's
+claims had been re-verified against `main`. Each has the alternative it beat. The governing
+constraint is the owner's: **accuracy first, and it must not break.**
+
+| | Question | Decision | Rejected, and why |
+| --- | --- | --- | --- |
+| **D12** | Is guest services (G1/G3) in v3? | **Yes: `LATE_CHECKOUT` only, and no model.** The request arrives structured (reservation, requested time). Every outcome is an advisory record (1.10) | *With model intake*: a model extracting the requested time from prose would put natural language in the **decision** path, where a misread "3" prices a fee. *Not in v3*: leaves half the StayOps Definition of Done unmet with the cheapest honest template available |
+| **D13** | Build order (1.11 #9): isolation before or after the policy spine? | **Data isolation early, authentication last.** Slice 17 scopes every store query under a structural guard, so every table v3 adds is born scoped | *Spine first, isolation late* (the gap report's order): every new table retrofitted. *Full multi-tenancy first* (D3 §5): the largest, slowest start, and it needed D14 settled before anything else could move |
+| **D14** | Where does authentication live, and how are per-property credentials held? | **The host product authenticates; the engine verifies a short-lived tenant context signed with HMAC** (stdlib `hmac`). The engine stores no passwords. PMS credentials stay in the environment, keyed per property (fixes #22). **Encrypted credential storage is deferred** with onboarding (G11), and if it is built, its dependency lives outside `hotelcontrols/` | *Engine owns auth* (stdlib `scrypt` + sessions): security-sensitive code in the one package whose job is honest verdicts. *No auth in v3*: leaves D3 §80's mandatory tests unwritable. A cryptography dependency in the engine would reverse D2 |
+| **D15** | The guest decision set (1.11 #1), and `LATE_CHECKOUT`'s parameter names (1.11 #2) | **Five outcomes, spelled `STAFF_REVIEW`**: `APPROVED`, `APPROVED_WITH_FEE`, `DENIED`, `STAFF_REVIEW`, `UNAVAILABLE`. **Parameters from D2 §31, snake_case**: `free_until`, `charge_from`, `maximum_time`, `approval_required_after`, plus `fee_per_hour` (Money) and `hour_rounding`, **with no default**. Missing evidence is always `STAFF_REVIEW`; `UNAVAILABLE` and `DENIED` only from established evidence or stated policy | *Four, `NEEDS_STAFF_REVIEW`*: one mention of four. *D3 §33/§65 camelCase*: would be the only camelCase keys in `spec/`. *D2 §19*: less self-describing |
+| **D16** | Should v3 include an evidence refresh (1.2, plus rate codes for #49)? | **Yes, as a planned slice whose first step is the owner's approval of each printed request at the time** (D3, R8). If approval never comes, the slice is skipped and nothing depends on it | *No live calls in v3*: several blocked items stay blocked for want of three read-only calls that are already planned and printed |
+
+**Not ruled, because parameters dissolve it:** 1.11 #3, the two versions of the late-checkout
+example. With per-hotel parameters they are simply two hotels' policies, and both go into the test
+corpus with their own expected answers.
+
 ---
 
 ## 1. Open — for the project owner
@@ -270,8 +296,18 @@ supplied one. In v1 the control excluded 71 of 108 records for exactly this reas
 zero answers.
 
 **Today.** The tenant config ships with an empty nominated-rate-code list, so the control excludes
-everything — which is honest but useless. One sentence from a property makes the control work.
+everything — which is honest but useless. ~~One sentence from a property makes the control work.~~
 **Checkpoint before slice 6.**
+
+**Corrected 2026-10-09 (issue #49). A list alone does not make the control work, on any evidence
+held.** Measured: with `nominated_rate_codes: ["Tourist-BB"]`, sandbox2026 gives the same 0 PASS,
+0 FAIL, 37 UNKNOWN and 71 EXCLUDED as with `[]`. `stay.rate_code` is **absent from all 108 captured
+reservations**, because the captures were not taken with `IncludeRoomPrices`, which this control's
+own IR says is required. The 2024 captures block the control outright. Two things are therefore
+needed: **a capture taken with room prices** (v3 slice 23, D16) and **a list from a real
+property**. The sandbox is the vendor's test hotel, so a list supplied for it would be an invented
+policy moving the criterion-1 figure. v3 slice 21 also makes *"the hotel has not decided"* (`null`)
+distinct from *"the hotel nominated none"* (`[]`), because today `[]` stands for both.
 
 ### 1.5 Is unstructured free text an evidence source?
 
@@ -304,6 +340,12 @@ configuration, or we ask MiniHotel whether any endpoint resolves it.
 
 **Today.** UNKNOWN for every record, with that reason — the "connect this to enable the control"
 path, working as designed. v2 adds a tenant-config slot so a hotel *can* supply it.
+
+**Corrected 2026-10-09 (issue #49): supplying the mapping alone changes nothing on the evidence
+held.** With a populated mapping, sandbox2026 gives the same 0 PASS, 0 FAIL, 40 UNKNOWN and 71
+EXCLUDED. 27 records stop at *"stay.rate_code is absent"* before the mapping is read, because no
+capture was taken with room prices. Same remedy as [1.4](#14-which-rate-codes-has-the-property-nominated):
+a capture with rate codes (v3 slice 23) and a real property's answer.
 
 ### 1.7 Mews
 
@@ -403,7 +445,7 @@ costs one indirection now and is the only version of this that does not have to 
 it never writes to a PMS, so `prd.md` §6's read-only rule stands unchanged. Every action is modelled
 as a record with a state (`pending`, `done`, `dismissed`) that a person performs. Acting (b) is not
 in scope; if it is ever proposed, it reopens this question rather than being built around it.
-Recorded for v3 planning — see `docs/v3-planner-brief.md`.
+Built in v3 as slices 18 and 22 — see `docs/plan-v3.md`.
 
 ### 1.11 Which of the nine disagreements between the three StayOps documents stand?
 
@@ -424,6 +466,13 @@ otherwise resolve silently — and resolve some of them wrongly:
 The gap report takes a position on #9 and says so openly (build the parameter mechanism against the
 eleven controls that already exist and are already tested, then guest services inherits it), but a
 position in a report is not a ruling.
+
+**DECIDED 2026-10-09 by the project owner, for the three that could not wait:** #1 → five outcomes
+spelled `STAFF_REVIEW` (D15); #2 → D2 §31's names in snake_case, plus `fee_per_hour` as Money and
+`hour_rounding` with no default (D15); #9 → data isolation early, authentication last (D13). #3,
+the two late-checkout examples, is dissolved rather than ruled: with per-hotel parameters they are
+two hotels' policies, and both are tested. #4–#8 wait for the template that needs them. #8 (money's
+type) needs nothing, because the engine already does what D3 says.
 
 **One that is *not* a disagreement**, recorded so nobody fixes it: the suggested directory layout
 (`stayops/apps/`, `services/policy/`). That document says itself that the architectural requirement
@@ -463,6 +512,12 @@ reproduce the mock, because reproducing the mock is what following the spec look
    theoretical: `OK4` and `WL` are one in five of every reservation this project has ever seen
    ([2.1](#2-questions-for-minihotel)), and the specified enum cannot represent any of them.
 
+**2026-10-09: the owner's position is yes, and the owner will carry all three to the manager.** The
+manager's answer is pending, so this stays open as a *specification* question. It is closed as an
+*engineering* one: v3 keeps all three, and its criteria (V5, `docs/plan-v3.md`) require EXCLUDED
+and the coverage verdict on every new surface it adds. Removing any of the three would widen
+verdicts.
+
 ---
 
 ## 2. Questions for MiniHotel
@@ -491,6 +546,14 @@ reproduce the mock, because reproducing the mock is what following the spec look
    issue #22 are built, and it is the first thing a hotel group of any size will ask. **It does not
    affect our own isolation work either way** — our rules, runs and verdicts never reach MiniHotel,
    so no credential model the vendor offers can isolate them (Q10).
+8. **What does `<CreditCard Type="" Number="****" NameOnCard=" " ExpirationDate="202101"/>` mean?**
+   Raised 2026-10-09 by issue #48. All 228 card elements across every capture carry
+   `Number="****"` with no last four digits, so "a card is on file" is true of every reservation we
+   have ever seen. 216 of them expire in January 2021, on reservations dated up to 2026. Is that a
+   default the PMS emits when there is no card, a masked real card, or either? Until the vendor
+   says, or a capture shows a reservation known to have no card, **card presence is not
+   established**, and the StayOps payment-guarantee control (gap G4) stays blocked even in its
+   narrowed form.
 
 ---
 
@@ -500,9 +563,9 @@ Not questions — decisions, recorded so they can be reversed knowingly.
 
 | Gap | Behaviour | Why |
 | --- | --- | --- |
-| **No scheduler daemon** | `next_evaluation` computes the plan; nothing executes it on a timer | The decision is the hard part and is testable. A loop around it is a day's work whenever it is wanted |
+| **No scheduler daemon** | `next_evaluation` computes the plan; nothing executes it on a timer. Since #42, `/api/plan` calls it on demand to *show* the plan | The decision is the hard part and is testable. A loop around it is a day's work whenever it is wanted. **v3 defers it for a further reason:** a loop means something only over live evidence, and continuous calls need MiniHotel's agreed limits (2.6) and per-property credentials. When it comes it is a separate process with its own store connection (`docs/plan-v3.md` §6) |
 | **No webhook ingestion** | IRs declare their events; nothing subscribes | Requires a public endpoint, auth and replay protection — a different project |
-| **No authentication** | Local demo, single operator. That includes the compose write routes on both surfaces | Out of scope by `architecture.md` |
+| **No authentication** | Local demo, single operator. That includes the compose write routes on both surfaces | Out of scope by `architecture.md`. **Planned for v3** as slice 24: the host authenticates and the engine verifies a signed context (D14). Until then, `?property=` is a selection, not an identity |
 | **The engine's web server is serial** | One request at a time. The React index asks for all eleven controls' readiness in one request (`/api/controls`) rather than eleven | The run store is a single-thread SQLite connection. A threaded server answered its first page with a `ProgrammingError` while the whole suite was green. The store must become thread-safe first, and that is core logic |
 | **The React UI's CI job is not required** | `npm` failures show as a red `ui` check but never block a merge | A registry outage or a browser download must never block an engine fix. The UI's most important rules are duplicated into the required Python suite for exactly this reason |
 | **`Value.source` carries a provider name** (`pms:minihotel/GetReservationBalance`) | Flows above the canonical boundary as data, and onto both screens | An auditor must know which system and which call produced a number. **No PMS field path ever crosses.** The one deliberate exception to criterion 5, inherited from v1 and still correct. The React UI displays it whole and never splits or branches on it; a required test fails if a vendor name appears anywhere in `ui/` |

@@ -21,6 +21,7 @@ design see `architecture.md`; for the build order see `plan.md`. For what v1 tau
 | 2026-09-16 | **Slice 13 — the compose front end.** Prose → restricted sentence → the same grammar and the same validator. Decision D10 |
 | 2026-10-09 | **Slice 14 — the server-rendered surface explains itself.** Every page gets a visible explanation bar, verdicts grouped as a work queue, and an outcome glossary built from the engine's one source of wording |
 | 2026-10-09 | **Slice 15 — a React UI, added without touching the engine.** The owner signs off on two surfaces (decision D11). `ui/` is a Next.js client of the JSON API; a test fails any slice-15 branch that changes an engine file. It found and fixed issue #35 on the engine's own history page along the way |
+| 2026-10-09 | **v3 planned** (`docs/plan-v3.md`). Every claim in the StayOps gap analysis re-verified on `main`; every gap given a disposition; slices 16–24 sequenced; decisions D12–D16. Verification overturned the plan's intended first slice: the card-on-file data behind gap G4 is a **placeholder on all 228 captured cards** (issue #48), and the rate codes two controls wait on are **absent from every capture** (issue #49) |
 
 ## The two source documents
 
@@ -110,6 +111,12 @@ recorded here as decided.
 | 2026-09-09 | **D9** — wire the model adapter now? | **No. Build the seam, exercise it against a stub** | A stub tests the §17 gate harder than a real model does: it emits exactly the proposals that exercise it, where a real model mostly emits plausible IR. Full reasoning in `open-questions.md` |
 | 2026-09-16 | **D10** — both authoring paths, with a chat window, **free to run** | **Yes — and the model produces a SENTENCE, not IR** | The intermediate is readable and editable; nothing new decides what a rule means; and a free 7B model run locally can rewrite a sentence into a template where it cannot reliably emit a valid six-key IR. Supersedes D9's "never a runtime component" clause only — D9's substance, *no verdict depends on a model call*, is kept verbatim |
 | 2026-10-09 | **D11** — a second, React surface? | **Yes, as an addition and not a rewrite.** Two surfaces over one JSON API; the server-rendered one stays | The project owner reads React more fluently than Python, and the engine will be patched into a JavaScript/Next.js product. The engine's own pages stay because they are the offline, printable, zero-dependency audit surface. Full record in `open-questions.md` |
+| 2026-10-09 | **1.10** — does StayOps act, or advise? | **Advise.** Every action is a record with a state that a person performs | Acting would reverse the read-only rule, and every write needs idempotency, rollback and write credentials nobody has seen |
+| 2026-10-09 | **D12** — guest services in v3? | **`LATE_CHECKOUT` only, structured request, no model** | A model reading guest prose would put natural language in the decision path, where a misread time prices a fee |
+| 2026-10-09 | **D13** — build order (1.11 #9) | **Data isolation early, authentication last** | Every table v3 adds is born tenant-scoped under a structural guard, instead of being retrofitted |
+| 2026-10-09 | **D14** — authentication and credentials | **The host authenticates; the engine verifies an HMAC-signed context.** Credentials per property in the environment; encryption deferred | Keeps D2 (stdlib only) and keeps security-sensitive session code out of the package whose job is honest verdicts |
+| 2026-10-09 | **D15** — guest decisions and parameter names (1.11 #1, #2) | **Five outcomes, `STAFF_REVIEW`; D2 §31's names, snake_case**, fee as Money, rounding with no default | Three of four mentions agree on the set; snake_case matches every key in `spec/`. Missing evidence is always `STAFF_REVIEW` |
+| 2026-10-09 | **D16** — an evidence refresh in v3? | **Yes, as a slice gated on per-call approval at the time** | Three planned read-only calls, plus one with room prices, are what several blocked items are waiting on |
 
 ## Scope decisions inherited from the project owner
 
@@ -150,6 +157,16 @@ by construction:
 - **The verdicts are the engine's.** The UI renders them and never computes one. Money is shown
   exactly as the engine wrote it, provenance is displayed and never parsed, and the outcome words
   come from the engine (`/api/outcomes`) rather than being typed a second time.
+
+## What v3 planning did not change
+
+v3 was planned in a docs-only PR. **No file under `hotelcontrols/`, `spec/`, `fixtures/`, `tools/`,
+`tests/` or `ui/` changed.** The measurements behind the two findings were dry runs in a scratch
+directory outside the repository. Each control was run from a temporary spec directory, with the
+hotel's settings replaced in memory, which is how criterion 6 has always been tested. The
+regression wall in `docs/plan-v3.md` §1 is therefore the same tree that the last v2 merge left.
+What *did* change is what the documents claim. Two claims that had read as the cheapest wins in
+the project were measured, and neither held (issues #48 and #49).
 
 ## What carries over from v1 unchanged
 

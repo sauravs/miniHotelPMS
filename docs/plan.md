@@ -671,12 +671,18 @@ than a gap in the engine:
 | `rate_room_category_consistency` | a rate code and the price-list code are different key spaces (R13), so no endpoint resolves the mapping at all (open question 1.6) |
 | `required_reservation_fields` | this property has nominated no rate codes, so the control applies to no reservation (open question 1.4) |
 
-**Three of those six would move on a conversation rather than on code.** One sentence naming this
-property's nominated rate codes takes `required_reservation_fields` from zero answers to real ones.
-One sentence from the vendor about what `OK4` and `WL` mean resolves 44 of the 217 reservations
-this project has ever seen. A rate-plan mapping supplied by the hotel unblocks control 9. The other
-three are the property being what it is — and reporting "compliant" about a mechanism nobody has
-ever seen working is exactly what v1 did.
+~~**Three of those six would move on a conversation rather than on code.**~~ **Corrected
+2026-10-09 (issue #49): one of them moves on a conversation, and two need a conversation *and* a
+capture.** It was written that naming this property's nominated rate codes takes
+`required_reservation_fields` from zero answers to real ones, and that a hotel-supplied rate-plan
+mapping unblocks control 9. Measured, neither does. `stay.rate_code` is absent from every captured
+reservation, because the captures were not taken with room prices. Both controls return identical
+counts with and without the hotel's data, stopping at *"stay.rate_code is absent"* before the
+hotel's data is read. They need a capture taken with room prices (v3 slice 23) **and** the hotel's
+answer from a real property. Nobody can honestly nominate codes for the vendor's test hotel. One
+sentence from the vendor about what `OK4` and `WL` mean still resolves 44 of the 217 reservations
+this project has ever seen. The other three are the property being what it is — and reporting
+"compliant" about a mechanism nobody has ever seen working is exactly what v1 did.
 
 **The second half of criterion 1 IS met**: every control that does not conclude names its specific
 blocker, on screen and in the API, and a run that concluded nothing shows no count tiles.
@@ -821,3 +827,14 @@ Found along the way and fixed, each with a guard:
 - A prerendered 404 carried no nonce.
 - A build-time stylesheet rewrite pinned the engine's address.
 
+
+---
+
+## After slice 15: v3
+
+The v2 build ends here. **v3 is planned in [`docs/plan-v3.md`](plan-v3.md)**, which continues the
+slice numbering at 16 so branch names stay `slice/NN-name`. That file holds v3's disposition of
+every gap in `docs/stayops-gap-analysis.md`, its slice sequence with a test gate and exit test per
+slice, and its own success criteria (V1–V12). The twelve criteria above still apply to everything
+v3 builds, criterion 1 included, and it stays recorded as **NOT MET** until a measurement says
+otherwise.
