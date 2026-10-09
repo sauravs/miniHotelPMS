@@ -283,6 +283,10 @@ store.transition(action_id, state, *, tenant_id, at, actor)          # pending -
 Notifier = { name, channel, route(audience) -> (address, ...), send(Message) }
 actions.dispatch(run, findings, store, notifier, *, public_url, at) -> (Delivery, ...)
 store.claim_notification / release_notification / note_notification(action_id, *, tenant_id, ...)
+
+# slice 20 - the operational log. JSON lines through stdlib logging, stamped by an injected clock
+ops.OpsLog(clock, logger).emit(event, **fields)   # carries tenant_id, run_id, control_id,
+                                                  # policy_version, provider - null where none
 ```
 
 Hides: orchestrating four layers · labelling which body of evidence a run used and whether it is
@@ -342,6 +346,19 @@ committed. An audience with no route leaves the task unsent, saying *"no route c
 audience finance"*. The sent marker lives on the task: it is claimed before the send by a
 guarded `UPDATE` and released with the reason if the send fails. So a task gets one email per
 channel however often dispatch runs.
+
+**What ran is written down, and nothing personal is** (slice 20, G14 narrowed). `ops.OpsLog`
+emits structured JSON lines through the standard `logging` module at three boundaries, all in
+the web layer: one per **request** (path without its query string, status, duration), one per
+**run** (emitted after the save so it carries its `run_id`: calls, counts, coverage, tasks
+raised, duration), and one per **dispatch** (audience and outcome). Every line carries
+`tenant_id`, `run_id`, `control_id`, `policy_version` and `provider`, so one `run_id` can be
+traced from request to dispatch. **The timestamp is the injected clock's** (the kernel's own,
+in UTC, by default). The formatter writes the record it was given and never the `LogRecord`'s
+wall-clock `created`. Not copied: a blocked run's reason (a provider's words), a delivery note,
+an address, a query string. `evaluator/` and `providers/` import no logging, which a test
+asserts. `runner/` is untouched. The server attaches the log to stderr by default
+(`--log PATH|-|off`).
 
 **Scheduling is a pure function.** `next_evaluation` reads the IR's `execution`, asks the provider
 what events it publishes, and returns a `Plan`: a subscription, a due time, or `unschedulable`. A
@@ -497,7 +514,8 @@ hotelcontrols/
   evidence/       gather.py · population.py · reference.py · cache.py · budget.py
   evaluator/      record.py · population.py · predicates.py · intervals.py · logic.py
   runner/         run.py · coverage.py · readiness.py · scheduling.py
-  actions/        records.py                  # slice 18: a FAIL -> one task. Pure
+  actions/        records.py · notify.py      # slice 18: a FAIL -> one task; 19: email it once
+  ops/            log.py                      # slice 20: the operational log, JSON lines
   store/          sqlite.py · schema.sql      # runs, verdicts, evidence, actions
   web/            app.py · render.py · server.py · assets/
   compiler/       grammar.py · sentences.py · model.py · problems.py
