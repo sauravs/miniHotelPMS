@@ -46,6 +46,14 @@ version, record - so a control run five times raises one task (G10c, narrowed; `
 is untouched). It is in this store, on this connection, because a task is only as good as the
 stored run that is its receipt, and two databases could disagree about whether that run exists.
 The same rule as every other table: every read names its property, keyword-only, no default.
+
+AND EVERY GUEST DECISION (slice 22)
+-----------------------------------
+The `decisions` table: one row per decision, keyed by the approved table's identity digest, so
+the same request twice is one row. A decision and the task it raises are written in ONE
+transaction, the task through the same natural-key insert a FAIL's task uses - a crash between
+the two cannot leave a decision whose task never existed. Reads name their property, keyword-
+only, no default, and another property's decision is absent exactly like a missing one.
 """
 from __future__ import annotations
 
@@ -53,11 +61,12 @@ import hashlib
 import json
 import pathlib
 import sqlite3
-from datetime import datetime
+from datetime import date, datetime, time
 from decimal import Decimal
 
-from ..actions import (PENDING, STATES, ActionRecord, Findings, TransitionRefused,
+from ..actions import (PENDING, STATES, ActionRecord, Finding, Findings, TransitionRefused,
                        check_transition)
+from ..guest import Decision, Gap
 from ..kernel import NOT_APPLICABLE, EvidenceLine, Money, Outcome, Value, Verdict
 from ..runner import Run
 
@@ -78,6 +87,14 @@ _ACTION_COLUMNS = ("action_id", "tenant_id", "control_id", "control_name", "poli
                    "policy_digest", "record_id", "severity", "audience", "kind", "reason",
                    "raised_by_run", "raised_at", "as_of", "provider", "evidence_label",
                    "last_failing_run", "last_failing_at")
+
+# The `decisions` columns, in one place, for the insert and for reading a row back (slice 22).
+_DECISION_COLUMNS = ("decision_id", "tenant_id", "template_id", "template_name",
+                     "template_version", "template_digest", "parameters_digest",
+                     "reservation_id", "requested_time", "departure_date", "received_at",
+                     "received_on", "decision", "rule", "reason", "fee_amount", "fee_currency",
+                     "gaps_json", "evidence_json", "provider", "evidence_label", "severity",
+                     "audience", "action_id")
 
 # How a queue is read: what is still to do first, then the most urgent, then the newest.
 _STATE_ORDER = {state: rank for rank, state in enumerate(STATES)}
@@ -330,16 +347,7 @@ class RunStore:
         created = 0
         with self._connection:
             for finding in findings.failing:
-                written = self._connection.execute(
-                    "INSERT INTO actions (%s) VALUES (%s) ON CONFLICT(tenant_id, control_id, "
-                    "policy_version, record_id) DO NOTHING"
-                    % (", ".join(_ACTION_COLUMNS), ",".join("?" * len(_ACTION_COLUMNS))),
-                    (finding.action_id, finding.tenant_id, finding.control_id,
-                     finding.control_name, finding.policy_version, finding.policy_digest,
-                     finding.record_id, finding.severity, finding.audience, finding.kind,
-                     finding.reason, finding.run_id, finding.raised_at.isoformat(),
-                     finding.as_of, finding.provider, finding.evidence_label, finding.run_id,
-                     finding.raised_at.isoformat()))
+                written = self._insert_action(finding)
                 if written.rowcount == 1:
                     created += 1
                     continue
@@ -372,6 +380,20 @@ class RunStore:
                     (findings.run_id, findings.at.isoformat(), findings.as_of,
                      row["action_id"], findings.tenant_id))
         return created
+
+    def _insert_action(self, finding: Finding):
+        """One task by its natural key, or nothing if that key already has one. The one insert
+        into `actions`, shared by a FAIL's task (slice 18) and a guest decision's (slice 22)."""
+        return self._connection.execute(
+            "INSERT INTO actions (%s) VALUES (%s) ON CONFLICT(tenant_id, control_id, "
+            "policy_version, record_id) DO NOTHING"
+            % (", ".join(_ACTION_COLUMNS), ",".join("?" * len(_ACTION_COLUMNS))),
+            (finding.action_id, finding.tenant_id, finding.control_id,
+             finding.control_name, finding.policy_version, finding.policy_digest,
+             finding.record_id, finding.severity, finding.audience, finding.kind,
+             finding.reason, finding.run_id, finding.raised_at.isoformat(),
+             finding.as_of, finding.provider, finding.evidence_label, finding.run_id,
+             finding.raised_at.isoformat()))
 
     def _action_by_key(self, findings: Findings, record_id: str):
         """The task with this natural key in this batch's property, or None."""
@@ -462,6 +484,104 @@ class RunStore:
                 "UPDATE actions SET notify_note = ? "
                 "WHERE action_id = ? AND tenant_id = ? AND notified_at IS NULL",
                 (note, action_id, tenant_id))
+
+    # ------------------------------------------------------------------ guest decisions
+    # Slice 22. One row per decision, and at most one task, written together.
+    def save_decision(self, decision: Decision,
+                      task: Finding | None) -> tuple[Decision, bool]:
+        """Keep a decision and the task it raises. Returns the STORED decision and whether it
+        is new: the same request again returns the first decision, unchanged, and raises no
+        second task (D1 §65) - the double tap is answered with what was already decided.
+        """
+        if task is not None and (task.tenant_id != decision.tenant_id
+                                 or task.record_id != decision.decision_id):
+            # A task in another property's name, or for another decision, would land in the
+            # wrong queue or detach from its receipt. Refused before anything is written.
+            raise ValueError("decision %s for property %r was handed a task for property %r "
+                             "and record %r; refusing to write either"
+                             % (decision.decision_id, decision.tenant_id, task.tenant_id,
+                                task.record_id))
+        with self._connection:
+            written = self._connection.execute(
+                "INSERT INTO decisions (%s) VALUES (%s) ON CONFLICT(decision_id) DO NOTHING"
+                % (", ".join(_DECISION_COLUMNS), ",".join("?" * len(_DECISION_COLUMNS))),
+                _decision_row(decision))
+            if written.rowcount != 1:
+                existing = self.decision(decision.decision_id, tenant_id=decision.tenant_id)
+                if existing is None:
+                    # The id hashes the property, so this is not an accident - and it is
+                    # refused rather than answered with another hotel's decision.
+                    raise ValueError("decision id %r already belongs to another property"
+                                     % decision.decision_id)
+                return existing, False
+            if task is not None:
+                self._insert_action(task)
+        return decision, True
+
+    def decision(self, decision_id: str, *, tenant_id: str) -> Decision | None:
+        """One decision, for its property. Another property's is None, like a missing one."""
+        row = self._connection.execute(
+            "SELECT * FROM decisions WHERE decision_id = ? AND tenant_id = ?",
+            (decision_id, tenant_id)).fetchone()
+        return _decision(row) if row is not None else None
+
+    def decisions(self, *, tenant_id: str, limit: int = 200) -> list[Decision]:
+        """One property's decisions, most recently recorded first.
+
+        By insertion order rather than `received_at`: in the demo every request is asked as
+        of the capture's own instant, so the instants tie, and the order a person made them in
+        is the order they expect to read them back in.
+        """
+        rows = self._connection.execute(
+            "SELECT * FROM decisions WHERE tenant_id = ? ORDER BY rowid DESC LIMIT ?",
+            (tenant_id, limit)).fetchall()
+        return [_decision(row) for row in rows]
+
+
+def _decision_row(decision: Decision) -> tuple:
+    evidence = [{"field": line.field, "is_known": line.value.is_known,
+                 "payload": (encode_payload(line.value.payload) if line.value.is_known
+                             else None),
+                 "unit": line.value.unit, "reason": line.value.reason, "risk": line.value.risk,
+                 "source": line.source} for line in decision.evidence]
+    gaps = [{"name": gap.name, "kind": gap.kind, "reason": gap.reason} for gap in decision.gaps]
+    fee = decision.fee
+    return (decision.decision_id, decision.tenant_id, decision.template_id,
+            decision.template_name, decision.template_version, decision.template_digest,
+            decision.parameters_digest, decision.reservation_id,
+            decision.requested_time.strftime("%H:%M"), decision.departure_date,
+            decision.received_at.isoformat(), decision.received_on.isoformat(),
+            decision.decision, decision.rule, decision.reason,
+            str(fee.amount) if fee is not None else None,
+            fee.currency if fee is not None else None,
+            json.dumps(gaps), json.dumps(evidence), decision.provider, decision.evidence_label,
+            decision.severity, decision.audience, decision.action_id)
+
+
+def _decision(row) -> Decision:
+    lines = []
+    for item in json.loads(row["evidence_json"]):
+        value = (Value.known(decode_payload(item["payload"]), unit=item["unit"],
+                             source=item["source"])
+                 if item["is_known"]
+                 else Value.unknown(item["reason"], risk=item["risk"], source=item["source"]))
+        lines.append(EvidenceLine(item["field"], value, source=item["source"]))
+    hour, minute = map(int, row["requested_time"].split(":"))
+    return Decision(
+        decision_id=row["decision_id"], tenant_id=row["tenant_id"],
+        template_id=row["template_id"], template_name=row["template_name"],
+        template_version=row["template_version"], template_digest=row["template_digest"],
+        parameters_digest=row["parameters_digest"], reservation_id=row["reservation_id"],
+        requested_time=time(hour, minute), departure_date=row["departure_date"],
+        received_at=datetime.fromisoformat(row["received_at"]),
+        received_on=date.fromisoformat(row["received_on"]), decision=row["decision"],
+        rule=row["rule"], reason=row["reason"],
+        fee=(Money(Decimal(row["fee_amount"]), row["fee_currency"])
+             if row["fee_amount"] is not None else None),
+        gaps=tuple(Gap(g["name"], g["kind"], g["reason"])
+                   for g in json.loads(row["gaps_json"])),
+        evidence=tuple(lines), provider=row["provider"], evidence_label=row["evidence_label"],
+        severity=row["severity"], audience=row["audience"], action_id=row["action_id"])
 
 
 def _action_record(row) -> ActionRecord:

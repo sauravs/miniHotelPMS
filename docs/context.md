@@ -158,6 +158,28 @@ by construction:
   exactly as the engine wrote it, provenance is displayed and never parsed, and the outcome words
   come from the engine (`/api/outcomes`) rather than being typed a second time.
 
+## What slice 22 did not change
+
+Guest services is the first v3 slice that DECIDES something, so it is worth saying what deciding
+cost the engine.
+
+- **No layer below it moved.** `kernel/`, `providers/`, `evidence/`, `evaluator/`, `runner/`,
+  `compiler/`, `hotelcontrols/spec/`, `spec/parameters.json` and every `spec/ir/*.json` are
+  untouched - the v3 scope guard fails the branch otherwise. The evidence layer is reused by
+  import: the template's population is handed to `gather` as data, exactly as an IR's is. The fee
+  is repeated `Money.plus`, so `Money` gained no multiplication.
+- **No answer changed.** All 135 golden payloads and all 88 run goldens are byte-identical, the
+  11 DemoPMS files rebuild identically, the spec lock is current, and criterion 1 is unaffected -
+  a guest template is not a control and is never counted as one.
+- **The shipped hotels decide nothing.** `sandbox` and `demo` state all six late-checkout
+  parameters as `null`, so they answer `STAFF_REVIEW` to every request and name the six. The
+  decided policies in the tests belong to test properties built in a scratch copy of `spec/`.
+- **The findings queue still lists violations only.** A guest task shares the `actions` table and
+  its state machine, but `/queue` and `/api/actions` filter it out and point at `/guest`, so no
+  existing client ever renders an approval with a VIOLATION badge.
+- **No model is anywhere near it** (D12, D10). An AST walk over the package's transitive imports
+  proves it, and was shown to catch a model planted two imports away.
+
 ## What v3 planning did not change
 
 v3 was planned in a docs-only PR. **No file under `hotelcontrols/`, `spec/`, `fixtures/`, `tools/`,

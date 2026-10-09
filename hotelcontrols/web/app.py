@@ -53,6 +53,16 @@ status, duration), one per RUN (after it is saved, so it carries its `run_id`: c
 coverage, duration), and one per DISPATCH (audience and outcome). The run's own identity is
 gathered into `_trace` while a request is handled, so the request line can name the run it
 caused. `runner/` is untouched; nothing is logged below this layer.
+
+AND DECIDES A GUEST'S REQUEST (slice 22)
+----------------------------------------
+`POST /api/guest/requests` takes a reservation id and an HH:MM and answers with a decision from
+the approved LATE_CHECKOUT table; `/guest` is the staff view of the same. As with a run, the
+evidence decides "today" when the reader does not: a capture describes its own day. Unlike a
+run, a request that DECIDES something never falls back to the first property - a mistyped
+property would apply another hotel's policy to this guest - so an unknown one is a 400. The
+decision is stored and its task raised here, one layer above `guest/`, which is pure. A guest
+task is not a violation, so the findings queue keeps listing violations only and points here.
 """
 from __future__ import annotations
 
@@ -63,7 +73,10 @@ import uuid
 from dataclasses import replace
 from typing import NamedTuple
 
-from ..actions import OPERATOR, TransitionRefused, dispatch, findings_from
+from ..actions import (OPERATOR, TransitionRefused, dispatch, findings_from, guest_task,
+                       is_guest_task)
+from ..evidence import CallBudget
+from ..guest import RequestRefused, answer, load_policy, load_template, parse_request
 from ..ops import OpsLog, elapsed_ms
 from ..compiler import Turn, compile_sentence, deployment_of, normalise
 from ..kernel import FixedClock, Outcome, PropertyClock
@@ -269,6 +282,13 @@ class App:
             return self._queue_json(query)
         if len(parts) == 3 and parts[:2] == ["api", "actions"]:
             return self._action_json(parts[2], query)
+        # Slice 22: guest decisions, as a staff page and as data.
+        if parts == ["guest"]:
+            return self._guest_page(query)
+        if parts == ["api", "guest", "decisions"]:
+            return self._decisions_json(query)
+        if len(parts) == 4 and parts[:3] == ["api", "guest", "decisions"]:
+            return self._decision_json(parts[3], query)
 
         raise _Refused(404, "There is nothing at /%s. The controls are listed at /."
                        % "/".join(parts))
@@ -292,6 +312,13 @@ class App:
             return self._move_json(parts[2], form)
         if len(parts) == 2 and parts[0] == "queue":
             return self._move_page(parts[1], form)
+        # Slice 22: a guest asks; staff ask on a guest's behalf; staff move the task.
+        if parts == ["api", "guest", "requests"]:
+            return self._guest_request_json(form)
+        if parts == ["guest"]:
+            return self._guest_request_page(form)
+        if len(parts) == 3 and parts[:2] == ["guest", "tasks"]:
+            return self._guest_move_page(parts[2], form)
 
         raise _Refused(405, "Nothing at /%s accepts a form. The controls are listed at /."
                        % "/".join(parts))
@@ -692,10 +719,12 @@ class App:
     # "all clear" (criterion 8 applied to a new surface).
     def _queue_page(self, query: dict) -> Response:
         tenant_id = self._selection(query)[0]
+        records = self.store.actions(tenant_id=tenant_id)
         return Response(200, HTML, render.queue_page(
-            tenant_id, self._property_ids(), self.store.actions(tenant_id=tenant_id),
+            tenant_id, self._property_ids(), _violations(records),
             self._queue_controls(tenant_id), self.store.persistent,
-            email=self._notifier_name()))
+            email=self._notifier_name(),
+            guest_pending=sum(1 for r in records if is_guest_task(r) and r.is_pending)))
 
     def _queue_json(self, query: dict) -> Response:
         """One property's queue as data: its tasks, and each control's latest conclusion.
@@ -705,7 +734,10 @@ class App:
         than imply a persistence it lacks (brief §8.8).
         """
         tenant_id = self._selection(query)[0]
-        records = self.store.actions(tenant_id=tenant_id)
+        # Violations only. A guest decision's task lives in the same table and moves through
+        # the same state machine, but it is not a violation, and every client of this payload
+        # renders a record as one. It is listed by /api/guest/decisions (slice 22).
+        records = _violations(self.store.actions(tenant_id=tenant_id))
         wired = self.notifier is not None
         payload = {
             "property": tenant_id,
@@ -762,6 +794,123 @@ class App:
         if moved is None:
             raise _Refused(404, _no_such_action(action_id))
         return tenant_id, moved
+
+    # ------------------------------------------------------------------ guest services
+    # Slice 22 (G1 narrowed, G3a, G2(a)). Decided by `guest/`, which is pure; stored and turned
+    # into a task here, one layer above it, the way a run's findings are.
+    def _guest_request_json(self, form: dict) -> Response:
+        """201 for a new decision, 200 for the same request again - with the same body, because
+        it IS the same decision (D1 §65)."""
+        decision, created = self._guest_decide(form)
+        return Response(201 if created else 200, JSON,
+                        json.dumps(self._decision_payload(decision), indent=2))
+
+    def _guest_request_page(self, form: dict) -> Response:
+        """The staff form. A 303 to the decision, so a reload re-reads it rather than asking
+        again - the same reason every POST on these pages ends in a redirect."""
+        decision, _created = self._guest_decide(form)
+        return Response(303, HTML, render.redirect(
+            "/guest?property=%s#decision-%s" % (decision.tenant_id, decision.decision_id),
+            title="Decided", subtitle="The request was decided.",
+            sentence="Request decided", onward="the decision"))
+
+    def _guest_decide(self, form: dict):
+        """Parse, look up, decide, store, raise the task. Refusals come before any provider
+        call: a malformed request costs nothing and leaves nothing behind."""
+        tenant_id, capture = self._posted_selection(form)
+        template = self._guest_template()
+        try:
+            request = parse_request(form)
+        except RequestRefused as exc:
+            raise _Refused(400, str(exc)) from None
+        tenant = self._tenant(tenant_id)
+        policy = self._guest_policy(template, tenant)
+        package = providers.load(tenant.provider)
+        adapter, source = package.build(tenant, capture)
+        as_of = form.get("as_of") or getattr(source, "as_of", None)
+        try:
+            clock = FixedClock.at(as_of, tenant.timezone)
+        except (TypeError, ValueError):
+            raise _Refused(400, "%r is not a date this engine can read. Write it as "
+                                "YYYY-MM-DD." % as_of) from None
+        budget = CallBudget(tenant.call_budget)
+        decision = answer(template, request, tenant=tenant, policy=policy, adapter=adapter,
+                          clock=clock, evidence_label=capture, budget=budget)
+        self.provider_calls += budget.spent
+        return self.store.save_decision(decision, guest_task(decision))
+
+    def _posted_selection(self, form: dict) -> tuple[str, str]:
+        """The property and evidence a POST that DECIDES something names - refused, never
+        defaulted. `_selection`'s fallback suits a page somebody is browsing; here it would
+        apply another hotel's policy to this guest."""
+        tenant_id = form.get("property")
+        if not tenant_id:
+            raise _Refused(400, "A guest request must name its property (property=...): it is "
+                                "decided under that property's policy and no other.")
+        if tenant_id not in self._property_ids():
+            raise _Refused(400, "There is no property called %r. A request that decides "
+                                "something is never answered for another property."
+                           % tenant_id)
+        self._trace.setdefault("tenant_id", tenant_id)
+        package = providers.load(self._tenant(tenant_id).provider)
+        capture = form.get("evidence") or package.default_capture
+        if capture not in package.captures:
+            raise _Refused(400, "%r is not a body of evidence this property's provider can "
+                                "replay; it can replay %s"
+                           % (capture, ", ".join(package.captures)))
+        return tenant_id, capture
+
+    def _guest_template(self):
+        return load_template(spec_dir=self.spec_dir) if self.spec_dir else load_template()
+
+    def _guest_policy(self, template, tenant: TenantConfig):
+        return (load_policy(template, tenant, self.spec_dir) if self.spec_dir
+                else load_policy(template, tenant))
+
+    def _decision_payload(self, decision) -> dict:
+        task = (self.store.action(decision.action_id, tenant_id=decision.tenant_id)
+                if decision.action_id else None)
+        return render.decision_json(decision, task)
+
+    def _decisions_json(self, query: dict) -> Response:
+        tenant_id = self._selection(query)[0]
+        template = self._guest_template()
+        decisions = self.store.decisions(tenant_id=tenant_id)
+        payloads = [self._decision_payload(d) for d in decisions]
+        return Response(200, JSON, json.dumps({
+            "property": tenant_id,
+            "policy": render.policy_json(template,
+                                         self._guest_policy(template, self._tenant(tenant_id))),
+            "persistent": self.store.persistent,
+            "persistence": render.persistence_sentence(self.store.persistent),
+            "pending": sum(1 for p in payloads if p["task"] and p["task"]["state"] == "pending"),
+            "decisions": payloads}, indent=2))
+
+    def _decision_json(self, decision_id: str, query: dict) -> Response:
+        """Another property's decision is the same 404 as one that never existed, word for
+        word (slice 17's rule, on slice 22's table)."""
+        decision = self.store.decision(decision_id, tenant_id=self._selection(query)[0])
+        if decision is None:
+            raise _Refused(404, "There is no decision %s for this property." % decision_id)
+        return Response(200, JSON, json.dumps(self._decision_payload(decision), indent=2))
+
+    def _guest_page(self, query: dict) -> Response:
+        tenant_id, capture = self._selection(query)
+        template = self._guest_template()
+        decided = [(d, self.store.action(d.action_id, tenant_id=tenant_id)
+                    if d.action_id else None)
+                   for d in self.store.decisions(tenant_id=tenant_id)]
+        return Response(200, HTML, render.guest_page(
+            tenant_id, self._property_ids(), template,
+            self._guest_policy(template, self._tenant(tenant_id)), decided,
+            self.store.persistent, capture, self.captures_for(tenant_id)))
+
+    def _guest_move_page(self, action_id: str, form: dict) -> Response:
+        tenant_id, _moved = self._move(action_id, form)
+        return Response(303, HTML, render.redirect(
+            "/guest?property=%s" % tenant_id, title="Moved",
+            subtitle="The task was updated.", sentence="Task updated",
+            onward="the guest requests"))
 
     def _queue_controls(self, tenant_id: str) -> list[dict]:
         """Every reviewed control, with what its latest run in this store concluded.
@@ -970,6 +1119,11 @@ class App:
     def captures_for(self, tenant_id: str) -> tuple[str, ...]:
         """Every body of evidence this property's provider can be replayed against."""
         return providers.load(self._tenant(tenant_id).provider).captures
+
+
+def _violations(records):
+    """The findings queue's records: violations only, never a guest decision's task."""
+    return [record for record in records if not is_guest_task(record)]
 
 
 def _history_entry(row) -> dict:
