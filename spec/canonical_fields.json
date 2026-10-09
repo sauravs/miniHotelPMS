@@ -181,7 +181,7 @@
         "type": "boolean",
         "nullable": false,
         "absent_means": "unknown",
-        "description": "Whether a card is on file. Value is masked/tokenised - presence only, never validity",
+        "description": "Whether a card is on file. Value is masked/tokenised - presence only, never validity. NOT ESTABLISHED by any capture: all 228 captured card numbers are the same mask with no digits, which cannot tell a card from a placeholder, so it resolves UNKNOWN; a blank resolves UNKNOWN too (issue #48, open question 2.8)",
         "resolvable": true
       }
     ],

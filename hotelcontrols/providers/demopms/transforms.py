@@ -169,8 +169,27 @@ def json_bool(raw: Any, unit: str | None = None) -> Value:
 
 def presence_bool(raw: Any, unit: str | None = None) -> Value:
     """The card arrives as its last four digits. Presence is the only fact available - never
-    validity, never the number itself. Returning either would be manufacturing evidence."""
-    return Value.known(bool(str(raw).strip()) if raw is not None else False)
+    validity, never the number itself. Returning either would be manufacturing evidence.
+
+    Issue #48: the demo hotel is the real one transcoded, and the real one's card number is the
+    constant mask "****" on every record. Carried into this slot it has no digits, so it is
+    the placeholder and not a card - UNKNOWN, exactly as on the source provider, or the two
+    would disagree about the same guest. A null or blank slot is UNKNOWN too: nothing captured
+    shows what "no card" looks like, so reading it as one would be a guess.
+    """
+    if raw is not None and not isinstance(raw, str):
+        return Value.unknown("%r is not a card slot - this provider writes it as a string, so "
+                             "anything else means the response changed shape" % (raw,))
+    text = (raw or "").strip()
+    if any(ch.isdigit() for ch in text):
+        return Value.known(True)
+    if text:
+        return Value.unknown(
+            "the card slot holds %r, a mask with no digits, which every record carries - it "
+            "cannot tell a card from a placeholder (#48, open question 2.8)" % (text,))
+    return Value.unknown(
+        "the card slot is empty, and no capture shows what an empty slot means - reading it "
+        "as 'no card' would be a guess (#48, open question 2.8)")
 
 
 # --------------------------------------------------------------------------- code maps

@@ -142,9 +142,31 @@ def yesno_to_bool(raw: str, unit: str | None = None) -> Value:
 
 
 def masked_to_presence_bool(raw: str, unit: str | None = None) -> Value:
-    """The card number arrives masked ("****"). Presence is the only fact available - never
-    validity, never the number itself. Returning either would be manufacturing evidence."""
-    return Value.known(bool((raw or "").strip()))
+    """Whether a card is on file - which no capture can yet establish (issue #48).
+
+    All 228 captured `CreditCard` elements carry `Number="****"`: no digits, the same on every
+    record, and 216 of them "expire" in January 2021 on reservations dated up to 2026. That is
+    the shape of a default the PMS emits whatever the real state. A value that is identical on
+    every record cannot tell a card from a placeholder, so reading it as presence would PASS a
+    card-on-file control on every reservation ever seen (plan-v3 §3.1).
+
+    So: a mask with no digits is UNKNOWN, and so is a blank. Nothing captured shows what a
+    reservation with no card looks like, so reading blank as "no card" would be a guess about
+    the vendor's encoding. Only digits the mask did not hide tell a card apart from the
+    placeholder, and none has been captured yet. Even then presence is the only fact - never
+    validity, never the number itself. Open question 2.8 is what would settle the rest.
+    """
+    text = (raw or "").strip()
+    if any(ch.isdigit() for ch in text):
+        return Value.known(True)
+    if text:
+        return Value.unknown(
+            "the card number is %r, a mask with no digits, and every captured card carries the "
+            "same one - it cannot tell a card from a placeholder (#48, open question 2.8)"
+            % (text,))
+    return Value.unknown(
+        "the card number is blank, and no capture shows what a blank means - reading it as "
+        "'no card' would be a guess (#48, open question 2.8)")
 
 
 # --------------------------------------------------------------------------- code maps

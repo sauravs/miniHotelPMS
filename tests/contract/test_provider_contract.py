@@ -37,6 +37,7 @@ NOT_APPLICABLE_FIELD = "reservation.channel_confirmation_id"   # R7
 ABSENT_MEANS_FALSE_FIELD = "reservation.guest.email"           # absence is the signal itself
 STATUS_FIELD = "reservation.status"                            # A5
 UNMAPPED_FIELD = "reservation.vip"                             # nobody declares this anywhere
+PLACEHOLDER_FIELD = "reservation.guest.payment_card_present"   # #48: the same on every record
 
 
 class TestTheRegistryItself:
@@ -229,6 +230,45 @@ class TestTenantVocabularyIsNeverGuessedAt:
         assert canonical <= set(provider.tenant.status_map.values())
 
 
+class TestAPlaceholderIsNotEvidence:
+    """Issue #48: a value that is the same on every record cannot establish a fact, on any
+    provider. All 228 captured cards carry the mask "****" and no digits; the demo hotel is the
+    same hotel transcoded, so it carries the same mask. Read as presence, it would PASS a
+    card-on-file control on every reservation ever captured (plan-v3 §3.1): an UNKNOWN made
+    into a PASS. Open question 2.8 is what would settle it."""
+
+    def test_no_reservation_is_established_as_having_a_card_on_file(self, provider):
+        resolved = _resolve_over_population(provider, PLACEHOLDER_FIELD)
+        assert resolved, "no reservations in this evidence, so this test proves nothing"
+        established = [v for v in resolved if v.is_known]
+        assert not established, (
+            "%s establishes %s on %d reservation(s) from a placeholder (#48)"
+            % (provider.name, PLACEHOLDER_FIELD, len(established)))
+
+    def test_the_reason_names_the_placeholder_rather_than_a_generic_gap(self, provider):
+        """Not vacuous: the population must actually hold the placeholder, and the reason must
+        say what would settle it, or a hotel cannot ask its vendor the right question."""
+        reasons = [v.reason or "" for v in _resolve_over_population(provider, PLACEHOLDER_FIELD)]
+        assert any("#48" in r and "2.8" in r for r in reasons), (
+            "the placeholder never reached the transform on %s" % provider.name)
+
+    def test_every_provider_gives_the_same_answer_per_reservation(self):
+        """Criterion 7 for this field: the same hotel through two wire formats agrees, record
+        by record, on whether presence is established."""
+        from .conftest import Subject
+        answers = {}
+        for package in all_providers():
+            subject = Subject(package)
+            records = subject.adapter.records(subject.adapter.fetch(_population(subject)),
+                                              "reservation")
+            answers[subject.name] = {
+                subject.adapter.identity(r).payload:
+                    subject.adapter.resolve(PLACEHOLDER_FIELD, r).is_known
+                for r in records}
+        first, *rest = answers.values()
+        assert first and all(other == first for other in rest), answers
+
+
 class TestRecordIsolation:
     """Slice 7 gate: a record never reads a sibling's field, on both (R7)."""
 
@@ -401,12 +441,16 @@ def _resolve_over_records(provider, entity: str, field_name: str):
     filter - it asks the same question of every provider and lets each one answer it its own
     way.
     """
+    response = provider.adapter.fetch(_population(provider, entity))
+    return [provider.adapter.resolve(field_name, record)
+            for record in provider.adapter.records(response, entity)]
+
+
+def _population(provider, entity: str = "reservation"):
+    """The population request a shipped IR makes, built for this provider."""
     from hotelcontrols.evidence.population import build_request
     from hotelcontrols.spec import load
 
     ir = load("duplicate_channel_reservation" if entity == "reservation"
               else "room_assignment_type_validity")
-    request = build_request(ir, provider.name, provider.clock)
-    response = provider.adapter.fetch(request)
-    return [provider.adapter.resolve(field_name, record)
-            for record in provider.adapter.records(response, entity)]
+    return build_request(ir, provider.name, provider.clock)
