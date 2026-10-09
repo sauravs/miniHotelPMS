@@ -193,3 +193,26 @@ Of the 20 controls in `Hotel Controls.docx` against MiniHotel: 6 are confidently
 about the approval half, and 2 are structurally blocked by entities the API does not expose. v2 does
 not change those numbers — it makes the buildable ones actually work, and makes the unbuildable ones
 say precisely what is missing.
+
+---
+
+## 9. v3
+
+v2's contract above is unchanged, and so are its twelve criteria. **v3's scope, sequence and its
+own falsifiable criteria (V1–V12) are in [`docs/plan-v3.md`](plan-v3.md)**, planned 2026-10-09 from
+the StayOps gap analysis under one rule: a gap is taken only if it can be built without widening a
+verdict, crossing the canonical boundary, or changing an answer the engine gives today, unless that
+change is named and reviewed.
+
+What v3 moves out of §6's *out of scope* list, by the owner's decisions D12–D16:
+
+| §6 said | v3 |
+| --- | --- |
+| *Authentication and multi-user access. Single-operator demo* | Data isolation per property (slice 17). Authentication at the **host product**, with the engine verifying a signed context (slice 24, D14) |
+| *(not mentioned: guest services)* | One guest template, `LATE_CHECKOUT`, structured and **advisory**: decisions are records a person carries out (slice 22, D12) |
+| *(not mentioned: notifications)* | A findings queue from FAIL verdicts, and opt-in email behind two locks (slices 18–19) |
+
+What stays out, unchanged: **Mews**, **writing to a PMS** (read-only, permanently, reaffirmed by
+the owner's 1.10 decision), **a scheduler daemon**, **webhook ingestion**, **free text as
+evidence**, and **a model in the verdict path**. v3 extends that last one to guest decisions: no
+model reads a guest's request.

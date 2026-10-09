@@ -3,14 +3,15 @@
 Paste the block below into a fresh session to resume. Everything it references is in the
 repository; nothing depends on the previous conversation.
 
-**Last updated:** 2026-10-09, after slice 15 (the React UI, PRs #34-#42) merged. **The build plan is
-complete**, and so are slices 13, 14 and 15. What a fresh session does next is decided by the
-project owner, not by this plan.
+**Last updated:** 2026-10-09, after **v3 was planned** (`docs/plan-v3.md`, branch `docs/v3-plan`).
+The v2 build is complete, slices 0–15. **v3 is slices 16–24, planned and awaiting the owner's
+approval. Nothing of v3 is built.** The first thing to open, once approved, is fix #48 and then
+slice 16.
 
-**One thing is already queued and waiting on the owner** — the bounded three-call probe of the live
-sandbox. It is planned, printed, and blocked on one word and four environment variables. Read
+**The bounded probe of the live sandbox is now v3 slice 23** (decision D16): planned, printed, and
+still gated on the owner's approval of each call *at the time*. Read
 [The probe that is waiting approval](#the-probe-that-is-waiting-approval--the-first-todo) before
-anything else.
+running it, and never as a standing permission.
 
 ---
 
@@ -22,13 +23,23 @@ listed is work that never reached main - push it and open a PR, or delete it on 
 not leave it. Two branches sat unpushed for three weeks before anyone looked (one held the fix
 that became issue #44), and no CI can see a branch that was never pushed.
 
-Read these first, in order: CLAUDE.md, docs/plan.md, docs/prd.md, docs/architecture.md,
-docs/open-questions.md, docs/old-codebase-improve.md. They are the specification and the
-execution tracker; docs/plan.md is authoritative for what is done and what is next.
+Read these first, in order: CLAUDE.md, docs/plan-v3.md, docs/plan.md, docs/prd.md,
+docs/architecture.md, docs/open-questions.md, docs/old-codebase-improve.md. They are the
+specification and the execution trackers. docs/plan.md is the v2 build log (slices 0-15);
+docs/plan-v3.md is authoritative for what is next (slices 16-24).
 
-STATE: ALL TWELVE SLICES ARE MERGED, PLUS SLICES 13, 14 AND 15 (latest PR #42 on
-github.com/sauravs/miniHotelPMS). 1956 tests, 96% coverage, 1080 spec checks, CI green on
-Python 3.11 and 3.13. The React UI adds 154 Vitest and 19 Playwright tests in its own CI job.
+STATE: v2 IS COMPLETE (slices 0-15, latest code PR #45) AND v3 IS PLANNED, NOT BUILT
+(docs/plan-v3.md). Baseline on 7f384c4, which every v3 slice must keep: 1996 passed / 2 skipped,
+1080 spec checks, 120 API goldens identical, 11 DemoPMS files identical, 96% coverage. CI green
+on Python 3.11 and 3.13. The React UI adds 154 Vitest and 19 Playwright tests in its own CI job.
+
+v3 ORDER, ONCE THE OWNER APPROVES THE PLAN: fix #48 (the card on file is a placeholder on every
+capture - make it UNKNOWN), then slices 16 versioning, 17 tenant-scoped store, 18 findings queue,
+19 email (two locks), 20 operational log, 21 typed hotel parameters with "not decided",
+22 LATE_CHECKOUT (structured, advisory, no model), 23 evidence refresh (owner approves each call),
+24 authentication at the host (HMAC-signed context) + credentials per property (#22). Each slice
+in plan-v3.md states what it may and must not change, its test gate and its exit test. The first
+commit of slice 16 adds tests/unit/test_v3_slice_scope.py, the generalised slice-15 guard.
 
 SLICE 15 ADDED A SECOND SCREEN, AND THE ENGINE DID NOT MOVE. ui/ is a Next.js + React +
 TypeScript CLIENT of the engine's JSON API (decision D11). The engine's own server-rendered
@@ -74,8 +85,10 @@ ELEVEN OF THE TWELVE SUCCESS CRITERIA ARE MET. Criterion 1 is recorded as NOT ME
 controls reach a PASS or a FAIL where the PRD asks for 8 - with each of the six shortfalls
 traced to a fact about the property or the provider in docs/plan.md. DO NOT relax it.
 
-TODO #1, AND IT IS WAITING ON THE OWNER, NOT ON CODE: a bounded three-call probe of the
-live MiniHotel sandbox is planned, printed and approved-pending. Print it and show it:
+THE PROBE IS v3 SLICE 23, AND IT IS WAITING ON THE OWNER, NOT ON CODE: a bounded three-call
+probe of the live MiniHotel sandbox is planned and printed. Slice 23 adds a fourth call, one
+reservation query WITH ROOM PRICES, because stay.rate_code is absent from every capture (#49).
+Print it and show it:
 
     python3 -m tools.probe --plan --property sandbox --control room_assignment_type_validity
     python3 -m tools.probe --plan --property sandbox --control resource_occupancy_consistency
@@ -87,20 +100,13 @@ owner saying yes to that specific probe, each time (decision D3). It will refuse
 without HOTELCONTROLS_LIVE=1 and the four HOTELCONTROLS_MINIHOTEL_* credentials, which
 have no defaults. See "The probe that is waiting approval" in docs/session-handoff.md.
 
-THERE IS NO SLICE 12. The build plan is finished. Before starting anything, read the
-"Where this leaves the build" section of docs/plan.md and the open decisions below - the
-most valuable things left are conversations rather than code, and two of them would move
-criterion 1.
-
-If asked to build something anyway, the candidates in rough order of value are:
-  - Mews as a third provider. It is the whole architectural thesis against a system nobody
-    here designed. Needs credentials that do not exist (open question 1.7).
-  - A scheduler daemon around next_evaluation(), and webhook ingestion. Both are scoped out
-    deliberately in architecture.md section 6, with what each would take.
-  - Wiring the ModelCompiler to a real model, as a dev-time tool under tools/ with the SDK
-    as a dev dependency. Decision D9 records how, and why it is not a runtime component.
-  - Free text as evidence (open question 1.5). Read it before agreeing: it is the sharpest
-    finding in the project and the most dangerous thing that could be built.
+DO NOT BUILD WHAT v3 DISPOSED OF. docs/plan-v3.md section 4 gives every StayOps gap a
+disposition with its reason. Mews is OUT (owner). Writing to a PMS is REJECTED (owner, 1.10).
+G4, the payment-guarantee control, is BLOCKED even in its narrowed card-on-file form: all 228
+captured cards are the placeholder Number="****", 216 of them expiring 2021-01, so it would PASS
+everything (#48, MiniHotel question 2.8). A scheduler daemon and webhooks are DEFERRED/BLOCKED
+for named reasons. Free text as evidence (1.5) stays the most dangerous thing that could be
+built.
 
 Keep working the same way:
   - TDD. Failing test first, written from the specification rather than from the code you
@@ -208,8 +214,9 @@ approved (decision D3) is the thing that would happen.
 ### Success criterion 1 is recorded as NOT MET, and stays that way
 
 5 of 11 controls reach a PASS or FAIL; the PRD asks for 8. **Do not relax the criterion.** The six
-shortfalls are traced one by one in `docs/plan.md`, and none is a defect in the engine. Three
-would move on a conversation rather than on code.
+shortfalls are traced one by one in `docs/plan.md`, and none is a defect in the engine. It used to
+say three would move on a conversation. **Measured 2026-10-09, it is one** (`OK4`/`WL`). The two
+rate-code controls also need a capture taken with room prices (#49, v3 slice 23).
 
 It was 6 until issue #9 was fixed: `resource_occupancy_consistency` had been reaching two PASSes
 about July 2026 from occupancy segments captured in August 2024, because the frozen source's
@@ -283,8 +290,12 @@ public, which was defensible and made the habit dangerous.
 
 | Before | Decision |
 | --- | --- |
-| **now** | **Approval for the bounded three-call probe that is already planned and printed** — `getRooms`, `getRoomTypes`, `RoomStatusInquiry` (D3, open question 1.2). See the section above; this is the first TODO |
-| any time | **The cheapest open win:** which rate codes this property has nominated for control 15 (open question 1.4). One sentence takes `required_reservation_fields` from zero answers to real ones |
+| **now** | **Approve or amend `docs/plan-v3.md`** and merge the `docs/v3-plan` PR. Nothing of v3 starts before that |
+| v3 slice 21 | Confirm the one declared verdict change: the sandbox's nominated rate codes become `null` (*not decided*) instead of `[]` (*decided: none*) |
+| v3 slice 22 | Approve the `LATE_CHECKOUT` decision table (a spec file) before any code |
+| v3 slice 23 | **Approval of each probe call at the time** — `getRooms`, `getRoomTypes`, `RoomStatusInquiry` (1.2), plus one reservation call with room prices (#49). D3, R8 |
+| any time | Ask MiniHotel what `<CreditCard Number="****" ExpirationDate="202101"/>` means (question 2.8, #48). It is the only thing that can unblock G4 |
+| ~~any time~~ | ~~**The cheapest open win:** nominated rate codes for control 15 (1.4).~~ **Corrected (#49):** a list alone changes nothing, because `stay.rate_code` is absent from every capture. It needs slice 23's capture **and** a real property's list |
 | any time | Ask MiniHotel what `OK4` and `WL` mean (question 2.1). They cover 44 of the 217 reservations ever seen, and they are why the known duplicate pair resolves to UNKNOWN rather than to an answer |
 
 ### Things that will look like bugs and are not
