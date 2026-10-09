@@ -272,6 +272,12 @@ readiness(control_id, provider)          -> Readiness   # fields resolvable / to
 next_evaluation(ir, provider_events, clock, last_run_at, event_at) -> Plan
 freshness_of(maximum_age, observed_at, now)                        -> Freshness
 store.save(run) / store.load(run_id, *, tenant_id) / store.history(control_id, *, tenant_id)
+
+# slice 18 - the findings queue. ABOVE the runner: a run does not create actions
+actions.findings_from(run, ir)                         -> Findings   # pure; only a FAIL raises
+store.record_findings(findings)                        -> int        # how many tasks are NEW
+store.actions(*, tenant_id) / store.action(action_id, *, tenant_id)
+store.transition(action_id, state, *, tenant_id, at, actor)          # pending -> done | dismissed
 ```
 
 Hides: orchestrating four layers · labelling which body of evidence a run used and whether it is
@@ -300,6 +306,22 @@ and the web layer answers both with the same 404 word for word. A run id cannot 
 existence. `verdicts` and `evidence` carry no property of their own and are scoped through their
 run. A save is an upsert whose update half fires only for the same property, so a run carrying
 another property's id is refused rather than replacing that property's verdicts.
+
+**A failed control becomes one task, once** (slice 18; G2(a), G8's queue, G10c). The layer
+above the run - the web layer's `_execute` - saves a run, asks `actions.findings_from` what it
+raises, and hands that to the store. `runner/` is untouched. Severity and audience are the IR's
+own `action` block, read for the first time; an IR naming no audience gets a task for no
+audience. **Only a FAIL raises a task**: UNKNOWN does not, because whether it should is open
+question 1.1, and nor do EXCLUDED, a run that concluded nothing, or a blocked run. Only a
+**reviewed** control raises one; a draft's `action` block was borrowed with its population, so
+nobody decided its severity. **Idempotency is the task's natural key** - property, control,
+policy version, record - so a control run five times raises one task, a new version of the rule
+raises a new one while the old stays linked to its version, and `make_run_id` is unchanged.
+**Only a person moves a task**: `pending -> done | dismissed`, stamped through an injected clock
+with an actor (`operator` until slice 24). A later run updates the task's receipt (the newest
+run still finding it failing) or annotates it (*no longer failing as of run X*); it never
+closes it. The `actions` table is tenant-owned under slice 17's structural guard, discovered
+from `schema.sql`.
 
 **Scheduling is a pure function.** `next_evaluation` reads the IR's `execution`, asks the provider
 what events it publishes, and returns a `Plan`: a subscription, a due time, or `unschedulable`. A
@@ -333,6 +355,11 @@ GET  /api/plan/<control_id>?property=&as_of=   when it runs next (F7), for a sto
 GET  /api/compose                     whether compose is wired, and a conversation's transcript
 POST /api/compose                     one turn, as JSON - the same core as POST /compose
 POST /api/compose/accept              file a draft (201) or say why not (422); does not run it
+GET  /queue?property=                one property's findings queue, and what each control last concluded
+GET  /api/actions?property=           the same as JSON: tasks, persistence, each control's coverage
+GET  /api/actions/<action_id>?property=   one task, for ITS property; another's is the same 404
+POST /api/actions/<action_id>         state=done|dismissed - a person moves a task. Our store only
+POST /queue/<action_id>               the same from the page's buttons, then 303 back to the queue
 GET  /style.css                       served from the package, never from a CDN
 GET  /compose                         the compose window, or a page saying it is switched off
 POST /compose                         one turn: prose in, a sentence or a question out
@@ -348,7 +375,8 @@ refused rather than guessed at.
 
 `handle(path)` stays a pure function of the path. The two routes that write get a second entry
 point, `handle_post(path, body)`, so that signature and everything asserted about it stay true.
-Nothing here writes to a PMS — what a POST writes is our own `spec/drafts/` and our own run store.
+Nothing here writes to a PMS — what a POST writes is our own `spec/drafts/` and our own run store,
+which since slice 18 includes the findings queue.
 
 Server-side rendering, no JavaScript. The demo's single job is to show that a verdict traces to the
 fields that produced it, and a page that assembles itself from an API call is a page a browser, a
@@ -378,6 +406,12 @@ client:
   identity. What slice 17 guarantees is that the selection is honoured all the way down.
 - **Drafts are per property**: filed under `<drafts>/<property>/ir/`, listed and run only for that
   property. Reviewed controls in `spec/ir/` stay one shared library by design.
+- **An empty findings queue is not an all-clear** (slice 18). `records: []` says nothing by
+  itself: `controls` says, per control, whether its latest run was `not_run`, `blocked`,
+  reached `no_conclusion`, or `concluded`, with the engine's `label` and `headline`. A client
+  renders those beside the tasks. `persistent: false` means the queue is lost on restart, and
+  `persistence` says so in the engine's words. The demo's store is in memory unless the server
+  is started with `--store PATH`.
 
 UNKNOWN is distinguished from FAIL by **hue, border style and wording** — three signals, so the
 distinction survives a monochrome screen or a colour-blind reader.
@@ -440,7 +474,8 @@ hotelcontrols/
   evidence/       gather.py · population.py · reference.py · cache.py · budget.py
   evaluator/      record.py · population.py · predicates.py · intervals.py · logic.py
   runner/         run.py · coverage.py · readiness.py · scheduling.py
-  store/          sqlite.py · schema.sql
+  actions/        records.py                  # slice 18: a FAIL -> one task. Pure
+  store/          sqlite.py · schema.sql      # runs, verdicts, evidence, actions
   web/            app.py · render.py · server.py · assets/
   compiler/       grammar.py · sentences.py · model.py · problems.py
 spec/             canonical_fields.json · ir_schema.json · ir/*.json
@@ -525,7 +560,9 @@ pins (`test_ui_hygiene.py`, `test_canonical_boundary.py`).
 every SQL literal in `store/`, and every statement SQLite executes through each public method. It
 fails one that reads, updates or deletes a tenant-owned table without a bound `tenant_id = ?`
 after its `WHERE`. The tables come from `schema.sql`, so a table v3 adds later is covered the day
-it is created. It was seen failing on a planted unscoped `SELECT` before it was relied on.
+it is created. It was seen failing on a planted unscoped `SELECT` before it was relied on, and
+again on slice 18's `actions` table: a planted `SELECT * FROM actions WHERE action_id = ?` failed
+both the literal scan and the traced execution before it was removed.
 
 **v3 adds two guards that run on every push.** `tests/unit/test_v3_slice_scope.py` holds each v3
 slice's *may change* line from `docs/plan-v3.md` §5 as an allow-list. It fails a `slice/16-*` …

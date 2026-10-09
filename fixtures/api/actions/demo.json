@@ -1,0 +1,362 @@
+{
+  "property": "demo",
+  "persistent": false,
+  "persistence": "This queue is held in memory and is lost on restart, with the run history. Start the server with --store PATH to keep both in a file.",
+  "pending": 1,
+  "records": [
+    {
+      "action_id": "13a1d8188aafa1b2",
+      "property": "demo",
+      "control_id": "checkout_unrefunded_credit",
+      "control_name": "Checkout With An Unrefunded Credit",
+      "record_id": "007004348",
+      "severity": "medium",
+      "audience": "finance",
+      "type": "notify",
+      "reason": "folio.balance_due is -490.75 ILS, which does not satisfy `gte 0`",
+      "policy_version": 2,
+      "policy_digest": "sha256:fa1518f4563c92d4ab9defe351b14bb2c73351bbde6c25fe11befff01d6490b6",
+      "state": "pending",
+      "state_changed_at": null,
+      "state_changed_by": null,
+      "raised": {
+        "run_id": "aa5737501bccb738",
+        "at": "2026-07-08T00:00:00+03:00",
+        "as_of": "2026-07-08",
+        "provider": "demopms",
+        "evidence": "demo2026"
+      },
+      "last_failing": {
+        "run_id": "aa5737501bccb738",
+        "at": "2026-07-08T00:00:00+03:00"
+      },
+      "cleared": null,
+      "annotation": null
+    }
+  ],
+  "controls": [
+    {
+      "control_id": "checkout_money_owed",
+      "name": "Checkout With Money Owed",
+      "severity": "high",
+      "audience": "finance",
+      "status": "concluded",
+      "label": "concluded",
+      "headline": "Its latest run concluded about 2 of 2 record(s) and found no violation in them.",
+      "pending": 0,
+      "latest_run": {
+        "run_id": "6a90e68ebd631e52",
+        "created_at": "2026-07-08T00:00:00+03:00",
+        "provider": "demopms",
+        "evidence_label": "demo2026",
+        "as_of": "2026-07-08",
+        "calls": 3,
+        "policy_version": 2,
+        "policy_digest": "sha256:22cfe672cf4ad9842c99ff78ea82ab179a0dab079a89d60851e559105eb3475c",
+        "blocked": null,
+        "concluded": true,
+        "headline": "Concluded about every record in the population.",
+        "counts": {
+          "PASS": 2,
+          "FAIL": 0,
+          "UNKNOWN": 0,
+          "EXCLUDED": 0,
+          "total": 2
+        }
+      }
+    },
+    {
+      "control_id": "checkout_unrefunded_credit",
+      "name": "Checkout With An Unrefunded Credit",
+      "severity": "medium",
+      "audience": "finance",
+      "status": "concluded",
+      "label": "concluded",
+      "headline": "Its latest run concluded about 2 of 2 record(s) and found 1 violation.",
+      "pending": 1,
+      "latest_run": {
+        "run_id": "aa5737501bccb738",
+        "created_at": "2026-07-08T00:00:00+03:00",
+        "provider": "demopms",
+        "evidence_label": "demo2026",
+        "as_of": "2026-07-08",
+        "calls": 3,
+        "policy_version": 2,
+        "policy_digest": "sha256:fa1518f4563c92d4ab9defe351b14bb2c73351bbde6c25fe11befff01d6490b6",
+        "blocked": null,
+        "concluded": true,
+        "headline": "Concluded about every record in the population.",
+        "counts": {
+          "PASS": 1,
+          "FAIL": 1,
+          "UNKNOWN": 0,
+          "EXCLUDED": 0,
+          "total": 2
+        }
+      }
+    },
+    {
+      "control_id": "duplicate_channel_reservation",
+      "name": "Duplicate Channel Reservation",
+      "severity": "high",
+      "audience": "reservations",
+      "status": "concluded",
+      "label": "concluded",
+      "headline": "Its latest run concluded about 4 of 40 record(s) and found no violation in them.",
+      "pending": 0,
+      "latest_run": {
+        "run_id": "7682f58b49194b12",
+        "created_at": "2026-07-08T00:00:00+03:00",
+        "provider": "demopms",
+        "evidence_label": "demo2026",
+        "as_of": "2026-07-08",
+        "calls": 1,
+        "policy_version": 2,
+        "policy_digest": "sha256:9939e1ea13c49ceb82cd2c51da9631176aaba6eb458cd7074e3d5679059e3e9b",
+        "blocked": null,
+        "concluded": true,
+        "headline": "Concluded about 4 of 40 record(s); the rest were excluded or could not be answered.",
+        "counts": {
+          "PASS": 4,
+          "FAIL": 0,
+          "UNKNOWN": 10,
+          "EXCLUDED": 26,
+          "total": 40
+        }
+      }
+    },
+    {
+      "control_id": "inactive_room_future_stay",
+      "name": "Inactive Room Assigned to Future Stay",
+      "severity": "medium",
+      "audience": "front_office_manager",
+      "status": "concluded",
+      "label": "concluded",
+      "headline": "Its latest run concluded about 27 of 111 record(s) and found no violation in them.",
+      "pending": 0,
+      "latest_run": {
+        "run_id": "abf65d7e8e00e2ce",
+        "created_at": "2026-07-08T00:00:00+03:00",
+        "provider": "demopms",
+        "evidence_label": "demo2026",
+        "as_of": "2026-07-08",
+        "calls": 2,
+        "policy_version": 2,
+        "policy_digest": "sha256:b512f2444adeea29bdd7fb930f3a4f8b2e870669ca979452395555c7da5f1461",
+        "blocked": null,
+        "concluded": true,
+        "headline": "Concluded about 27 of 111 record(s); the rest were excluded or could not be answered.",
+        "counts": {
+          "PASS": 27,
+          "FAIL": 0,
+          "UNKNOWN": 13,
+          "EXCLUDED": 71,
+          "total": 111
+        }
+      }
+    },
+    {
+      "control_id": "ooo_room_protection",
+      "name": "Out-of-Service Room Protection",
+      "severity": "high",
+      "audience": "front_office_manager",
+      "status": "no_conclusion",
+      "label": "reached no conclusion",
+      "headline": "This control reached no conclusion about any of its 28 record(s). It has not found the property compliant; it has not looked.",
+      "pending": 0,
+      "latest_run": {
+        "run_id": "838b32f05820b6c0",
+        "created_at": "2026-07-08T00:00:00+03:00",
+        "provider": "demopms",
+        "evidence_label": "demo2026",
+        "as_of": "2026-07-08",
+        "calls": 2,
+        "policy_version": 2,
+        "policy_digest": "sha256:14ce05f55153cbb65edcda9397ca7e17bfbfd6eefdfefce46ac881ba0b58b004",
+        "blocked": null,
+        "concluded": false,
+        "headline": "This control reached no conclusion about any of its 28 record(s). It has not found the property compliant; it has not looked.",
+        "counts": {
+          "PASS": 0,
+          "FAIL": 0,
+          "UNKNOWN": 0,
+          "EXCLUDED": 28,
+          "total": 28
+        }
+      }
+    },
+    {
+      "control_id": "rate_room_category_consistency",
+      "name": "Rate / Room-Category Consistency",
+      "severity": "medium",
+      "audience": "revenue_manager",
+      "status": "no_conclusion",
+      "label": "reached no conclusion",
+      "headline": "This control reached no conclusion about any of its 111 record(s). It has not found the property compliant; it has not looked.",
+      "pending": 0,
+      "latest_run": {
+        "run_id": "1c9c18c57cdbc12e",
+        "created_at": "2026-07-08T00:00:00+03:00",
+        "provider": "demopms",
+        "evidence_label": "demo2026",
+        "as_of": "2026-07-08",
+        "calls": 1,
+        "policy_version": 2,
+        "policy_digest": "sha256:4c19383d4f1fb37d439e18f0fbf0e780a0fee102b079c17013113536b28157ac",
+        "blocked": null,
+        "concluded": false,
+        "headline": "This control reached no conclusion about any of its 111 record(s). It has not found the property compliant; it has not looked.",
+        "counts": {
+          "PASS": 0,
+          "FAIL": 0,
+          "UNKNOWN": 40,
+          "EXCLUDED": 71,
+          "total": 111
+        }
+      }
+    },
+    {
+      "control_id": "required_reservation_fields",
+      "name": "Required Reservation Fields",
+      "severity": "medium",
+      "audience": "front_office_manager",
+      "status": "no_conclusion",
+      "label": "reached no conclusion",
+      "headline": "This control reached no conclusion about any of its 108 record(s). It has not found the property compliant; it has not looked.",
+      "pending": 0,
+      "latest_run": {
+        "run_id": "4270ab5ef6c1068c",
+        "created_at": "2026-07-08T00:00:00+03:00",
+        "provider": "demopms",
+        "evidence_label": "demo2026",
+        "as_of": "2026-07-08",
+        "calls": 1,
+        "policy_version": 2,
+        "policy_digest": "sha256:a384b7ad26525c66f5567dadfeaa06e92b7e404bd647183861f71308d5395551",
+        "blocked": null,
+        "concluded": false,
+        "headline": "This control reached no conclusion about any of its 108 record(s). It has not found the property compliant; it has not looked.",
+        "counts": {
+          "PASS": 0,
+          "FAIL": 0,
+          "UNKNOWN": 37,
+          "EXCLUDED": 71,
+          "total": 108
+        }
+      }
+    },
+    {
+      "control_id": "resource_occupancy_consistency",
+      "name": "Resource Occupancy Consistency",
+      "severity": "high",
+      "audience": "front_office_manager",
+      "status": "blocked",
+      "label": "blocked",
+      "headline": "Its latest run could not happen, so it has said nothing about this property. The reason is on the run.",
+      "pending": 0,
+      "latest_run": {
+        "run_id": "0a830c58a1da210a",
+        "created_at": "2026-07-08T00:00:00+03:00",
+        "provider": "demopms",
+        "evidence_label": "demo2026",
+        "as_of": "2026-07-08",
+        "calls": 1,
+        "policy_version": 2,
+        "policy_digest": "sha256:b0303fab7cafd23b8ad0bdd62fe78032f83c60754c0653d907d09025c4c2afe6",
+        "blocked": "This control needs evidence this body of responses does not hold: this capture cannot answer that question: window was captured for 2024-08-14..2024-08-21 and the run asks for 2026-07-08..2026-07-15. An empty population here would look exactly like 'no violations found', and a population from the WRONG window would look like an answer, so it is refused instead",
+        "concluded": false,
+        "headline": null
+      }
+    },
+    {
+      "control_id": "room_assignment_active_room",
+      "name": "Room Assignment Validity - Room Is Active",
+      "severity": "high",
+      "audience": "front_office_manager",
+      "status": "no_conclusion",
+      "label": "reached no conclusion",
+      "headline": "This control reached no conclusion about any of its 111 record(s). It has not found the property compliant; it has not looked.",
+      "pending": 0,
+      "latest_run": {
+        "run_id": "52baef0e86c2c46e",
+        "created_at": "2026-07-08T00:00:00+03:00",
+        "provider": "demopms",
+        "evidence_label": "demo2026",
+        "as_of": "2026-07-08",
+        "calls": 2,
+        "policy_version": 2,
+        "policy_digest": "sha256:6de51c4bef476666e130006980034a75181748dd8c46d68fc2c3a08f3e053249",
+        "blocked": null,
+        "concluded": false,
+        "headline": "This control reached no conclusion about any of its 111 record(s). It has not found the property compliant; it has not looked.",
+        "counts": {
+          "PASS": 0,
+          "FAIL": 0,
+          "UNKNOWN": 0,
+          "EXCLUDED": 111,
+          "total": 111
+        }
+      }
+    },
+    {
+      "control_id": "room_assignment_type_validity",
+      "name": "Room Assignment Validity - Room Exists and Type Is Allowed",
+      "severity": "medium",
+      "audience": "front_office_manager",
+      "status": "concluded",
+      "label": "concluded",
+      "headline": "Its latest run concluded about 27 of 111 record(s) and found no violation in them.",
+      "pending": 0,
+      "latest_run": {
+        "run_id": "63c1bc772fded4d3",
+        "created_at": "2026-07-08T00:00:00+03:00",
+        "provider": "demopms",
+        "evidence_label": "demo2026",
+        "as_of": "2026-07-08",
+        "calls": 3,
+        "policy_version": 2,
+        "policy_digest": "sha256:af9c9b94c599e35620c48e3fcdac33b56ed0d7eb6fd7fa01522adcdbf96db13e",
+        "blocked": null,
+        "concluded": true,
+        "headline": "Concluded about 27 of 111 record(s); the rest were excluded or could not be answered.",
+        "counts": {
+          "PASS": 27,
+          "FAIL": 0,
+          "UNKNOWN": 13,
+          "EXCLUDED": 71,
+          "total": 111
+        }
+      }
+    },
+    {
+      "control_id": "room_capacity_compliance",
+      "name": "Room Capacity Compliance",
+      "severity": "medium",
+      "audience": "front_office_manager",
+      "status": "no_conclusion",
+      "label": "reached no conclusion",
+      "headline": "This control reached no conclusion about any of its 111 record(s). It has not found the property compliant; it has not looked.",
+      "pending": 0,
+      "latest_run": {
+        "run_id": "f42793aadc7fd90a",
+        "created_at": "2026-07-08T00:00:00+03:00",
+        "provider": "demopms",
+        "evidence_label": "demo2026",
+        "as_of": "2026-07-08",
+        "calls": 2,
+        "policy_version": 2,
+        "policy_digest": "sha256:cd0ae3ea6109ad40b1fd18b25c40b027de1b8582bcd2c8a7bf0a7e114dc97d48",
+        "blocked": null,
+        "concluded": false,
+        "headline": "This control reached no conclusion about any of its 111 record(s). It has not found the property compliant; it has not looked.",
+        "counts": {
+          "PASS": 0,
+          "FAIL": 0,
+          "UNKNOWN": 40,
+          "EXCLUDED": 71,
+          "total": 111
+        }
+      }
+    }
+  ]
+}

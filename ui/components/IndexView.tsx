@@ -111,6 +111,18 @@ export function IndexView({
         </p>
       </nav>
 
+      {/* The findings queue (slice 18), for the selected property. A free read of the engine's
+          store; an empty queue explains itself rather than reading as an all-clear. */}
+      <div className="card">
+        <p className="sentence">
+          <a href={`/queue?property=${encodeURIComponent(selection.property)}`}>Findings queue</a>
+        </p>
+        <p className="meta">
+          Every VIOLATION a reviewed control found, as a task a person marks done or dismisses -
+          beside what each control last concluded, because an empty queue is not an all-clear.
+        </p>
+      </div>
+
       {compose ? (
         <div className="card">
           <p className="sentence">

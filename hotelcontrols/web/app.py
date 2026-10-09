@@ -30,6 +30,14 @@ about that instant is the only default that is honest - a capture of July answer
 about July. Asking today's date instead would produce a page of refusals for a reason that has
 nothing to do with the controls. The page always says which instant it asked about, and
 `?as_of=` overrides it.
+
+WHERE A FAILED CONTROL BECOMES A TASK (slice 18)
+-------------------------------------------------
+Here, one layer above the run, and never inside it: `runner/` is untouched. `_execute` saves a
+run and then asks `actions.findings_from` what it raises, and the store keeps one task per
+natural key. Only a reviewed control raises one - a draft's `action` block is borrowed from the
+control whose population it borrowed, so its severity and audience were never decided by
+anybody. The POSTs that move a task write our own store and nothing else.
 """
 from __future__ import annotations
 
@@ -40,8 +48,9 @@ import uuid
 from dataclasses import replace
 from typing import NamedTuple
 
+from ..actions import OPERATOR, TransitionRefused, findings_from
 from ..compiler import Turn, compile_sentence, deployment_of, normalise
-from ..kernel import FixedClock, Outcome
+from ..kernel import FixedClock, Outcome, PropertyClock
 from ..providers import registry as providers
 from ..runner import Coverage, next_evaluation, readiness, run
 from ..spec import (ControlIR, Registry, SpecError, TenantConfig, available, available_tenants,
@@ -80,9 +89,14 @@ class App:
     history - and, when a proposer is wired, the compose conversations."""
 
     def __init__(self, spec_dir=None, store: RunStore | None = None,
-                 proposer=None, draft_dir=None) -> None:
+                 proposer=None, draft_dir=None, clock=None) -> None:
         self.spec_dir = spec_dir
         self.store = store if store is not None else RunStore(":memory:")
+        # THE CLOCK A PERSON'S MOVES ARE STAMPED WITH (slice 18). A run's instants come from
+        # the fixed clock its evidence decides; marking a task done happens NOW, at the hotel.
+        # Injected so a test can pin it. None means each property's own clock, read through
+        # the kernel - `kernel/clock.py` stays the only module that reads a wall clock.
+        self.clock = clock
         self.registry = Registry.load(spec_dir) if spec_dir else Registry.load()
         # Every provider call this app has spent, so a test can assert that re-reading a stored
         # run costs none of them (R1). It is also the number a demo operator should watch.
@@ -118,14 +132,15 @@ class App:
             return self._failure(exc, wants_json)
 
     def handle_post(self, path: str, body: str) -> Response:
-        """The same, for the two routes that write something.
+        """The same, for the routes that write something.
 
         A SEPARATE entry point rather than a method flag on `handle`, so `handle(path)` stays a
         pure function of a string exactly as `architecture.md` declares it - every existing test
         and every existing docstring about that signature remains true.
 
         Nothing here writes to a PMS; this engine is read-only against a provider, permanently
-        (`prd.md` §6). What a POST writes is our own `spec/drafts/` and our own run store.
+        (`prd.md` §6). What a POST writes is our own `spec/drafts/` and our own run store -
+        which, since slice 18, holds the findings queue a person moves tasks through.
         """
         segments, query, wants_json = self._parse(path)
         form = {key: values[0] for key, values
@@ -197,12 +212,19 @@ class App:
             return self._compose_state_json(query)
         if len(parts) == 3 and parts[:2] == ["api", "plan"]:
             return self._plan_json(parts[2], query)
+        # Slice 18: the findings queue, as a page and as data.
+        if parts == ["queue"]:
+            return self._queue_page(query)
+        if parts == ["api", "actions"]:
+            return self._queue_json(query)
+        if len(parts) == 3 and parts[:2] == ["api", "actions"]:
+            return self._action_json(parts[2], query)
 
         raise _Refused(404, "There is nothing at /%s. The controls are listed at /."
                        % "/".join(parts))
 
     def route_post(self, segments: tuple[str, ...], form: dict) -> Response:
-        """The routes that write. All belong to the compose front end, in HTML and in JSON."""
+        """The routes that write: the compose front end, and moving a task in the queue."""
         parts = list(segments)
 
         if parts == ["compose"]:
@@ -215,6 +237,11 @@ class App:
             return self._compose_turn_json(form)
         if parts == ["api", "compose", "accept"]:
             return self._compose_accept_json(form)
+        # Slice 18: a person marks a task done or dismisses it. Our store, nothing else.
+        if len(parts) == 3 and parts[:2] == ["api", "actions"]:
+            return self._move_json(parts[2], form)
+        if len(parts) == 2 and parts[0] == "queue":
+            return self._move_page(parts[1], form)
 
         raise _Refused(405, "Nothing at /%s accepts a form. The controls are listed at /."
                        % "/".join(parts))
@@ -604,28 +631,112 @@ class App:
         """
         tenant_id = self._selection(query)[0]
         self._ir(control_id, tenant_id)   # the same 404 the page gives, for the same reason
-        runs = []
-        for row in self.store.history(control_id, tenant_id=tenant_id):
-            counts = {outcome.value: row[render._HISTORY_COLUMN[outcome]] or 0
-                      for outcome in Outcome}
-            counts["total"] = row["total"] or 0
-            evaluated = sum(counts[outcome.value] for outcome in Outcome if outcome.is_answer)
-            # `policy_version` and `policy_digest` (slice 16): which rule judged the run, or
-            # null for one stored before rules carried a version. The page groups by the pair.
-            entry = {key: row[key] for key in ("run_id", "created_at", "provider",
-                                               "evidence_label", "as_of", "calls",
-                                               "policy_version", "policy_digest", "blocked")}
-            coverage = Coverage(evaluated=evaluated, total=counts["total"])
-            entry["concluded"] = coverage.concluded
-            # The sentence that goes where the counts would be, in the engine's words. Not for a
-            # blocked run: coverage of zero verdicts says "the population was empty", which is
-            # false for a run that never obtained its evidence - its reason is the sentence.
-            entry["headline"] = None if row["blocked"] else coverage.headline
-            if not row["blocked"]:
-                entry["counts"] = counts
-            runs.append(entry)
+        runs = [_history_entry(row)
+                for row in self.store.history(control_id, tenant_id=tenant_id)]
         return Response(200, JSON, json.dumps(
             {"control_id": control_id, "property": tenant_id, "runs": runs}, indent=2))
+
+    # ------------------------------------------------------------------ the findings queue
+    # Slice 18 (G2(a), G8's queue). A task a person can see, mark done or dismiss - and beside
+    # the tasks, what each control last concluded, because an empty queue must never read as
+    # "all clear" (criterion 8 applied to a new surface).
+    def _queue_page(self, query: dict) -> Response:
+        tenant_id = self._selection(query)[0]
+        return Response(200, HTML, render.queue_page(
+            tenant_id, self._property_ids(), self.store.actions(tenant_id=tenant_id),
+            self._queue_controls(tenant_id), self.store.persistent))
+
+    def _queue_json(self, query: dict) -> Response:
+        """One property's queue as data: its tasks, and each control's latest conclusion.
+
+        `persistent` and its sentence are IN the payload because the demo's default store is in
+        memory, and a client showing a queue must be able to say it is lost on restart rather
+        than imply a persistence it lacks (brief §8.8).
+        """
+        tenant_id = self._selection(query)[0]
+        records = self.store.actions(tenant_id=tenant_id)
+        return Response(200, JSON, json.dumps({
+            "property": tenant_id,
+            "persistent": self.store.persistent,
+            "persistence": render.persistence_sentence(self.store.persistent),
+            "pending": sum(1 for r in records if r.is_pending),
+            "records": [render.action_json(r) for r in records],
+            "controls": self._queue_controls(tenant_id),
+        }, indent=2))
+
+    def _action_json(self, action_id: str, query: dict) -> Response:
+        """One task, for the selected property. Another property's task is the same 404 as a
+        task that never existed, word for word (slice 17's rule, on slice 18's table)."""
+        record = self.store.action(action_id, tenant_id=self._selection(query)[0])
+        if record is None:
+            raise _Refused(404, _no_such_action(action_id))
+        return Response(200, JSON, json.dumps(render.action_json(record), indent=2))
+
+    def _move_json(self, action_id: str, form: dict) -> Response:
+        _tenant_id, moved = self._move(action_id, form)
+        return Response(200, JSON, json.dumps(render.action_json(moved), indent=2))
+
+    def _move_page(self, action_id: str, form: dict) -> Response:
+        """The page's two buttons. A 303 back to the queue, so a reload re-reads the queue
+        rather than re-posting the move - the same reason compose ends in a redirect."""
+        tenant_id, _moved = self._move(action_id, form)
+        return Response(303, HTML, render.redirect(
+            "/queue?property=%s" % tenant_id, title="Moved",
+            subtitle="The task was updated.", sentence="Task updated",
+            onward="the queue"))
+
+    def _move(self, action_id: str, form: dict):
+        """pending -> done | dismissed, stamped through the injected clock, by the operator.
+
+        `operator` until slice 24 gives the engine a verified identity. A malformed state is a
+        400, a closed task a 409, and a task this property does not have a 404.
+        """
+        tenant_id = self._selection(form)[0]
+        try:
+            moved = self.store.transition(action_id, form.get("state") or "",
+                                          tenant_id=tenant_id, at=self._now(tenant_id),
+                                          actor=OPERATOR)
+        except TransitionRefused as exc:
+            raise _Refused(409, str(exc)) from None
+        except ValueError as exc:
+            raise _Refused(400, str(exc)) from None
+        if moved is None:
+            raise _Refused(404, _no_such_action(action_id))
+        return tenant_id, moved
+
+    def _queue_controls(self, tenant_id: str) -> list[dict]:
+        """Every reviewed control, with what its latest run in this store concluded.
+
+        Four answers, and only one of them is a conclusion: never run here, blocked, reached no
+        conclusion, or concluded about N of M records. The latest run is read exactly as the
+        history reads it, through `_history_entry`, so the two cannot word it differently.
+        Drafts are not listed: they raise no task (see the module docstring).
+        """
+        pending: dict[str, int] = {}
+        for record in self.store.actions(tenant_id=tenant_id):
+            if record.is_pending:
+                pending[record.control_id] = pending.get(record.control_id, 0) + 1
+        controls = []
+        for ir in map(self._ir, self._controls()):
+            rows = self.store.history(ir.control_id, limit=1, tenant_id=tenant_id)
+            latest = _history_entry(rows[0]) if rows else None
+            status, headline = _status_of(latest)
+            controls.append({
+                "control_id": ir.control_id, "name": ir.name,
+                "severity": ir["action"]["severity"], "audience": ir["action"].get("audience"),
+                # `label` is the status in words, served so a second client never types its
+                # own copy of them - the `/api/outcomes` rule, applied to the queue.
+                "status": status, "label": render.STATUS_WORDS[status], "headline": headline,
+                "pending": pending.get(ir.control_id, 0), "latest_run": latest})
+        return controls
+
+    def _now(self, tenant_id: str):
+        """The instant a person acted, at the hotel. Through the kernel, never `datetime`."""
+        clock = self.clock or PropertyClock(self._tenant(tenant_id).timezone)
+        return clock.now()
+
+    def _property_ids(self) -> tuple[str, ...]:
+        return tuple(available_tenants(self.spec_dir) if self.spec_dir else available_tenants())
 
     # ------------------------------------------------------------------ doing the work
     def _execute(self, control_id: str, query: dict):
@@ -647,7 +758,13 @@ class App:
         result = run(control_id, tenant, adapter, clock, evidence_label=capture,
                      spec_dir=self._spec_dir_for(control_id, tenant_id))
         self.provider_calls += result.calls
-        return replace(result, run_id=self.store.save(result)), ir, tenant
+        saved = replace(result, run_id=self.store.save(result))
+        # THE LAYER ABOVE THE RUN RAISES ITS TASKS (slice 18). Only a FAIL raises one, only for
+        # a reviewed control, and only once per natural key however often this is re-run. A
+        # draft raises none: its `action` block was borrowed along with its population.
+        if control_id in self._controls():
+            self.store.record_findings(findings_from(saved, ir))
+        return saved, ir, tenant
 
     def _plan(self, ir: ControlIR, tenant: TenantConfig, as_of: str) -> object:
         """When this control runs next on this provider - finding F7, on the page at last.
@@ -748,6 +865,57 @@ class App:
     def captures_for(self, tenant_id: str) -> tuple[str, ...]:
         """Every body of evidence this property's provider can be replayed against."""
         return providers.load(self._tenant(tenant_id).provider).captures
+
+
+def _history_entry(row) -> dict:
+    """One stored run, summarised under the run page's rules - shared by history and the queue.
+
+    THE SAME RULES `run_json` KEEPS, because a history row is a run seen from further away. A
+    blocked run carries its reason and NO counts. A run that concluded nothing keeps its counts
+    but says `concluded: false` beside them, and `concluded` comes from the engine's own
+    `Coverage`, never re-derived here.
+    """
+    counts = {outcome.value: row[render._HISTORY_COLUMN[outcome]] or 0 for outcome in Outcome}
+    counts["total"] = row["total"] or 0
+    evaluated = sum(counts[outcome.value] for outcome in Outcome if outcome.is_answer)
+    # `policy_version` and `policy_digest` (slice 16): which rule judged the run, or null for
+    # one stored before rules carried a version. The page groups by the pair.
+    entry = {key: row[key] for key in ("run_id", "created_at", "provider", "evidence_label",
+                                       "as_of", "calls", "policy_version", "policy_digest",
+                                       "blocked")}
+    coverage = Coverage(evaluated=evaluated, total=counts["total"])
+    entry["concluded"] = coverage.concluded
+    # The sentence that goes where the counts would be, in the engine's words. Not for a
+    # blocked run: coverage of zero verdicts says "the population was empty", which is false
+    # for a run that never obtained its evidence - its reason is the sentence.
+    entry["headline"] = None if row["blocked"] else coverage.headline
+    if not row["blocked"]:
+        entry["counts"] = counts
+    return entry
+
+
+def _status_of(latest: dict | None) -> tuple[str, str]:
+    """What a control's latest run lets the queue say about it - and only one answer is a
+    conclusion. The other three are the reason an empty queue is not an all-clear."""
+    if latest is None:
+        return ("not_run", "Not run against this store yet, so this queue knows nothing about "
+                           "it. That is not a pass.")
+    if latest["blocked"]:
+        return ("blocked", "Its latest run could not happen, so it has said nothing about this "
+                           "property. The reason is on the run.")
+    if not latest["concluded"]:
+        return ("no_conclusion", latest["headline"])
+    counts = latest["counts"]
+    evaluated = counts["PASS"] + counts["FAIL"]
+    found = ("no violation in them" if counts["FAIL"] == 0 else
+             "%d violation%s" % (counts["FAIL"], "" if counts["FAIL"] == 1 else "s"))
+    return ("concluded", "Its latest run concluded about %d of %d record(s) and found %s."
+            % (evaluated, counts["total"], found))
+
+
+def _no_such_action(action_id: str) -> str:
+    """The one 404 for a task, whether it never existed or belongs to another property."""
+    return ("No task called %r in this property's queue. The queue is at /queue." % action_id)
 
 
 def _turn_json(turn: Turn) -> dict:

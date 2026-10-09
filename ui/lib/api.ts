@@ -13,12 +13,14 @@
  */
 import type {
   AcceptRefused,
+  ActionRecord,
   ComposeState,
   ComposeTurnResponse,
   ControlEntry,
   History,
   Outcomes,
   Properties,
+  Queue,
   ReadinessReport,
   RunPayload,
 } from "./types";
@@ -96,6 +98,11 @@ export const getPlan = (controlId: string, property: string, asOf: string) =>
 /** A past run, re-read from the store for its property. Zero provider calls by construction (R1). */
 export const getStoredRun = (runId: string, property: string) =>
   read<RunPayload>(`/api/runs/${id(runId)}?property=${id(property)}`);
+/**
+ * One property's findings queue (slice 18): the tasks VIOLATIONs raised, and what each control's
+ * latest run concluded. Read from the store; no provider call.
+ */
+export const getQueue = (property: string) => read<Queue>(`/api/actions?property=${id(property)}`);
 
 // ---------------------------------------------------------------- COSTS PROVIDER CALLS
 /**
@@ -132,4 +139,15 @@ export async function composeAccept(fields: Record<string, string>) {
   }
   if (status === 422) return { status, body: body as AcceptRefused } as const;
   return refuse(status, body);
+}
+
+// ---------------------------------------------------------------- the queue: writes OUR store only
+/**
+ * A person marks a task done or dismisses it (slice 18). Writes the engine's own store - never a
+ * PMS - and spends no provider call. A closed task is a 409 and another property's a 404.
+ */
+export async function moveAction(actionId: string, property: string, state: string) {
+  const { status, body } = await send(`/api/actions/${id(actionId)}?property=${id(property)}`, { state });
+  if (status !== 200) refuse(status, body);
+  return body as ActionRecord;
 }

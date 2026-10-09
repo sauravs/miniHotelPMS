@@ -1,0 +1,130 @@
+{
+  "property": "sandbox",
+  "persistent": false,
+  "persistence": "This queue is held in memory and is lost on restart, with the run history. Start the server with --store PATH to keep both in a file.",
+  "pending": 0,
+  "records": [],
+  "controls": [
+    {
+      "control_id": "checkout_money_owed",
+      "name": "Checkout With Money Owed",
+      "severity": "high",
+      "audience": "finance",
+      "status": "not_run",
+      "label": "not run here",
+      "headline": "Not run against this store yet, so this queue knows nothing about it. That is not a pass.",
+      "pending": 0,
+      "latest_run": null
+    },
+    {
+      "control_id": "checkout_unrefunded_credit",
+      "name": "Checkout With An Unrefunded Credit",
+      "severity": "medium",
+      "audience": "finance",
+      "status": "not_run",
+      "label": "not run here",
+      "headline": "Not run against this store yet, so this queue knows nothing about it. That is not a pass.",
+      "pending": 0,
+      "latest_run": null
+    },
+    {
+      "control_id": "duplicate_channel_reservation",
+      "name": "Duplicate Channel Reservation",
+      "severity": "high",
+      "audience": "reservations",
+      "status": "not_run",
+      "label": "not run here",
+      "headline": "Not run against this store yet, so this queue knows nothing about it. That is not a pass.",
+      "pending": 0,
+      "latest_run": null
+    },
+    {
+      "control_id": "inactive_room_future_stay",
+      "name": "Inactive Room Assigned to Future Stay",
+      "severity": "medium",
+      "audience": "front_office_manager",
+      "status": "not_run",
+      "label": "not run here",
+      "headline": "Not run against this store yet, so this queue knows nothing about it. That is not a pass.",
+      "pending": 0,
+      "latest_run": null
+    },
+    {
+      "control_id": "ooo_room_protection",
+      "name": "Out-of-Service Room Protection",
+      "severity": "high",
+      "audience": "front_office_manager",
+      "status": "not_run",
+      "label": "not run here",
+      "headline": "Not run against this store yet, so this queue knows nothing about it. That is not a pass.",
+      "pending": 0,
+      "latest_run": null
+    },
+    {
+      "control_id": "rate_room_category_consistency",
+      "name": "Rate / Room-Category Consistency",
+      "severity": "medium",
+      "audience": "revenue_manager",
+      "status": "not_run",
+      "label": "not run here",
+      "headline": "Not run against this store yet, so this queue knows nothing about it. That is not a pass.",
+      "pending": 0,
+      "latest_run": null
+    },
+    {
+      "control_id": "required_reservation_fields",
+      "name": "Required Reservation Fields",
+      "severity": "medium",
+      "audience": "front_office_manager",
+      "status": "not_run",
+      "label": "not run here",
+      "headline": "Not run against this store yet, so this queue knows nothing about it. That is not a pass.",
+      "pending": 0,
+      "latest_run": null
+    },
+    {
+      "control_id": "resource_occupancy_consistency",
+      "name": "Resource Occupancy Consistency",
+      "severity": "high",
+      "audience": "front_office_manager",
+      "status": "not_run",
+      "label": "not run here",
+      "headline": "Not run against this store yet, so this queue knows nothing about it. That is not a pass.",
+      "pending": 0,
+      "latest_run": null
+    },
+    {
+      "control_id": "room_assignment_active_room",
+      "name": "Room Assignment Validity - Room Is Active",
+      "severity": "high",
+      "audience": "front_office_manager",
+      "status": "not_run",
+      "label": "not run here",
+      "headline": "Not run against this store yet, so this queue knows nothing about it. That is not a pass.",
+      "pending": 0,
+      "latest_run": null
+    },
+    {
+      "control_id": "room_assignment_type_validity",
+      "name": "Room Assignment Validity - Room Exists and Type Is Allowed",
+      "severity": "medium",
+      "audience": "front_office_manager",
+      "status": "not_run",
+      "label": "not run here",
+      "headline": "Not run against this store yet, so this queue knows nothing about it. That is not a pass.",
+      "pending": 0,
+      "latest_run": null
+    },
+    {
+      "control_id": "room_capacity_compliance",
+      "name": "Room Capacity Compliance",
+      "severity": "medium",
+      "audience": "front_office_manager",
+      "status": "not_run",
+      "label": "not run here",
+      "headline": "Not run against this store yet, so this queue knows nothing about it. That is not a pass.",
+      "pending": 0,
+      "latest_run": null
+    }
+  ]
+}

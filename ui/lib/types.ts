@@ -218,3 +218,57 @@ export interface AcceptRefused {
   sentence: string;
   problems: string[];
 }
+
+// ---------------------------------------------------------------- the findings queue (slice 18)
+/** One task a VIOLATION raised, as `/api/actions` returns it. */
+export interface ActionRecord {
+  action_id: string;
+  property: string;
+  control_id: string;
+  control_name: string;
+  record_id: string;
+  /** From the rule's own action block. `audience` is null when the rule names none. */
+  severity: string;
+  audience: string | null;
+  type: string;
+  /** The VIOLATION's own sentence. Money inside it carries its currency; never parse it. */
+  reason: string;
+  policy_version: number;
+  policy_digest: string;
+  state: "pending" | "done" | "dismissed";
+  state_changed_at: string | null;
+  state_changed_by: string | null;
+  raised: { run_id: string; at: string; as_of: string; provider: string; evidence: string };
+  last_failing: { run_id: string; at: string };
+  /** A PASS since the newest failure, under the same rule. An annotation, never a state. */
+  cleared: { run_id: string; at: string; as_of: string } | null;
+  annotation: string | null;
+}
+
+/** What a control's latest run lets the queue say. Only "concluded" is a conclusion. */
+export type QueueStatus = "concluded" | "no_conclusion" | "blocked" | "not_run";
+
+export interface QueueControl {
+  control_id: string;
+  name: string;
+  severity: string;
+  audience: string | null;
+  status: QueueStatus;
+  /** The status in words, served by the engine so this UI never types its own copy. */
+  label: string;
+  /** The engine's sentence for this control's row. Rendered as it arrives. */
+  headline: string;
+  pending: number;
+  /** Exactly a history row, or null when the control has not been run against this store. */
+  latest_run: HistoryRow | null;
+}
+
+export interface Queue {
+  property: string;
+  /** False for the demo's default in-memory store - and then the queue is lost on restart. */
+  persistent: boolean;
+  persistence: string;
+  pending: number;
+  records: ActionRecord[];
+  controls: QueueControl[];
+}

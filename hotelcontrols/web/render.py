@@ -231,6 +231,14 @@ def index_page(entries: Iterable[tuple], properties: Iterable[tuple],
         "?as_of=. Asking a capture about a window it never covered is refused rather than "
         "answered with an empty population."))
 
+    # The findings queue (slice 18), for the selected property. Always offered: it is a read of
+    # our own store, and an empty one explains itself rather than reading as an all-clear.
+    chooser.append(
+        '<div class="card"><p class="sentence"><a href="/queue?property=%s">Findings queue</a>'
+        '</p><p class="meta">Every VIOLATION a reviewed control found, as a task a person marks '
+        "done or dismisses - beside what each control last concluded, because an empty queue "
+        "is not an all-clear.</p></div>" % _e(tenant_id))
+
     # The compose entry point, and only when a proposer is actually wired. An advertised
     # feature that answers "switched off" is worse than one that is not advertised.
     if compose:
@@ -790,20 +798,23 @@ def _readiness_json(report) -> dict[str, Any]:
 
 
 # --------------------------------------------------------------------------- compose
-def redirect(location: str) -> str:
+def redirect(location: str, title: str = "Filed", subtitle: str = "The draft was written.",
+             sentence: str = "Draft filed", onward: str = "the run") -> str:
     """A 303 body. Browsers follow the header; this is for everything that reads the body.
 
     The compose flow ends in a redirect so that filing a draft and then viewing its run are two
     different requests. Re-reading the run page must not re-file the draft, and a reload after a
-    POST that answered with a page would do exactly that.
+    POST that answered with a page would do exactly that. Moving a task in the queue (slice 18)
+    ends in one for the same reason, with its own words; compose's are the defaults.
     """
     # A meta refresh as well as the header, and it is not belt-and-braces: it is what the
     # location is READ BACK OUT OF by `server._location`. An `href` would not do - the page
     # shell already carries one for the stylesheet, and parsing "the first href" sent a reader
     # to /style.css. This attribute appears exactly once and only in a redirect.
-    return page("Filed", "The draft was written.",
-                '<div class="card"><p class="sentence">Draft filed</p>'
-                '<p>Continue to <a href="%s">the run</a>.</p></div>' % _e(location),
+    return page(title, subtitle,
+                '<div class="card"><p class="sentence">%s</p>'
+                '<p>Continue to <a href="%s">%s</a>.</p></div>'
+                % (_e(sentence), _e(location), _e(onward)),
                 head='<meta http-equiv="refresh" content="0; url=%s">' % _e(location))
 
 
@@ -1051,3 +1062,200 @@ def _drafts_card(drafts, tenant_id: str, capture: str) -> str:
     rows.append('<p class="meta">Promoting one is deliberate and manual - see '
                 "<code>spec/drafts/README.md</code>.</p></div>")
     return "".join(rows)
+
+
+# --------------------------------------------------------------------------- findings queue
+# Slice 18. A FAIL becomes a task a person can see, mark done or dismiss. Two commitments carry
+# over from the run page unchanged: everything a provider supplied is escaped, and an absence
+# of tasks is never allowed to read as an absence of problems (criterion 8).
+
+def persistence_sentence(persistent: bool) -> str:
+    """Whether this queue survives a restart, said where the queue is (brief §8.8)."""
+    if persistent:
+        return "This queue is kept in a file store, with the run history, and survives a restart."
+    return ("This queue is held in memory and is lost on restart, with the run history. Start "
+            "the server with --store PATH to keep both in a file.")
+
+
+def action_json(record) -> dict[str, Any]:
+    """One task as data. One shape, used by the listing, the single read and every move."""
+    def instant(value):
+        return value.isoformat() if value is not None else None
+
+    return {
+        "action_id": record.action_id,
+        "property": record.tenant_id,
+        "control_id": record.control_id,
+        "control_name": record.control_name,
+        "record_id": record.record_id,
+        # From the IR's own `action` block, copied when the task was raised. `audience` is
+        # null when the rule names none - never a default somebody would then route by.
+        "severity": record.severity,
+        "audience": record.audience,
+        "type": record.kind,
+        # The FAIL verdict's own sentence, so the amount travels with its currency (R9).
+        "reason": record.reason,
+        "policy_version": record.policy_version,
+        "policy_digest": record.policy_digest,
+        "state": record.state,
+        "state_changed_at": instant(record.state_changed_at),
+        "state_changed_by": record.state_changed_by,
+        "raised": {"run_id": record.raised_by_run, "at": instant(record.raised_at),
+                   "as_of": record.as_of, "provider": record.provider,
+                   "evidence": record.evidence_label},
+        "last_failing": {"run_id": record.last_failing_run,
+                         "at": instant(record.last_failing_at)},
+        "cleared": (None if record.cleared_by_run is None else
+                    {"run_id": record.cleared_by_run, "at": instant(record.cleared_at),
+                     "as_of": record.cleared_as_of}),
+        "annotation": record.annotation,
+    }
+
+
+# How each control's latest run is labelled in the queue's coverage table. Words, not only a
+# style, for the same reason a verdict carries wording: it has to survive a greyscale screen.
+STATUS_WORDS = {
+    "concluded": "concluded",
+    "no_conclusion": "reached no conclusion",
+    "blocked": "blocked",
+    "not_run": "not run here",
+}
+
+
+def queue_page(tenant_id: str, properties: Iterable[str], records: Iterable, controls: list,
+               persistent: bool) -> str:
+    """One property's findings queue: what is still to do, what was closed, and - beside it -
+    what each control last concluded, so an empty queue cannot pass for an all-clear."""
+    records = list(records)
+    pending = [r for r in records if r.is_pending]
+    closed = [r for r in records if not r.is_pending]
+    query = "?property=%s" % _e(tenant_id)
+
+    parts = ['<div class="card">',
+             '<p class="sentence">Findings queue &middot; property <strong>%s</strong></p>'
+             % _e(tenant_id),
+             '<p class="evidence-picker">']
+    for name in properties:
+        current = name == tenant_id
+        parts.append('<a class="%s"%s href="/queue?property=%s">%s</a>'
+                     % ("current" if current else "", ' aria-current="page"' if current else "",
+                        _e(name), _e(name)))
+    parts.append("</p>")
+    parts.append('<p class="meta%s">%s</p>' % ("" if persistent else " stale",
+                                               _e(persistence_sentence(persistent))))
+    parts.append("</div>")
+
+    parts.append('<h2>To do <span class="count">%d task%s</span></h2>'
+                 % (len(pending), "" if len(pending) == 1 else "s"))
+    if not pending:
+        parts.append(
+            '<div class="no-conclusion"><p><strong>Nothing is waiting in this queue - and that '
+            "is not an all-clear.</strong></p><p>A task is raised only by a VIOLATION, only by "
+            "a reviewed control, and only from a run made against this store. NO ANSWER raises "
+            "none, because whether it should is an open question for the hotel. The table "
+            "below says, control by control, whether its latest run reached a conclusion at "
+            "all.</p></div>")
+    parts.extend(_task(record, tenant_id) for record in pending)
+
+    if closed:
+        parts.append('<details class="group EXCLUDED"><summary><strong class="tally">%d closed '
+                     'task%s</strong><span class="gist">Marked done or dismissed by a person. '
+                     "A run never closes a task.</span></summary>"
+                     '<div class="group-body">%s</div></details>'
+                     % (len(closed), "" if len(closed) == 1 else "s",
+                        "".join(_task(record, tenant_id) for record in closed)))
+
+    parts.append("<h2>What each control last concluded</h2>")
+    rows = []
+    for control in controls:
+        latest = control["latest_run"]
+        run_cell = ("&mdash;" if latest is None else
+                    '<a class="mono" href="/api/runs/%s%s">%s</a><br>'
+                    '<span class="meta">%s &middot; as of %s</span>'
+                    % (_e(latest["run_id"]), query, _e(latest["run_id"]),
+                       _e(latest["evidence_label"]), _e(latest["as_of"])))
+        rows.append(
+            "<tr><td><a href=\"/history/%s%s\">%s</a><br><code>%s</code></td>"
+            "<td>%s &middot; %s</td><td>%s</td><td><strong>%s</strong> &middot; %s</td>"
+            "<td>%d</td></tr>"
+            % (_e(control["control_id"]), query, _e(control["name"]), _e(control["control_id"]),
+               _e(control["severity"]), _e(control["audience"] or "no audience declared"),
+               run_cell, _e(control["label"]), _e(control["headline"]),
+               control["pending"]))
+    parts.append(
+        '<div class="card"><div class="scroller"><table class="listing">'
+        "<caption>Each reviewed control's latest run against this store. Only a run that "
+        "concluded something can raise a task; the others have not looked.</caption>"
+        '<thead><tr><th scope="col">control</th><th scope="col">severity &middot; audience'
+        '</th><th scope="col">latest run</th><th scope="col">what it says</th>'
+        '<th scope="col">pending</th></tr></thead><tbody>%s</tbody></table></div></div>'
+        % "".join(rows))
+
+    return page("Findings queue", "%s · tasks raised by violations, and what each control "
+                                  "last concluded" % tenant_id,
+                "".join(parts), explainer=_queue_explainer())
+
+
+def _task(record, tenant_id: str) -> str:
+    """One task: what failed, why, under which rule, from which run - and the two moves.
+
+    Styled as a VIOLATION, with the VIOLATION wording, because that is exactly what raised it.
+    Each move is its own form: a page with no JavaScript cannot make one form post two states.
+    """
+    query = "?property=%s" % _e(tenant_id)
+    lines = [
+        '<article class="verdict FAIL task" id="task-%s">' % _e(record.action_id),
+        '<span class="badge">%s</span><span class="record">%s</span>'
+        % (_e(WORDING[Outcome.FAIL][0]), _e(record.record_id)),
+        '<p class="says">%s</p>' % _e(record.reason),
+        '<p class="meta"><strong>%s</strong> &middot; <code>%s</code> &middot; severity '
+        "<strong>%s</strong> &middot; for <strong>%s</strong></p>"
+        % (_e(record.control_name), _e(record.control_id), _e(record.severity),
+           _e(record.audience or "no audience declared")),
+        '<p class="meta">Raised by run <a class="mono" href="/api/runs/%s%s">%s</a>, asked as '
+        "of %s, over %s &middot; last found failing by run <span class=\"mono\">%s</span></p>"
+        % (_e(record.raised_by_run), query, _e(record.raised_by_run), _e(record.as_of),
+           _e(record.evidence_label), _e(record.last_failing_run)),
+        '<p class="meta policy">%s</p>' % policy_html(record.policy_version,
+                                                       record.policy_digest),
+    ]
+    if record.annotation:
+        lines.append('<p class="means">%s</p>' % _e(record.annotation))
+    if record.is_pending:
+        lines.append('<div class="moves">')
+        for state, label in (("done", "Mark done"), ("dismissed", "Dismiss")):
+            lines.append('<form method="post" action="/queue/%s">'
+                         '<input type="hidden" name="property" value="%s">'
+                         '<input type="hidden" name="state" value="%s">'
+                         '<button type="submit">%s</button></form>'
+                         % (_e(record.action_id), _e(tenant_id), state, label))
+        lines.append("</div>")
+    else:
+        lines.append('<p class="meta"><strong>%s</strong> by %s at %s</p>'
+                     % ("Marked done" if record.state == "done" else "Dismissed",
+                        _e(record.state_changed_by), _e(record.state_changed_at.isoformat())))
+    lines.append("</article>")
+    return "".join(lines)
+
+
+def _queue_explainer() -> str:
+    return explanation_bar(
+        "Every VIOLATION a reviewed control found becomes one task here. A person marks it "
+        "done or dismisses it; running the control again never adds it twice.",
+        "<strong>Only a VIOLATION raises a task.</strong> NO ANSWER does not: whether records "
+        "nobody could check should become a review queue is an open question for the hotel, "
+        "and this page does not answer it by accident. NOT APPLICABLE does not either, and "
+        "nor does a run that concluded nothing or could not run at all.",
+        "<strong>One task per record, per rule.</strong> Re-running a control finds the same "
+        "task and updates which run last found it failing. A new version of the rule judges "
+        "afresh, and the old task stays linked to the version that raised it.",
+        "<strong>A run never closes a task.</strong> If a later run finds the record passing, "
+        "the task says so - <em>no longer failing as of run X</em> - and stays pending, "
+        "because the evidence only says the problem stopped showing, not that anybody dealt "
+        "with it.",
+        "<strong>Severity and audience</strong> come from the rule itself, word for word. A "
+        "rule that names no audience says so rather than borrowing one.",
+        "<strong>An empty queue is not an all-clear.</strong> The table at the bottom says "
+        "what each control's latest run concluded. A control that was never run, could not "
+        "run, or reached no conclusion has not looked - and has raised nothing for that "
+        "reason alone.")
