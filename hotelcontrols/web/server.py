@@ -2,7 +2,8 @@
 """
 THE ONLY FILE IN THE ENGINE THAT KNOWS A SOCKET EXISTS.
 
-    python3 -m hotelcontrols.web.server        ->  http://127.0.0.1:8765/
+    python3 -m hotelcontrols.web.server                    ->  http://127.0.0.1:8765/
+    python3 -m hotelcontrols.web.server --store runs.db    ...keeping history and the queue
 
 Eleven lines of work around `handle(path)`, and that ratio is the point. Everything worth
 testing is in `app.py` and `render.py` as pure functions of a string, so the suite asserts the
@@ -23,6 +24,7 @@ import html
 import re
 from http.server import BaseHTTPRequestHandler, HTTPServer
 
+from ..store import RunStore
 from .app import App
 
 HOST, PORT = "127.0.0.1", 8765
@@ -136,15 +138,35 @@ class Handler(BaseHTTPRequestHandler):
         print("%s %s" % (self.command, self.path.split("?")[0]))
 
 
-def main() -> int:
-    parser = argparse.ArgumentParser(description="Serve the control engine demo, offline.")
-    parser.add_argument("--host", default=HOST)
-    parser.add_argument("--port", type=int, default=PORT)
-    arguments = parser.parse_args()
+def parser() -> argparse.ArgumentParser:
+    """The command line, as a value, so the one decision in it can be tested without a port."""
+    built = argparse.ArgumentParser(description="Serve the control engine demo, offline.")
+    built.add_argument("--host", default=HOST)
+    built.add_argument("--port", type=int, default=PORT)
+    # Slice 18 (brief §8.8). OPT-IN: the default demo keeps its history and its findings queue
+    # in memory, exactly as it always has, and the queue page says they are lost on restart.
+    built.add_argument("--store", metavar="PATH", default=None,
+                       help="keep the run history and the findings queue in this SQLite file "
+                            "(default: in memory, lost on restart)")
+    return built
+
+
+def build_app(store: str | None) -> App:
+    """The demo app, with its store in memory unless a file was asked for."""
+    return App(store=RunStore(store)) if store else App()
+
+
+def main(argv: list[str] | None = None) -> int:
+    arguments = parser().parse_args(argv)
+    if arguments.store:
+        Handler.app = build_app(arguments.store)
 
     server = SERVER((arguments.host, arguments.port), Handler)
     print("Controls at http://%s:%d/ - no network access, no dependencies, ctrl-c to stop."
           % (arguments.host, arguments.port))
+    print("History and the findings queue are %s." % (
+        "kept in %s" % arguments.store if arguments.store
+        else "held in memory and lost on restart (--store PATH keeps them)"))
     try:
         server.serve_forever()
     except KeyboardInterrupt:

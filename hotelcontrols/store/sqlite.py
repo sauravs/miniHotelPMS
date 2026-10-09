@@ -38,6 +38,14 @@ updates or deletes a tenant-owned table carries a bound tenant predicate in its 
 statement SQLite actually executes, for every table `schema.sql` creates, including the ones v3
 adds later. `verdicts` and `evidence` carry no property of their own; they are scoped through
 their run, by a join or a subquery on `runs.tenant_id`.
+
+AND THE FINDINGS QUEUE LIVES HERE TOO (slice 18)
+------------------------------------------------
+The `actions` table: one task per FAIL, kept by its natural key - property, control, policy
+version, record - so a control run five times raises one task (G10c, narrowed; `make_run_id`
+is untouched). It is in this store, on this connection, because a task is only as good as the
+stored run that is its receipt, and two databases could disagree about whether that run exists.
+The same rule as every other table: every read names its property, keyword-only, no default.
 """
 from __future__ import annotations
 
@@ -48,6 +56,8 @@ import sqlite3
 from datetime import datetime
 from decimal import Decimal
 
+from ..actions import (PENDING, STATES, ActionRecord, Findings, TransitionRefused,
+                       check_transition)
 from ..kernel import NOT_APPLICABLE, EvidenceLine, Money, Outcome, Value, Verdict
 from ..runner import Run
 
@@ -61,6 +71,17 @@ _RUN_COLUMNS = ("run_id", "control_id", "control_name", "natural_language", "ten
                 "provider", "evidence_label", "evidence_is_synthetic", "as_of", "created_at",
                 "calls", "blocked", "observed_at", "maximum_age", "policy_version",
                 "policy_digest")
+
+# The `actions` columns a new task writes, in one place for the same reason. `state` is not
+# here: it defaults to pending, and only `transition` - a person - ever writes it.
+_ACTION_COLUMNS = ("action_id", "tenant_id", "control_id", "control_name", "policy_version",
+                   "policy_digest", "record_id", "severity", "audience", "kind", "reason",
+                   "raised_by_run", "raised_at", "as_of", "provider", "evidence_label",
+                   "last_failing_run", "last_failing_at")
+
+# How a queue is read: what is still to do first, then the most urgent, then the newest.
+_STATE_ORDER = {state: rank for rank, state in enumerate(STATES)}
+_SEVERITY_ORDER = {"high": 0, "medium": 1, "low": 2}
 
 
 # --------------------------------------------------------------------------- encoding
@@ -137,6 +158,12 @@ class RunStore:
                              ("policy_version", "INTEGER"), ("policy_digest", "TEXT")):
             if column not in existing:
                 self._connection.execute("ALTER TABLE runs ADD COLUMN %s %s" % (column, kind))
+
+    @property
+    def persistent(self) -> bool:
+        """Whether what is written here survives the process. The demo's default does not,
+        and the queue page says so rather than implying a persistence it lacks (brief §8.8)."""
+        return self.path not in (":memory:", "")
 
     def close(self) -> None:
         self._connection.close()
@@ -276,3 +303,142 @@ class RunStore:
 
         return [dict(row) for row in
                 self._connection.execute(query, params + (limit,))]
+
+    # ------------------------------------------------------------------ the findings queue
+    def record_findings(self, findings: Findings) -> int:
+        """Keep what one run raised. Returns how many tasks are NEW - zero for a repeat.
+
+        A FAIL whose natural key already has a task changes no state: it updates the receipt
+        (the newest run still finding it failing) and removes a PASS annotation it outdates. A
+        PASS annotates a task raised earlier under the same rule, and never closes it - a
+        person does (D12). Nothing here reads a wall clock; every instant is the run's own.
+        """
+        for finding in findings.failing:
+            if finding.tenant_id != findings.tenant_id:
+                # A batch is one run's, for one property. A record inside it naming another
+                # property would land in the wrong hotel's queue.
+                raise ValueError("a finding for property %r arrived in a batch for property "
+                                 "%r; refusing to write it into either queue"
+                                 % (finding.tenant_id, findings.tenant_id))
+        created = 0
+        with self._connection:
+            for finding in findings.failing:
+                written = self._connection.execute(
+                    "INSERT INTO actions (%s) VALUES (%s) ON CONFLICT(tenant_id, control_id, "
+                    "policy_version, record_id) DO NOTHING"
+                    % (", ".join(_ACTION_COLUMNS), ",".join("?" * len(_ACTION_COLUMNS))),
+                    (finding.action_id, finding.tenant_id, finding.control_id,
+                     finding.control_name, finding.policy_version, finding.policy_digest,
+                     finding.record_id, finding.severity, finding.audience, finding.kind,
+                     finding.reason, finding.run_id, finding.raised_at.isoformat(),
+                     finding.as_of, finding.provider, finding.evidence_label, finding.run_id,
+                     finding.raised_at.isoformat()))
+                if written.rowcount == 1:
+                    created += 1
+                    continue
+                row = self._action_by_key(findings, finding.record_id)
+                # Compared as instants, not as strings: two ISO strings with different UTC
+                # offsets (a daylight-saving change) do not sort in time order.
+                if finding.raised_at >= datetime.fromisoformat(row["last_failing_at"]):
+                    self._connection.execute(
+                        "UPDATE actions SET last_failing_run = ?, last_failing_at = ? "
+                        "WHERE action_id = ? AND tenant_id = ?",
+                        (finding.run_id, finding.raised_at.isoformat(), row["action_id"],
+                         findings.tenant_id))
+                if row["cleared_at"] and \
+                        finding.raised_at >= datetime.fromisoformat(row["cleared_at"]):
+                    # Failing again since the PASS: "no longer failing" is no longer true.
+                    self._connection.execute(
+                        "UPDATE actions SET cleared_by_run = NULL, cleared_at = NULL, "
+                        "cleared_as_of = NULL WHERE action_id = ? AND tenant_id = ?",
+                        (row["action_id"], findings.tenant_id))
+            for record_id in findings.passing:
+                row = self._action_by_key(findings, record_id)
+                # Strictly LATER than the newest failure. A tie is not later, and the
+                # conservative reading of a tie is that it is still failing.
+                if row is None or row["cleared_by_run"] is not None or \
+                        findings.at <= datetime.fromisoformat(row["last_failing_at"]):
+                    continue
+                self._connection.execute(
+                    "UPDATE actions SET cleared_by_run = ?, cleared_at = ?, cleared_as_of = ? "
+                    "WHERE action_id = ? AND tenant_id = ?",
+                    (findings.run_id, findings.at.isoformat(), findings.as_of,
+                     row["action_id"], findings.tenant_id))
+        return created
+
+    def _action_by_key(self, findings: Findings, record_id: str):
+        """The task with this natural key in this batch's property, or None."""
+        return self._connection.execute(
+            "SELECT * FROM actions WHERE tenant_id = ? AND control_id = ? "
+            "AND policy_version = ? AND record_id = ?",
+            (findings.tenant_id, findings.control_id, findings.policy_version,
+             record_id)).fetchone()
+
+    def actions(self, *, tenant_id: str) -> list[ActionRecord]:
+        """One property's queue: pending first, then the most urgent, then the newest.
+
+        Sorted here rather than in SQL because `raised_at` is an ISO string with an offset,
+        and strings with two different offsets do not sort in time order.
+        """
+        rows = self._connection.execute(
+            "SELECT * FROM actions WHERE tenant_id = ?", (tenant_id,)).fetchall()
+        records = [_action_record(row) for row in rows]
+        return sorted(records, key=lambda r: (_STATE_ORDER[r.state],
+                                              _SEVERITY_ORDER.get(r.severity, 3),
+                                              -r.raised_at.timestamp(), r.action_id))
+
+    def action(self, action_id: str, *, tenant_id: str) -> ActionRecord | None:
+        """One task, for its property. Another property's task is None, exactly like a task
+        that never existed, so an id cannot be probed for existence (slice 17's rule)."""
+        row = self._connection.execute(
+            "SELECT * FROM actions WHERE action_id = ? AND tenant_id = ?",
+            (action_id, tenant_id)).fetchone()
+        return _action_record(row) if row is not None else None
+
+    def transition(self, action_id: str, state: str, *, tenant_id: str, at: datetime,
+                   actor: str) -> ActionRecord | None:
+        """A person moves a task: pending -> done | dismissed, stamped with when and by whom.
+
+        `at` comes from the caller's injected clock - `kernel/clock.py` is the only module that
+        may read a wall clock - and must carry its timezone, for the same reason a clock's
+        instant must. Returns None for a task this property does not have; raises
+        `TransitionRefused` for one that is already closed.
+        """
+        if state not in STATES:
+            check_transition(PENDING, state)            # raises, naming the real states
+        if at.tzinfo is None:
+            raise ValueError("a transition's instant must carry its timezone; without one "
+                             "'when was this marked done?' has no answer")
+        if not (isinstance(actor, str) and actor.strip()):
+            raise ValueError("a transition needs a named actor - who marked it - even if, "
+                             "until slice 24, that name is only 'operator'")
+        current = self.action(action_id, tenant_id=tenant_id)
+        if current is None:
+            return None
+        check_transition(current.state, state)
+        with self._connection:
+            moved = self._connection.execute(
+                "UPDATE actions SET state = ?, state_changed_at = ?, state_changed_by = ? "
+                "WHERE action_id = ? AND tenant_id = ? AND state = 'pending'",
+                (state, at.isoformat(), actor, action_id, tenant_id))
+        if moved.rowcount != 1:                         # closed between the read and the write
+            check_transition(self.action(action_id, tenant_id=tenant_id).state, state)
+        return self.action(action_id, tenant_id=tenant_id)
+
+
+def _action_record(row) -> ActionRecord:
+    def instant(text):
+        return datetime.fromisoformat(text) if text else None
+
+    return ActionRecord(
+        action_id=row["action_id"], tenant_id=row["tenant_id"], control_id=row["control_id"],
+        control_name=row["control_name"], policy_version=row["policy_version"],
+        policy_digest=row["policy_digest"], record_id=row["record_id"],
+        severity=row["severity"], audience=row["audience"], kind=row["kind"],
+        reason=row["reason"], raised_by_run=row["raised_by_run"],
+        raised_at=instant(row["raised_at"]), as_of=row["as_of"], provider=row["provider"],
+        evidence_label=row["evidence_label"], state=row["state"],
+        state_changed_at=instant(row["state_changed_at"]),
+        state_changed_by=row["state_changed_by"], last_failing_run=row["last_failing_run"],
+        last_failing_at=instant(row["last_failing_at"]), cleared_by_run=row["cleared_by_run"],
+        cleared_at=instant(row["cleared_at"]), cleared_as_of=row["cleared_as_of"])

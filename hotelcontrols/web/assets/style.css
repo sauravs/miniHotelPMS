@@ -457,3 +457,10 @@ pre {
   .group, .verdict, .card, .explainer { break-inside: avoid; }
   a { color: var(--ink); }
 }
+
+/* ------------------------------------------------------------------ findings queue (slice 18)
+   A task is styled as the VIOLATION that raised it. Its two moves are two forms side by side:
+   a page with no JavaScript cannot make one form post two different states. */
+.task .moves { display: flex; flex-wrap: wrap; gap: .5rem; margin: .5rem 0 .2rem; }
+.task .moves form { margin: 0; }
+.task .moves form button { margin-top: 0; }

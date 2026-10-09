@@ -22,7 +22,7 @@ Every test protects criterion V4 (plan-v3 §7) unless it names another.
 import ast
 import pathlib
 import re
-from datetime import datetime
+from datetime import datetime, timezone
 
 import pytest
 
@@ -171,7 +171,8 @@ def sql_literals() -> list[tuple[str, int, str]]:
 class TestEveryStatementOnATenantTableIsScoped:
 
     def test_the_store_has_tenant_owned_tables_to_guard(self):
-        assert {"runs", "verdicts", "evidence"} <= tenant_owned_tables()
+        # `actions` since slice 18, discovered from schema.sql rather than listed here.
+        assert {"runs", "verdicts", "evidence", "actions"} <= tenant_owned_tables()
 
     def test_there_are_statements_to_check(self):
         assert len(sql_literals()) >= 4, "the scan found no SQL - it would pass vacuously"
@@ -196,6 +197,36 @@ class TestEveryStatementOnATenantTableIsScoped:
         store.load(run_id, tenant_id="sandbox")
         store.history(tenant_id="demo")
         store.history("checkout_money_owed", tenant_id="demo", limit=5)
+        # Slice 18's public methods on the `actions` table, every path through each: a new
+        # record, a repeat, a later failure, a later pass, a read, a move, a refused move and
+        # another property's attempt. A method added here later must be added to this list.
+        from hotelcontrols.actions import DONE, Finding, Findings, TransitionRefused
+        at = datetime(2026, 7, 8, 12, tzinfo=timezone.utc)
+        later = datetime(2026, 7, 9, 12, tzinfo=timezone.utc)
+
+        def offered(when, failing=True):
+            found = Finding(tenant_id="demo", control_id="checkout_money_owed",
+                            control_name="C", policy_version=2, policy_digest="sha256:x",
+                            record_id="r-demo", severity="high", audience="finance",
+                            kind="notify", reason="money owed", run_id="run-%s" % when.day,
+                            raised_at=when, as_of=when.date().isoformat(), provider="x",
+                            evidence_label="cap")
+            return Findings(run_id=found.run_id, tenant_id="demo",
+                            control_id="checkout_money_owed", policy_version=2, at=when,
+                            as_of=found.as_of, failing=(found,) if failing else (),
+                            passing=() if failing else ("r-demo",))
+
+        store.record_findings(offered(at))
+        store.record_findings(offered(at))                # the repeat
+        store.record_findings(offered(later, failing=False))   # a later pass annotates
+        store.record_findings(offered(later))             # failing again
+        (record,) = store.actions(tenant_id="demo")
+        store.action(record.action_id, tenant_id="demo")
+        store.action(record.action_id, tenant_id="sandbox")
+        store.transition(record.action_id, DONE, tenant_id="sandbox", at=later, actor="o")
+        store.transition(record.action_id, DONE, tenant_id="demo", at=later, actor="o")
+        with pytest.raises(TransitionRefused):
+            store.transition(record.action_id, DONE, tenant_id="demo", at=later, actor="o")
         store.close()
         reads = [s for s in executed if _VERB.match(s)]
         assert reads, "nothing was traced, so nothing was checked"

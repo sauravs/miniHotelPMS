@@ -7,6 +7,9 @@ THE DEMO, WITH THE COMPOSE FRONT END WIRED.
     python3 -m tools.serve --llm claude   the hosted API. Paid, needs `anthropic`
     python3 -m tools.serve --llm off      identical to the plain server
 
+    ... --store PATH                      keep the run history and the findings queue in a file
+                                          (default: in memory, and the queue page says so)
+
 WHY THIS FILE EXISTS AT ALL, RATHER THAN A FLAG ON THE SERVER
 --------------------------------------------------------------
 Because this is where the dependency arrow has to turn around. `hotelcontrols/` imports only
@@ -30,6 +33,7 @@ import argparse
 import pathlib
 import sys
 
+from hotelcontrols.store import RunStore
 from hotelcontrols.web.app import App
 from hotelcontrols.web.server import HOST, PORT, SERVER, Handler
 
@@ -45,14 +49,20 @@ def say(message: str) -> None:
     print(message, flush=True)
 
 
-def build_app(backend: str, draft_dir: pathlib.Path = DRAFT_DIR) -> App:
-    """The demo app, with a proposer if one was asked for."""
+def build_app(backend: str, draft_dir: pathlib.Path = DRAFT_DIR,
+              store: str | None = None) -> App:
+    """The demo app, with a proposer if one was asked for, and a file store if one was.
+
+    `store` is slice 18's opt-in `--store PATH`: without it the history and the findings queue
+    are in memory, as they always were, and the queue page says they are lost on restart.
+    """
     proposer = proposers.build(backend)
     if proposer is not None:
         # Made here rather than on first write: a chat window that accepts a sentence and then
         # cannot file it has wasted the only expensive step in the flow.
         (draft_dir / "ir").mkdir(parents=True, exist_ok=True)
-    return App(proposer=proposer, draft_dir=draft_dir if proposer is not None else None)
+    return App(proposer=proposer, draft_dir=draft_dir if proposer is not None else None,
+               store=RunStore(store) if store else None)
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -62,10 +72,13 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--port", type=int, default=PORT)
     parser.add_argument("--llm", default=proposers.DEFAULT, choices=proposers.NAMES,
                         help="which backend drafts a sentence (default: %(default)s)")
+    parser.add_argument("--store", metavar="PATH", default=None,
+                        help="keep the run history and the findings queue in this SQLite file "
+                             "(default: in memory, lost on restart)")
     arguments = parser.parse_args(argv)
 
     try:
-        app = build_app(arguments.llm)
+        app = build_app(arguments.llm, store=arguments.store)
     except RuntimeError as exc:
         # A missing package or an unreachable host is a setup problem with a known fix, and the
         # backend itself already explains it. Printed and exited rather than raised, because a
@@ -75,6 +88,9 @@ def main(argv: list[str] | None = None) -> int:
 
     Handler.app = app
     say("Controls at http://%s:%d/" % (arguments.host, arguments.port))
+    say("History and the findings queue are %s." % (
+        "kept in %s" % arguments.store if arguments.store
+        else "held in memory and lost on restart (--store PATH keeps them)"))
     if app.proposer is None:
         say("Compose is OFF. Restart with --llm stub, --llm local or --llm claude.")
     else:

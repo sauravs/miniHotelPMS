@@ -235,7 +235,9 @@ corpus with their own expected answers.
 *"X must not happen **unless approved**"*. MiniHotel exposes no acting user, no reason codes and no
 audit trail, so the approval half is usually unanswerable.
 
-**Today.** UNKNOWN, always. The engine will not turn a missing exception into a pass.
+**Today.** UNKNOWN, always. The engine will not turn a missing exception into a pass. Since
+slice 18 a FAIL raises a task in the findings queue, and an UNKNOWN raises none, on purpose:
+a queue that filled up with them would have answered this question by accident.
 
 **What it decides.** Whether roughly nine of the twenty controls ship as review queues — *"here are
 the twelve records that need a human to confirm an approval existed"* — or do not ship. Both are

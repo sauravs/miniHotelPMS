@@ -62,3 +62,52 @@ CREATE TABLE IF NOT EXISTS evidence (
 );
 
 CREATE INDEX IF NOT EXISTS runs_by_control ON runs(control_id, created_at DESC);
+
+-- Slice 18 (G2(a), G8's queue, G10c): the findings queue. One row per task a FAIL raised.
+--
+-- THE NATURAL KEY IS THE IDEMPOTENCY. (property, control, policy version, record): a control
+-- run five times raises one task, and the same record failing under a NEW version of the rule
+-- is a new task while the old one stays linked to the version that raised it. `make_run_id` is
+-- untouched (plan-v3 §6.6) - runs repeat honestly; what must not repeat is the task.
+--
+-- TENANT-OWNED, so every read, update and delete on it carries `tenant_id = ?` after its WHERE.
+-- `tests/unit/test_tenant_scoped_store.py` discovers this table from this file and enforces
+-- that over every literal in store/ and every statement SQLite executes.
+--
+-- ADVISORY. `state` is changed by a person and by nothing else. A later run writes only the
+-- receipt columns: the newest run that still found it failing, or a PASS since then. Neither
+-- is a state; a PASS annotates a task and never closes it (D12).
+CREATE TABLE IF NOT EXISTS actions (
+    action_id        TEXT PRIMARY KEY,      -- a digest of the natural key, stable across processes
+    tenant_id        TEXT NOT NULL,
+    control_id       TEXT NOT NULL,
+    control_name     TEXT NOT NULL,
+    policy_version   INTEGER NOT NULL,      -- never null: a run that cannot name its rule raises nothing
+    policy_digest    TEXT NOT NULL,
+    record_id        TEXT NOT NULL,
+    -- From the IR's own `action` block, copied when the task is raised. `audience` is optional
+    -- in the IR schema, and a rule that names none gets a task for no audience, not a default.
+    severity         TEXT NOT NULL,
+    audience         TEXT,
+    kind             TEXT NOT NULL,
+    -- The FAIL verdict's own sentence: the amount travels WITH its currency (R9). The full
+    -- evidence trail is the stored run `raised_by_run` names, never a second copy here.
+    reason           TEXT NOT NULL,
+    raised_by_run    TEXT NOT NULL,
+    raised_at        TEXT NOT NULL,
+    as_of            TEXT NOT NULL,
+    provider         TEXT NOT NULL,
+    evidence_label   TEXT NOT NULL,
+    state            TEXT NOT NULL DEFAULT 'pending'
+                     CHECK (state IN ('pending', 'done', 'dismissed')),
+    state_changed_at TEXT,
+    state_changed_by TEXT,
+    last_failing_run TEXT NOT NULL,
+    last_failing_at  TEXT NOT NULL,
+    cleared_by_run   TEXT,
+    cleared_at       TEXT,
+    cleared_as_of    TEXT,
+    UNIQUE (tenant_id, control_id, policy_version, record_id)
+);
+
+CREATE INDEX IF NOT EXISTS actions_by_tenant ON actions(tenant_id, state);

@@ -38,8 +38,8 @@ is a placeholder.
 | 16 | Policy versioning | G6b | M | **done** — PR #53. — `slice/16-policy-versioning`. Spec lock + `tools/lock_spec.py`; runs name `policy_version` + `policy_digest`; pre-v3 rows say *version not recorded*; history grouped by rule. Declared: 99 goldens gain the two keys, nothing else (V1 holds). 2280 passed / 2 skipped, **1091** spec checks (+11, one lock check per control), 120 goldens and 11 DemoPMS files identical after the rebuild, 96%. The v3 scope guard and the V1 test run on every push from here |
 | — | Fix #57: drafts README described the pre-slice-17 layout | (docs) | — | **done** — PR #58 |
 | 17 | Tenant-scoped store | G5 (data half) | M | **done** — PR #56. — `slice/17-tenant-scoped-store`. Store reads take `tenant_id` keyword-only (a missing one is a `TypeError`); another property's run is the same 404 as a missing one; structural guard over every SQL literal and every executed statement, seen failing on a planted `SELECT`; drafts per property. Declared: 11 mixed history goldens split into 22 per-property ones, rows filtered and `property` added, nothing else; 88 run goldens and readiness byte-identical. 2321 passed / 2 skipped on the branch, 1091 checks, **131** goldens, 11 DemoPMS, 96%. On `main` the v3 scope guard skips, so expect one fewer pass and one more skip |
-| 18 | Findings queue — advisory action records | G2(a), G8 queue, G10c | L | **next.** Read issue #59 first: exit test 1 names `checkout_money_owed`, which has **no FAIL on any capture** (0 FAIL at every instant in July 2026), so it would pass with zero records. Prove the record mapping on `checkout_unrefunded_credit`'s real FAIL (`007004348`, `medium`/`finance`) and on a constructed run for money owed. Baseline on `main` at `3041496`: **2321 passed / 3 skipped** (2322 / 2 on a slice branch, where the scope guard runs), 1091 checks, 131 goldens, 11 DemoPMS, 96% |
-| 19 | Email, opt-in, behind two locks | G8 email | M | planned |
+| 18 | Findings queue — advisory action records | G2(a), G8 queue, G10c | L | **done** — PR #61. — `slice/18-findings-queue`. New pure `hotelcontrols/actions/`: only a FAIL raises a task, severity and audience straight from the IR's `action` block. An `actions` table keyed by (property, control, policy version, record), born under slice 17's guard and seen failing on a planted unscoped `SELECT`. The layer above the run raises tasks (`runner/` untouched); drafts raise none. `pending → done | dismissed` through an injected clock, actor `operator`; a later PASS annotates and never closes. `/queue` and `/api/actions` state each control's latest conclusion beside the tasks; an in-memory queue says it is lost on restart; `--store PATH` is opt-in; React `/queue` too. **#59 corrected** (note under the exit test): proven on `007004348` (`medium`/`finance`, both providers) and on a constructed money-owed run. Declared contract changes: none — 4 new goldens, the 131 existing byte-identical. 2427 passed / 2 skipped on the branch, 1091 checks, **135** goldens, 11 DemoPMS, 96%. React: 182 Vitest, 22 Playwright. On `main` expect one fewer pass and one more skip |
+| 19 | Email, opt-in, behind two locks | G8 email | M | **next** |
 | 20 | Operational log | G14 | M | planned |
 | 21 | Typed hotel parameters, with "not decided" | G6a (narrowed) | M | planned |
 | 22 | Guest services: `LATE_CHECKOUT` | G1 (narrowed), G3a, G2(a) | L | planned |
@@ -352,6 +352,18 @@ under slice 17's guard), `hotelcontrols/web/` (queue page, JSON routes, state tr
 **Exit test.**
 - `checkout_money_owed` on sandbox2026 creates one pending record per FAIL, severity `high`,
   audience `finance`, straight from its IR. Running it again creates none.
+
+  > **Correction (issue #59, slice 18's PR).** As written this exit test passes with **zero
+  > records**: `checkout_money_owed` has no FAIL on any capture (2 PASS at sandbox2026's default
+  > instant, 0 FAIL at every instant 2026-07-01..31, an empty population in 2024). It is proven
+  > instead, with no fixture edited and no FAIL invented, in three parts: **(a)** on captured
+  > evidence, on the only FAIL anywhere in it: `checkout_unrefunded_credit` on `007004348`
+  > (−490.75 ILS) creates exactly one pending record, severity `medium`, audience `finance`
+  > from its IR, on both providers, and re-running it creates none
+  > (`tests/integration/test_findings_queue.py`); **(b)** money owed's 0 FAIL → 0 records,
+  > asserted as a fact about the evidence at every July instant; **(c)** money owed's
+  > `high`/`finance` mapping, on a **constructed** run labelled as such
+  > (`tests/unit/test_actions_records.py`). The same class of finding as #49.
 - A control whose run concluded nothing creates no record, and the queue shows that control as
   *"reached no conclusion"*, not as clear.
 - No UNKNOWN or EXCLUDED verdict creates a record (property test over every control × capture).

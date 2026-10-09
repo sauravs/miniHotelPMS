@@ -27,11 +27,19 @@ WHAT IS WRITTEN - the path mirrors the route
     run/<control>.<property>.<evidence>.json              the FULL matrix, live
     runs/<run_id>.json                                    every one of those, re-read from store
     history/<control>.<property>.json                     after the whole matrix has run
+    actions/<property>.json                               the findings queue, after it too
+    actions/empty.<property>.json                         an untouched store's queue
 
 Since slice 17 a stored run and a history are read FOR a property, so `runs/` is fetched with
 the property each run belongs to (the body is the same), and history is one file per control
 per property - a history golden that listed two hotels' runs together was exactly the read the
 slice exists to make impossible.
+
+Since slice 18 a run of a reviewed control raises a task per FAIL, so the queue after the whole
+matrix is the queue the evidence produces: one task per property, for the one FAIL anywhere in
+the captures (007004348, unrefunded credit). The untouched store's queue is the state a client
+must render as "not an all-clear" - every control not run. New files only: nothing that existed
+before slice 18 changes.
     compose/*.json                                        off, wired, and three kinds of turn
 
 `run/` and `runs/` are both complete so that every `run_id` a history row names resolves to a
@@ -93,6 +101,13 @@ def build() -> dict[str, str]:
         for tenant_id in available_tenants():
             take("/api/history/%s?property=%s" % (control_id, tenant_id),
                  "history/%s.%s.json" % (control_id, tenant_id))
+    for tenant_id in available_tenants():
+        take("/api/actions?property=%s" % tenant_id, "actions/%s.json" % tenant_id)
+        # A fresh app: nothing run, nothing raised, every control "not run here".
+        status, _ct, body = App().handle("/api/actions?property=%s" % tenant_id)
+        if status != 200:
+            raise SystemExit("an untouched queue answered %d:\n%s" % (status, body[:400]))
+        built["actions/empty.%s.json" % tenant_id] = body + "\n"
 
     built.update(_compose())
     return built
