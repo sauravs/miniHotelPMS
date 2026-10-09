@@ -10,14 +10,51 @@
  * colour-blind reader, and this is the distinction the entire product rests on. So each outcome
  * gets its own hue AND its own border style - solid, dashed, dotted, double - and the wording
  * lives in the markup, where a test can strip every tag and still tell them apart.
+ *
+ * `tests/unit/test_web_routing.py` PARSES THIS FILE. It reads the four `.verdict.<OUTCOME>`
+ * rules and the four `.tiles li.<OUTCOME>` rules for their `border-left` shorthand and asserts
+ * the styles and the hues differ. Keep the shorthand in the form `border-left: 6px <style>
+ * <#hex>` - a refactor into longhand properties would pass CSS and fail the criterion.
+ *
+ * WHAT SLICE 14 CHANGED, AND WHAT IT DELIBERATELY DID NOT
+ * -------------------------------------------------------
+ * Changed: a type scale and a spacing rhythm instead of ad-hoc values; the tile row now carries
+ * the same two signals a verdict block does, having previously been four identical grey boxes;
+ * `<details>` is styled as something clickable, because every explanation on the page is one;
+ * keyboard focus is visible; tables scroll in their own box rather than taking the page with
+ * them; paper has an opinion applied to it.
+ *
+ * NOT changed: the four hues, the four border styles, and the fact that there are four of each.
+ * "Harmonising the borders" is the beautification that would fail a success criterion, and it
+ * is the one a stylesheet like this invites.
+ *
+ * One stylesheet, no @import, no webfont. `default-src 'none'` in the policy header forbids a
+ * font file exactly as firmly as it forbids a script, so the font stack is what the machine
+ * already has.
  */
 
 :root {
   --ink: #1a1a1a;
   --quiet: #5a5f66;
   --line: #d8dce1;
+  --hair: #e8ebee;
   --paper: #ffffff;
   --ground: #f6f7f9;
+  --link: #0b57d0;
+  --link-deep: #0846a6;
+
+  /* The outcome palette, named once. The four values appear literally in the rules the test
+   * parses, because a test that resolved a custom property would be testing a CSS engine. */
+  --pass: #1b5e20;
+  --fail: #b3261e;
+  --unknown: #6d4c00;
+  --excluded: #5f6368;
+
+  --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  --radius: 10px;
+  --shadow: 0 1px 2px rgba(16, 24, 40, .04), 0 1px 3px rgba(16, 24, 40, .06);
 }
 
 * { box-sizing: border-box; }
@@ -26,49 +63,189 @@ body {
   margin: 0;
   background: var(--ground);
   color: var(--ink);
-  font: 15px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font: 15px/1.6 var(--sans);
+  -webkit-text-size-adjust: 100%;
 }
 
 main { max-width: 62rem; margin: 0 auto; padding: 1.5rem 1.25rem 4rem; }
 
-header.masthead { background: var(--paper); border-bottom: 1px solid var(--line); }
+/* ------------------------------------------------------------------ chrome */
+header.masthead {
+  background: var(--paper);
+  border-bottom: 1px solid var(--line);
+}
 header.masthead div { max-width: 62rem; margin: 0 auto; padding: 1rem 1.25rem; }
 header.masthead h1 { font-size: 1.05rem; margin: 0; letter-spacing: .01em; }
-header.masthead p { margin: .25rem 0 0; color: var(--quiet); font-size: .85rem; }
+header.masthead h1 a { color: var(--ink); text-decoration: none; }
+header.masthead h1 a:hover { text-decoration: underline; }
+header.masthead p { margin: .3rem 0 0; color: var(--quiet); font-size: .85rem; max-width: 56rem; }
 
-a { color: #0b57d0; }
-h2 { font-size: 1rem; margin: 2rem 0 .75rem; }
-code, .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: .85em; }
+/* A skip link. Off screen until focused, which is the one place `position: absolute` is the
+ * accessible answer rather than the lazy one: the page's first tab stop should be a way past
+ * the masthead, and it must not be a way past it for everybody. */
+.skip {
+  position: absolute; left: -9999px; top: 0;
+  padding: .5rem .8rem; background: var(--paper); border: 1px solid var(--link);
+  border-radius: 0 0 var(--radius) 0; z-index: 2;
+}
+.skip:focus { left: 0; }
+
+a { color: var(--link); }
+a:hover { color: var(--link-deep); }
+
+/* Everything on this page that explains anything is a <details>, and the groups of verdicts
+ * are too. If the browser's default focus ring is ever replaced, it is replaced HERE and
+ * visibly - a page whose whole help system is keyboard-operated cannot hide the cursor. */
+:focus-visible {
+  outline: 2px solid var(--link);
+  outline-offset: 2px;
+  border-radius: 3px;
+}
+
+h2 {
+  font-size: .78rem; text-transform: uppercase; letter-spacing: .09em;
+  color: var(--quiet); font-weight: 700;
+  margin: 2.1rem 0 .7rem;
+  display: flex; align-items: baseline; gap: .5rem;
+}
+h2 .count {
+  text-transform: none; letter-spacing: 0; font-weight: 500;
+  font-size: .8rem; color: var(--quiet);
+}
+
+code, .mono { font-family: var(--mono); font-size: .85em; }
+code { background: var(--ground); padding: .05em .3em; border-radius: 3px; }
 
 .card {
   background: var(--paper);
   border: 1px solid var(--line);
-  border-radius: 8px;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
   padding: 1rem 1.1rem;
   margin: 0 0 .85rem;
 }
 
-.sentence { font-size: 1.05rem; margin: 0 0 .35rem; }
+.sentence { font-size: 1.05rem; line-height: 1.45; margin: 0 0 .35rem; }
 .meta { color: var(--quiet); font-size: .82rem; margin: .15rem 0; }
 .meta strong { color: var(--ink); font-weight: 600; }
 
-/* Count tiles. Rendered ONLY when a run concluded something - see finding F5 and the
- * `no-conclusion` note below. */
-.tiles { display: flex; flex-wrap: wrap; gap: .6rem; margin: 1rem 0; padding: 0; list-style: none; }
-.tiles li {
-  flex: 1 1 7rem; background: var(--paper); border: 1px solid var(--line);
-  border-radius: 8px; padding: .6rem .75rem;
+/* ------------------------------------------------------------------ the explanation bar
+ * Slice 14. One visible line per page, with the glossary folded underneath it. A <details>
+ * and never a `title=` tooltip: the text has to survive having every tag stripped, has to be
+ * reachable on a touch screen, and has to be announced reliably - and `title=` fails all
+ * three. See `render.explanation_bar`. */
+.explainer {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--link);
+  border-radius: var(--radius);
+  padding: .85rem 1.05rem;
+  margin: 0 0 1.25rem;
+  box-shadow: var(--shadow);
 }
-.tiles .n { display: block; font-size: 1.6rem; font-weight: 600; line-height: 1.1; }
-.tiles .k { display: block; font-size: .72rem; letter-spacing: .07em; color: var(--quiet); }
+.explainer .lede { margin: 0; font-size: .95rem; color: var(--ink); max-width: 54rem; }
+.explainer details { margin-top: .5rem; }
+.explainer .folded { padding-top: .2rem; }
+.explainer .folded p {
+  margin: .55rem 0 0; font-size: .85rem; color: var(--quiet); max-width: 54rem;
+}
+.explainer .folded strong, .explainer .folded em { color: var(--ink); }
+.explainer .folded em { font-style: normal; font-family: var(--mono); font-size: .92em; }
+
+/* Every fold on the page, including the verdict groups. `cursor: pointer` is the signal that
+ * this is operable; the colour and the weight are what make it findable without being loud. */
+summary {
+  cursor: pointer;
+  font-size: .78rem; font-weight: 600; letter-spacing: .04em;
+  color: var(--link);
+  padding: .15rem 0;
+}
+summary:hover { color: var(--link-deep); }
+details[open] > summary { margin-bottom: .2rem; }
+
+/* A short aside attached to the thing it explains, rather than to the page. */
+.aside { margin: .45rem 0 0; }
+.aside > p {
+  margin: .4rem 0 0; font-size: .82rem; color: var(--quiet);
+  max-width: 54rem;
+}
+.aside > p strong { color: var(--ink); }
+
+/* The four-answer glossary, built from the same WORDING the badges come from. */
+.glossary { margin: 1rem 0 0; }
+.glossary dl {
+  margin: .5rem 0 0; display: grid; gap: .35rem .75rem;
+  grid-template-columns: max-content 1fr; align-items: baseline;
+}
+.glossary dt { margin: 0; }
+.glossary dd { margin: 0; font-size: .85rem; color: var(--quiet); }
+.glossary .meta { margin-top: .7rem; max-width: 54rem; }
+
+/* A standalone outcome chip, for the glossary and the group headings. It carries the hue; the
+ * border style lives on the block or the tile it belongs to, where there is room for 6px of
+ * it to be legible. */
+.chip {
+  display: inline-block;
+  font-size: .66rem; font-weight: 700; letter-spacing: .08em;
+  padding: .12rem .4rem; border-radius: 4px;
+  border: 1px solid currentColor; white-space: nowrap;
+}
+.chip.PASS     { color: var(--pass); }
+.chip.FAIL     { color: var(--fail); }
+.chip.UNKNOWN  { color: var(--unknown); }
+.chip.EXCLUDED { color: var(--excluded); }
+
+/* ------------------------------------------------------------------ count tiles
+ * Rendered ONLY when a run concluded something - see finding F5 and the `no-conclusion` note
+ * below.
+ *
+ * Each tile now carries its outcome's own hue and border style, which is criterion 2 applied
+ * to the component every reader looks at first. Before slice 14 these were four identical grey
+ * boxes, so the one distinction the product rests on was absent from the scoreboard.
+ *
+ * A tile with records behind it is a fragment link to them - on a 111-record page that is the
+ * difference between a number and a way in, and `href="#verdicts-FAIL"` needs no JavaScript. */
+.tiles {
+  display: flex; flex-wrap: wrap; gap: .6rem;
+  margin: 1rem 0; padding: 0; list-style: none;
+}
+.tiles li {
+  flex: 1 1 8rem; background: var(--paper);
+  border: 1px solid var(--line); border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+.tiles li.PASS     { border-left: 6px solid  #1b5e20; }
+.tiles li.FAIL     { border-left: 6px double #b3261e; }
+.tiles li.UNKNOWN  { border-left: 6px dashed #6d4c00; }
+.tiles li.EXCLUDED { border-left: 6px dotted #5f6368; }
+
+/* The whole tile is the target when there is somewhere to go, and a `.box` when there is not.
+ * Two explicit classes rather than one `:has()` selector: the markup already knows which case
+ * it is in, and a selector the browser might not support would silently drop the padding. */
+.tiles li > a, .tiles li > .box { display: block; padding: .6rem .75rem; }
+.tiles li > a { text-decoration: none; color: inherit; }
+.tiles li > a:hover { background: var(--ground); }
+.tiles .n { display: block; font-size: 1.65rem; font-weight: 600; line-height: 1.15; }
+.tiles .k {
+  display: block; font-size: .68rem; letter-spacing: .07em;
+  color: var(--quiet); font-weight: 600;
+}
+.tiles li.PASS     .n { color: var(--pass); }
+.tiles li.FAIL     .n { color: var(--fail); }
+.tiles li.UNKNOWN  .n { color: var(--unknown); }
+.tiles li.EXCLUDED .n { color: var(--excluded); }
+/* A zero is quiet. It is still stated - an outcome nobody reached is a fact - but it is not
+ * the thing on the row that should catch the eye, and it is not a link to an absent section. */
+.tiles li > .box .n { color: var(--quiet); font-weight: 500; }
 
 /* A run that concluded nothing, and a run that could not happen at all. Neither shows tiles:
  * four zeroes with one of them under FAIL reads as a clean bill of health, which is exactly
  * what v1 shipped for a control that had never applied to a single record. */
 .no-conclusion, .blocked {
   background: #fff8e6; border: 1px solid #e0c26a; border-left-width: 6px;
-  border-radius: 8px; padding: .9rem 1.1rem; margin: 1rem 0;
+  border-radius: var(--radius); padding: .95rem 1.1rem; margin: 1rem 0;
 }
+.no-conclusion > p:first-child, .blocked > p:first-child { margin-top: 0; }
 .blocked { background: #f2f3f5; border-color: #9aa0a6; }
 
 .stale { color: #6d4c00; }
@@ -76,7 +253,7 @@ code, .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monosp
 /* ------------------------------------------------------------------ criterion 2 */
 .verdict {
   background: var(--paper); border: 1px solid var(--line);
-  border-radius: 8px; padding: .85rem 1rem; margin: 0 0 .7rem;
+  border-radius: var(--radius); padding: .85rem 1rem; margin: 0 0 .7rem;
 }
 .verdict.PASS     { border-left: 6px solid  #1b5e20; background: #f4faf4; }
 .verdict.FAIL     { border-left: 6px double #b3261e; background: #fdf3f2; }
@@ -86,69 +263,144 @@ code, .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monosp
 .badge {
   display: inline-block; font-size: .7rem; font-weight: 700; letter-spacing: .09em;
   padding: .15rem .45rem; border-radius: 4px; border: 1px solid currentColor;
+  white-space: nowrap;
 }
 .verdict.PASS     .badge { color: #1b5e20; }
 .verdict.FAIL     .badge { color: #b3261e; }
 .verdict.UNKNOWN  .badge { color: #6d4c00; }
 .verdict.EXCLUDED .badge { color: #5f6368; }
 
-.verdict .record { font-weight: 600; margin-left: .5rem; }
+.verdict .record { font-weight: 600; margin-left: .5rem; font-family: var(--mono); font-size: .9rem; }
 .verdict .says { margin: .45rem 0 .1rem; }
 .verdict .means { margin: .1rem 0 .6rem; color: var(--quiet); font-size: .85rem; }
 
-/* ------------------------------------------------------------------ criterion 3 */
+/* ------------------------------------------------------------------ verdict groups
+ * Slice 14. The verdicts are grouped by answer and ordered by what the group asks of the
+ * reader; VIOLATION and NO ANSWER are open, PASS and NOT APPLICABLE are one click away. A
+ * closed <details> is still in the document, so criterion 3's trail and a text scrape both
+ * survive - collapsing is not omitting. See `render.verdict_groups`. */
+.group {
+  background: var(--paper); border: 1px solid var(--line);
+  border-radius: var(--radius); margin: 0 0 .7rem; box-shadow: var(--shadow);
+}
+.group.PASS     { border-left: 6px solid  var(--pass); }
+.group.FAIL     { border-left: 6px double var(--fail); }
+.group.UNKNOWN  { border-left: 6px dashed var(--unknown); }
+.group.EXCLUDED { border-left: 6px dotted var(--excluded); }
+
+.group > summary {
+  padding: .7rem .9rem;
+  display: flex; flex-wrap: wrap; align-items: baseline; gap: .5rem;
+  color: var(--ink); font-weight: 500; letter-spacing: 0; font-size: .85rem;
+}
+.group > summary:hover { background: var(--ground); }
+.group[open] > summary { border-bottom: 1px solid var(--hair); margin-bottom: 0; }
+.group .tally { font-size: .9rem; font-weight: 600; }
+.group .gist {
+  flex: 1 1 18rem; color: var(--quiet); font-size: .8rem; font-weight: 400;
+}
+.group-body { padding: .8rem .9rem .3rem; }
+.group-body .verdict:last-child { margin-bottom: .5rem; }
+
+/* ------------------------------------------------------------------ criterion 3
+ * The evidence table, which is the component criterion 3 is literally about. It scrolls inside
+ * its own box: an UNKNOWN's reason is a whole sentence, and a page that scrolls sideways puts
+ * the verdict badge off the screen. */
+.scroller { overflow-x: auto; }
+
 table.evidence { width: 100%; border-collapse: collapse; font-size: .85rem; }
 table.evidence th, table.evidence td {
-  text-align: left; padding: .3rem .5rem .3rem 0; border-top: 1px solid var(--line);
+  text-align: left; padding: .35rem .6rem .35rem 0; border-top: 1px solid var(--hair);
   vertical-align: top;
 }
-table.evidence th { color: var(--quiet); font-weight: 600; font-size: .72rem;
-                    letter-spacing: .06em; text-transform: uppercase; border-top: 0; }
+table.evidence th {
+  color: var(--quiet); font-weight: 700; font-size: .68rem;
+  letter-spacing: .07em; text-transform: uppercase; border-top: 0;
+  white-space: nowrap;
+}
+table.evidence tr:hover td { background: var(--ground); }
 table.evidence td.gap { color: #6d4c00; }
-table.evidence td.from { color: var(--quiet); }
+table.evidence td.from { color: var(--quiet); white-space: nowrap; }
+table.evidence td code { background: none; padding: 0; }
 
 table.listing { width: 100%; border-collapse: collapse; font-size: .88rem; }
 table.listing th, table.listing td {
-  text-align: left; padding: .4rem .6rem .4rem 0; border-top: 1px solid var(--line);
+  text-align: left; padding: .45rem .7rem .45rem 0; border-top: 1px solid var(--hair);
+}
+table.listing th {
+  color: var(--quiet); font-weight: 700; font-size: .68rem;
+  letter-spacing: .07em; text-transform: uppercase; border-top: 0; white-space: nowrap;
+}
+table.listing tr:hover td { background: var(--ground); }
+
+/* A table caption carries what the table is for. Quiet rather than hidden: with the stylesheet
+ * switched off it simply becomes an ordinary line of text, which is the property that makes it
+ * the right mechanism and `title=` the wrong one. */
+caption {
+  text-align: left; caption-side: top;
+  font-size: .68rem; letter-spacing: .07em; text-transform: uppercase;
+  color: var(--quiet); padding: 0 0 .25rem;
 }
 
-.readiness { margin: .3rem 0 0; color: var(--quiet); font-size: .82rem; }
-.readiness .short { color: #6d4c00; }
+/* ------------------------------------------------------------------ readiness (criterion 10)
+ * `.readiness.short` AND NOT `.readiness .short`. The markup is `class="readiness short"` -
+ * one element, two classes - so the descendant selector this file carried until slice 14
+ * matched nothing, and the amber that marks a control this property's system cannot answer had
+ * never once been applied. Criterion 10's warning colour was silently off for four slices. */
+.readiness {
+  margin: .35rem 0 0; color: var(--quiet); font-size: .82rem;
+  padding-left: .6rem; border-left: 3px solid var(--hair);
+}
+.readiness.short {
+  color: #6d4c00; border-left-color: #6d4c00; border-left-style: dashed;
+}
 
 .evidence-picker { margin: .5rem 0 0; font-size: .82rem; }
-.evidence-picker a { margin-right: .5rem; }
-.evidence-picker .current { font-weight: 600; color: var(--ink); text-decoration: none; }
+.evidence-picker a {
+  display: inline-block; margin: .15rem .35rem .15rem 0;
+  padding: .2rem .5rem; border: 1px solid var(--line); border-radius: 999px;
+  text-decoration: none; background: var(--paper);
+}
+.evidence-picker a:hover { background: var(--ground); }
+.evidence-picker .current {
+  font-weight: 600; color: var(--paper); background: var(--ink);
+  border-color: var(--ink);
+}
+.evidence-picker .current:hover { background: var(--ink); color: var(--paper); }
 
 /* ------------------------------------------------------------------ compose (slice 13)
    The chat window. No JavaScript anywhere: it is two forms and a re-rendered page, so the
    Content-Security-Policy in server.py still forbids script entirely. */
 form label {
-  display: block; margin: .7rem 0 .2rem;
-  font-size: .72rem; letter-spacing: .07em; text-transform: uppercase; color: var(--quiet);
+  display: block; margin: .8rem 0 .25rem;
+  font-size: .7rem; letter-spacing: .08em; text-transform: uppercase;
+  color: var(--quiet); font-weight: 700;
 }
 form textarea, form input[type="text"], form input:not([type]), form select {
-  width: 100%; box-sizing: border-box; padding: .45rem .5rem;
-  border: 1px solid var(--line); border-radius: 3px;
+  width: 100%; box-sizing: border-box; padding: .5rem .55rem;
+  border: 1px solid var(--line); border-radius: 6px;
   font: inherit; color: var(--ink); background: var(--paper);
 }
 form textarea { resize: vertical; }
+form textarea:focus, form input:focus, form select:focus { border-color: var(--link); }
 form button {
-  margin-top: .9rem; padding: .5rem .9rem;
-  border: 1px solid #0b57d0; border-radius: 3px;
-  background: #0b57d0; color: #fff; font: inherit; cursor: pointer;
+  margin-top: 1rem; padding: .55rem 1rem;
+  border: 1px solid var(--link); border-radius: 6px;
+  background: var(--link); color: #fff; font: inherit; font-weight: 600; cursor: pointer;
 }
-form button:hover { background: #0846a6; }
+form button:hover { background: var(--link-deep); border-color: var(--link-deep); }
 
 /* The transcript. `who` is a word rather than an icon, for the same reason a verdict carries
    wording as well as a hue: the distinction has to survive a monochrome screen. */
 .who {
   display: inline-block; min-width: 3.4rem;
-  font-size: .68rem; letter-spacing: .08em; text-transform: uppercase; color: var(--quiet);
+  font-size: .68rem; letter-spacing: .08em; text-transform: uppercase;
+  color: var(--quiet); font-weight: 700;
 }
 .proposed { margin: .2rem 0 .5rem; }
 .proposed code {
-  display: block; padding: .45rem .55rem;
-  background: var(--ground); border-left: 3px solid var(--line); border-radius: 2px;
+  display: block; padding: .5rem .6rem;
+  background: var(--ground); border-left: 3px solid var(--line); border-radius: 0 4px 4px 0;
   font-size: .85rem; line-height: 1.5; white-space: pre-wrap;
 }
 .asked { margin: .2rem 0 .5rem; }
@@ -158,11 +410,44 @@ form button:hover { background: #0846a6; }
    have to travel together or the criterion-1 figure stops meaning anything. */
 .draft-badge {
   display: inline-block; margin-left: .4rem; padding: .1rem .4rem;
-  border: 1px dashed #6d4c00; border-radius: 2px;
+  border: 1px dashed #6d4c00; border-radius: 3px;
   font-size: .66rem; letter-spacing: .06em; text-transform: uppercase; color: #6d4c00;
+  white-space: nowrap;
 }
 pre {
-  padding: .6rem .7rem; overflow-x: auto;
-  background: var(--ground); border: 1px solid var(--line); border-radius: 3px;
+  padding: .65rem .75rem; overflow-x: auto;
+  background: var(--ground); border: 1px solid var(--line); border-radius: 6px;
   font-size: .78rem; line-height: 1.5;
+}
+
+/* ------------------------------------------------------------------ narrow screens */
+@media (max-width: 34rem) {
+  main { padding: 1rem .85rem 3rem; }
+  .tiles li { flex: 1 1 6.5rem; }
+  .tiles .n { font-size: 1.35rem; }
+  .group > summary { gap: .35rem; }
+}
+
+/* ------------------------------------------------------------------ paper
+ * Criterion 2 names a printout explicitly as one of the readers the four border styles exist
+ * for, so this file has to have an opinion about paper rather than leaving it to the browser.
+ *
+ * Unfolding the <details> on paper is the important part: a closed one prints as nothing at
+ * all by default, so the explanation bars, the glossary and - critically - the collapsed PASS
+ * and NOT APPLICABLE groups would be absent from a printed page, and on paper there is no
+ * clicking. Overriding the user-agent rule that hides a closed <details>'s children is the
+ * only way to do that without JavaScript; it is best-effort rather than guaranteed across
+ * engines, which is why no MEANING is ever left to it. The verdict's own words, hue and border
+ * are all in the block itself. */
+@media print {
+  :root { --ground: #fff; --shadow: none; }
+  body { background: #fff; font-size: 11pt; }
+  .skip, .evidence-picker { display: none; }
+  main { max-width: none; padding: 0; }
+  .card, .explainer, .verdict, .group, .tiles li { box-shadow: none; }
+  details > summary { list-style: none; color: var(--ink); }
+  details > summary::-webkit-details-marker { display: none; }
+  details:not([open]) > *:not(summary) { display: block !important; }
+  .group, .verdict, .card, .explainer { break-inside: avoid; }
+  a { color: var(--ink); }
 }

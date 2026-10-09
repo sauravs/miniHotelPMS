@@ -62,6 +62,37 @@ WORDING = {
 # The order tiles are read in: what we concluded first, what we could not conclude after.
 TILE_ORDER = (Outcome.PASS, Outcome.FAIL, Outcome.UNKNOWN, Outcome.EXCLUDED)
 
+# The order the VERDICT GROUPS are read in, which is a different question from the tile row.
+# Tiles are a scoreboard and read best as "concluded, then not concluded". A list of a hundred
+# records is a WORK QUEUE, and a queue is ordered by what it asks of the reader: a violation is
+# something to act on, an UNKNOWN is something to connect, a pass is something to confirm, and
+# a record the control never applied to asks nothing at all.
+#
+# Found by running the demo rather than by reading it: `inactive_room_future_stay` answers about
+# 111 stays, 71 of them NOT APPLICABLE because the reservation was cancelled, so in population
+# order the thirteen records that could not be answered were eighty screens down.
+GROUP_ORDER = (Outcome.FAIL, Outcome.UNKNOWN, Outcome.PASS, Outcome.EXCLUDED)
+
+# Which groups are expanded without a click. The first two are the queue; the other two are a
+# `<details>` away - present in the markup, counted in the tile row, never hidden from a text
+# scrape, and one keypress from open. Collapsing is not the same as omitting, and criterion 8
+# is about OMITTING a count: the counts are all still there.
+OPEN_GROUPS = (Outcome.FAIL, Outcome.UNKNOWN)
+
+# WORDING describes ONE record ("this record breaks the rule"). A group heading describes many,
+# and the plural needs its own sentence rather than a grammatical patch on the singular one.
+# Both halves of criterion 2's wording signal survive here: "not passes and not failures" for
+# UNKNOWN, "not been checked" and "not a pass" for EXCLUDED.
+GROUP_MEANING = {
+    Outcome.FAIL: "These records break the rule. This is the queue to act on.",
+    Outcome.UNKNOWN: "The evidence needed to decide these was not available, so they are not "
+                     "passes and not failures. Each one names the gap it ran into, and that "
+                     "gap is the thing to go and connect.",
+    Outcome.PASS: "The rule holds for these records, and the evidence behind each one is here.",
+    Outcome.EXCLUDED: "The control does not apply to these records, so they have not been "
+                      "checked. This is not a pass.",
+}
+
 
 def _e(value: Any) -> str:
     """Escape anything on its way into a page. Never skipped, never conditional."""
@@ -69,18 +100,87 @@ def _e(value: Any) -> str:
 
 
 # --------------------------------------------------------------------------- documents
-def page(title: str, subtitle: str, body: str) -> str:
-    """The shell every page shares. No JavaScript, no external resource, one stylesheet."""
+def page(title: str, subtitle: str, body: str, explainer: str = "", head: str = "") -> str:
+    """The shell every page shares. No JavaScript, no external resource, one stylesheet.
+
+    A WHOLE DOCUMENT, since slice 14. This used to begin at `<meta charset>` with no doctype,
+    no `<html lang>` and no `<body>` - so every browser rendered the demo in quirks mode and
+    every screen reader had to guess which language to pronounce it in. Neither is cosmetic
+    and both were one line. The charset is still the first thing inside `<head>`, which is the
+    part that ever mattered: a charset declared after the first kilobyte is one the browser has
+    already guessed past, and these captures hold Hebrew free text.
+
+    `explainer` is the page explanation bar and it goes ABOVE the content, because a reader who
+    does not yet know what EXCLUDED means cannot use anything below it. `head` exists for the
+    redirect body's meta refresh, which is the one piece of markup that has to be in the head.
+    """
     return (
+        "<!doctype html>"
+        '<html lang="en">'
+        "<head>"
         '<meta charset="utf-8">'
         '<meta name="viewport" content="width=device-width, initial-scale=1">'
         "<title>%s</title>"
         '<link rel="stylesheet" href="/style.css">'
+        "%s"
+        "</head>"
+        "<body>"
+        '<a class="skip" href="#main">Skip to the content</a>'
         '<header class="masthead"><div>'
         '<h1><a href="/">Hotel control engine</a></h1>'
         "<p>%s</p>"
         "</div></header>"
-        "<main>%s</main>" % (_e(title), _e(subtitle), body))
+        '<main id="main">%s%s</main>'
+        "</body></html>"
+        % (_e(title), head, _e(subtitle), explainer, body))
+
+
+def explanation_bar(lede: str, *paragraphs: str) -> str:
+    """The page explanation bar: one visible line, and the depth one click away.
+
+    `<details><summary>`, AND THAT IS A REQUIREMENT RATHER THAN A PREFERENCE. The obvious
+    alternative - `title="..."` - puts the explanation INSIDE a tag, where three different
+    readers lose it at once: `text_of` strips it, so the no-CSS text scrape that proves
+    criterion 2's wording signal cannot see it; a touch screen has no hover, so half the
+    readers can never summon it; and screen readers announce it inconsistently or not at all.
+    A `<details>` is plain HTML, needs no script, is reachable by keyboard, and its text
+    survives every tag being stripped. Visible inline help beats hover-only help everywhere
+    in this project.
+
+    The LEDE is always visible and the detail is folded, which is the right split for a page
+    somebody reads twice: the one-liner is orientation, and the rest is a glossary nobody
+    needs on the second visit.
+
+    Prose only. Every value from a provider is escaped by its own caller before it reaches
+    here; nothing in this function escapes anything, because what it receives is this file's
+    own literal sentences.
+    """
+    detail = "".join("<p>%s</p>" % text for text in paragraphs)
+    return ('<section class="explainer" aria-label="About this page">'
+            '<p class="lede">%s</p>'
+            "<details><summary>How to read this page</summary>"
+            '<div class="folded">%s</div></details></section>' % (lede, detail))
+
+
+def outcome_glossary() -> str:
+    """The four answers, with the badge a reader actually sees beside each meaning.
+
+    Built FROM `WORDING` rather than restating it, so criterion 2's third signal has exactly
+    one source. A glossary that drifted from the badges would be worse than none: it would
+    teach a reader the wrong word for the thing in front of them.
+    """
+    rows = []
+    for outcome in TILE_ORDER:
+        badge, means = WORDING[outcome]
+        rows.append('<dt><span class="chip %s">%s</span></dt><dd>%s</dd>'
+                    % (_e(outcome.value), _e(badge), _e(means)))
+    return ('<details class="glossary"><summary>What the four answers mean</summary>'
+            '<dl>%s</dl>'
+            '<p class="meta">Two of these are the ones that get read wrong. NO ANSWER is not a '
+            "failure - nothing was established either way. NOT APPLICABLE is not a pass - the "
+            "control never looked. Folding either one into a compliance number is how a report "
+            "comes to say ninety passed about ninety records nobody checked.</p></details>"
+            % "".join(rows))
 
 
 def error_page(status: int, message: str) -> str:
@@ -119,8 +219,12 @@ def index_page(entries: Iterable[tuple], properties: Iterable[tuple],
                        '<p class="evidence-picker">' % (_e(name), _e(provider)))
         for one in captures:
             selected = (name == tenant_id and one == capture)
-            chooser.append('<a class="%s" href="/?property=%s&amp;evidence=%s">%s</a>'
-                           % ("current" if selected else "", _e(name), _e(one), _e(one)))
+            # `aria-current` so a screen reader announces WHICH capture is selected. Bold text
+            # is a visual-only signal, and this page is read by more than one kind of reader.
+            chooser.append('<a class="%s"%s href="/?property=%s&amp;evidence=%s">%s</a>'
+                           % ("current" if selected else "",
+                              ' aria-current="page"' if selected else "",
+                              _e(name), _e(one), _e(one)))
         chooser.append("</p>")
     chooser.append('<p class="meta">%s</p></div>' % _e(
         "A run is asked about the instant its evidence describes, unless a date is given as "
@@ -167,7 +271,39 @@ def index_page(entries: Iterable[tuple], properties: Iterable[tuple],
                _e(ir.natural_language), _e(ir.control_id), _e(ir["entity"])))
 
     return page("Controls", "Every control the specification defines, and what each PMS could "
-                            "answer about it.", "".join(chooser) + "".join(cards))
+                            "answer about it.", "".join(chooser) + "".join(cards),
+                explainer=_index_explainer())
+
+
+def _index_explainer() -> str:
+    """What a first-time reader needs before any of the cards below mean anything.
+
+    Four terms on this page cannot be guessed from it: the SENTENCE is the rule rather than a
+    description of one, READINESS is a ratio of fields and not a health score, a BODY OF
+    EVIDENCE is a frozen capture rather than a live connection, and a DRAFT is runnable without
+    being reviewed. Each one is a sentence, and it belongs on the screen rather than in a
+    README nobody opens next to the thing it explains.
+    """
+    return explanation_bar(
+        "Each card below is one governance rule. Pick one to run it against a body of "
+        "captured evidence and see the fields behind every answer.",
+        "<strong>The sentence</strong> at the top of a card is the rule itself, not a "
+        "description of it. It compiles to something that runs, and nothing on the page is "
+        "derived from anything else.",
+        "<strong>Readiness</strong> - <code>5 of 5 fields available</code> - counts the "
+        "fields the rule needs against the fields this property's system can actually "
+        "supply, reported for each system separately. When it is short the line names what "
+        "to <em>connect a source</em> for, and until that is connected the control answers "
+        "NO ANSWER rather than guessing.",
+        "<strong>A body of evidence</strong> is a frozen set of real responses, captured "
+        "once from a live system and pseudonymised. A run replays it, so the same question "
+        "always gets the same answer and nothing here ever touches a live system.",
+        "<strong>Asked as of</strong> defaults to the instant the evidence describes rather "
+        "than to today, because a capture of July can only answer honestly about July. Add "
+        "<code>?as_of=YYYY-MM-DD</code> to a run's address to ask about another date.",
+        "<strong>A draft</strong> is a rule composed from prose and filed but not reviewed. "
+        "It is runnable but unreviewed, badged everywhere it appears, and deliberately not "
+        "counted in the figure that reports how many controls reach an answer.")
 
 
 # --------------------------------------------------------------------------- run
@@ -184,6 +320,7 @@ def run_page(run: Run, plan=None, readiness: Iterable = (), links: dict | None =
         '&middot; %d provider call(s)</p>'
         % (_e(run.tenant_id), _e(run.provider), _e(run.evidence_label),
            " (synthetic)" if run.evidence_is_synthetic else "", _e(run.as_of), run.calls),
+        _what_this_line_means(),
         '<p class="meta %s">%s</p>' % ("stale" if run.freshness.is_stale else "",
                                        _e(run.freshness.headline)),
     ]
@@ -203,26 +340,174 @@ def run_page(run: Run, plan=None, readiness: Iterable = (), links: dict | None =
         # No tiles. A run that never happened has no counts, and rendering four zeroes for it
         # would be finding F5 with an extra step.
         parts.append('<div class="blocked"><p><strong>This control could not run against this '
-                     'body of evidence.</strong></p><p>%s</p></div>' % _e(run.blocked))
+                     'body of evidence.</strong></p><p>%s</p>%s</div>'
+                     % (_e(run.blocked), _why_no_counts(True)))
         return page(run.control_name, "%s · %s" % (run.tenant_id, run.evidence_label),
-                    "".join(parts))
+                    "".join(parts), explainer=_run_explainer())
 
     if coverage.concluded:
-        counts = run.counts
-        parts.append('<ul class="tiles">')
-        for outcome in TILE_ORDER:
-            parts.append('<li><span class="n">%d</span><span class="k">%s</span></li>'
-                         % (counts[outcome.value], _e(WORDING[outcome][0])))
-        parts.append("</ul>")
+        parts.append(_tiles(run.counts))
         parts.append('<p class="meta">%s</p>' % _e(coverage.headline))
     else:
-        parts.append('<div class="no-conclusion"><p><strong>%s</strong></p>%s</div>'
-                     % (_e(coverage.headline), _reasons(coverage)))
+        parts.append('<div class="no-conclusion"><p><strong>%s</strong></p>%s%s</div>'
+                     % (_e(coverage.headline), _reasons(coverage), _why_no_counts(False)))
 
-    parts.append("<h2>Verdicts</h2>" if run.verdicts else "")
-    parts.extend(verdict_block(verdict) for verdict in run.verdicts)
+    if run.verdicts:
+        parts.append(outcome_glossary())
+        parts.append('<h2>Answers, record by record <span class="count">%d record%s</span></h2>'
+                     % (len(run.verdicts), "" if len(run.verdicts) == 1 else "s"))
+        parts.append(verdict_groups(run.verdicts))
     return page(run.control_name, "%s · %s" % (run.tenant_id, run.evidence_label),
-                "".join(parts))
+                "".join(parts), explainer=_run_explainer())
+
+
+def _run_explainer() -> str:
+    """One run, explained. The highest-value four sentences on the whole demo.
+
+    Every term here was unguessable from the screen before slice 14: the three evidence
+    columns, the date the run asked about, the call count, and the four answers.
+    """
+    return explanation_bar(
+        "One rule, run once over one body of captured evidence. Every answer below names "
+        "the exact fields it was computed from.",
+        "<strong>The four answers</strong> are PASS, VIOLATION, NO ANSWER and NOT "
+        "APPLICABLE, and each one is defined beside the badges themselves under <em>What the "
+        "four answers mean</em> - one glossary, next to the thing it explains. Each answer "
+        "carries its own colour, its own border style and its own words, so the distinction "
+        "survives a greyscale screen, a printout and a reader who sees no colour.",
+        "<strong>The count tiles</strong> are a table of contents as well as a scoreboard: "
+        "each one links to the records it counts. They are shown only when the run concluded "
+        "something about at least one record - four zeroes with one of them under VIOLATION "
+        "reads as a clean bill of health, and that is exactly what it would not be.",
+        "<strong>The evidence table</strong> under each answer has three columns. "
+        "<em>field</em> is the canonical name the rule asked for; <em>value</em> is what came "
+        "back, always with its unit or its currency, because an amount without its currency "
+        "is not an amount; <em>from</em> is which call produced it, which is the part that "
+        "makes the trail auditable rather than anecdotal.",
+        "<strong>Asked as of</strong> is the instant this run asked about. It defaults to the "
+        "instant the body of evidence describes rather than to today, because a capture of "
+        "July can only answer honestly about July. Add <code>?as_of=YYYY-MM-DD</code> to this "
+        "address to ask about a different date; a date the engine cannot read is refused "
+        "rather than guessed at.",
+        "<strong>Provider call(s)</strong> is what this run cost. Some evidence is one call "
+        "per record with no bulk endpoint behind it, so every rule declares a bounded "
+        "population up front - and when a population would exceed the budget the budget is "
+        "raised deliberately rather than the population being quietly truncated.")
+
+
+def _what_this_line_means() -> str:
+    """A note attached to the run's own facts line, rather than to the page.
+
+    Separate from the explanation bar on purpose: this one sits beside the numbers it is
+    about, which is where somebody puzzled by `asked as of 2026-07-08` is actually looking.
+    """
+    return ('<details class="aside"><summary>What do these say?</summary>'
+            "<p><strong>Provider</strong> is which system answered. <strong>Evidence</strong> "
+            "is which capture was replayed; a synthetic one is re-encoded from a real capture "
+            "to prove the same rule runs on a second system. <strong>Asked as of</strong> is "
+            "the instant the run asked about, which defaults to the instant that capture "
+            "describes and not to today - override it with <code>?as_of=YYYY-MM-DD</code>. "
+            "<strong>Provider call(s)</strong> is what the run cost: for some evidence that is "
+            "one call per record, which is why every rule bounds its population first.</p>"
+            "</details>")
+
+
+def _why_no_counts(blocked: bool) -> str:
+    """Why the tile row is absent, said where its absence is visible.
+
+    Criterion 8 is the single most mistakable thing on this screen. A reader who concludes the
+    tiles failed to render has learned nothing; a reader told that four zeroes would have read
+    as a clean bill of health has been handed the product's entire argument.
+
+    TWO DIFFERENT ABSENCES, AND THEY DO NOT SHARE A SENTENCE. A run that concluded nothing
+    looked at records and could not decide about a single one. A BLOCKED run never obtained the
+    evidence to look at all. Telling a reader the second one "concluded nothing" describes a
+    run that did not happen - and "we looked and could not tell" against "we could not look"
+    is the same distinction as UNKNOWN against FAIL, one level up.
+    """
+    what = ("a run that <strong>never ran</strong>: the evidence it needs was not in this "
+            "body of responses, so there was nothing to reach a conclusion about"
+            if blocked else
+            "a run that looked at records and <strong>could not decide about a single "
+            "one</strong>")
+    return ('<details class="aside"><summary>Why are there no counts?</summary>'
+            "<p>Deliberately. <strong>No counts are shown</strong> for %s, because four "
+            "zeroes - one of them under VIOLATION - read as a clean bill of health. This "
+            "control has not found the property compliant, and the reason is above.</p>"
+            "</details>" % what)
+
+
+def _tiles(counts: dict) -> str:
+    """The count tiles: a scoreboard that is also the page's table of contents.
+
+    Each tile carries its outcome's own hue and border style, the same two signals the verdict
+    blocks carry (criterion 2) - they used to be four identical grey boxes, so the distinction
+    the whole product rests on was missing from the one component every reader looks at first.
+
+    A tile with records behind it is a FRAGMENT LINK to them. On a page that can be a hundred
+    and eleven records long that is the difference between a number and a way in, and it costs
+    no JavaScript: `href="#verdicts-FAIL"` is a 1993 feature. A tile with a zero is not a link,
+    because a link to an absent section is a promise the page cannot keep - but the zero is
+    still rendered, because an outcome nobody reached is a fact worth stating.
+    """
+    cells = []
+    for outcome in TILE_ORDER:
+        count = counts[outcome.value]
+        inner = ('<span class="n">%d</span><span class="k">%s</span>'
+                 % (count, _e(WORDING[outcome][0])))
+        if count:
+            cells.append('<li class="%s"><a href="#verdicts-%s">%s</a></li>'
+                         % (_e(outcome.value), _e(outcome.value), inner))
+        else:
+            cells.append('<li class="%s"><span class="box">%s</span></li>'
+                         % (_e(outcome.value), inner))
+    return ('<ul class="tiles" aria-label="How many records reached each answer">%s</ul>'
+            % "".join(cells))
+
+
+def verdict_groups(verdicts: Iterable[Verdict]) -> str:
+    """Every verdict, grouped by its answer, ordered by what the group asks of the reader.
+
+    WHY THIS EXISTS. In population order, `inactive_room_future_stay` renders 111 verdicts of
+    which 71 say "the reservation was cancelled, so this control does not apply" - and the
+    thirteen records it could not answer, which are the entire product path, were interleaved
+    somewhere in the middle of them. The reader's question is "what needs doing?", and the page
+    answered "here is everything, in the order the hotel's database happened to return it".
+
+    WHAT IS AND IS NOT HIDDEN. The groups that ask something - VIOLATION and NO ANSWER - are
+    open. PASS and NOT APPLICABLE are a `<details>` away, and `<details>` is the right
+    mechanism precisely because a closed one is still in the document: criterion 3's trail is
+    intact, a text scrape sees every record, the counts are all still in the tile row, and one
+    keypress opens it. Collapsing is not omitting.
+
+    ORDER IS PRESERVED WITHIN A GROUP. The sequence the evidence arrived in is itself evidence,
+    so this regroups and never sorts.
+    """
+    grouped: dict[Outcome, list[Verdict]] = {outcome: [] for outcome in GROUP_ORDER}
+    for verdict in verdicts:
+        grouped[verdict.outcome].append(verdict)
+
+    sections = []
+    for outcome in GROUP_ORDER:
+        members = grouped[outcome]
+        if not members:
+            # No empty section, for the same reason there is no tile row on a run that
+            # concluded nothing: a heading reading "0 violations" is a reassurance nobody
+            # earned. The tile row already states the zero, where a zero belongs.
+            continue
+        badge = WORDING[outcome][0]
+        sections.append(
+            '<details class="group %s" id="verdicts-%s"%s>'
+            '<summary><span class="chip %s">%s</span>'
+            '<strong class="tally">%d record%s</strong>'
+            '<span class="gist">%s</span></summary>'
+            '<div class="group-body">%s</div></details>'
+            % (_e(outcome.value), _e(outcome.value),
+               " open" if outcome in OPEN_GROUPS else "",
+               _e(outcome.value), _e(badge), len(members),
+               "" if len(members) == 1 else "s", _e(GROUP_MEANING[outcome]),
+               "".join(verdict_block(verdict) for verdict in members)))
+    return "".join(sections)
 
 
 def _reasons(coverage) -> str:
@@ -236,7 +521,10 @@ def _reasons(coverage) -> str:
         return ""
     rows = "".join("<tr><td>%d</td><td>%s</td></tr>" % (count, _e(reason))
                    for reason, count in coverage.reasons)
-    return ('<table class="listing"><tr><th>records</th><th>reason</th></tr>%s</table>' % rows)
+    return ('<div class="scroller"><table class="listing">'
+            '<caption>Why this run concluded nothing, by number of records</caption>'
+            '<tr><th scope="col">records</th><th scope="col">reason</th></tr>%s</table></div>'
+            % rows)
 
 
 def verdict_block(verdict: Verdict) -> str:
@@ -247,11 +535,21 @@ def verdict_block(verdict: Verdict) -> str:
     """
     badge, means = WORDING[verdict.outcome]
     rows = "".join(_evidence_row(line) for line in verdict.evidence)
+    # `scope="col"` and a `<caption>` so a screen reader announces what the table is and which
+    # column a cell belongs to. The caption is visually quiet in CSS and fully present in the
+    # markup, which is the whole reason it is a caption and not a `title=`: with no stylesheet
+    # at all it simply becomes visible, and the meaning never depended on the stylesheet.
+    #
+    # The scroller is around the table rather than on it. An UNKNOWN's reason is a whole
+    # sentence, and a page that scrolls sideways puts the verdict badge off the screen.
     return (
         '<article class="verdict %s">'
         '<span class="badge">%s</span><span class="record">%s</span>'
         '<p class="says">%s</p><p class="means">%s</p>'
-        '<table class="evidence"><tr><th>field</th><th>value</th><th>from</th></tr>%s</table>'
+        '<div class="scroller"><table class="evidence">'
+        "<caption>Evidence behind this answer</caption>"
+        '<tr><th scope="col">field</th><th scope="col">value</th>'
+        '<th scope="col">from</th></tr>%s</table></div>'
         "</article>"
         % (_e(verdict.outcome.value), _e(badge), _e(verdict.record_id or "(no record id)"),
            _e(verdict.reason), _e(means), rows))
@@ -283,7 +581,9 @@ def history_page(control_id: str, rows: Iterable[dict]) -> str:
     if not rows:
         body = ('<div class="card"><p>This control has not been run in this session yet.</p>'
                 '<p class="meta"><a href="/run/%s">Run it</a></p></div>' % _e(control_id))
-        return page("History", control_id, body)
+        # The same explanation bar as the populated page. An empty history is the FIRST page
+        # some readers will see, and it is the one where "why does this exist?" needs an answer.
+        return page("History", control_id, body, explainer=_history_explainer())
 
     cells = []
     for row in rows:
@@ -299,12 +599,32 @@ def history_page(control_id: str, rows: Iterable[dict]) -> str:
                _e(row["created_at"]), _e(row.get("evidence_label")), _e(row["as_of"]),
                _e(row["calls"]), summary))
 
-    body = ('<div class="card"><table class="listing">'
-            "<tr><th>run</th><th>made</th><th>evidence</th><th>as of</th><th>calls</th>"
-            "<th>outcome</th></tr>%s</table>"
+    body = ('<div class="card"><div class="scroller"><table class="listing">'
+            "<caption>Every run of this control in this session, newest first</caption>"
+            '<tr><th scope="col">run</th><th scope="col">made</th>'
+            '<th scope="col">evidence</th><th scope="col">as of</th>'
+            '<th scope="col">calls</th><th scope="col">outcome</th></tr>%s</table></div>'
             '<p class="meta">Re-reading any of these costs no provider call (R1).</p></div>'
             % "".join(cells))
-    return page("History", control_id, body)
+    return page("History", control_id, body, explainer=_history_explainer())
+
+
+def _history_explainer() -> str:
+    return explanation_bar(
+        "Every run of this control in this session, newest first - what it was asked, what "
+        "it answered, and what the answer cost.",
+        "<strong>Re-reading a past run costs no provider call.</strong> That is not a "
+        "convenience. Some evidence is one call per record on somebody else's server with no "
+        "bulk endpoint behind it, so re-running a control just to answer <em>what did it "
+        "say?</em> is the expensive mistake this page exists to prevent.",
+        "<strong>The run id</strong> links to that run as data - the same verdicts and the "
+        "same evidence trail, as JSON.",
+        "<strong>As of</strong> is the instant each run asked about, and <strong>evidence"
+        "</strong> is which capture it replayed. Two runs that disagree usually asked "
+        "different questions rather than got different answers.",
+        "A run is identified by the question it asked, so reloading a run page replaces its "
+        "entry rather than adding one. This history records distinct questions, not page "
+        "loads.")
 
 
 # --------------------------------------------------------------------------- json
@@ -407,10 +727,9 @@ def redirect(location: str) -> str:
     # shell already carries one for the stylesheet, and parsing "the first href" sent a reader
     # to /style.css. This attribute appears exactly once and only in a redirect.
     return page("Filed", "The draft was written.",
-                '<meta http-equiv="refresh" content="0; url=%s">'
                 '<div class="card"><p class="sentence">Draft filed</p>'
-                '<p>Continue to <a href="%s">the run</a>.</p></div>'
-                % (_e(location), _e(location)))
+                '<p>Continue to <a href="%s">the run</a>.</p></div>' % _e(location),
+                head='<meta http-equiv="refresh" content="0; url=%s">' % _e(location))
 
 
 def compose_page(proposer: str, conversation: str, transcript: Iterable,
@@ -427,14 +746,17 @@ def compose_page(proposer: str, conversation: str, transcript: Iterable,
     tenant_id, capture = selection
 
     if not proposer:
-        return page("Compose", "This front end is switched off.", _off_page())
+        return page("Compose", "This front end is switched off.", _off_page(),
+                    explainer=_compose_explainer(""))
 
     body = [
         '<div class="card">',
         '<p class="sentence">Compose a control</p>',
-        '<p class="meta">Describe a rule in your own words. The <strong>%s</strong> proposer '
-        'rewrites it as a restricted sentence; the deterministic grammar turns that sentence '
-        'into the rule. You can edit the sentence before anything runs.</p>' % _e(proposer),
+        # The proposer's NAME, which is the one thing here the explanation bar above cannot
+        # say: it names how the page works, and this names what is actually wired into it.
+        '<p class="meta">Drafting with the <strong>%s</strong> proposer. What compiles is the '
+        'sentence you leave in the box, and you can edit it before anything runs.</p>'
+        % _e(proposer),
         "</div>",
         _transcript(transcript),
     ]
@@ -450,7 +772,47 @@ def compose_page(proposer: str, conversation: str, transcript: Iterable,
     body.append(_drafts_card(drafts, tenant_id, capture))
 
     return page("Compose", "Prose in, a restricted sentence out, and the same validator as "
-                           "every hand-written rule.", "".join(body))
+                           "every hand-written rule.", "".join(body),
+                explainer=_compose_explainer(proposer))
+
+
+def _compose_explainer(proposer: str) -> str:
+    """The three things on this screen that a reader cannot infer from it.
+
+    This is the one page that asks somebody to type, and the one where a misunderstanding has
+    consequences: a reader who believes their prose is what runs has misunderstood decision
+    D10 in the direction that matters.
+    """
+    if not proposer:
+        return explanation_bar(
+            "This page turns a rule described in your own words into a rule that runs. It is "
+            "switched off here, because it is the only part of this system that talks to a "
+            "model at all.",
+            "<strong>Nothing is missing and nothing is broken.</strong> The engine imports "
+            "nothing outside the standard library and holds no HTTP client; every model "
+            "backend lives outside the engine and is handed in at startup, so this front end "
+            "exists only when somebody deliberately starts it. The commands are below.",
+            "<strong>Even switched on, a model never decides a rule.</strong> It drafts one "
+            "restricted sentence; the same deterministic grammar that compiles every "
+            "hand-written rule compiles that sentence, and a person presses the button.")
+    return explanation_bar(
+        "Describe a rule in your own words. A model rewrites it as one restricted sentence, "
+        "and the same deterministic grammar that compiles every hand-written rule compiles "
+        "that sentence.",
+        "<strong>What runs is the sentence in the box, not your prose.</strong> The model's "
+        "suggestion arrives in a text box you can edit, and what compiles is whatever is in "
+        "that box when you press the button - so a person is always between the model and the "
+        "rule, and no answer anywhere in this system depends on a model call.",
+        "<strong>Records to check</strong> borrows an existing control's bounded population. A "
+        "sentence may not name an endpoint or a date window - that would tie the rule to one "
+        "particular system and it would stop being portable - so that half of the document "
+        "arrives as data, and the page says which control it was borrowed from.",
+        "<strong>A filed draft is runnable but unreviewed.</strong> It is badged wherever it "
+        "appears and is deliberately not counted in the figure that reports how many controls "
+        "reach an answer. Promoting one to a reviewed control is a separate, manual act.",
+        "<strong>A question is a valid answer.</strong> If the proposer will not invent hotel "
+        "policy it asks you instead, and you get no button to run anything - a question is a "
+        "better answer than a rule the hotel never asked for.")
 
 
 def _off_page() -> str:

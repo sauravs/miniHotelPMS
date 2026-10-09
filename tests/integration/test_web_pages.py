@@ -310,3 +310,98 @@ def test_a_deployment_with_no_property_configured_says_so(tmp_path):
     status, _ct, body = App(spec_dir=tmp_path).handle("/")
     assert status == 500
     assert "No property is configured" in body
+
+
+# ---------------------------------------------------------------------------------------
+class TestSliceFourteenAFirstTimeReaderCanLearnThePageFromThePage:
+    """The UI/UX pass, against captured evidence rather than a hand-made Run.
+
+    The demo's vocabulary is not guessable from the screen: EXCLUDED is not PASS, UNKNOWN is
+    not FAIL, "4 of 5 fields" is a readiness ratio, `as_of` defaults to the instant the
+    EVIDENCE describes, "draft - unreviewed" means runnable and uncounted. Each of those is a
+    sentence somebody has to read somewhere, and `<details><summary>` is the only mechanism
+    here that is keyboard-reachable, touch-reachable AND survives having its tags stripped.
+    """
+
+    def test_every_page_in_the_tour_carries_its_own_explanation(self, app):
+        paths = ["/", "/history/checkout_money_owed",
+                 "/run/checkout_unrefunded_credit?property=sandbox&evidence=sandbox2026",
+                 "/run/inactive_room_future_stay?property=sandbox&evidence=sandbox2026",
+                 "/run/ooo_room_protection?property=sandbox&evidence=sandbox2026",
+                 "/run/resource_occupancy_consistency?property=sandbox&evidence=sandbox2026"]
+        for path in paths:
+            markup = app.handle(path).body
+            assert 'class="explainer"' in markup, path
+            assert "how to read this page" in text_of(markup).lower(), path
+
+    def test_no_page_in_the_tour_hides_help_in_a_title_attribute(self, app):
+        """`title=` is stripped by `text_of`, unreachable on a touch screen and read
+        inconsistently by screen readers, so it is the one tooltip mechanism this project may
+        not use. Asserted over the whole matrix, not just the pages that were changed."""
+        for control_id in CONTROLS:
+            for tenant_id, capture in evidence_sets(app):
+                body = app.handle("/run/%s?property=%s&evidence=%s"
+                                  % (control_id, tenant_id, capture)).body
+                assert not re.search(r"\stitle=", body), control_id
+
+    def test_a_blocked_run_explains_that_the_absent_counts_are_deliberate(self, app):
+        """`resource_occupancy_consistency` is blocked on this capture (issue #9). A reader who
+        reads the missing tile row as a rendering bug has learned nothing; one who is told four
+        zeroes would have read as a clean bill of health has learned the product's argument."""
+        body = app.handle(
+            "/run/resource_occupancy_consistency?property=sandbox&evidence=sandbox2026").body
+        assert 'class="tiles"' not in body
+        assert "no counts are shown" in text_of(body).lower()
+
+    def test_the_hundred_and_eleven_record_page_leads_with_what_needs_acting_on(self, app):
+        """The page that made this slice necessary. `inactive_room_future_stay` answers about
+        111 stays, 71 of them NOT APPLICABLE because the reservation was cancelled - so in
+        population order the thirteen records that could not be answered were buried."""
+        body = app.handle(
+            "/run/inactive_room_future_stay?property=sandbox&evidence=sandbox2026").body
+        groups = re.findall(r'id="verdicts-(\w+)"', body)
+        assert groups.index("UNKNOWN") < groups.index("EXCLUDED"), groups
+        unknown = re.search(r'<details[^>]*id="verdicts-UNKNOWN"[^>]*>', body)
+        excluded = re.search(r'<details[^>]*id="verdicts-EXCLUDED"[^>]*>', body)
+        assert "open" in unknown.group(0), "the gaps are the product path and must be visible"
+        assert "open" not in excluded.group(0), "seventy-one exclusions are not the answer"
+
+    def test_collapsing_a_group_never_removes_a_record_from_the_page(self, app):
+        """A `<details>` that is closed is still in the document, which is the entire reason it
+        is the right mechanism here: criterion 3's trail survives, and so does a text scrape."""
+        path = "/run/inactive_room_future_stay?property=sandbox&evidence=sandbox2026"
+        body = app.handle(path).body
+        payload = json.loads(app.handle("/api/run/inactive_room_future_stay"
+                                        "?property=sandbox&evidence=sandbox2026").body)
+        assert body.count('<article class="verdict') == len(payload["verdicts"])
+        for verdict in payload["verdicts"]:
+            assert verdict["record_id"] in body, verdict["record_id"]
+
+    def test_the_four_answers_are_explained_in_prose_on_a_run_page(self, app):
+        text = text_of(app.handle(
+            "/run/inactive_room_future_stay?property=sandbox&evidence=sandbox2026").body).lower()
+        assert "what the four answers mean" in text
+        assert "not a pass and not a failure" in text
+        assert "has not been checked" in text
+
+    def test_the_index_explains_readiness_and_bodies_of_evidence(self, app):
+        text = text_of(app.handle("/").body).lower()
+        assert "fields the rule needs" in text
+        assert "frozen set of real responses" in text
+
+    def test_the_history_page_explains_that_re_reading_is_free(self, app):
+        """R1. Re-running a control to answer "what did it say?" costs one call per
+        reservation on somebody else's server, and the history exists so nobody does that."""
+        app.handle("/run/checkout_money_owed?property=sandbox&evidence=sandbox2026")
+        text = text_of(app.handle("/history/checkout_money_owed").body).lower()
+        assert "no provider call" in text
+
+    def test_the_whole_matrix_is_still_a_well_formed_document(self, app):
+        for control_id in CONTROLS:
+            body = app.handle("/run/%s?property=sandbox&evidence=sandbox2026"
+                              % control_id).body
+            assert body.lower().startswith("<!doctype html>"), control_id
+            assert '<html lang="en">' in body, control_id
+            assert body.rstrip().endswith("</html>"), control_id
+            assert "<script" not in body.lower(), control_id
+            assert "onclick" not in body.lower(), control_id
