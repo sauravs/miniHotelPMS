@@ -399,6 +399,12 @@ costs one indirection now and is the only version of this that does not have to 
 5 on roughly half the roadmap, and *"we'll decide when we get there"* is in practice a decision for
 (a) made without noticing — which is the right answer, but it should be the owner's.
 
+**DECIDED 2026-10-09 by the project owner: (a) advisory.** StayOps decides and hands staff a task;
+it never writes to a PMS, so `prd.md` §6's read-only rule stands unchanged. Every action is modelled
+as a record with a state (`pending`, `done`, `dismissed`) that a person performs. Acting (b) is not
+in scope; if it is ever proposed, it reopens this question rather than being built around it.
+Recorded for v3 planning — see `docs/v3-planner-brief.md`.
+
 ### 1.11 Which of the nine disagreements between the three StayOps documents stand?
 
 **Raised 2026-10-02. Question N2 in `docs/stayops-gap-analysis.md` §6, where all nine are listed
