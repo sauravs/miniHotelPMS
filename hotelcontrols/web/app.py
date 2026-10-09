@@ -593,8 +593,11 @@ class App:
                       for outcome in Outcome}
             counts["total"] = row["total"] or 0
             evaluated = sum(counts[outcome.value] for outcome in Outcome if outcome.is_answer)
+            # `policy_version` and `policy_digest` (slice 16): which rule judged the run, or
+            # null for one stored before rules carried a version. The page groups by the pair.
             entry = {key: row[key] for key in ("run_id", "created_at", "provider",
-                                               "evidence_label", "as_of", "calls", "blocked")}
+                                               "evidence_label", "as_of", "calls",
+                                               "policy_version", "policy_digest", "blocked")}
             coverage = Coverage(evaluated=evaluated, total=counts["total"])
             entry["concluded"] = coverage.concluded
             # The sentence that goes where the counts would be, in the engine's words. Not for a

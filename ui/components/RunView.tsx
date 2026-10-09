@@ -13,6 +13,7 @@
  * mistake v1 shipped.
  */
 import type { Counts, Outcomes, OutcomeWording, ReadinessReport, RunPayload } from "@/lib/types";
+import { Policy } from "./Policy";
 import { Verdict } from "./Verdict";
 
 export function RunView({
@@ -41,6 +42,9 @@ export function RunView({
           evidence <strong>{run.evidence.label}</strong>
           {run.evidence.synthetic ? " (synthetic)" : ""} · asked as of <strong>{run.as_of}</strong>{" "}
           · {run.calls} provider call(s)
+        </p>
+        <p className="meta policy">
+          <Policy version={run.policy_version} digest={run.policy_digest} />
         </p>
         <p className={`meta ${run.freshness.stale ? "stale" : ""}`}>{run.freshness.headline}</p>
         {execution ? <p className="meta">{execution.headline}</p> : null}

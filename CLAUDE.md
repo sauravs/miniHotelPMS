@@ -24,7 +24,7 @@ that adding a PMS is a new adapter plus a mapping file, not a change to any rule
 | v2 documents | **Done** — prd, context, architecture, plan, open questions |
 | v2 code | **All 12 slices merged**, plus slice 13 (compose) and slice 14 (UI/UX pass). 1940 tests at slice 14 (1996 today), 96% coverage, 1080 spec checks, CI green. 11 of 12 criteria met; criterion 1 is recorded as **not met** with its arithmetic in `docs/plan.md` |
 | Slice 15: React UI | **Done** — `ui/`, a Next.js client of the JSON API. The engine is unchanged and both surfaces ship. 152 Vitest and 19 Playwright tests; criteria 2, 3, 8 and 10 re-proven. See `ui/README.md` |
-| v3 plan | **Approved 2026-10-09 (PR #50)** — `docs/plan-v3.md`; start from `docs/v3-implementation-brief.md`. Slices 16–24, decisions D12–D16, criteria V1–V12. Baseline on `7f384c4`: **1996 passed / 2 skipped, 1080 spec checks, 120 goldens and 11 DemoPMS files identical, 96% coverage**. Open first: fix #48 (the card on file is a placeholder) |
+| v3 plan | **Approved 2026-10-09 (PR #50)** — `docs/plan-v3.md`; start from `docs/v3-implementation-brief.md`. Slices 16–24, decisions D12–D16, criteria V1–V12. Baseline on `7f384c4`: **1996 passed / 2 skipped, 1080 spec checks, 120 goldens and 11 DemoPMS files identical, 96% coverage**. **Progress: fix #48 merged (#52); slice 16 (policy versioning) built.** Track the live state in the `docs/plan-v3.md` status table |
 
 ## Documents, in reading order
 
@@ -105,6 +105,9 @@ UNKNOWN. That is the honest cost of not guessing.
   else's server to be up is not a suite.
 - **`spec/` is data, not code.** The engine reads it at runtime. Nothing in `hotelcontrols/` should
   know what control 6 is — it is one IR file among eleven.
+- **Editing a rule makes a new version** (since slice 16). Change an IR's verdict-bearing content,
+  bump its `version`, then `python3 -m tools.lock_spec`. `validate_spec` fails an edit without a
+  bump, and every stored run names the version and digest of the rule that judged it.
 - **`fixtures/demopms/` is generated, never edited.** It is the MiniHotel captures re-encoded by
   `tools/transcode_demopms.py`, gaps included, so "the same hotel through two providers" means
   something. Change the tool and rebuild; a test asserts the rebuild is byte-identical.
@@ -157,7 +160,8 @@ The issue is written **before** the fix, while the reproduction is still known.
 
 ```bash
 PYTHONDONTWRITEBYTECODE=1 python3 -m pytest -q     # the suite, offline
-python3 -m tools.validate_spec                     # spec + fixture checks
+python3 -m tools.validate_spec                     # spec + fixture checks, incl. the spec lock
+python3 -m tools.lock_spec                         # AFTER bumping a rule's version: record it
 python3 -m hotelcontrols.web.server                # the demo, http://127.0.0.1:8765/
 HOTELCONTROLS_COMPOSE=1 python3 -m tools.serve --llm stub    # the demo + /compose, no model needed
 HOTELCONTROLS_COMPOSE=1 python3 -m tools.serve --llm local   # ...backed by Ollama. Free, offline

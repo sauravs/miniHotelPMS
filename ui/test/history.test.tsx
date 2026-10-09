@@ -114,3 +114,46 @@ describe("parity over every history golden", () => {
     });
   });
 });
+
+describe("slice 16 - history groups by the rule that judged each run (V3)", () => {
+  it("every golden row is under a header naming its version and digest", () => {
+    const h = history("checkout_money_owed");
+    const { container } = render(<HistoryView control={control("checkout_money_owed")} history={h} outcomes={outcomes} />);
+    const groups = [...container.querySelectorAll("tbody[data-policy]")];
+    expect(groups).toHaveLength(1);
+    expect(textOf(groups[0].querySelector("tr.policy")!)).toContain(`Judged under v${h.runs[0].policy_version}`);
+  });
+
+  it("v2 and v3 runs are two groups, newest first, and a pre-v3 run says version not recorded", () => {
+    const base = history("checkout_money_owed").runs[0];
+    const h: History = {
+      control_id: "checkout_money_owed",
+      runs: [
+        { ...base, run_id: "v3run", policy_version: 3, policy_digest: "sha256:" + "b".repeat(64) },
+        { ...base, run_id: "v2run", policy_version: 2, policy_digest: "sha256:" + "a".repeat(64) },
+        { ...base, run_id: "oldrun", policy_version: null, policy_digest: null },
+      ],
+    };
+    const { container } = render(<HistoryView control={control("checkout_money_owed")} history={h} outcomes={outcomes} />);
+    const headers = [...container.querySelectorAll("tbody[data-policy] tr.policy")].map(textOf);
+    expect(headers).toHaveLength(3);
+    expect(headers[0]).toContain("Judged under v3");
+    expect(headers[0]).toContain("bbbbbbbbbbbb");
+    expect(headers[1]).toContain("Judged under v2");
+    expect(headers[2]).toContain("Version not recorded");
+    expect(rows(container).map((r) => r.getAttribute("data-run-id"))).toEqual(["v3run", "v2run", "oldrun"]);
+  });
+
+  it("one version with two digests is two groups, so an unbumped edit cannot hide", () => {
+    const base = history("checkout_money_owed").runs[0];
+    const h: History = {
+      control_id: "checkout_money_owed",
+      runs: [
+        { ...base, run_id: "edited", policy_version: 2, policy_digest: "sha256:" + "c".repeat(64) },
+        { ...base, run_id: "reviewed", policy_version: 2, policy_digest: "sha256:" + "a".repeat(64) },
+      ],
+    };
+    const { container } = render(<HistoryView control={control("checkout_money_owed")} history={h} outcomes={outcomes} />);
+    expect(container.querySelectorAll("tbody[data-policy]")).toHaveLength(2);
+  });
+});

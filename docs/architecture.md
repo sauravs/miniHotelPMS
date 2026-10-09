@@ -132,9 +132,23 @@ Enforced structurally, not by convention:
 registry.field(name) -> FieldSpec        # type, absent_means, risk, description
 ir.load(control_id)  -> IR               # validated on load, never trusted raw
 ir.validate(ir)      -> [Problem]        # references only declared vocabulary
+ir.version / ir.digest -> int / "sha256:..."   # since slice 16: which rule this is
+lock.read_lock(spec) -> {control: (version, digest)}   # spec/ir.lock.json
+lock.lock_problems(spec) -> [Problem]    # content changed without a bump; version went back
 tenant.load(id)      -> TenantConfig     # status map, department map, timezone,
                                          # currency, call budget, nominated rate codes
 ```
+
+**A version cannot lie (slice 16, G6b).** Every IR has carried `"version": 2`, and since slice 16
+the loader reads it. A version kept by hand is a number that can drift from the rule, so it is paired
+with a **digest** of the rule's verdict-bearing content: population, references, scope, exceptions,
+assertion, required evidence, unknown conditions, and the sentences shown beside a verdict (entity,
+name, natural and restricted language). `note` prose, the schedule, freshness, the action block and
+caveats decide no verdict and are not hashed. `spec/ir.lock.json` records `(version, digest)` per
+reviewed control, written by `tools/lock_spec.py` and never by hand. `tools/validate_spec.py` fails a
+rule whose content moved under an unchanged version, or whose version went backwards. The lock tool
+refuses to record such an edit, and the suite fails on a lock that is not current. A bump the lock
+has not recorded yet passes validation and is reported as *not yet locked*.
 
 Hides: JSON on disk, schema enforcement, cross-file reference checking, and the rule that anything
 used in scope/exceptions/assertions must also be declared as required evidence.
@@ -252,7 +266,8 @@ booking looks like a duplicate of every other.
 ```python
 run(control_id, tenant, evidence, as_of) -> Run
 Run = { control, as_of, provider, evidence_origin, is_synthetic, calls,
-        verdicts, counts, coverage, blocked }
+        verdicts, counts, coverage, blocked,
+        policy_version, policy_digest }        # slice 16: the rule that judged it
 readiness(control_id, provider)          -> Readiness   # fields resolvable / total, per source
 next_evaluation(ir, provider_events, clock, last_run_at, event_at) -> Plan
 freshness_of(maximum_age, observed_at, now)                        -> Freshness
@@ -268,6 +283,15 @@ with `evaluated == 0` is rendered as *"this control reached no conclusion about 
 dominant reason — never as four tiles containing a reassuring zero. v1 reported 28 EXCLUDED / 0 FAIL
 for an out-of-service-room control on a property where the mechanism had never been observed
 working, and it was indistinguishable on screen from a clean result.
+
+**A run names the rule that judged it** (slice 16). `policy_version` and `policy_digest` are read
+from the IR the run actually loaded, so a rule edited without its bump is visible on the run even
+when its version is not. The store keeps both in two nullable columns added by `_migrate`. **A run
+stored before slice 16 reads back with neither, and every surface says *version not recorded***.
+It never borrows today's version: the freshness rule, applied to identity. `make_run_id` is
+unchanged (plan-v3 §6.6). The same question at the same instant keeps one identity, so in the demo,
+whose clock is fixed at the capture's instant, re-running after a version bump replaces that row.
+The replacement carries the new rule's verdicts and the new rule's version together.
 
 **Scheduling is a pure function.** `next_evaluation` reads the IR's `execution`, asks the provider
 what events it publishes, and returns a `Plan`: a subscription, a due time, or `unschedulable`. A
@@ -290,7 +314,7 @@ GET  /?property=&evidence=            the controls the spec defines, with readin
 GET  /run/<control_id>?property=&evidence=&as_of=   run it and render every verdict
 GET  /api/run/<control_id>            the same run as JSON
 GET  /api/runs/<run_id>               a stored run, re-read without a provider call
-GET  /history/<control_id>            past runs, newest first
+GET  /history/<control_id>            past runs, newest first, grouped by the rule that judged them
 GET  /api/readiness/<control_id>      per-provider field availability
 GET  /api/controls                    every reviewed control with its readiness, in one request
 GET  /api/properties                  each property, its provider, its captures, and the default
@@ -338,6 +362,8 @@ client:
   it.
 - **`GET /api/run/` spends provider calls and writes a row.** A client fetches a run once, on
   purpose, and re-reads it from `/api/runs/<run_id>`.
+- **`policy_version` and `policy_digest` are null on a run stored before slice 16.** That means
+  *version not recorded*. A client never fills it in with the current version.
 
 UNKNOWN is distinguished from FAIL by **hue, border style and wording** — three signals, so the
 distinction survives a monochrome screen or a colour-blind reader.
@@ -392,7 +418,7 @@ do not exist rather than producing a rule that runs and quietly answers about no
 ```
 hotelcontrols/
   kernel/         value.py · money.py · outcome.py · verdict.py · clock.py · errors.py
-  spec/           registry.py · ir.py · validate.py · tenant.py
+  spec/           registry.py · ir.py · lock.py · tenant.py · schema.py
   providers/      base.py · registry.py
                   minihotel/  adapter.py · paths.py · transforms.py · records.py · fixtures.py
                   demopms/    adapter.py · paths.py · records.py · transforms.py · fixtures.py
@@ -404,6 +430,7 @@ hotelcontrols/
   web/            app.py · render.py · server.py · assets/
   compiler/       grammar.py · sentences.py · model.py · problems.py
 spec/             canonical_fields.json · ir_schema.json · ir/*.json
+                  ir.lock.json            # version + digest per control - GENERATED
                   drafts/ir/*.json        # composed from prose, runnable, UNREVIEWED
                   providers/minihotel.json · providers/demopms.json
                   tenants/*.json
@@ -412,7 +439,8 @@ fixtures/         minihotel/  (pseudonymised captures + request fingerprints)
                   api/        (the JSON API's own answers - GENERATED, the React UI's contract)
 tests/            unit/ · integration/ · e2e/ · contract/
 docs/             every markdown document
-tools/            validate_spec.py · scrub_fixtures.py · transcode_demopms.py · probe.py
+tools/            validate_spec.py · lock_spec.py · scrub_fixtures.py · transcode_demopms.py
+                  probe.py
                   serve.py                # the demo WITH the compose front end wired
                   proposers/  base.py · local.py · anthropic_api.py · stub.py
                               # every model client. OUTSIDE the engine, injected in.
@@ -478,6 +506,12 @@ The UI's CI job is separate and not required, so a broken npm can never block an
 rules that matter most about `ui/` are therefore checked by the **required** Python suite as well:
 no parsed money, no PMS identifier, no injected HTML, one module that makes requests, and exact
 pins (`test_ui_hygiene.py`, `test_canonical_boundary.py`).
+
+**v3 adds two guards that run on every push.** `tests/unit/test_v3_slice_scope.py` holds each v3
+slice's *may change* line from `docs/plan-v3.md` §5 as an allow-list. It fails a `slice/16-*` …
+`slice/24-*` branch that touches anything else, and it refuses an edited file where a slice promised
+new files only. `tests/integration/test_v1_no_answer_changed.py` compares the verdicts, counts and
+coverage of all 88 run goldens with `7f384c4`, the commit v3 was planned on (criterion V1).
 
 Every test names the IR clause or the risk id it protects. `PYTHONDONTWRITEBYTECODE=1` in CI —
 v1 recorded a real incident where a stale `.pyc` made the suite silently run old code and report a

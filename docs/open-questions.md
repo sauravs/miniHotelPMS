@@ -574,6 +574,7 @@ Not questions — decisions, recorded so they can be reversed knowingly.
 | **Fixtures are pseudonymised** | Names, emails, phones and remarks replaced with stable fakes | Third-party personal data in a public repository is a legal question, not a style one. Structure, formats and every quirk are preserved exactly |
 | **Free-text remarks unmapped** | Nothing reads them | Question 1.5 |
 | **No FX source** | Cross-currency comparison raises; controls compare against literal zero | R9. Inventing a rate would be the single most damaging thing this engine could do to a finance team |
+| **A run's identity does not include its rule** (slice 16) | `make_run_id` hashes control, property, provider, evidence, `as_of` and `created_at`, but not `policy_version`. In the demo, whose clock is fixed at the capture's instant, re-running the same question after a rule's version bump **replaces** that row. The replacement always carries the new rule's verdicts **and** its version together; history groups by version and digest | `docs/plan-v3.md` §6.6: every stored run and golden keeps its identity, and idempotency lives on the action record (slice 18), not on `run_id`. Outside the fixed-clock demo `created_at` differs, so two versions are two rows. Reversing it would change all 88 run goldens' ids |
 | **Occupancy is a projection, not a native record** | Assembled by a declared join from sibling lists | The provider genuinely has no single block per occupancy record. Where a projection cannot be defined, the control is blocked **by name**, not crashed |
 
 ---

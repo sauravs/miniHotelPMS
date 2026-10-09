@@ -320,6 +320,7 @@ def run_page(run: Run, plan=None, readiness: Iterable = (), links: dict | None =
         '&middot; %d provider call(s)</p>'
         % (_e(run.tenant_id), _e(run.provider), _e(run.evidence_label),
            " (synthetic)" if run.evidence_is_synthetic else "", _e(run.as_of), run.calls),
+        '<p class="meta policy">%s</p>' % policy_html(run.policy_version, run.policy_digest),
         _what_this_line_means(),
         '<p class="meta %s">%s</p>' % ("stale" if run.freshness.is_stale else "",
                                        _e(run.freshness.headline)),
@@ -570,6 +571,41 @@ def _evidence_row(line) -> str:
 
 
 # --------------------------------------------------------------------------- history
+def policy_html(version: int | None, digest: str | None) -> str:
+    """Which rule judged a run - or, honestly, that nobody recorded it (slice 16, G6b).
+
+    The version alone is a number a person keeps, so the digest of what that version says is
+    shown beside it, shortened: two runs that both claim v2 but carry different digests were
+    judged by two different rules, and a reader comparing them should be able to see that.
+    """
+    if version is None:
+        return ("<strong>Version not recorded</strong> &middot; this run was stored before "
+                "rules carried a version, so which version of the rule judged it cannot be "
+                "said")
+    return ("Judged under <strong>v%d</strong> of this rule%s"
+            % (version, " &middot; digest <code>%s</code>" % _e(short_digest(digest))
+               if digest else ""))
+
+
+def short_digest(digest: str | None) -> str:
+    """The first twelve hex characters - enough to tell two rules apart on a screen."""
+    return (digest or "").split(":", 1)[-1][:12]
+
+
+def policy_groups(rows: Iterable[dict]) -> list[tuple[tuple, list[dict]]]:
+    """History rows grouped by `(policy_version, policy_digest)`, keeping their order.
+
+    Groups appear in the order of their newest run, and runs keep their newest-first order
+    inside a group - this regroups and never sorts. By version AND digest, so a rule edited
+    without its bump still forms its own group rather than hiding inside the reviewed one.
+    """
+    groups: dict[tuple, list[dict]] = {}
+    for row in rows:
+        key = (row.get("policy_version"), row.get("policy_digest"))
+        groups.setdefault(key, []).append(row)
+    return list(groups.items())
+
+
 def history_page(control_id: str, rows: Iterable[dict]) -> str:
     """Past runs of one control, newest first.
 
@@ -585,22 +621,27 @@ def history_page(control_id: str, rows: Iterable[dict]) -> str:
         # some readers will see, and it is the one where "why does this exist?" needs an answer.
         return page("History", control_id, body, explainer=_history_explainer())
 
-    cells = []
-    for row in rows:
-        cells.append(
-            '<tr data-created="%s"><td class="mono"><a href="/api/runs/%s">%s</a></td>'
-            "<td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>"
-            % (_e(row["created_at"]), _e(row["run_id"]), _e(row["run_id"]),
-               _e(row["created_at"]), _e(row.get("evidence_label")), _e(row["as_of"]),
-               _e(row["calls"]), _history_outcome(row)))
+    groups = []
+    for (version, digest), members in policy_groups(rows):
+        cells = ['<tbody><tr class="policy"><th colspan="6" scope="rowgroup">%s</th></tr>'
+                 % policy_html(version, digest)]
+        for row in members:
+            cells.append(
+                '<tr data-created="%s"><td class="mono"><a href="/api/runs/%s">%s</a></td>'
+                "<td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>"
+                % (_e(row["created_at"]), _e(row["run_id"]), _e(row["run_id"]),
+                   _e(row["created_at"]), _e(row.get("evidence_label")), _e(row["as_of"]),
+                   _e(row["calls"]), _history_outcome(row)))
+        groups.append("".join(cells) + "</tbody>")
 
     body = ('<div class="card"><div class="scroller"><table class="listing">'
-            "<caption>Every run of this control in this session, newest first</caption>"
-            '<tr><th scope="col">run</th><th scope="col">made</th>'
+            "<caption>Every run of this control in this session, newest first, grouped by "
+            "the version of the rule that judged it</caption>"
+            '<thead><tr><th scope="col">run</th><th scope="col">made</th>'
             '<th scope="col">evidence</th><th scope="col">as of</th>'
-            '<th scope="col">calls</th><th scope="col">outcome</th></tr>%s</table></div>'
+            '<th scope="col">calls</th><th scope="col">outcome</th></tr></thead>%s</table></div>'
             '<p class="meta">Re-reading any of these costs no provider call (R1).</p></div>'
-            % "".join(cells))
+            % "".join(groups))
     return page("History", control_id, body, explainer=_history_explainer())
 
 
@@ -639,6 +680,10 @@ def _history_explainer() -> str:
         "say?</em> is the expensive mistake this page exists to prevent.",
         "<strong>The run id</strong> links to that run as data - the same verdicts and the "
         "same evidence trail, as JSON.",
+        "<strong>Runs are grouped by the version of the rule that judged them</strong>, with "
+        "the digest of what that version says. Two runs under v2 and v3 answered two different "
+        "rules. A run stored before rules carried a version says <em>version not recorded</em> "
+        "rather than borrowing today's.",
         "<strong>As of</strong> is the instant each run asked about, and <strong>evidence"
         "</strong> is which capture it replayed. Two runs that disagree usually asked "
         "different questions rather than got different answers.",
@@ -662,6 +707,10 @@ def run_json(run: Run, plan=None, readiness: Iterable = ()) -> str:
         "created_at": run.created_at.isoformat(),
         "calls": run.calls,
         "run_id": run.run_id,
+        # Slice 16's declared contract change: which rule judged this run. Null on a run stored
+        # before rules carried a version - never filled in with today's version.
+        "policy_version": run.policy_version,
+        "policy_digest": run.policy_digest,
         "blocked": run.blocked,
         "coverage": {
             "evaluated": coverage.evaluated,

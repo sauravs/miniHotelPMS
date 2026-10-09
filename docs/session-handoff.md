@@ -3,10 +3,11 @@
 Paste the block below into a fresh session to resume. Everything it references is in the
 repository; nothing depends on the previous conversation.
 
-**Last updated:** 2026-10-09, after **v3 was planned** (`docs/plan-v3.md`, branch `docs/v3-plan`).
-The v2 build is complete, slices 0–15. **v3 is slices 16–24, APPROVED by the owner
-(PR #50). Nothing of v3 is built yet.** Start from `docs/v3-implementation-brief.md`: fix #48, then
-slice 16.
+**Last updated:** 2026-10-09, after **v3 slice 16 (policy versioning)** was built on
+`slice/16-policy-versioning`. The v2 build is complete, slices 0–15. **v3 is slices 16–24, APPROVED
+by the owner (PR #50). Fix #48 merged (PR #52); slice 16 is the open PR or just merged. Check the
+`docs/plan-v3.md` status table, then continue with slice 17.** Start every session from
+`docs/v3-implementation-brief.md` §1.
 
 **The bounded probe of the live sandbox is now v3 slice 23** (decision D16): planned, printed, and
 still gated on the owner's approval of each call *at the time*. Read
@@ -28,10 +29,22 @@ docs/architecture.md, docs/open-questions.md, docs/old-codebase-improve.md. They
 specification and the execution trackers. docs/plan.md is the v2 build log (slices 0-15);
 docs/plan-v3.md is authoritative for what is next (slices 16-24).
 
-STATE: v2 IS COMPLETE (slices 0-15, latest code PR #45) AND v3 IS PLANNED, NOT BUILT
-(docs/plan-v3.md). Baseline on 7f384c4, which every v3 slice must keep: 1996 passed / 2 skipped,
-1080 spec checks, 120 API goldens identical, 11 DemoPMS files identical, 96% coverage. CI green
-on Python 3.11 and 3.13. The React UI adds 154 Vitest and 19 Playwright tests in its own CI job.
+STATE: v2 IS COMPLETE (slices 0-15) AND v3 IS UNDER CONSTRUCTION (docs/plan-v3.md). Fix #48
+merged (PR #52). Slice 16 built: 2280 passed / 2 skipped, 1091 spec checks (the lock adds one per
+control), 120 API goldens identical to a rebuild, 11 DemoPMS files identical, 96% coverage. The
+React UI has 160 Vitest and 19 Playwright tests. The plan-v3 status table holds the latest numbers;
+a number that differs from it is a reason to stop and find out why.
+
+TWO GUARDS RUN ON EVERY PUSH SINCE SLICE 16. tests/unit/test_v3_slice_scope.py fails a
+slice/16-* .. slice/24-* branch that changes a path its plan-v3 §5 "May change" line does not
+list (and an existing file where a slice promised new files only). If it fails: STOP and ask the
+owner, never widen the table. tests/integration/test_v1_no_answer_changed.py compares verdicts,
+counts and coverage of all 88 run goldens with 7f384c4 (V1); a declared change goes in its
+DECLARED dict with the PR that made it.
+
+EDITING A RULE MAKES A NEW VERSION. Change an IR's verdict-bearing content -> bump "version" ->
+python3 -m tools.lock_spec. validate_spec fails an edit without a bump; every run names
+policy_version + policy_digest; a run stored before slice 16 reads "version not recorded".
 
 v3 IS APPROVED (PR #50). START FROM docs/v3-implementation-brief.md. ORDER: fix #48 (the card on file is a placeholder on every
 capture - make it UNKNOWN), then slices 16 versioning, 17 tenant-scoped store, 18 findings queue,

@@ -35,6 +35,7 @@ from typing import Any, Iterator
 
 from . import schema as jsonschema
 from .errors import Problem, SpecError
+from .lock import policy_digest
 from .registry import SPEC_DIR, Registry
 from .tenant import TenantConfig
 
@@ -89,6 +90,18 @@ class ControlIR:
     @property
     def natural_language(self) -> str:
         return self._raw["natural_language"]
+
+    @property
+    def version(self) -> int:
+        """Which version of this rule this is. Read since slice 16, and checked against the
+        spec lock, because a version kept by hand alone is a version that can lie (G6b)."""
+        return int(self._raw["version"])
+
+    @property
+    def digest(self) -> str:
+        """The SHA-256 of this rule's verdict-bearing content - what a stored run records beside
+        the version, so "judged under v2" can be told apart from a v2 edited without its bump."""
+        return policy_digest(self._raw)
 
     @property
     def is_aggregate(self) -> bool:

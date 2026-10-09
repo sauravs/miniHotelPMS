@@ -12,6 +12,8 @@
   "created_at": "2026-07-08T00:00:00+03:00",
   "calls": 1,
   "run_id": "c7be275548a09e40",
+  "policy_version": 2,
+  "policy_digest": "sha256:a384b7ad26525c66f5567dadfeaa06e92b7e404bd647183861f71308d5395551",
   "blocked": null,
   "coverage": {
     "evaluated": 0,

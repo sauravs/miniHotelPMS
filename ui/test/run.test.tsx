@@ -178,3 +178,32 @@ describe("F7's line on a stored run - when this control runs next", () => {
     expect(textOf(container)).not.toContain(live.execution!.headline);
   });
 });
+
+describe("slice 16 - which rule judged it (V3)", () => {
+  it("a run names the version and the digest of the rule that judged it", () => {
+    const payload = run("checkout_money_owed.sandbox.sandbox2026.json");
+    expect(payload.policy_version).toBe(2);
+    const { container } = render(<RunView run={payload} outcomes={outcomes} />);
+    const line = textOf(container.querySelector(".policy")!);
+    expect(line).toContain("Judged under v2 of this rule");
+    expect(line).toContain(payload.policy_digest!.slice("sha256:".length, "sha256:".length + 12));
+  });
+
+  it("a stored run says the same as the live one", () => {
+    const live = run("checkout_money_owed.sandbox.sandbox2026.json");
+    const again = stored(`${live.run_id}.json`);
+    expect([again.policy_version, again.policy_digest]).toEqual([live.policy_version, live.policy_digest]);
+  });
+
+  it("a run stored before rules carried a version says so, and never claims today's", () => {
+    const old: RunPayload = {
+      ...run("checkout_money_owed.sandbox.sandbox2026.json"),
+      policy_version: null,
+      policy_digest: null,
+    };
+    const { container } = render(<RunView run={old} outcomes={outcomes} />);
+    const line = textOf(container.querySelector(".policy")!);
+    expect(line).toContain("Version not recorded");
+    expect(line).not.toContain("Judged under");
+  });
+});

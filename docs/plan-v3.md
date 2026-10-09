@@ -32,9 +32,9 @@ is a placeholder.
 
 | # | Slice | Gaps | Size | State |
 | --- | --- | --- | --- | --- |
-| — | Fix #48: card presence is not established | (G4) | S | **done** — `fix/48-card-presence-not-established`. A mask with no digits, or a blank, resolves UNKNOWN naming #48 / 2.8 on both providers. 2006 passed / 2 skipped, 1080 checks, 120 goldens and 11 DemoPMS files identical, 96% |
+| — | Fix #48: card presence is not established | (G4) | S | **done** — PR #52, merged. A mask with no digits, or a blank, resolves UNKNOWN naming #48 / 2.8 on both providers. 2006 passed / 2 skipped, 1080 checks, 120 goldens and 11 DemoPMS files identical, 96% |
 | — | Fix #49: the 1.4 rate-code claim | (docs) | — | **closed by this PR** |
-| 16 | Policy versioning | G6b | M | planned |
+| 16 | Policy versioning | G6b | M | **done** — `slice/16-policy-versioning`. Spec lock + `tools/lock_spec.py`; runs name `policy_version` + `policy_digest`; pre-v3 rows say *version not recorded*; history grouped by rule. Declared: 99 goldens gain the two keys, nothing else (V1 holds). 2280 passed / 2 skipped, **1091** spec checks (+11, one lock check per control), 120 goldens and 11 DemoPMS files identical after the rebuild, 96%. The v3 scope guard and the V1 test run on every push from here |
 | 17 | Tenant-scoped store | G5 (data half) | M | planned |
 | 18 | Findings queue — advisory action records | G2(a), G8 queue, G10c | L | planned |
 | 19 | Email, opt-in, behind two locks | G8 email | M | planned |
