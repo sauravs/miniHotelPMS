@@ -456,17 +456,14 @@ class App:
         beside them, so a client has a gate that is not "are there numbers?" (trap 1, F5).
         `concluded` comes from the engine's own `Coverage`, never re-derived here.
 
-        Newest first, as the page is, with ties broken by `run_id`. Ties are the norm, not an
-        edge: both properties' 2026 captures describe the same instant, and SQLite promises no
-        order among equal sort keys - so without the second key this payload's bytes would
-        depend on the SQLite build, and its golden copy in `fixtures/api/` could not be rebuilt.
+        Newest first with ties broken by `run_id`, in the store's own ORDER BY (issue #35), so
+        this payload, the page and the golden copy in `fixtures/api/` list runs in one order.
         """
         self._ir(control_id)          # the same 404 the page gives, for the same reason
-        rows = sorted(self.store.history(control_id),
-                      key=lambda row: (row["created_at"], row["run_id"]), reverse=True)
         runs = []
-        for row in rows:
-            counts = {outcome.value: row[_HISTORY_COLUMN[outcome]] or 0 for outcome in Outcome}
+        for row in self.store.history(control_id):
+            counts = {outcome.value: row[render._HISTORY_COLUMN[outcome]] or 0
+                      for outcome in Outcome}
             counts["total"] = row["total"] or 0
             evaluated = sum(counts[outcome.value] for outcome in Outcome if outcome.is_answer)
             entry = {key: row[key] for key in ("run_id", "created_at", "provider",
@@ -589,11 +586,6 @@ class App:
     def captures_for(self, tenant_id: str) -> tuple[str, ...]:
         """Every body of evidence this property's provider can be replayed against."""
         return providers.load(self._tenant(tenant_id).provider).captures
-
-
-# Which column of a `RunStore.history` summary row counts which outcome.
-_HISTORY_COLUMN = {Outcome.PASS: "passes", Outcome.FAIL: "fails",
-                   Outcome.UNKNOWN: "unknowns", Outcome.EXCLUDED: "excluded"}
 
 
 def _slug(value: str) -> str:

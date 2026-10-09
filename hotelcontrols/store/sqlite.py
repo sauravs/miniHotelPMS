@@ -206,7 +206,10 @@ class RunStore:
         if control_id is not None:
             query += "WHERE r.control_id = ? "
             params = (control_id,)
-        query += "GROUP BY r.run_id ORDER BY r.created_at DESC LIMIT ?"
+        # `run_id` breaks ties, and ties are the norm: both properties' 2026 captures describe
+        # the same instant. SQLite promises no order among equal keys, so without it the order
+        # of a history page was the SQLite build's (issue #35).
+        query += "GROUP BY r.run_id ORDER BY r.created_at DESC, r.run_id DESC LIMIT ?"
 
         return [dict(row) for row in
                 self._connection.execute(query, params + (limit,))]
