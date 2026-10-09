@@ -10,6 +10,7 @@
       "calls": 1,
       "blocked": null,
       "concluded": true,
+      "headline": "Concluded about 4 of 40 record(s); the rest were excluded or could not be answered.",
       "counts": {
         "PASS": 4,
         "FAIL": 0,
@@ -27,6 +28,7 @@
       "calls": 1,
       "blocked": null,
       "concluded": true,
+      "headline": "Concluded about 4 of 40 record(s); the rest were excluded or could not be answered.",
       "counts": {
         "PASS": 4,
         "FAIL": 0,
@@ -44,6 +46,7 @@
       "calls": 1,
       "blocked": null,
       "concluded": false,
+      "headline": "This control reached no conclusion about any of its 7 record(s). It has not found the property compliant; it has not looked.",
       "counts": {
         "PASS": 0,
         "FAIL": 0,
@@ -61,6 +64,7 @@
       "calls": 1,
       "blocked": null,
       "concluded": false,
+      "headline": "This control reached no conclusion about any of its 7 record(s). It has not found the property compliant; it has not looked.",
       "counts": {
         "PASS": 0,
         "FAIL": 0,

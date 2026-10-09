@@ -9,7 +9,8 @@
       "as_of": "2026-07-08",
       "calls": 1,
       "blocked": "This control needs evidence this body of responses does not hold: this capture cannot answer that question: window was captured for 2024-08-14..2024-08-21 and the run asks for 2026-07-08..2026-07-15. An empty population here would look exactly like 'no violations found', and a population from the WRONG window would look like an answer, so it is refused instead",
-      "concluded": false
+      "concluded": false,
+      "headline": null
     },
     {
       "run_id": "022c09a18a8d0bdc",
@@ -19,7 +20,8 @@
       "as_of": "2026-07-08",
       "calls": 1,
       "blocked": "This control needs evidence this body of responses does not hold: this capture cannot answer that question: DateRange was captured for 2024-08-14..2024-08-21 and the run asks for 2026-07-08..2026-07-15. An empty population here would look exactly like 'no violations found', and a population from the WRONG window would look like an answer, so it is refused instead",
-      "concluded": false
+      "concluded": false,
+      "headline": null
     },
     {
       "run_id": "c025a3dcccb3a33f",
@@ -29,7 +31,8 @@
       "as_of": "2024-09-01",
       "calls": 1,
       "blocked": "This control needs evidence this body of responses does not hold: this capture cannot answer that question: DateRange was captured for 2024-08-14..2024-08-21 and the run asks for 2024-09-01..2024-09-08. An empty population here would look exactly like 'no violations found', and a population from the WRONG window would look like an answer, so it is refused instead",
-      "concluded": false
+      "concluded": false,
+      "headline": null
     },
     {
       "run_id": "43ae5581515848fb",
@@ -39,7 +42,8 @@
       "as_of": "2024-09-01",
       "calls": 1,
       "blocked": "This control needs evidence this body of responses does not hold: this capture cannot answer that question: window was captured for 2024-08-14..2024-08-21 and the run asks for 2024-09-01..2024-09-08. An empty population here would look exactly like 'no violations found', and a population from the WRONG window would look like an answer, so it is refused instead",
-      "concluded": false
+      "concluded": false,
+      "headline": null
     }
   ]
 }

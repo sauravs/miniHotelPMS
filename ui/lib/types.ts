@@ -135,3 +135,26 @@ export interface Properties {
   properties: Property[];
   default: { property: string; evidence: string };
 }
+
+/** One past run, as `/api/history/<control_id>` summarises it. Newest first, ties by run id. */
+export interface HistoryRow {
+  run_id: string;
+  created_at: string;
+  provider: string;
+  evidence_label: string;
+  as_of: string;
+  calls: number;
+  /** The reason the run could not happen, or null. A blocked row has no counts and no headline. */
+  blocked: string | null;
+  /** THE gate for the counts - exactly as on a run (trap 1). */
+  concluded: boolean;
+  /** The engine's sentence for where the counts would be. Null only for a blocked row. */
+  headline: string | null;
+  /** Present whenever the run was not blocked - INCLUDING when it concluded nothing. */
+  counts?: Counts;
+}
+
+export interface History {
+  control_id: string;
+  runs: HistoryRow[];
+}

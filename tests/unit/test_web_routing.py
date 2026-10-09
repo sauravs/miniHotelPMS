@@ -1089,3 +1089,33 @@ class TestSlice15OutcomeWordingHasOneSource:
         """The wording half of criterion 2, on the data a client will render from."""
         outcomes = _json(App(), "/api/outcomes")[1]["outcomes"]
         assert len({o["badge"] for o in outcomes}) == len({o["means"] for o in outcomes}) == 4
+
+
+class TestSlice15HistoryRowsCarryTheEnginesSentence:
+    """A history row that concluded nothing must SAY so, in the engine's words. `concluded` is
+    the gate; `headline` is what goes where the counts would have been - the same Coverage
+    sentence the run page and the history page use, served rather than re-worded by a client."""
+
+    def test_a_row_that_concluded_nothing_carries_the_coverage_headline(self):
+        app = App()
+        live = json.loads(app.handle(
+            "/api/run/ooo_room_protection?property=sandbox&evidence=sandbox2026").body)
+        (row,) = _json(app, "/api/history/ooo_room_protection")[1]["runs"]
+        assert row["headline"] == live["coverage"]["headline"]
+        assert "reached no conclusion" in row["headline"]
+
+    def test_a_row_that_concluded_carries_its_headline_too(self):
+        app = App()
+        live = json.loads(app.handle(
+            "/api/run/checkout_money_owed?property=sandbox&evidence=sandbox2026").body)
+        (row,) = _json(app, "/api/history/checkout_money_owed")[1]["runs"]
+        assert row["headline"] == live["coverage"]["headline"]
+
+    def test_a_blocked_row_has_no_headline_because_its_reason_is_the_sentence(self):
+        """Coverage of zero verdicts reads "the population was empty", which is false for a run
+        that never obtained its evidence. The blocked reason is the only true sentence."""
+        app = App()
+        app.handle("/api/run/resource_occupancy_consistency?property=sandbox"
+                   "&evidence=sandbox2026")
+        (row,) = _json(app, "/api/history/resource_occupancy_consistency")[1]["runs"]
+        assert row["blocked"] and row["headline"] is None

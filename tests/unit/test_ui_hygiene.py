@@ -87,7 +87,8 @@ def test_trap_4_no_client_component_can_reach_the_engine():
     """A client component that imported the API module would run in the browser, where a
     re-firing effect, a focus refetch or StrictMode can turn one run into several."""
     found = [name for name, text in source(*CODE, tests=False)
-             if re.match(r"""\s*["']use client["']""", text) and "lib/api" in text]
+             if re.match(r"""\s*["']use client["']""", text)
+             and re.search(r"""(from|import)\s*\(?\s*["'][^"']*lib/api["']""", text)]
     assert not found, found
 
 
@@ -145,3 +146,11 @@ def test_no_ui_source_file_is_ignored_by_git():
                              input="\n".join(names), cwd=UI.parent,
                              capture_output=True, text=True).stdout.split()
     assert not ignored, "git would not commit these UI files: %s" % ignored
+
+
+def test_no_inline_style_attribute_which_the_csp_refuses():
+    """`style-src` carries a nonce and no 'unsafe-inline', so a `style=` attribute is blocked in
+    the browser and the element renders unstyled. Next's own default 404 did exactly that until
+    `app/not-found.tsx` replaced it. Styling lives in the engine's stylesheet, by class."""
+    found = offenders(r"""\bstyle=\{""", source(".tsx", ".jsx", tests=False))
+    assert not found, found

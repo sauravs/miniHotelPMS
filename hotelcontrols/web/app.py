@@ -486,7 +486,12 @@ class App:
             evaluated = sum(counts[outcome.value] for outcome in Outcome if outcome.is_answer)
             entry = {key: row[key] for key in ("run_id", "created_at", "provider",
                                                "evidence_label", "as_of", "calls", "blocked")}
-            entry["concluded"] = Coverage(evaluated=evaluated, total=counts["total"]).concluded
+            coverage = Coverage(evaluated=evaluated, total=counts["total"])
+            entry["concluded"] = coverage.concluded
+            # The sentence that goes where the counts would be, in the engine's words. Not for a
+            # blocked run: coverage of zero verdicts says "the population was empty", which is
+            # false for a run that never obtained its evidence - its reason is the sentence.
+            entry["headline"] = None if row["blocked"] else coverage.headline
             if not row["blocked"]:
                 entry["counts"] = counts
             runs.append(entry)
