@@ -105,12 +105,30 @@ class TestFlags:
         assert t.yesno_to_bool("NO").payload is False
         assert not t.yesno_to_bool("").is_known
 
-    def test_a_masked_card_yields_presence_only_and_never_a_number(self):
-        """The card arrives as '****'. Presence is the only fact available - never validity,
-        never the number. Inventing either would be manufacturing evidence."""
-        assert t.masked_to_presence_bool("****").payload is True
-        assert t.masked_to_presence_bool("").payload is False
-        assert t.masked_to_presence_bool("****").payload is not "****"
+    def test_the_constant_mask_does_not_establish_that_a_card_is_on_file(self):
+        """Issue #48. This test used to assert '****' -> True and '' -> False. Both encoded the
+        claim #48 refutes: all 228 captured cards carry Number="****" with no digits, and 216
+        of them "expire" in January 2021 on reservations dated up to 2026. A value that is the
+        same on every record cannot tell a card from a placeholder, so presence is UNKNOWN,
+        and the reason names the question that would settle it (open question 2.8)."""
+        masked = t.masked_to_presence_bool("****")
+        assert not masked.is_known
+        assert "#48" in masked.reason and "2.8" in masked.reason
+
+    def test_a_blank_number_is_not_read_as_no_card(self):
+        """Issue #48. No capture has ever shown a blank number, so reading one as "no card"
+        would be a guess about the vendor's encoding. The plan's test gate names it."""
+        for blank in ("", "   ", None):
+            value = t.masked_to_presence_bool(blank)
+            assert not value.is_known, repr(blank)
+            assert "2.8" in value.reason, repr(blank)
+
+    def test_a_number_carrying_digits_of_its_own_is_presence_and_never_the_number(self):
+        """The one shape that would tell a card apart from the placeholder: digits the mask did
+        not hide. No capture has shown one yet. Presence is still the only fact it yields -
+        never validity, never the number. Inventing either would be manufacturing evidence."""
+        value = t.masked_to_presence_bool("************4242")
+        assert value.is_known and value.payload is True
 
 
 class TestCodeMaps:

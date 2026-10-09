@@ -141,7 +141,26 @@ class TestFlags:
 
     def test_presence_is_the_only_fact_a_masked_value_supports(self):
         assert t.presence_bool("4242").payload is True
-        assert t.presence_bool("").payload is False
+
+    def test_the_transcoded_placeholder_does_not_establish_a_card(self):
+        """Issue #48. The demo hotel is the real one transcoded, so it carries the same "****"
+        placeholder in a slot meant for four digits. It must not read as a card on file here
+        either, or the two providers would disagree about whether a guest has paid."""
+        masked = t.presence_bool("****")
+        assert not masked.is_known
+        assert "#48" in masked.reason and "2.8" in masked.reason
+
+    def test_a_blank_or_null_slot_is_not_read_as_no_card(self):
+        """Issue #48. This test used to assert '' -> False, the claim #48 refutes: nothing
+        captured shows what a reservation with no card looks like, so blank is not "no card"."""
+        for blank in ("", "   ", None):
+            value = t.presence_bool(blank)
+            assert not value.is_known, repr(blank)
+            assert "2.8" in value.reason, repr(blank)
+
+    def test_a_card_slot_that_is_not_a_string_means_the_response_changed_shape(self):
+        """The json_bool rule, applied to the card: this format writes the slot as a string."""
+        assert not t.presence_bool(4242).is_known
 
 
 class TestCodeMaps:

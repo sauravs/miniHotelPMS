@@ -32,7 +32,7 @@ is a placeholder.
 
 | # | Slice | Gaps | Size | State |
 | --- | --- | --- | --- | --- |
-| — | Fix #48: card presence is not established | (G4) | S | **open issue** — fixed before slice 16 |
+| — | Fix #48: card presence is not established | (G4) | S | **done** — `fix/48-card-presence-not-established`. A mask with no digits, or a blank, resolves UNKNOWN naming #48 / 2.8 on both providers. 2006 passed / 2 skipped, 1080 checks, 120 goldens and 11 DemoPMS files identical, 96% |
 | — | Fix #49: the 1.4 rate-code claim | (docs) | — | **closed by this PR** |
 | 16 | Policy versioning | G6b | M | planned |
 | 17 | Tenant-scoped store | G5 (data half) | M | planned |

@@ -166,7 +166,7 @@
       "path": "bookings[].guest.card_last4",
       "probe": "bookings_2024-08.json",
       "transform": "presence_bool",
-      "notes": "masked at source - presence is the only fact available, never validity"
+      "notes": "masked at source - presence is the only fact available, never validity. The transcoded evidence carries the source's constant placeholder \"****\" with no digits, so it resolves UNKNOWN, as does a null or blank slot (issue #48, open question 2.8)"
     },
     {
       "canonical": "stay.room_number",

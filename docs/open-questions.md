@@ -553,7 +553,9 @@ verdicts.
    default the PMS emits when there is no card, a masked real card, or either? Until the vendor
    says, or a capture shows a reservation known to have no card, **card presence is not
    established**, and the StayOps payment-guarantee control (gap G4) stays blocked even in its
-   narrowed form.
+   narrowed form. **Today (since the fix for #48):** on both providers a card number that is a
+   mask with no digits, or blank, resolves UNKNOWN naming #48 and this question. Only digits the
+   mask did not hide would read as presence, and no capture has shown one.
 
 ---
 

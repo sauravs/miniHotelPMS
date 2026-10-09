@@ -212,7 +212,7 @@
       "test": "<CreditCard [^>]*Number=\"([^\"]*)\"",
       "transform": "masked_to_presence_bool",
       "observed_populated": true,
-      "notes": "masked/tokenised - presence only"
+      "notes": "masked/tokenised - presence only. observed_populated is true of the ATTRIBUTE, not of the fact: Number=\"****\" on 228 of 228 captured cards, 216 expiring 202101, so a mask with no digits resolves UNKNOWN, as does a blank (issue #48, open question 2.8)"
     },
     {
       "canonical": "stay.room_number",
