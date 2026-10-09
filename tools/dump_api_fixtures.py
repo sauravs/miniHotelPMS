@@ -22,6 +22,7 @@ things follow from that, and each is the reason for a choice below:
 WHAT IS WRITTEN - the path mirrors the route
 --------------------------------------------
     controls.json  properties.json  drafts.json          the index's three requests
+    outcomes.json                                         the four answers' words, one source
     readiness/<control>.json                              one per control
     run/<control>.<property>.<evidence>.json              the FULL matrix, live
     runs/<run_id>.json                                    every one of those, re-read from store
@@ -65,6 +66,7 @@ def build() -> dict[str, str]:
     take("/api/controls", "controls.json")
     take("/api/properties", "properties.json")
     take("/api/drafts", "drafts.json")
+    take("/api/outcomes", "outcomes.json")
 
     controls = available()
     for control_id in controls:

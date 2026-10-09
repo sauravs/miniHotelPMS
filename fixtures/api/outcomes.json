@@ -1,0 +1,38 @@
+{
+  "outcomes": [
+    {
+      "outcome": "PASS",
+      "badge": "PASS",
+      "means": "The rule holds for this record.",
+      "group_meaning": "The rule holds for these records, and the evidence behind each one is here.",
+      "open": false
+    },
+    {
+      "outcome": "FAIL",
+      "badge": "VIOLATION",
+      "means": "This record breaks the rule.",
+      "group_meaning": "These records break the rule. This is the queue to act on.",
+      "open": true
+    },
+    {
+      "outcome": "UNKNOWN",
+      "badge": "NO ANSWER",
+      "means": "The evidence needed to decide this was not available, so it is not a pass and not a failure. The gaps are named in the table below.",
+      "group_meaning": "The evidence needed to decide these was not available, so they are not passes and not failures. Each one names the gap it ran into, and that gap is the thing to go and connect.",
+      "open": true
+    },
+    {
+      "outcome": "EXCLUDED",
+      "badge": "NOT APPLICABLE",
+      "means": "The control does not apply to this record, so it has not been checked. This is not a pass.",
+      "group_meaning": "The control does not apply to these records, so they have not been checked. This is not a pass.",
+      "open": false
+    }
+  ],
+  "group_order": [
+    "FAIL",
+    "UNKNOWN",
+    "PASS",
+    "EXCLUDED"
+  ]
+}

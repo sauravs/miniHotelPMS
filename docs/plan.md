@@ -781,3 +781,18 @@ from the criterion-1 figure above**. Promotion is a deliberate `git mv` into `sp
 - [x] `python3 -m hotelcontrols.web.server` behaves exactly as before — proposer defaults to `None`
 - [x] CSP still forbids script entirely; the page loads no JavaScript
 - [x] 1610 tests pass (+105), 1,080 spec checks pass, coverage 96%
+
+## Slice 15 · A React UI, added without touching the engine
+
+Brief: `docs/slice-15-react-ui-brief.md`. The owner signed off on two surfaces (`prd.md` §6). The
+engine stays the audit surface, and `ui/` becomes a second client of the JSON API. A test fails
+any `slice/15-*` branch that changes an engine file other than `web/app.py`.
+
+| PR | Scope | Status |
+| --- | --- | --- |
+| #34 | Engine guard, four read-only routes, golden payloads in `fixtures/api/` | **Merged** |
+| #36 | Fix #35: history page showed counts for a run that concluded nothing (found building #34) | **Merged** |
+| 2/5 | `ui/` scaffold and the run page. `/api/outcomes`, parity harness, Playwright, CSP, `ui` CI job | Open |
+| 3/5 | Index: readiness per provider (criterion 10), the evidence picker | — |
+| 4/5 | History | — |
+| 5/5 | Compose | — |

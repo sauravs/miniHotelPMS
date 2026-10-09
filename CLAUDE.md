@@ -156,6 +156,9 @@ HOTELCONTROLS_COMPOSE=1 python3 -m tools.serve --llm local   # ...backed by Olla
 python3 -m tools.scrub_fixtures <in> <out>         # pseudonymise a raw capture
 python3 -m tools.transcode_demopms --check         # the demo fixtures match a rebuild
 python3 -m tools.probe --plan                      # print a probe plan; makes NO calls
+python3 -m tools.dump_api_fixtures --check        # the API golden payloads match a rebuild
+cd ui && npm ci && npm test && npm run e2e         # the React UI's suite, offline
+cd ui && npm run build && npm start                # the React UI, :3000, over the engine on :8765
 ```
 
 ## Skills

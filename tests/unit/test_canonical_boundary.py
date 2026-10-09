@@ -123,3 +123,51 @@ def test_the_vendor_is_never_named_in_code_above_the_boundary():
                     if vendor in name or vendor.replace("pms", "") + "pms" in name:
                         offenders.append("%s line %d: %s" % (relative, node.lineno, name))
     assert not offenders, offenders
+
+
+# ---------------------------------------------------------------------------------------
+# Slice 15: the boundary now has a second side. `ui/` is a React client of the JSON API and lives
+# OUTSIDE `hotelcontrols/`, so nothing above polices it - and `if (provider === "<vendor>")` in a
+# `.tsx` file would pass every other check in silence and quietly end the PMS-agnostic thesis.
+#
+# Stricter than the Python rule, because there is no AST here to separate prose from code: no
+# vendor name and no wire identifier anywhere in the UI's own source, comments and tests
+# included. The vendor name reaches a reader as DATA - `provider`, `source` - and is displayed,
+# never written down.
+UI = ENGINE.parent / "ui"
+UI_SKIP = ("node_modules", ".next", "test-results", "playwright-report")
+UI_SUFFIXES = (".ts", ".tsx", ".js", ".jsx", ".mjs", ".cjs", ".css", ".json")
+
+
+def _walk(root, skip):
+    """Every file under `root`, PRUNING the skipped directories rather than filtering after -
+    `node_modules` alone is hundreds of megabytes, and `rglob` would read every name in it."""
+    import os
+    for directory, subdirectories, names in os.walk(root):
+        subdirectories[:] = sorted(d for d in subdirectories if d not in skip)
+        for name in sorted(names):
+            yield pathlib.Path(directory) / name
+
+
+def ui_files():
+    for path in _walk(UI, UI_SKIP):
+        relative = path.relative_to(UI)
+        if path.is_file() and path.suffix in UI_SUFFIXES \
+                and not any(part in UI_SKIP for part in relative.parts) \
+                and path.name != "package-lock.json":
+            yield relative.as_posix(), path
+
+
+def test_there_are_ui_files_to_check():
+    """An empty walk would pass the two tests below vacuously."""
+    assert len([name for name, _ in ui_files() if name.endswith(".tsx")]) >= 5
+
+
+@pytest.mark.parametrize("identifier", PMS_IDENTIFIERS + VENDOR_NAMES)
+def test_no_pms_identifier_or_vendor_name_appears_in_the_ui(identifier):
+    offenders = ["%s line %d" % (relative, number)
+                 for relative, path in ui_files()
+                 for number, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1)
+                 if identifier.lower() in line.lower()]
+    assert not offenders, ("%r belongs below the provider boundary, and the UI is above it: %s"
+                           % (identifier, offenders))

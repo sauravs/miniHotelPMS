@@ -191,6 +191,8 @@ class App:
             return self._history_json(parts[2])
         if parts == ["api", "drafts"]:
             return self._drafts_json()
+        if parts == ["api", "outcomes"]:
+            return self._outcomes_json()
 
         raise _Refused(404, "There is nothing at /%s. The controls are listed at /."
                        % "/".join(parts))
@@ -420,6 +422,22 @@ class App:
             {"wired": self.draft_dir is not None,
              "drafts": [self._control_json(ir, reviewed=False) for ir in self._draft_irs()]},
             indent=2))
+
+    def _outcomes_json(self) -> Response:
+        """The four answers' words, in the page's two orders - served, never restated.
+
+        A run payload carries each verdict's `means` but not its badge, and criterion 2's third
+        signal is the badge. A client that typed "VIOLATION" into its own source would hold a
+        second copy of `render.WORDING`, free to drift; this is the only copy, served.
+        """
+        return Response(200, JSON, json.dumps({
+            "outcomes": [{"outcome": outcome.value,
+                          "badge": render.WORDING[outcome][0],
+                          "means": render.WORDING[outcome][1],
+                          "group_meaning": render.GROUP_MEANING[outcome],
+                          "open": outcome in render.OPEN_GROUPS}
+                         for outcome in render.TILE_ORDER],
+            "group_order": [outcome.value for outcome in render.GROUP_ORDER]}, indent=2))
 
     def _control_json(self, ir: ControlIR, reviewed: bool) -> dict:
         return {"control_id": ir.control_id, "name": ir.name,
