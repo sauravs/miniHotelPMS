@@ -12,13 +12,14 @@ Eight layers. Each is a **deep module**: a wide capability behind a narrow inter
 **up**; calls go **down**. Nothing above the provider layer knows a PMS exists.
 
 ```
-                  ┌───────────────────────────────────────────────────┐
-                  │  Browser · one page per control, evidence inline  │
-                  └───────────────────────▲───────────────────────────┘
-                                          │
- ┌────────────────────────────────────────┴────────────────────────────────────────┐
+   ┌──────────────────────────────────┐        ┌──────────────────────────────────────┐
+   │ Browser · the engine's own pages │        │ Browser · ui/  (Next.js + React)     │
+   │ server-rendered, no JavaScript   │        │ OUTSIDE the engine. Reads JSON only  │
+   └────────────────▲─────────────────┘        └───────────────────▲──────────────────┘
+                    │ HTML                                         │ JSON, fetched by ui/'s server
+ ┌──────────────────┴──────────────────────────────────────────────┴───────────────┐
  │ L7 · WEB            handle(path) -> (status, content_type, body)                 │
- │ routing · server-side rendering · JSON API · no framework, no JavaScript         │
+ │ routing · server-side rendering · JSON API · no framework, no JavaScript in it   │
  └────────────────────────────────────────▲────────────────────────────────────────┘
                                           │ run(control_id, tenant, evidence, as_of)
  ┌────────────────────────────────────────┴────────────────────────────────────────┐
@@ -176,7 +177,43 @@ sequenceDiagram
     W-->>B: HTML · every verdict with its evidence table
 ```
 
-**Two design decisions visible in that trace:**
+### The same run, through the React UI
+
+The second screen asks the same engine the same question, but it is built so that **a run happens
+only when a person presses Run**. `GET /api/run/` spends provider calls and writes a row, and a
+React page can fire a GET for reasons nobody decided: a development-mode double render, a refetch
+when the window regains focus, a link prefetched on hover. So the UI never fetches a run while
+rendering. It runs on a POST, then reads the result back from the store, which is free.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant B as Browser
+    participant U as ui/ server (Next.js)
+    participant W as L7 web/app.py
+    participant S as L6c store
+
+    B->>U: GET /run/checkout_unrefunded_credit
+    U->>W: GET /api/controls · /api/properties  (free: the spec)
+    U-->>B: a form: which property, which evidence. NOTHING RUN YET
+
+    B->>U: POST  "Run this control"  (a Server Action)
+    U->>W: GET /api/run/checkout_unrefunded_credit?property=…&evidence=…
+    note over W,S: the run above happens here, ONCE: 3 provider calls, saved
+    W-->>U: run_id
+    U-->>B: 303 → /runs/{run_id}
+
+    B->>U: GET /runs/{run_id}   (reload it as often as you like)
+    U->>W: GET /api/runs/{run_id} · /api/readiness · /api/plan · /api/outcomes
+    note over W,S: all re-read from the store and the spec: ZERO provider calls
+    W-->>U: the stored run, as JSON
+    U-->>B: HTML · the same verdicts, the same evidence, the same signals
+```
+
+The browser never talks to the engine: every arrow into `web/app.py` comes from the UI's own
+server, so no cross-origin header exists anywhere and the engine's security policy is untouched.
+
+**Two design decisions visible in the first trace:**
 
 - **`as_of` defaults to the instant the *evidence* describes, not to today.** A capture of July
   answers questions about July. Asking today's date instead would produce a page of refusals for a
@@ -554,8 +591,9 @@ conversations:
 | **unresolvable** | **no provider we have can supply it.** A fact about the vocabulary, not a bug | *"Connect your housekeeping system to enable this control"* |
 | **tenant_supplied** | the *hotel* must supply it — nominated rate codes, a rate-plan mapping | *"Tell us your rate codes and this starts answering"* |
 
-Rendered on the index page per control per provider, and served at
-`/api/readiness/<control_id>`.
+Rendered on the index page per control per provider, on **both** screens, and served at
+`/api/readiness/<control_id>`. The React index fetches all eleven in one request (`/api/controls`)
+rather than eleven, because the engine's server answers one request at a time.
 
 ---
 
@@ -583,6 +621,13 @@ evaluated = 0   total = 28   concluded = False
 **A run with `evaluated == 0` renders with no count tiles at all.** v1 reported *28 EXCLUDED / 0
 FAIL* for this exact control, on a property where the out-of-service mechanism has never been
 observed working — and on screen it was **indistinguishable from a clean bill of health.**
+
+**The trap this leaves for any client.** The JSON for that run still *carries* its counts, because
+they are true: 0 PASS, 0 FAIL, 0 UNKNOWN, 28 EXCLUDED. A screen that draws tiles whenever counts
+exist reproduces v1's mistake in a new language. So both screens gate the tiles on
+`coverage.concluded`, never on whether counts are present. The engine's history page did not, until
+issue #35 caught it. The golden payloads pin the trap so nobody "tidies" the JSON and breaks the
+gate.
 
 Note that `Coverage` keeps the full **distribution** of reasons, not just the dominant one. A single
 reason is often the least informative: *"71 of 111 stays are cancelled"* is a correct exclusion and
@@ -614,6 +659,11 @@ Nothing here relies on someone remembering. Each row is a mechanism.
 | DemoPMS fixtures are not hand-tuned | `test_transcode_fidelity.py` — byte-identical rebuild | test |
 | A spec claim matches captured evidence | `tools/validate_spec.py` asserts every mapping regex against its named fixture | tool |
 | A slice does not merge until green | GitHub Actions on 3.11 and 3.13, required on every PR | CI |
+| The React UI changed no engine file | `test_slice15_engine_untouched.py`: on any `slice/15-*` branch, everything in `hotelcontrols/` but `web/app.py`, plus `spec/` and the captured fixtures, must be unchanged | test |
+| No PMS name and no wire identifier in `ui/` | `test_canonical_boundary.py` walks `ui/` too, comments included | test |
+| The React UI never parses money, injects HTML, or makes a request outside `lib/api.ts` | `test_ui_hygiene.py`, in the **required** Python suite | test |
+| The UI's test data is the engine's real answers | `test_api_goldens.py`: `fixtures/api/` rebuilds byte-identical, and git ignores none of it | test |
+| Both screens show the same signals | the UI's own suite re-proves criteria 2, 3, 8 and 10, with a parity check over every run payload and the border styles measured in a real browser | CI (`ui` job) |
 
 ---
 

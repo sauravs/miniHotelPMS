@@ -294,13 +294,14 @@ scorecard is written the way it is.
 
 ### v2 — everything else in this repository
 
-Twelve slices, each a branch → PR → green CI → squash-merge. Measured today:
+Twelve slices, then three more (compose, a UI/UX pass, and a React UI). Each was a branch → PR →
+green CI → squash-merge. Measured on 2026-10-09:
 
 ```
-1,610 tests passing, offline, in about 10 seconds
+1,956 tests passing, offline, in about 13 seconds
 1,080 spec-validation checks passing
-zero runtime dependencies
-11 controls, 2 providers, 8 layers
+zero runtime dependencies in the engine
+11 controls, 2 providers, 8 layers, 2 screens
 11 of 12 success criteria met
 ```
 
@@ -366,7 +367,8 @@ right.
 | "Money is money" | A reconciliation control must be trustworthy to the cent | `kernel/money.py` — `Decimal` + a mandatory currency | Two amounts in different currencies **refuse to compare** (they raise). Floats are rejected at construction |
 | "A hotel can state a rule in its own words" | §2 of the design brief, and the demo people actually ask for | `compiler/sentences.py` + `tools/proposers/` | The model drafts a **sentence**, which the deterministic grammar then compiles. A composed rule carries `confidence == 1.0` because the *parse* was exact; a bad field name is refused **by name** |
 | "Adding a control is a config change" | Sales can promise a new control this week | `spec/ir/*.json` — read at runtime | A never-before-seen control is compiled from a sentence into a temp directory and run end-to-end on both providers, no import touched |
-| "We tell you what your PMS can answer" | Integration roadmap driven by customer demand, not by guessing | `runner/readiness.py` | Rendered per control per provider on the index page: *"MiniHotel 4/5 fields · DemoPMS 5/5"* |
+| "We tell you what your PMS can answer" | Integration roadmap driven by customer demand, not by guessing | `runner/readiness.py` | Rendered per control per provider on the index page of **both** screens: *"MiniHotel 4/5 fields · DemoPMS 5/5"* |
+| "The answer reads the same on any screen" | A second screen that rounds a number, drops a currency or shows four zeroes is a second product with weaker promises | `ui/` (React), a client of the JSON API | The UI's own suite re-proves criteria 2, 3, 8 and 10. The engine's **required** suite bans parsed money, PMS names, injected HTML and requests outside one module anywhere in `ui/` |
 | "It runs anywhere" | A demo with an install step is a demo that fails in the meeting | Standard library only: `xml.etree`, `decimal`, `sqlite3`, `http.server`, `zoneinfo`, `json` | `tests/unit/test_stdlib_only.py` walks the tree and asserts the engine contains no outbound HTTP client at all |
 | "No test can touch the network" | A suite that needs someone else's server up is not a suite | `providers/transport/` is opt-in, off by default | **Two locks:** an environment variable *and* a refusal to arm while a test runner is loaded. The test that sets the variable is still refused |
 
@@ -478,8 +480,61 @@ Listed so nobody mistakes thin for unfinished. Each is recoverable without rewor
 | **Writing to a PMS** | Read-only, permanently. The hotel types *controls*, not commands | Not planned. Ever |
 | **Authentication / multi-user** | Single-operator local demo | Standard work, deliberately deferred |
 | **Free text as evidence** | VIP status and manager approvals exist only as Hebrew free text in a remarks field. Whether that counts is [open question 1.5](../open-questions.md) | An extractor that returns a value **only with the exact quotation it relied on**, and UNKNOWN whenever the text is ambiguous |
-| **A rule-editor UI** | `/compose` is a chat box, not an editor — it files **drafts** and promoting one is manual. There is no screen for editing a shipped control | A form over the compiler, plus a versioning story (§19 of the brief) |
+| **A rule-editor UI** | `/compose` (on both screens) is a chat box, not an editor — it files **drafts** and promoting one is manual. There is no screen for editing a shipped control | A form over the compiler, plus a versioning story (§19 of the brief) |
 | **A model anywhere near a verdict** | Decision D10 wired a model to *draft a sentence* (see §10 below). Nothing it produces reaches the evidence layer or the evaluator, and no verdict depends on a model call | Not planned. This one stays out |
+
+---
+
+## 9. Two screens over one engine — the React UI
+
+Since slice 15 there are two ways to *look* at an answer, and they are deliberately not equal.
+
+```
+                          the engine  (Python, standard library only)
+                                │
+               ┌────────────────┴─────────────────┐
+               │                                  │
+     its own pages                       the JSON API  /api/...
+     server-rendered, no JavaScript               │
+     http://127.0.0.1:8765/                ui/  (Next.js, React, TypeScript)
+     THE AUDIT SURFACE                     http://127.0.0.1:3000/
+                                           THE PRODUCT SURFACE
+```
+
+**Why a second screen at all.** Two honest reasons, neither of them "React is better". The project
+owner reads React more fluently than Python, and a screen you can read is a screen you can trust
+and change. And this engine will be patched into a larger product built in JavaScript and Next.js,
+so a React screen converges with it where a bespoke Python one would diverge.
+
+**Why the first screen stays.** It needs nothing installed, runs offline, prints, and is what proves
+"no runtime dependencies" at the page level. An auditor can open it with nothing but Python.
+Retiring it would be a separate, later decision, made on evidence.
+
+**The analogy: a second dashboard on the same instrument panel.** The second dashboard can be
+prettier, but it must show the same readings. If it rounds a number, drops a unit, or shows a
+reassuring zero where the instrument said *no reading*, it is lying with better typography. So the
+React UI is held to the same promises as the engine's own pages, and **re-proves them in its own
+test suite**:
+
+| The promise | How the React UI keeps it |
+| --- | --- |
+| UNKNOWN never looks like FAIL | Hue, border **and** wording. The wording is checked with all styling stripped; the border styles in a real browser |
+| Every value keeps its unit | `-490.75 ILS` is rendered exactly as the engine wrote it, and parsing a value is banned outright |
+| "Concluded nothing" never looks like a clean result | No count tiles unless the run actually concluded something, even though the counts are in the data |
+| Readiness per provider | Every control shows each provider's ratio and names what to connect |
+| Running costs money | A run happens only when someone presses **Run** (a POST), then the page re-reads the saved result for free. Reloading never re-runs |
+
+**What it is not allowed to do.** It cannot change the engine. No engine file changed to make room
+for it, enforced by a test on every slice-15 branch. It never names a PMS: the vendor name reaches it
+only as data, displayed and never branched on. It never parses money and never injects HTML. Every
+request goes through one module, and its only write path is the compose window, which files drafts
+and never touches a PMS. Each of those rules is checked by the engine's **required** test suite,
+not only by the UI's own.
+
+**How it is tested without a server.** The engine writes its JSON answers for every control,
+property and capture to `fixtures/api/`, and the UI's tests render from those files. No engine
+process, no socket, and no run is ever triggered by a test. A change to the engine that alters an
+answer fails as a stale rebuild immediately, rather than as a broken screen weeks later.
 
 ---
 
@@ -514,7 +569,9 @@ it buys three things:
 Three things it deliberately does **not** do:
 
 - **It is off unless you start it.** `python3 -m hotelcontrols.web.server` behaves exactly as it
-  always has. The compose window needs `python3 -m tools.serve --llm …`.
+  always has. The compose window needs `python3 -m tools.serve --llm …`. The React UI's `/compose`
+  follows the engine: it says *"No proposer is wired"* when the engine has none, and offers the
+  window only when it does.
 - **No model client lives in the engine.** Every backend is in `tools/proposers/` and is *injected*.
   `hotelcontrols/` still imports only the standard library, and the two AST guards that enforce
   that passed **without being edited**.
@@ -532,6 +589,7 @@ knows that. §18 again: a model can interpret language, but it cannot invent hot
 | You want to… | Read |
 | --- | --- |
 | Find your way around the repository | [02-file-structure.md](02-file-structure.md) |
+| Run, test or change the React UI | [`ui/README.md`](../../ui/README.md) |
 | See the layers, the flow and the logic as diagrams | [03-code-architecture.md](03-code-architecture.md) |
 | Understand the traps in the real API, and see one record traced end-to-end | [04-edge-cases.md](04-edge-cases.md) |
 | Read the falsifiable contract | [`docs/prd.md`](../prd.md) |

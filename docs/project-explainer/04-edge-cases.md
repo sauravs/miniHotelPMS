@@ -478,6 +478,36 @@ missing is an accusation without a receipt.*
 
 ---
 
+### Step 8 · On screen — the same pixels, two ways
+
+The verdict now reaches a person, on either of two screens.
+
+**The engine's own page** builds HTML in `web/render.py` and escapes every value on its way in.
+
+**The React UI** asks for the same run as JSON. This is what crosses the wire for that one line:
+
+```json
+{ "field": "folio.balance_due", "known": true, "value": "-490.75 ILS", "unit": "ILS",
+  "reason": null, "risk": null, "source": "pms:minihotel/GetReservationBalance" }
+```
+
+Three things in that line are traps for any screen, and each is closed by a test rather than a
+habit:
+
+| The line | The obvious mistake | What the React UI does instead |
+| --- | --- | --- |
+| `"value": "-490.75 ILS"` | `parseFloat` it to format it nicely. That gives `-490.75`, and **the ILS is gone**. The next reader adds it to a USD figure | Renders the string exactly as written. `parseFloat`, `toFixed` and number formatting are banned in `ui/` by the required suite |
+| `"source": "pms:minihotel/…"` | Split it to show a logo, or branch on the vendor name | Displays it whole, as opaque audit data. A required test fails if any vendor name appears in `ui/`, even in a comment |
+| the run's `counts` | Draw the four tiles because the numbers are there | Draws tiles only when `coverage.concluded` is true. For this run it is, so the tiles appear: `1 PASS · 1 VIOLATION · 0 NO ANSWER · 0 NOT APPLICABLE` |
+
+On both screens the FAIL block carries a **double** left border in the violation hue and the word
+*VIOLATION*. An UNKNOWN would carry a dashed border, its own hue and the words *NO ANSWER*: three
+signals, so the difference survives a monochrome printout and a colour-blind reader. On the React
+side, a real browser measures the four computed border styles and asserts they are four different
+values.
+
+---
+
 ## The same record, through a completely different API
 
 Now run **the identical IR file** against DemoPMS. Different wire format, different field names,
@@ -556,6 +586,10 @@ produces a **plausible, wrong, confident answer**.
 | 5 · Evaluate | Under `all`, let one unknown override a definite failure | A real violation hidden behind an unrelated gap |
 | 6 · Verdict | Return an outcome without the evidence | An accusation with no receipt |
 | 7 · Run | Report `0 FAIL` when nothing was evaluated | **A clean bill of health for a control that never looked** |
+| 8 · Screen | Parse `"-490.75 ILS"` into a number to format it | The currency is dropped, and the next sum mixes ILS and USD |
+| 8 · Screen | Draw count tiles because `counts` is in the JSON | v1's clean bill of health again, on a new screen |
+| 8 · Screen | Branch on the vendor name in `source` | The second screen quietly stops being PMS-agnostic |
+| 8 · Screen | Fetch the run while the page renders | A reload or a prefetch re-runs it: double provider calls, against someone else's server |
 
 **Every one of these is prevented by a type that raises or a test that fails** — not by a convention
 somebody has to remember on the day they add the twelfth control.
@@ -577,7 +611,7 @@ quietly rounded up. And it is why that score **went down** when a bug was fixed.
 
 ---
 
-## One thing this document predates
+## Two things this document predates
 
 Since 2026-09-16 (decision D10) a rule can also arrive as **prose** through `/compose`, where a
 model rewrites it into a restricted sentence that the same deterministic grammar then compiles.
@@ -590,6 +624,11 @@ one of those mistakes is prevented by a type that raises or a test that fails, a
 guards was relaxed to let a model near the pipeline.
 
 See [01-project-overview.md](01-project-overview.md) §10.
+
+Since slice 15 there is also a second screen, a React UI under `ui/`. It changes Part B even less:
+it reads the engine's JSON and renders it, and the engine did not change to make room for it. Step 8
+above is the only place it appears, and every new mistake it could make there is closed by a test
+in the engine's required suite. See [01-project-overview.md](01-project-overview.md) §9.
 
 ---
 

@@ -14,9 +14,12 @@ miniHotelPMS/
 ├── spec/              THE RULES.   JSON data, read at runtime. 11 controls live here.
 │   └── drafts/        COMPOSED RULES. Runnable, unreviewed, uncounted.
 ├── fixtures/          THE EVIDENCE. Captured API responses. Never edited.
-├── tests/             THE PROOF.   1,610 tests. Offline. Four layers.
-├── tools/             THE UTILITIES. Validate, pseudonymise, transcode, probe —
+│   └── api/           THE CONTRACT. The JSON API's own answers, generated, for the React UI.
+├── tests/             THE PROOF.   1,956 tests. Offline. Four layers.
+├── tools/             THE UTILITIES. Validate, pseudonymise, transcode, probe, dump —
 │   └── proposers/     and every MODEL BACKEND, deliberately outside the engine.
+├── ui/                THE SECOND SCREEN. Next.js + React. A client of the JSON API, never
+│                      imported by the engine. Delete it and the engine still ships.
 ├── docs/              THE PROSE.   Including this folder.
 └── miniHotelLegacy/   v1, PRESERVED. The mistake this codebase was built to avoid.
 ```
@@ -48,13 +51,19 @@ flowchart LR
         DB["runs.sqlite<br/><i>run history</i>"]
     end
 
-    TESTS["tests/<br/><i>1,610 tests</i>"]
+    UI["ui/<br/><b>the React UI</b><br/><i>a client, outside the engine</i>"]
+    API["fixtures/api/<br/><i>golden JSON payloads</i>"]
+
+    TESTS["tests/<br/><i>1,956 tests</i>"]
     TOOLS["tools/<br/><i>validate · scrub ·<br/>transcode · probe</i>"]
 
     SPEC --> ENG
     FIX --> ENG
     ENG --> WEB
     ENG --> DB
+    WEB -- JSON --> UI
+    TOOLS -.dumps.-> API
+    API -.renders in tests.-> UI
     TESTS -.asserts.-> ENG
     TESTS -.asserts.-> SPEC
     TOOLS -.validates.-> SPEC
@@ -65,7 +74,8 @@ flowchart LR
     style FIX fill:#5d4a3a,color:#fff
 ```
 
-**Read that arrow direction carefully.** `spec/` and `fixtures/` flow *into* the engine as data. The
+**Read that arrow direction carefully.** `spec/` and `fixtures/` flow *into* the engine as data, and
+`ui/` only ever *reads* the engine's JSON. Nothing points from the engine into `ui/`. The
 engine has no compile-time knowledge of either. Delete `spec/ir/checkout_money_owed.json` and the
 engine does not fail to import — it simply offers ten controls instead of eleven.
 
@@ -199,8 +209,8 @@ reproducible six months later, and it is asserted by a test rather than assumed.
 | --- | --- | --- |
 | `store/sqlite.py` | 212 | Run history. A verdict that cannot be re-read is not an audit trail — and re-reading must not cost a provider call |
 | `store/schema.sql` | — | Three timestamps that are three different facts: `as_of` (what date it describes), `observed_at` (when the evidence was obtained), `created_at` (when the run happened) |
-| `web/app.py` | 523 | `handle(path) -> (status, content_type, body)`. **A pure function of the path** — which is why the whole demo is testable without a socket |
-| `web/render.py` | 616 | Pure functions from objects to strings. UNKNOWN is distinguished from FAIL by **hue, border style *and* wording** — three signals, so it survives a monochrome screen or a colour-blind reader |
+| `web/app.py` | 749 | `handle(path) -> (status, content_type, body)`. **A pure function of the path** — which is why the whole demo is testable without a socket. Since slice 15 it also serves the JSON a second client needs: `/api/controls`, `/api/properties`, `/api/history/<id>`, `/api/drafts`, `/api/outcomes`, `/api/plan/<id>`, and compose as JSON (its one write path, which never touches a PMS) |
+| `web/render.py` | 998 | Pure functions from objects to strings. UNKNOWN is distinguished from FAIL by **hue, border style *and* wording** — three signals, so it survives a monochrome screen or a colour-blind reader |
 | `web/server.py` | 158 | The only file in the engine that knows a socket exists. Eleven lines of work around `handle()` |
 | `web/assets/style.css` | — | Served from the package, never from a CDN |
 
@@ -337,9 +347,14 @@ fixtures/
 │   ├── raw/                   git-ignored. The unscrubbed captures. LOCAL ONLY.
 │   ├── *.xml                  14 pseudonymised real responses
 │   └── index.json             ◄── the request that produced each response
-└── demopms/
-    ├── *.json                 the same hotel, transcoded
-    └── index.json
+├── demopms/
+│   ├── *.json                 the same hotel, transcoded
+│   └── index.json
+└── api/                       the JSON API's own answers - GENERATED, never edited
+    ├── run/  runs/            every control × property × capture, live and re-read
+    ├── history/ readiness/    one per control
+    ├── compose/               switched off, switched on, and three kinds of turn
+    └── controls.json  properties.json  outcomes.json  drafts.json
 ```
 
 **Three rules, each bought with a specific failure:**
@@ -362,9 +377,15 @@ fixtures/
 Runs over DemoPMS report `evidence_is_synthetic`, because a run over records this repository
 produced must say so.
 
+**`fixtures/api/` is a different kind of fixture.** It is not evidence from a PMS. It is the
+engine's own *answers*, written by `tools/dump_api_fixtures.py`, and it is the contract the React UI
+is built against: the UI's tests render from these files, so they need no engine process and never
+trigger a run. A test asserts the rebuild is byte-identical, so a change to the engine that alters
+a payload shows up as a stale file rather than as a broken screen weeks later.
+
 ---
 
-## 6. `tests/` — 1,610 tests, four layers, zero network
+## 6. `tests/` — 1,956 tests, four layers, zero network
 
 ```
 tests/
@@ -382,14 +403,17 @@ tests/
 | `integration/test_scheduling_plans.py` | 124 | Every control's trigger plan on every provider |
 | `integration/test_compiler_roundtrip.py` | 100 | All 11 controls recompile from their own restricted-English sentence to the same rule *and the same verdicts* |
 | `contract/test_provider_contract.py` | 73 | One shared suite, parameterised over every registered provider. **Adding Mews means running an existing suite, not writing a new one** |
-| `integration/test_web_pages.py` | 67 | The rendered page, without a socket |
+| `integration/test_web_pages.py` | 103 | The rendered page, without a socket, and every JSON route over the full matrix |
+| `integration/test_api_goldens.py` | 144 | The React UI's contract: the golden payloads rebuild byte-identical, the matrix is complete, nothing is git-ignored, and the shapes the UI depends on are pinned. Above all, a run that concluded nothing still *carries* counts, so `concluded` must be the gate |
+| `unit/test_slice15_engine_untouched.py` | 17 | On a `slice/15-*` branch, **no engine file may change** but `web/app.py`. Fails rather than skips when it cannot find the base to compare against |
+| `unit/test_ui_hygiene.py` | 17 | Polices `ui/` from the **required** suite: no parsed money, no injected HTML, no `title=` help, no inline styles, one module that makes requests, exact pins, three runtime packages |
 | `unit/test_transport.py` | 58 | Including: the test that sets the enabling environment variable **and is refused anyway** |
 | `e2e/test_runs.py` | 46 | Holds the concluding/blocked/non-concluding control sets **by name**, so a change turns a test red rather than passing quietly |
-| `unit/test_canonical_boundary.py` | 31 | Greps the tree for 28 identifiers from **both** providers, with allowed directories *discovered* rather than listed |
+| `unit/test_canonical_boundary.py` | 62 | Greps the tree for 28 identifiers from **both** providers, with allowed directories *discovered* rather than listed. Since slice 15 it walks `ui/` too, where no vendor name may appear even in a comment |
 | `integration/test_transcode_fidelity.py` | 20 | The DemoPMS fixtures still match a rebuild, byte for byte |
 | `unit/test_clock_is_always_injected.py` | 5 | An **AST walk over the whole engine**: `kernel/clock.py` is the only module allowed to read a wall clock |
 | `unit/test_stdlib_only.py` | 2 | Walks the source tree and asserts the engine contains no outbound HTTP client at all |
-| `unit/test_web_compose.py` | 41 | The compose window: off by default, an absence *stated* not 404'd, a refusal that names the field, a question with no run button, and **still no JavaScript** |
+| `unit/test_web_compose.py` | 65 | The compose window: off by default, an absence *stated* not 404'd, a refusal that names the field, a question with no run button, and **still no JavaScript**. Also compose as JSON: the sentence *sent back* is what gets filed, a refused sentence writes nothing, and the HTML window is unchanged |
 | `unit/test_compose_normalise.py` | 29 | Prose → sentence → rule against a stub. §17's gate and §18's restraint, plus reply parsing across five wrapping styles |
 | `unit/test_proposers_refuse_in_tests.py` | 25 | **No test reaches a model.** Both live backends refuse inside a test process *with their variable set* — the transport's own proof pattern |
 | `integration/test_draft_lifecycle.py` | 15 | A rule composed from prose runs on **both** providers with identical verdicts and identical call counts |
@@ -400,13 +424,14 @@ tests/
 
 ---
 
-## 7. `tools/` — four scripts, each with a reason
+## 7. `tools/` — the scripts, each with a reason
 
 | Command | What it does | Why it exists |
 | --- | --- | --- |
 | `python3 -m tools.validate_spec` | Validates the vocabulary, the rules, the provider maps, the tenants — **1,080 checks** | Not ceremony. It caught four rules whose joins read a field they never declared, **on its first real run.** It is also the gate that makes a natural-language compiler safe to add |
 | `python3 -m tools.scrub_fixtures <in> <out>` | Pseudonymises a raw capture | The captures carry **27 email addresses and 30 phone numbers** from someone else's sandbox, plus free-text remarks naming a guest. This repository is public |
 | `python3 -m tools.transcode_demopms --check` | Rebuilds the DemoPMS fixtures and verifies nothing changed | Makes "the same hotel through two providers" a checked claim rather than a decorative one |
+| `python3 -m tools.dump_api_fixtures --check` | Rebuilds `fixtures/api/` from the engine and verifies nothing changed | The React UI's tests render from these files. A payload change has to be a visible diff here, not a surprise there |
 | `python3 -m tools.probe --plan` | Prints exactly what a live probe *would* ask. **Makes no calls** | The vendor asks integrators not to query wide ranges without agreement. Live calls are opt-in, staged, bounded, and approved individually |
 | `python3 -m tools.serve --llm local` | The demo **with the compose window** at `/compose` | Decision D10. This is where the dependency arrow turns around: the model client lives here, outside the engine, and is injected into the app. `hotelcontrols/` still imports only the standard library |
 
@@ -430,11 +455,46 @@ tests/
 | `pyproject.toml` | **No runtime dependencies and not packaged for distribution.** It configures pytest and a 90% coverage floor — *"a floor, not a target. Coverage says a line ran; it does not say the line was checked"* |
 | `requirements-dev.txt` | `pytest` + `coverage`. Never imported by `hotelcontrols/` |
 | `.env.example` | Credential variable names only. **No credentials in source, ever** — environment only, with no default, so a missing one fails loudly |
-| `.github/workflows/ci.yml` | Python 3.11 (the floor) and 3.13 (what we develop on). Required on every PR to `main` |
+| `.github/workflows/ci.yml` | Python 3.11 (the floor) and 3.13 (what we develop on), required on every PR to `main`. Plus a separate `ui` job (typecheck, component tests, build, real-browser tests) that is **not** required, so a broken npm can never block an engine fix |
 
 ---
 
-## 9. `miniHotelLegacy/` — v1, preserved on purpose
+## 9. `ui/` — the second screen
+
+A Next.js + React + TypeScript app that reads the engine's JSON API. It is **not part of the
+engine**: nothing in `hotelcontrols/` imports it, and the browser never talks to the engine
+directly. The UI's server does all the fetching, which is why no CORS header exists anywhere.
+
+```
+ui/
+├── app/                 one folder per page
+│   ├── page.tsx           the index: every control, readiness per provider, the evidence picker
+│   ├── run/[controlId]/   ask a control a question. The Run button is a POST (actions.ts)
+│   ├── runs/[runId]/      a run, re-read from the store for free. Safe to reload and bookmark
+│   ├── history/[controlId]/  past runs, gated exactly like a run
+│   ├── compose/           the compose window (its only client component and only write path)
+│   ├── style.css/         the ENGINE'S stylesheet, served here, so both screens share one set of rules
+│   └── not-found.tsx  error.tsx   ours, because Next's defaults break the security policy
+├── components/          pure functions of a payload, so every state is tested from a golden file
+├── lib/api.ts           THE ONLY MODULE THAT TALKS TO THE ENGINE
+├── lib/types.ts         the API contract, with the three traps named in its comments
+├── proxy.ts             a real Content-Security-Policy, with a fresh nonce per request
+├── test/                Vitest: criteria 2, 3, 8, 10, and the parity harness over every golden
+├── e2e/                 Playwright, with no server: computed styles, keyboard, accessibility
+└── README.md            how to run it, and why each of its dependencies is there
+```
+
+| File | Why it matters |
+| --- | --- |
+| `lib/api.ts` | `GET /api/run/` spends provider calls and writes a row. Keeping every request in one file means the expensive one is findable, and a required test refuses a request from anywhere else |
+| `components/RunView.tsx` | The three states of a run, gated on `coverage.concluded`, **never** on whether counts exist |
+| `components/Verdict.tsx` | One verdict and its evidence table. Values are rendered exactly as the engine wrote them |
+| `test/parity.test.tsx` | Over all 88 run payloads, no record dropped, duplicated or mis-grouped, every evidence row verbatim, and tiles if and only if the run concluded |
+| `e2e/run.spec.tsx` | The four computed border styles and hues, which only a real browser can measure |
+
+---
+
+## 10. `miniHotelLegacy/` — v1, preserved on purpose
 
 Not dead weight. It is the **measured baseline**, and three things in it still govern:
 
@@ -448,7 +508,7 @@ Not dead weight. It is the **measured baseline**, and three things in it still g
 
 ---
 
-## 10. Where a change actually goes
+## 11. Where a change actually goes
 
 The table people most often want:
 
@@ -465,6 +525,9 @@ The table people most often want:
 | Change **how a verdict is decided** | `evaluator/` — and expect the blast radius to be every control | — |
 | Change **when a control runs** | the IR's `execution` block | `scheduling.py`, unless the *policy* is wrong |
 | Add a **new canonical field** | `spec/canonical_fields.json`, then both provider maps | — |
+| Change how a page **looks or reads** in the React UI | `ui/components/` | anything in `hotelcontrols/` |
+| Give the React UI **a field it lacks** | a read-only route in `web/app.py`, then `python3 -m tools.dump_api_fixtures` and read the diff | `kernel/`, `evaluator/`, `store/` — a missing field is a web-layer problem |
+| Change **what an outcome is called** | `WORDING` in `web/render.py` — both screens follow, because the UI reads it from `/api/outcomes` | any `.tsx` file — typing "VIOLATION" there would be a second copy free to drift |
 
 > **The rule that outranks every other rule in this repository:** never widen a verdict. If evidence
 > is missing the answer is UNKNOWN. Turning an UNKNOWN into a PASS to make a test green, a number
