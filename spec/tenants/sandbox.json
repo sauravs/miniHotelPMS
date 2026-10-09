@@ -23,9 +23,12 @@
   "department_map": {},
   "department_map_note": "Ships EMPTY on purpose. 'RMS' is one property's posting category and there is no provider-wide vocabulary at all, so every folio department is UNKNOWN until a hotel supplies its own. That is the honest answer, and it is what drives 'connect your finance mapping to enable this control' rather than a wrong verdict.",
 
+  "currencies": ["EUR", "ILS", "USD"],
+  "currencies_note": "OBSERVED, NOT DECIDED: the currencies this property's own records are in, and the only three in any capture. Reservation totals are in USD and ILS (and EUR as well, in the 2024 captures), and every captured folio is in ILS - reservation 007003199 is 870 USD while its folio is 3262.5 ILS, with no exchange rate anywhere in the API (R9). A money parameter stated in any other currency is refused when this file loads, never converted. A fourth currency the captures have never shown would be refused too, which is the safe direction: it blocks a setting, it never moves a verdict.",
+
   "settings": {
-    "nominated_rate_codes": [],
-    "rate_plan_permitted_room_types": {}
+    "nominated_rate_codes": null,
+    "rate_plan_permitted_room_types": null
   },
-  "settings_note": "What a control needs and only the hotel can supply. `nominated_rate_codes` is control 15's 'rate category X' - empty means the control excludes every record, which is useless but honest, and v1 instead carried the literal string '<hotel-nominated rate codes>' inside a rule it then tried to run. `rate_plan_permitted_room_types` maps a rate code to the room types it may be sold in; MiniHotel cannot resolve it (R13, open question 1.6), so an empty map means control 9 answers UNKNOWN with that reason."
+  "settings_note": "What a control needs and only the hotel can supply - and this property is the vendor's TEST PROPERTY, so nobody can decide either for it. Both are `null`, NOT DECIDED, since v3 slice 21 (plan-v3 §3.2, #49): until then they were `[]` and `{}`, which claimed 'the hotel decided none'. `nominated_rate_codes` is control 15's 'rate category X'; undecided, the 24 reservations in sandbox2026 whose scope it decides answer UNKNOWN naming it, where under `[]` the same 24 were UNKNOWN naming the absent rate code - no count moved. A list would move nothing yet either - stay.rate_code is absent from every capture (#49) - and supplying one here would be inventing a hotel's policy. `rate_plan_permitted_room_types` maps a rate code to the room types it may be sold in; MiniHotel cannot resolve it (R13, open question 1.6), and control 9 answers UNKNOWN with that reason whatever is written here. Types: spec/parameters.json."
 }

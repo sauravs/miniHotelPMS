@@ -297,8 +297,8 @@ the required guest / company / payment information."* X is a property's own list
 supplied one. In v1 the control excluded 71 of 108 records for exactly this reason and returned
 zero answers.
 
-**Today.** The tenant config ships with an empty nominated-rate-code list, so the control excludes
-everything — which is honest but useless. ~~One sentence from a property makes the control work.~~
+**Before v3 slice 21.** The tenant config shipped with an empty nominated-rate-code list, so the control excluded
+everything — which was honest but useless. ~~One sentence from a property makes the control work.~~
 **Checkpoint before slice 6.**
 
 **Corrected 2026-10-09 (issue #49). A list alone does not make the control work, on any evidence
@@ -310,6 +310,15 @@ needed: **a capture taken with room prices** (v3 slice 23, D16) and **a list fro
 property**. The sandbox is the vendor's test hotel, so a list supplied for it would be an invented
 policy moving the criterion-1 figure. v3 slice 21 also makes *"the hotel has not decided"* (`null`)
 distinct from *"the hotel nominated none"* (`[]`), because today `[]` stands for both.
+
+**Since v3 slice 21 (2026-10-09) the sandbox and demo tenants state `null`, not decided.** That
+was the one declared verdict change of v3, dry-run at the slice-start checkpoint. The owner left
+the decision to the implementer, who decided yes. It moved **no count and no outcome**: sandbox2026
+and demo2026 still read 0 PASS, 0 FAIL, 37 UNKNOWN, 71 EXCLUDED. The 24 records whose scope the
+list decides now read *"this property has not supplied 'nominated_rate_codes'"* instead of
+*"stay.rate_code is unknown"*. Both are true, and the rate code's absence still shows on each
+record's evidence row. The question stays open. What closes it is unchanged: a real property's
+list and slice 23's capture.
 
 ### 1.5 Is unstructured free text an evidence source?
 

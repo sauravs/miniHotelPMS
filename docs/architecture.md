@@ -135,8 +135,13 @@ ir.validate(ir)      -> [Problem]        # references only declared vocabulary
 ir.version / ir.digest -> int / "sha256:..."   # since slice 16: which rule this is
 lock.read_lock(spec) -> {control: (version, digest)}   # spec/ir.lock.json
 lock.lock_problems(spec) -> [Problem]    # content changed without a bump; version went back
-tenant.load(id)      -> TenantConfig     # status map, department map, timezone,
-                                         # currency, call budget, nominated rate codes
+tenant.load(id)      -> TenantConfig     # status map, department map, timezone, currencies,
+                                         # call budget, settings TYPED against the schema
+tenant.settings      -> {name: value}    # DECIDED values only - what the evaluator is given
+tenant.undecided     -> (name, ...)      # stated as null: not decided (slice 21)
+tenant.has_setting(name) / tenant.is_decided(name) -> bool    # declared / answered
+ParameterSchema.load(spec) -> schema     # spec/parameters.json: name, type, required, no default
+schema.typed(settings, tenant_id=, currencies=) -> {name: value}   # or SpecError, by name
 ```
 
 **A version cannot lie (slice 16, G6b).** Every IR has carried `"version": 2`, and since slice 16
@@ -156,6 +161,24 @@ used in scope/exceptions/assertions must also be declared as required evidence.
 **Tenant configuration is data here, not constants in a provider module.** Status codes and folio
 departments are per-property; the provider map describes an API, the tenant config describes one
 hotel's vocabulary. This resolves v1's open question 1.4.
+
+**A decision nobody made is not "none" (slice 21, G6a narrowed).** Until slice 21 a tenant setting
+was untyped JSON, and `[]` meant both *"the hotel decided none"* and *"nobody asked the hotel"*.
+That is harmless in a scope, where an empty list excludes every record. It is not harmless in an
+exception, where it exempts nobody and turns a missing answer into a FAIL. Now
+`spec/parameters.json` declares each parameter's type, whether a tenant must state it, and **no
+default** (a `default` key is refused). `TenantConfig.load` types every value at load and refuses a
+wrong type, unit or currency **by name**. `null` is the only spelling of *not decided*. Such a
+parameter is declared (`has_setting`) but kept **out of `tenant.settings`**, which is the dict
+`runner/run.py` hands the evaluator. A predicate reading it therefore answers through the
+evaluator's existing branch, *"this property has not supplied X, which this control needs"*, so
+the result is UNKNOWN naming it, and no evaluator or runner code changed to make it so.
+`TenantConfig.__post_init__` performs the split, so no way of building a tenant can hand the
+evaluator a `None`. The five types are `text_list`, `text_list_map`, `money` (`{"amount": "25.00",
+"currency": "USD"}` → `Money`, in a currency the tenant's `currencies` lists, never converted, R9),
+`time_of_day` (`"14:00"` on the property's clock; an offset is refused, F11) and `choice`. The
+last three exist ahead of any control using them. Slice 22's late-checkout template declares its
+parameters (D15) in this vocabulary from `spec/guest/`, and that slice may not change this layer.
 
 ### L3 · Providers — the canonical boundary
 
@@ -506,7 +529,7 @@ do not exist rather than producing a rule that runs and quietly answers about no
 ```
 hotelcontrols/
   kernel/         value.py · money.py · outcome.py · verdict.py · clock.py · errors.py
-  spec/           registry.py · ir.py · lock.py · tenant.py · schema.py
+  spec/           registry.py · ir.py · lock.py · tenant.py · schema.py · parameters.py
   providers/      base.py · registry.py
                   minihotel/  adapter.py · paths.py · transforms.py · records.py · fixtures.py
                   demopms/    adapter.py · paths.py · records.py · transforms.py · fixtures.py
@@ -523,7 +546,8 @@ spec/             canonical_fields.json · ir_schema.json · ir/*.json
                   ir.lock.json            # version + digest per control - GENERATED
                   drafts/ir/*.json        # composed from prose, runnable, UNREVIEWED
                   providers/minihotel.json · providers/demopms.json
-                  tenants/*.json
+                  parameters.json         # the type of every tenant setting; no defaults
+                  tenants/*.json          # null = not decided (slice 21)
 fixtures/         minihotel/  (pseudonymised captures + request fingerprints)
                   demopms/    (fictional, by construction)
                   api/        (the JSON API's own answers - GENERATED, the React UI's contract)
