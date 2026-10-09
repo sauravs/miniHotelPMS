@@ -1,8 +1,21 @@
 {
   "template": "LATE_CHECKOUT",
+  "name": "Late checkout request",
   "version": 1,
-  "status": "DRAFT - awaiting the owner's approval at slice 22's checkpoint (docs/plan-v3.md §5, docs/v3-implementation-brief.md §3). No code reads this file until it is approved.",
-  "note": "THE DECISION TABLE for one guest-service template, written before any code because this is where hotel policy turns into behaviour. Owner decisions it implements: D12 (structured request, no model, every outcome advisory), D15 (five decisions; six parameters; no defaults; missing evidence is always STAFF_REVIEW; DENIED and UNAVAILABLE only from established evidence or stated policy). Sources: D2 §18-§31 and §49. The rules are evaluated IN ORDER and the first that matches decides. Every decision names the rule that produced it, so a decision can be traced line by line to this file.",
+  "status": "approved",
+  "approval": {
+    "by": "the project owner, at slice 22's checkpoint (docs/plan-v3.md §5, docs/v3-implementation-brief.md §3)",
+    "on": "2026-10-10",
+    "answers": {
+      "1": "A request after maximum_time is DENIED, as the hotel's stated policy (rule LC9).",
+      "2": "Departing on another day, or not checked in, is STAFF_REVIEW (rules LC6 and LC7).",
+      "3": "Tasks: APPROVED low, APPROVED_WITH_FEE medium, STAFF_REVIEW medium, all for front_office_manager; DENIED raises none.",
+      "4": "Fixed before approval: only checked_in reaches the time rules. The draft's not-checked-in rule caught `confirmed` alone, so a `waitlist` or `no_show` reservation would have fallen through to APPROVED (rule LC7).",
+      "5": "Fixed before approval: a reservation still checked in after its departure date is STAFF_REVIEW naming the contradiction, not DENIED (rule LC5). D15 lets DENIED come only from established evidence, and two facts that contradict each other establish nothing."
+    },
+    "how": "The owner accepted the implementer's recommendation on all five points ('pls go ahead with your decisions')."
+  },
+  "note": "THE DECISION TABLE for one guest-service template, written and approved before any code because this is where hotel policy turns into behaviour. Owner decisions it implements: D12 (structured request, no model, every outcome advisory), D15 (five decisions; six parameters; no defaults; missing evidence is always STAFF_REVIEW; DENIED and UNAVAILABLE only from established evidence or stated policy). Sources: D2 §18-§31 and §49. The rules are evaluated IN ORDER and the first that matches decides. Every decision names the rule that produced it, so a decision can be traced line by line to this file. hotelcontrols/guest/ implements each rule by its id and REFUSES to load this file if the ids, their order or their decisions differ from the engine's - the file and the code cannot drift apart silently. Editing anything decision-bearing here means a new `version`: every stored decision names the version and digest of the table that made it, and tests/unit/test_guest_template.py pins the digest to the version.",
 
   "request": {
     "note": "Structured (D12). A model never reads the guest's words on this path: a misread '3' would price a fee. A malformed request is refused at intake with a 400 naming the field - it is not a decision, and it is not stored.",
@@ -14,12 +27,28 @@
   },
 
   "evidence": {
-    "note": "Read through the existing evidence layer, so both providers answer the same canonical question (criterion 7). D2 §30's template lists exactly these two.",
-    "fields": ["reservation.status", "reservation.departure_date"]
+    "note": "Read through the existing evidence layer, so both providers answer the same canonical question (criterion 7). D2 §30's template lists exactly these two fields.",
+    "fields": ["reservation.status", "reservation.departure_date"],
+    "population": {
+      "description": "Reservations departing yesterday, today or tomorrow, on the property's calendar. One bulk call, whatever the number of requests (R1): no captured endpoint answers for a single reservation, and the window is what lets the stay-ended, overstay and departs-another-day rules be decided from evidence rather than from absence. A reservation outside it is not found, which is a gap and so STAFF_REVIEW (LC1), never DENIED.",
+      "window": {"from": "today-1d", "to": "today+1d"},
+      "provider_query": {
+        "minihotel": {
+          "endpoint": "GetReservationKey",
+          "filters": {"DepartureDate": {"From": "today-1d", "To": "today+1d"}},
+          "call_cost": "1"
+        },
+        "demopms": {
+          "endpoint": "bookings",
+          "filters": {"departure": {"from": "today-1d", "to": "today+1d"}},
+          "call_cost": "1"
+        }
+      }
+    }
   },
 
+  "parameters_note": "Declared in slice 21's vocabulary (hotelcontrols/spec/parameters.py), and read by ParameterSchema.from_dict over THIS file. A tenant states them under guest_services.LATE_CHECKOUT in its tenant file; null means NOT DECIDED. The sandbox and demo state all six as null - nobody can decide a vendor test property's late-checkout policy - so they answer STAFF_REVIEW to every request, and say why.",
   "parameters": {
-    "note": "Declared in slice 21's vocabulary (spec/parameters.py). A tenant states them under guest_services.LATE_CHECKOUT in its tenant file; null means NOT DECIDED. The sandbox and demo state all six as null - nobody can decide a vendor test property's late-checkout policy - so they answer STAFF_REVIEW to every request, and say why.",
     "free_until": {"type": "time_of_day", "required": true,
                    "description": "The latest checkout time with no fee and no approval."},
     "charge_from": {"type": "time_of_day", "required": true,
@@ -35,18 +64,18 @@
   },
 
   "parameter_order": {
-    "note": "D2 §31: 'Validator checks: time ordering'. Checked when the tenant loads, naming the two parameters that disagree. Ties are allowed: approval_required_after equal to maximum_time means there is no approval band.",
+    "note": "D2 §31: 'Validator checks: time ordering'. Checked when the policy loads, naming the two parameters that disagree. Only decided parameters are compared - an undecided one is already a gap. Ties are allowed: approval_required_after equal to maximum_time means there is no approval band.",
     "rules": [
-      "charge_from <= free_until",
-      "free_until <= approval_required_after",
-      "approval_required_after <= maximum_time"
+      ["charge_from", "free_until"],
+      ["free_until", "approval_required_after"],
+      ["approval_required_after", "maximum_time"]
     ]
   },
 
   "rules": [
     {
       "rule": "LC1-gaps",
-      "when": "any required evidence is not established (reservation not found; reservation.status unknown or an unnamed code such as OK4 or WL; reservation.departure_date unknown), OR any parameter is not decided",
+      "when": "any required evidence is not established (reservation not found; the lookup failed; reservation.status unknown or an unnamed code such as OK4 or WL; reservation.departure_date unknown), OR any parameter is not decided",
       "decision": "STAFF_REVIEW",
       "reason": "names EVERY gap at once: each missing piece of evidence with its own reason, and each undecided parameter by name",
       "why": "D15 and V10: missing evidence or an undecided parameter is always STAFF_REVIEW, never APPROVED, DENIED or UNAVAILABLE. Checked FIRST, so a gap can never be outranked by a rule that would have decided without it."
@@ -67,48 +96,55 @@
     },
     {
       "rule": "LC4-stay-ended",
-      "when": "reservation.departure_date is before today",
+      "when": "reservation.departure_date is before today, and reservation.status is not checked_in",
       "decision": "DENIED",
       "reason": "this stay ended on <departure_date>",
       "why": "Established evidence: a late checkout cannot apply to a day that has passed."
     },
     {
-      "rule": "LC5-not-today",
+      "rule": "LC5-overstay",
+      "when": "reservation.departure_date is before today, and reservation.status is checked_in",
+      "decision": "STAFF_REVIEW",
+      "reason": "the PMS shows the guest still checked in, but this stay ended on <departure_date>; the two facts contradict each other",
+      "why": "Owner point 5. The guest has overstayed or the record is out of date, and the evidence cannot say which. DENIED needs established evidence (D15); a contradiction is not that."
+    },
+    {
+      "rule": "LC6-not-today",
       "when": "reservation.departure_date is after today",
       "decision": "STAFF_REVIEW",
       "reason": "this reservation departs on <departure_date>, not today; a request ahead of the day is for a person to decide",
-      "why": "OPEN POINT 2. No stated policy covers a request made in advance, and asking ahead breaks no rule, so it is not DENIED. Recommended: STAFF_REVIEW."
+      "why": "Owner point 2. No stated policy covers a request made in advance, and asking ahead breaks no rule, so it is not DENIED."
     },
     {
-      "rule": "LC6-not-checked-in",
-      "when": "reservation.status is confirmed (departing today, not checked in)",
+      "rule": "LC7-not-checked-in",
+      "when": "reservation.status is anything other than checked_in (confirmed, waitlist, no_show), departing today",
       "decision": "STAFF_REVIEW",
-      "reason": "the guest is not checked in",
-      "why": "OPEN POINT 2. A reservation departing today that never checked in is a no-show or a data lag; a person should look."
+      "reason": "the guest is not checked in (the reservation is <status>)",
+      "why": "Owner points 2 and 4. Only a checked-in guest reaches the time rules. A reservation departing today that never checked in is a no-show, a waitlist or a data lag; a person should look."
     },
     {
-      "rule": "LC7-free",
+      "rule": "LC8-free",
       "when": "requested_time <= free_until",
       "decision": "APPROVED",
       "reason": "<requested_time> is within the free late checkout, until <free_until>",
       "why": "Stated policy. Inclusive: 14:00 with free_until 14:00 is free (D2 §24)."
     },
     {
-      "rule": "LC8-after-maximum",
+      "rule": "LC9-after-maximum",
       "when": "requested_time > maximum_time",
       "decision": "DENIED",
       "reason": "<requested_time> is after the latest checkout this hotel grants, <maximum_time>",
-      "why": "OPEN POINT 1. Stated policy, which D15 allows DENIED to come from. This is the only reading in which maximum_time and approval_required_after mean different things. The alternative is D2 §30's template, which never declines on time and sends everything after the fee band to STAFF_REVIEW."
+      "why": "Owner point 1. Stated policy, which D15 allows DENIED to come from. This is the only reading in which maximum_time and approval_required_after mean different things."
     },
     {
-      "rule": "LC9-needs-approval",
+      "rule": "LC10-needs-approval",
       "when": "requested_time > approval_required_after",
       "decision": "STAFF_REVIEW",
       "reason": "after <approval_required_after> a person must approve; the fee would be <fee>",
       "why": "Stated policy (D2 §20: 'After 4 PM: staff approval'). The fee is computed and shown so the person approving sees it, but nothing is charged by this decision."
     },
     {
-      "rule": "LC10-fee",
+      "rule": "LC11-fee",
       "when": "otherwise (free_until < requested_time <= approval_required_after)",
       "decision": "APPROVED_WITH_FEE",
       "reason": "<requested_time> is <n> charged hour(s) after <charge_from> at <fee_per_hour> per hour: <fee>",
@@ -126,8 +162,8 @@
   },
 
   "identity": {
-    "note": "D1 §65: a double tap is Tuesday, not an edge case. The same request twice is one decision and one task.",
-    "key": ["property", "reservation_id", "departure_date", "requested_time", "template version", "digest of the property's six parameter values"]
+    "note": "D1 §65: a double tap is Tuesday, not an edge case. The same request twice is one decision and one task. `received_on` (the property's calendar day the request arrived) is in the key so that a request made the day before departure, and the same request made on the day, are two questions with two answers - a double tap happens on one day, so it still collapses to one decision.",
+    "key": ["property", "template version", "reservation_id", "departure_date", "requested_time", "received_on", "digest of the property's six parameter values"]
   },
 
   "actions": {
@@ -139,7 +175,7 @@
   },
 
   "worked_examples": {
-    "note": "The exit test's expected answers (plan-v3 §5, V9), as two properties with one template. Neither is a shipped tenant: they are test properties, labelled as such. Each states all six parameters, because a property that leaves one undecided answers STAFF_REVIEW to everything.",
+    "note": "The exit test's expected answers (plan-v3 §5, V9), as two properties with one template. Neither is a shipped tenant: they are test properties, labelled as such, built by the tests. Each states all six parameters, because a property that leaves one undecided answers STAFF_REVIEW to everything.",
     "property_a_D2_49": {
       "policy": "free until 14:00; 25.00 USD per started hour from 14:00; approval after 16:00; nothing after 18:00",
       "parameters": {"free_until": "14:00", "charge_from": "14:00", "approval_required_after": "16:00",

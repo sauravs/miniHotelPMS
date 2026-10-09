@@ -458,6 +458,16 @@ as a record with a state (`pending`, `done`, `dismissed`) that a person performs
 in scope; if it is ever proposed, it reopens this question rather than being built around it.
 Built in v3 as slices 18 and 22 — see `docs/plan-v3.md`.
 
+**Built, slice 22 (2026-10-10).** `POST /api/guest/requests` decides a late-checkout request by
+the table in `spec/guest/late_checkout.json`, which the owner approved before any code, and every
+decision except `DENIED` raises one `pending` task in slice 18's queue for a person to perform.
+The task says what the engine did not do: it wrote nothing to the PMS, posted no fee, and did not
+check whether the room is needed for an arrival (G12a). **Two things it raises, not decided:**
+whether a guest task should be **emailed** like a violation's (slice 19's `dispatch` is scoped to
+a run's FAILs, so today it is not), and whether the guest routes should get **golden payloads and
+a React view** - both need `tools/dump_api_fixtures.py`, which was outside slice 22's may-change
+line, so today the routes are proven by the Python suite and served by the engine's own page.
+
 ### 1.11 Which of the nine disagreements between the three StayOps documents stand?
 
 **Raised 2026-10-02. Question N2 in `docs/stayops-gap-analysis.md` §6, where all nine are listed

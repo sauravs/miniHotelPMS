@@ -30,5 +30,17 @@
     "nominated_rate_codes": null,
     "rate_plan_permitted_room_types": null
   },
-  "settings_note": "NOT DECIDED (`null`), as sandbox is, since v3 slice 21. These are things only the hotel can supply, and it is the same hotel - so `required_reservation_fields` answers UNKNOWN naming nominated_rate_codes here too, on the same 24 records, and `rate_room_category_consistency` answers UNKNOWN. Deciding them on this side alone would be the fictional provider quietly outperforming the real one, and would make the two providers give different reasons for the same records (criterion 7)."
+  "settings_note": "NOT DECIDED (`null`), as sandbox is, since v3 slice 21. These are things only the hotel can supply, and it is the same hotel - so `required_reservation_fields` answers UNKNOWN naming nominated_rate_codes here too, on the same 24 records, and `rate_room_category_consistency` answers UNKNOWN. Deciding them on this side alone would be the fictional provider quietly outperforming the real one, and would make the two providers give different reasons for the same records (criterion 7).",
+
+  "guest_services": {
+    "LATE_CHECKOUT": {
+      "free_until": null,
+      "charge_from": null,
+      "approval_required_after": null,
+      "maximum_time": null,
+      "fee_per_hour": null,
+      "hour_rounding": null
+    }
+  },
+  "guest_services_note": "v3 slice 22. The hotel's late-checkout policy, typed by the parameters spec/guest/late_checkout.json declares (slice 21's vocabulary: null is NOT DECIDED, and nothing has a default). NOT DECIDED, as on sandbox: it is the same hotel, and a policy stated on this side alone would be the fictional provider quietly outperforming the real one (criterion 7)."
 }

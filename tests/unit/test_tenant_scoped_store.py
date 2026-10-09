@@ -171,8 +171,9 @@ def sql_literals() -> list[tuple[str, int, str]]:
 class TestEveryStatementOnATenantTableIsScoped:
 
     def test_the_store_has_tenant_owned_tables_to_guard(self):
-        # `actions` since slice 18, discovered from schema.sql rather than listed here.
-        assert {"runs", "verdicts", "evidence", "actions"} <= tenant_owned_tables()
+        # `actions` since slice 18 and `decisions` since slice 22, discovered from schema.sql
+        # rather than listed here.
+        assert {"runs", "verdicts", "evidence", "actions", "decisions"} <= tenant_owned_tables()
 
     def test_there_are_statements_to_check(self):
         assert len(sql_literals()) >= 4, "the scan found no SQL - it would pass vacuously"
@@ -234,6 +235,16 @@ class TestEveryStatementOnATenantTableIsScoped:
         store.transition(record.action_id, DONE, tenant_id="demo", at=later, actor="o")
         with pytest.raises(TransitionRefused):
             store.transition(record.action_id, DONE, tenant_id="demo", at=later, actor="o")
+        # Slice 22's `decisions` table: a new decision with its task, the double submission
+        # (which reads the stored one back), a read, another property's read, and a listing.
+        from tests.unit.test_store_decisions import a_decision
+        from hotelcontrols.actions import guest_task
+        decided = a_decision("demo")
+        store.save_decision(decided, guest_task(decided))
+        store.save_decision(decided, guest_task(decided))
+        store.decision(decided.decision_id, tenant_id="demo")
+        store.decision(decided.decision_id, tenant_id="sandbox")
+        store.decisions(tenant_id="demo")
         store.close()
         reads = [s for s in executed if _VERB.match(s)]
         assert reads, "nothing was traced, so nothing was checked"

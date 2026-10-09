@@ -39,6 +39,7 @@ import json
 import pathlib
 from typing import Any, Iterable
 
+from ..actions import is_guest_task
 from ..kernel import Outcome, Verdict
 from ..runner import Coverage, Run
 
@@ -1087,6 +1088,8 @@ def action_json(record, delivery: bool = False) -> dict[str, Any]:
     def instant(value):
         return value.isoformat() if value is not None else None
 
+    if is_guest_task(record):
+        return _guest_task_json(record, delivery)
     payload = {
         "action_id": record.action_id,
         "property": record.tenant_id,
@@ -1122,6 +1125,42 @@ def action_json(record, delivery: bool = False) -> dict[str, Any]:
     return payload
 
 
+def _guest_task_json(record, delivery: bool) -> dict[str, Any]:
+    """A guest decision's task (slice 22): the same keys as a FAIL's, except that its receipt
+    is a DECISION, named as one - never a `run_id` that no stored run answers to - and it has
+    no failing or cleared runs, because a decision is not re-judged by later runs."""
+    def instant(value):
+        return value.isoformat() if value is not None else None
+
+    payload = {
+        "action_id": record.action_id,
+        "property": record.tenant_id,
+        "control_id": record.control_id,
+        "control_name": record.control_name,
+        "record_id": record.record_id,
+        "severity": record.severity,
+        "audience": record.audience,
+        "type": record.kind,
+        "reason": record.reason,
+        "policy_version": record.policy_version,
+        "policy_digest": record.policy_digest,
+        "state": record.state,
+        "state_changed_at": instant(record.state_changed_at),
+        "state_changed_by": record.state_changed_by,
+        "raised": {"decision_id": record.raised_by_run, "at": instant(record.raised_at),
+                   "as_of": record.as_of, "provider": record.provider,
+                   "evidence": record.evidence_label},
+        "last_failing": None,
+        "cleared": None,
+        "annotation": None,
+    }
+    if delivery or record.notified_at is not None or record.notify_note is not None:
+        payload["delivery"] = {"channel": record.notified_via,
+                               "sent_at": instant(record.notified_at),
+                               "note": record.notify_note}
+    return payload
+
+
 def delivery_sentence(record) -> str | None:
     """What happened to a task's email, in a sentence - or None if there is nothing to say."""
     if record.notified_at is not None:
@@ -1143,7 +1182,7 @@ STATUS_WORDS = {
 
 
 def queue_page(tenant_id: str, properties: Iterable[str], records: Iterable, controls: list,
-               persistent: bool, email: str = "") -> str:
+               persistent: bool, email: str = "", guest_pending: int = 0) -> str:
     """One property's findings queue: what is still to do, what was closed, and - beside it -
     what each control last concluded, so an empty queue cannot pass for an all-clear."""
     records = list(records)
@@ -1170,6 +1209,13 @@ def queue_page(tenant_id: str, properties: Iterable[str], records: Iterable, con
         if email else
         "Email is not wired here, so nobody is emailed about a task. It is opt-in: "
         "python3 -m tools.serve --notify smtp, behind HOTELCONTROLS_NOTIFY=1."))
+    if guest_pending:
+        # Slice 22. A guest decision's task is not a violation, so it is not listed here with a
+        # VIOLATION badge - it is pointed at, where staff carry it out.
+        parts.append('<p class="meta"><strong>%d guest request%s</strong> waiting for a person '
+                     '- see <a href="/guest?property=%s">guest requests</a>. A guest request is '
+                     "not a violation, so it is listed there rather than here.</p>"
+                     % (guest_pending, "" if guest_pending == 1 else "s", _e(tenant_id)))
     parts.append("</div>")
 
     parts.append('<h2>To do <span class="count">%d task%s</span></h2>'
@@ -1288,3 +1334,215 @@ def _queue_explainer() -> str:
         "what each control's latest run concluded. A control that was never run, could not "
         "run, or reached no conclusion has not looked - and has raised nothing for that "
         "reason alone.")
+
+
+# --------------------------------------------------------------------------- guest services
+# Slice 22. A guest asks to check out late; staff see the decision, why, under which rule and
+# which version of the table, and the task to carry out. Three commitments from the run page
+# carry over: everything is escaped, a decision is told apart by WORDS and not only by colour,
+# and "a person must decide" is never styled or worded as an approval.
+
+DECISION_WORDS = {
+    "APPROVED": ("APPROVED", "The hotel's stated policy allows this, with no fee."),
+    "APPROVED_WITH_FEE": ("APPROVED WITH FEE", "The hotel's stated policy allows this, for the "
+                          "fee shown. Post it in the PMS; this engine posts nothing."),
+    "DENIED": ("DENIED", "Established evidence or the hotel's stated policy rules this out."),
+    "STAFF_REVIEW": ("STAFF REVIEW", "A person must decide. The reason says what was missing "
+                     "or what needs judgement - this is not an approval."),
+    "UNAVAILABLE": ("UNAVAILABLE", "Not reachable in v3: no evidence can say whether the room "
+                    "is needed for an arrival."),
+}
+
+# Which existing verdict style each decision borrows. STAFF_REVIEW takes UNKNOWN's, because it
+# IS guest services' UNKNOWN; DENIED takes the neutral NOT APPLICABLE style rather than the
+# VIOLATION one, because a guest asking is not a guest breaking a rule.
+_DECISION_STYLE = {"APPROVED": "PASS", "APPROVED_WITH_FEE": "PASS", "DENIED": "EXCLUDED",
+                   "STAFF_REVIEW": "UNKNOWN", "UNAVAILABLE": "EXCLUDED"}
+
+ADVISORY = ("Advisory. This engine writes nothing to the PMS and posts no fee: a person carries "
+            "out the task. An approval applies the hotel's stated policy and does not check "
+            "whether the room is needed for an arrival - no evidence can establish that.")
+
+
+def _setting_text(value) -> str | None:
+    if value is None:
+        return None
+    if hasattr(value, "strftime"):
+        return value.strftime("%H:%M")
+    return str(value)
+
+
+def policy_json(template, policy) -> dict[str, Any]:
+    """A property's late-checkout policy as data: each parameter's value, or null - not
+    decided. Money as a string with its currency, never a bare number (R9)."""
+    return {"template": template.template_id, "version": template.version,
+            "digest": template.digest,
+            "parameters": {name: _setting_text(value) for name, value in policy.values.items()},
+            "undecided": list(policy.undecided)}
+
+
+def decision_json(decision, task=None) -> dict[str, Any]:
+    """One decision as data: what was asked, what was decided, why, from what, under which
+    table - and the task it raised, if any, in the queue's own shape."""
+    return {
+        "decision_id": decision.decision_id,
+        "property": decision.tenant_id,
+        "template": decision.template_id,
+        "template_version": decision.template_version,
+        "template_digest": decision.template_digest,
+        "parameters_digest": decision.parameters_digest,
+        "reservation_id": decision.reservation_id,
+        "requested_time": decision.requested_time.strftime("%H:%M"),
+        "received_at": decision.received_at.isoformat(),
+        "received_on": decision.received_on.isoformat(),
+        "decision": decision.decision,
+        "label": DECISION_WORDS[decision.decision][0],
+        "rule": decision.rule,
+        "reason": decision.reason,
+        # The fee THIS decision applies, as a string with its currency, or null. Never parsed.
+        "fee": str(decision.fee) if decision.fee is not None else None,
+        "gaps": [{"name": g.name, "kind": g.kind, "reason": g.reason} for g in decision.gaps],
+        "evidence": [_line_json(line) for line in decision.evidence],
+        "provider": decision.provider,
+        "evidence_label": decision.evidence_label,
+        "severity": decision.severity,
+        "audience": decision.audience,
+        "action_id": decision.action_id,
+        "task": action_json(task) if task is not None else None,
+        "advisory": ADVISORY,
+    }
+
+
+def guest_page(tenant_id: str, properties: Iterable[str], template, policy, decided: list,
+               persistent: bool, capture: str, captures: Iterable[str]) -> str:
+    """One property's guest requests: its policy, a form to ask, and every decision with its
+    task. `decided` is (decision, task record or None) pairs, newest first."""
+    query = "?property=%s" % _e(tenant_id)
+    parts = ['<div class="card">',
+             '<p class="sentence">Guest requests &middot; property <strong>%s</strong></p>'
+             % _e(tenant_id), '<p class="evidence-picker">']
+    for name in properties:
+        current = name == tenant_id
+        parts.append('<a class="%s"%s href="/guest?property=%s">%s</a>'
+                     % ("current" if current else "", ' aria-current="page"' if current else "",
+                        _e(name), _e(name)))
+    parts.append("</p>")
+    parts.append('<p class="meta%s">%s</p>' % (
+        "" if persistent else " stale",
+        _e(persistence_sentence(persistent).replace("This queue", "This list of decisions")
+           .replace("with the run history", "with its tasks and the run history"))))
+    parts.append('<p class="meta">%s</p></div>' % _e(ADVISORY))
+
+    # The policy, so a reader can see what every decision below was decided under.
+    rows = "".join(
+        "<tr><td><code>%s</code></td><td>%s</td></tr>"
+        % (_e(name), _e(_setting_text(value)) if value is not None
+           else '<span class="gap">not decided</span>')
+        for name, value in policy.values.items())
+    parts.append(
+        '<div class="card"><p class="sentence">Late checkout policy &middot; template '
+        "<code>%s</code> v%d &middot; digest <code>%s</code></p>"
+        % (_e(template.template_id), template.version, _e(short_digest(template.digest))))
+    if policy.undecided:
+        parts.append(
+            '<div class="no-conclusion"><p><strong>This property has not decided %d of its %d '
+            "late-checkout parameters, so every request is answered STAFF REVIEW naming them."
+            "</strong></p><p>That is the honest answer, not a fault: a policy nobody stated "
+            "is not filled in by the engine.</p></div>"
+            % (len(policy.undecided), len(policy.values)))
+    parts.append('<div class="scroller"><table class="listing"><caption>What this property '
+                 'has decided (null in its configuration is not decided)</caption><thead><tr>'
+                 '<th scope="col">parameter</th><th scope="col">value</th></tr></thead>'
+                 "<tbody>%s</tbody></table></div></div>" % rows)
+
+    # The form. Structured on purpose (D12): a reservation id and a time, nothing to interpret.
+    options = "".join('<option value="%s"%s>%s</option>'
+                      % (_e(c), " selected" if c == capture else "", _e(c)) for c in captures)
+    parts.append(
+        '<div class="card"><form method="post" action="/guest">'
+        '<input type="hidden" name="property" value="%s">'
+        '<p><label>Reservation <input name="reservation_id" required></label> '
+        '<label>Check out at <input name="requested_time" type="time" required></label> '
+        '<label>Evidence <select name="evidence">%s</select></label> '
+        '<button type="submit">Decide</button></p>'
+        '<p class="meta">A reservation id and a time, HH:MM on the property\'s clock. No model '
+        "reads a guest's words on this path, so nothing can misread a time into a fee.</p>"
+        "</form></div>" % (_e(tenant_id), options))
+
+    parts.append('<h2>Decisions <span class="count">%d</span></h2>' % len(decided))
+    if not decided:
+        parts.append('<div class="card"><p>No request has been decided for this property in '
+                     "this store.</p></div>")
+    parts.extend(_decision_block(decision, task, tenant_id) for decision, task in decided)
+    return page("Guest requests", "%s · late checkout, decided by the table the owner "
+                                  "approved" % tenant_id,
+                "".join(parts), explainer=_guest_explainer())
+
+
+def _decision_block(decision, task, tenant_id: str) -> str:
+    badge, means = DECISION_WORDS[decision.decision]
+    lines = [
+        '<article class="verdict %s" id="decision-%s">'
+        % (_DECISION_STYLE[decision.decision], _e(decision.decision_id)),
+        '<span class="badge">%s%s</span><span class="record">reservation %s &middot; check '
+        "out at %s</span>"
+        % (_e(badge), " %s" % _e(decision.fee) if decision.fee is not None else "",
+           _e(decision.reservation_id), _e(decision.requested_time.strftime("%H:%M"))),
+        '<p class="says">%s</p><p class="means">%s</p>' % (_e(decision.reason), _e(means)),
+        '<p class="meta">Rule <code>%s</code> of template <code>%s</code> v%d (digest '
+        "<code>%s</code>) &middot; asked on %s over %s via %s</p>"
+        % (_e(decision.rule), _e(decision.template_id), decision.template_version,
+           _e(short_digest(decision.template_digest)), _e(decision.received_on.isoformat()),
+           _e(decision.evidence_label), _e(decision.provider)),
+    ]
+    if decision.gaps:
+        lines.append('<ul class="gaps">%s</ul>' % "".join(
+            "<li><code>%s</code> &middot; %s</li>" % (_e(g.name), _e(g.reason))
+            for g in decision.gaps))
+    lines.append('<div class="scroller"><table class="evidence"><caption>Evidence behind this '
+                 'decision</caption><tr><th scope="col">field</th><th scope="col">value</th>'
+                 '<th scope="col">from</th></tr>%s</table></div>'
+                 % "".join(_evidence_row(line) for line in decision.evidence))
+    if task is None:
+        lines.append('<p class="meta">No task: %s</p>'
+                     % ("a denial raises none (the owner's decision)."
+                        if decision.decision == "DENIED" else "none was raised."))
+    else:
+        lines.append('<p class="meta">Task for <strong>%s</strong> &middot; severity '
+                     "<strong>%s</strong> &middot; <strong>%s</strong></p>"
+                     % (_e(task.audience or "no audience declared"), _e(task.severity),
+                        _e(task.state)))
+        if task.is_pending:
+            lines.append('<div class="moves">')
+            for state, label in (("done", "Mark done"), ("dismissed", "Dismiss")):
+                lines.append('<form method="post" action="/guest/tasks/%s">'
+                             '<input type="hidden" name="property" value="%s">'
+                             '<input type="hidden" name="state" value="%s">'
+                             '<button type="submit">%s</button></form>'
+                             % (_e(task.action_id), _e(tenant_id), state, label))
+            lines.append("</div>")
+        else:
+            lines.append('<p class="meta"><strong>%s</strong> by %s at %s</p>'
+                         % ("Marked done" if task.state == "done" else "Dismissed",
+                            _e(task.state_changed_by),
+                            _e(task.state_changed_at.isoformat())))
+    lines.append("</article>")
+    return "".join(lines)
+
+
+def _guest_explainer() -> str:
+    return explanation_bar(
+        "A guest asks to check out late. The decision comes from a table the owner approved, "
+        "rule by rule, and every decision names the rule that made it.",
+        "<strong>STAFF REVIEW is guest services' NO ANSWER.</strong> A reservation that was not "
+        "found, a status nobody has named (<code>OK4</code>), or a parameter the hotel has not "
+        "decided makes the answer STAFF REVIEW, naming every gap - never an approval or a "
+        "denial.",
+        "<strong>DENIED</strong> comes only from established evidence (cancelled, already "
+        "checked out, the stay ended) or the hotel's stated latest checkout.",
+        "<strong>One request, one decision.</strong> Asking the same thing twice on the same "
+        "day returns the first decision and raises no second task.",
+        "<strong>Every decision except a denial raises one task</strong>, for the audience the "
+        "table names. A person marks it done or dismisses it; the engine writes nothing to the "
+        "PMS and posts no fee.")
+

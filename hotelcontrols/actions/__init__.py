@@ -11,17 +11,20 @@ raises, and hands that to the store, which keeps exactly one record per natural 
     action_id_for(...)                      a record's identity: its natural key, digested
     dispatch(run, findings, store, notifier, ...)   slice 19: email each new task once
     render_message(record, ...)             what an email carries - never the verdict's reason
+    guest_task(decision)                    slice 22: a guest decision's task, or None for DENIED
 
 A `Notifier` is a protocol here and a backend in `tools/notifiers/`, injected and never
 imported: nothing in the engine can reach a mail server.
 """
+from .guest import GUEST_REQUEST, guest_task, is_guest_task, task_sentence
 from .notify import (EMAIL, Delivery, Message, Notifier, NotifyFailed, amounts_of, dispatch,
                      render_message, task_link)
 from .records import (DISMISSED, DONE, OPERATOR, PENDING, STATES, TRANSITIONS, ActionRecord,
                       Finding, Findings, TransitionRefused, action_id_for, check_transition,
                       findings_from)
 
-__all__ = ["DISMISSED", "DONE", "EMAIL", "OPERATOR", "PENDING", "STATES", "TRANSITIONS",
-           "ActionRecord", "Delivery", "Finding", "Findings", "Message", "Notifier",
-           "NotifyFailed", "TransitionRefused", "action_id_for", "amounts_of",
-           "check_transition", "dispatch", "findings_from", "render_message", "task_link"]
+__all__ = ["DISMISSED", "DONE", "EMAIL", "GUEST_REQUEST", "OPERATOR", "PENDING", "STATES",
+           "TRANSITIONS", "ActionRecord", "Delivery", "Finding", "Findings", "Message",
+           "Notifier", "NotifyFailed", "TransitionRefused", "action_id_for", "amounts_of",
+           "check_transition", "dispatch", "findings_from", "guest_task", "is_guest_task",
+           "render_message", "task_link", "task_sentence"]

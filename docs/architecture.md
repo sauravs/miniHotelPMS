@@ -383,6 +383,42 @@ an address, a query string. `evaluator/` and `providers/` import no logging, whi
 asserts. `runner/` is untouched. The server attaches the log to stderr by default
 (`--log PATH|-|off`).
 
+**A guest asks, and the approved table decides** (slice 22; G1 narrowed, G3a, G2(a)). One
+template, `LATE_CHECKOUT` (D12), in a new pure package `hotelcontrols/guest/`, beside the runner
+rather than inside it:
+
+```python
+load_template("LATE_CHECKOUT")            -> Template   # spec/guest/late_checkout.json, approved
+parse_request(form)                       -> GuestRequest | RequestRefused(field)   # 400
+load_policy(template, tenant)             -> Policy     # six parameters, typed by slice 21
+look_up(template, reservation_id, adapter, tenant, clock) -> ReservationEvidence
+decide(request, policy, evidence, today)  -> Ruling     # pure: the first rule that matches
+answer(template, request, ...)            -> Decision   # identified, versioned, routed
+actions.guest_task(decision)              -> Finding | None      # None for DENIED
+store.save_decision(decision, task) / store.decision(id, *, tenant_id) / store.decisions(*, tenant_id)
+```
+
+The **decision table is a spec file the owner approved before any code**, and the engine refuses
+one that is not approved, or whose rule ids, order or decisions differ from `guest.RULES` - so
+the file and the code cannot drift. Its first rule collects **every gap** (a reservation not
+found, a status nobody named, a parameter `null` in the tenant file) and answers `STAFF_REVIEW`
+naming all of them, so nothing after it can be reached from missing evidence (V10). `DENIED` comes
+only from an established status or date, or the hotel's stated `maximum_time`; `UNAVAILABLE` is
+unreachable in v3 (G12a). **The request is structured** - a reservation id and an `HH:MM`, read
+by slice 21's own time reader - and an AST walk over the package's transitive imports proves no
+model or socket is reachable from it. **The evidence is the existing layer's**: the template
+carries a per-provider population as data (reservations departing yesterday, today or tomorrow:
+one call), handed unchanged to `evidence.gather`. **The fee is `Money`**, `fee_per_hour` added to
+itself once per charged hour under the hotel's stated `hour_rounding`, so the kernel is unchanged.
+**Identity is the table's key** - property, template version, reservation, departure date,
+requested time, the property's day, and the digest of the six parameter values - so a double
+submission is one decision, and the store returns the first. Each decision names the template
+version and digest that made it; the digest is pinned to the version by a test. **Every decision
+except DENIED raises one task** in slice 18's `actions` table, through the same natural-key
+insert, in the same transaction as the decision, with the table's severity and audience. A guest
+task has kind `guest_request` and its receipt is the decision, not a run. It is **not a
+violation**, so `/queue` and `/api/actions` keep listing violations only and point at `/guest`.
+
 **Scheduling is a pure function.** `next_evaluation` reads the IR's `execution`, asks the provider
 what events it publishes, and returns a `Plan`: a subscription, a due time, or `unschedulable`. A
 daemon is out of scope; the decision is not, and it is fully testable with an injected clock.
@@ -420,6 +456,13 @@ GET  /api/actions?property=           the same as JSON: tasks, persistence, each
 GET  /api/actions/<action_id>?property=   one task, for ITS property; another's is the same 404
 POST /api/actions/<action_id>         state=done|dismissed - a person moves a task. Our store only
 POST /queue/<action_id>               the same from the page's buttons, then 303 back to the queue
+POST /api/guest/requests              property, reservation_id, requested_time -> a decision: 201
+                                      new, 200 the same request again (same body); 400 names the field
+GET  /api/guest/decisions?property=   one property's decisions, each with its task, and its policy
+GET  /api/guest/decisions/<id>?property=  one decision, for ITS property; another's is the same 404
+GET  /guest?property=                 the staff view: the policy, a form, every decision and task
+POST /guest                           the form, then 303 to the decision
+POST /guest/tasks/<action_id>         a person moves a guest task, then 303 back to /guest
 GET  /style.css                       served from the package, never from a CDN
 GET  /compose                         the compose window, or a page saying it is switched off
 POST /compose                         one turn: prose in, a sentence or a question out
@@ -475,6 +518,14 @@ client:
   renders those beside the tasks. `persistent: false` means the queue is lost on restart, and
   `persistence` says so in the engine's words. The demo's store is in memory unless the server
   is started with `--store PATH`.
+- **A guest decision is not a run** (slice 22). `fee` is the fee the decision applies, a string
+  with its currency, or null - in the approval band the would-be fee is in `reason`, and is not
+  a fee. `gaps` names everything a `STAFF_REVIEW` was missing. Its `task`, when present, has the
+  queue's shape, except that `raised.decision_id` replaces `raised.run_id` and `last_failing` is
+  null. A POST naming no property, or one that is not configured, is a 400: a request that
+  decides something is never answered for another hotel. **No golden payload pins these routes
+  yet, and the React UI has no guest view**: `tools/dump_api_fixtures.py` is outside slice 22's
+  may-change line, so the routes are proven by the Python suite only.
 
 UNKNOWN is distinguished from FAIL by **hue, border style and wording** — three signals, so the
 distinction survives a monochrome screen or a colour-blind reader.
@@ -537,9 +588,12 @@ hotelcontrols/
   evidence/       gather.py · population.py · reference.py · cache.py · budget.py
   evaluator/      record.py · population.py · predicates.py · intervals.py · logic.py
   runner/         run.py · coverage.py · readiness.py · scheduling.py
-  actions/        records.py · notify.py      # slice 18: a FAIL -> one task; 19: email it once
+  actions/        records.py · notify.py · guest.py   # 18: a FAIL -> one task; 19: email it
+                                                      # once; 22: a guest decision -> one task
+  guest/          template.py · request.py · policy.py · evidence.py · decision.py · fee.py
+                  service.py                  # slice 22: LATE_CHECKOUT, decided by the table
   ops/            log.py                      # slice 20: the operational log, JSON lines
-  store/          sqlite.py · schema.sql      # runs, verdicts, evidence, actions
+  store/          sqlite.py · schema.sql      # runs, verdicts, evidence, actions, decisions
   web/            app.py · render.py · server.py · assets/
   compiler/       grammar.py · sentences.py · model.py · problems.py
 spec/             canonical_fields.json · ir_schema.json · ir/*.json
@@ -547,7 +601,8 @@ spec/             canonical_fields.json · ir_schema.json · ir/*.json
                   drafts/ir/*.json        # composed from prose, runnable, UNREVIEWED
                   providers/minihotel.json · providers/demopms.json
                   parameters.json         # the type of every tenant setting; no defaults
-                  tenants/*.json          # null = not decided (slice 21)
+                  tenants/*.json          # null = not decided (slice 21); guest_services
+                  guest/late_checkout.json  # the decision table the owner approved (slice 22)
 fixtures/         minihotel/  (pseudonymised captures + request fingerprints)
                   demopms/    (fictional, by construction)
                   api/        (the JSON API's own answers - GENERATED, the React UI's contract)

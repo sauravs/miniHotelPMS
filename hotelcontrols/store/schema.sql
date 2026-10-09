@@ -118,3 +118,48 @@ CREATE TABLE IF NOT EXISTS actions (
 );
 
 CREATE INDEX IF NOT EXISTS actions_by_tenant ON actions(tenant_id, state);
+
+-- Slice 22 (G1 narrowed, G3a): every guest decision, stored. One row per decision, whose id is
+-- a digest of the approved table's identity key - (property, template version, reservation,
+-- departure date, requested time, the day it was asked, the policy's digest) - so the same
+-- request twice is ONE row (D1 §65), by the primary key and nothing cleverer.
+--
+-- TENANT-OWNED, like every table here: every read carries `tenant_id = ?` after its WHERE, and
+-- `tests/unit/test_tenant_scoped_store.py` finds this table from this file and enforces it.
+--
+-- VERSIONED: each row names the template version and digest that decided it (slice 16's pair,
+-- applied to a decision), and the digest of the hotel's six parameter values it was decided
+-- under. The fee is an amount WITH its currency, both or neither (R9). The evidence is kept as
+-- it was - value, unit, reason, risk, source - because a decision is only as defensible as the
+-- facts it was made from. `action_id` names the task it raised in `actions`; null for DENIED.
+CREATE TABLE IF NOT EXISTS decisions (
+    decision_id       TEXT PRIMARY KEY,
+    tenant_id         TEXT NOT NULL,
+    template_id       TEXT NOT NULL,
+    template_name     TEXT NOT NULL,
+    template_version  INTEGER NOT NULL,
+    template_digest   TEXT NOT NULL,
+    parameters_digest TEXT NOT NULL,
+    reservation_id    TEXT NOT NULL,
+    requested_time    TEXT NOT NULL,
+    departure_date    TEXT,
+    received_at       TEXT NOT NULL,
+    received_on       TEXT NOT NULL,
+    decision          TEXT NOT NULL
+                      CHECK (decision IN ('APPROVED', 'APPROVED_WITH_FEE', 'DENIED',
+                                          'STAFF_REVIEW', 'UNAVAILABLE')),
+    rule              TEXT NOT NULL,
+    reason            TEXT NOT NULL,
+    fee_amount        TEXT,
+    fee_currency      TEXT,
+    gaps_json         TEXT NOT NULL,
+    evidence_json     TEXT NOT NULL,
+    provider          TEXT NOT NULL,
+    evidence_label    TEXT NOT NULL,
+    severity          TEXT,
+    audience          TEXT,
+    action_id         TEXT,
+    CHECK ((fee_amount IS NULL) = (fee_currency IS NULL))
+);
+
+CREATE INDEX IF NOT EXISTS decisions_by_tenant ON decisions(tenant_id);
