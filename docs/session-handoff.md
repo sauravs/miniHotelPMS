@@ -1,7 +1,9 @@
 # Session handoff
 
-Paste the block below into a fresh session to resume. Everything it references is in the
-repository; nothing depends on the previous conversation.
+**To resume, paste [the starting prompt](#the-starting-prompt--paste-exactly-this) into a fresh
+session, exactly as written.** The longer block after it is the STATE block the prompt tells the
+session to read. Do not paste that one. Everything either references is in the repository;
+nothing depends on the previous conversation.
 
 **Last updated:** 2026-10-09, in the third v3 implementation session, on `main` at `e13da7b`.
 The v2 build is complete, slices 0–15. **v3 is slices 16–24, APPROVED by the owner (PR #50).
@@ -17,6 +19,102 @@ still gated on the owner's approval of each call *at the time*. Read
 running it, and never as a standing permission.
 
 ---
+
+## The starting prompt — paste exactly this
+
+Fill in the `MY DECISIONS` line first if the owner has answered slice 22's three open points;
+left blank, the session shows the decision table and waits for a yes before any code.
+
+```
+Continue building miniHotelPMS v3. Working directory: /Users/sauravs/Desktop/Work/miniHotelPMS
+
+Read docs/v3-implementation-brief.md and follow it, starting with its §1 start-up procedure.
+Then read docs/session-handoff.md (the STATE block) and the docs/plan-v3.md status table.
+
+Where things stand: fix #48 (#52), slices 16 (#53), 17 (#56), 18 (#61), 19 (#62), 20 (#63),
+21 typed parameters with "not decided" (#65), doc fixes #55 and #58, and the handoff (#66) are
+merged. main is at 38565b4 or a docs-only commit after it. Baseline on main: 2588 passed /
+3 skipped (on a slice/22-* branch the v3 scope guard runs, so expect 2589 / 2), 1092 spec
+checks, 135 API goldens identical, 11 DemoPMS files identical, spec lock current
+(tools.lock_spec --check), 97% coverage.
+React: 185 Vitest, 22 Playwright. Open issues: #22 only.
+
+ONE LOCAL BRANCH IS EXPECTED IN `git branch --no-merged main`: slice/22-late-checkout (09baf99,
+pushed). It holds only the DRAFT decision table spec/guest/late_checkout.json and no code.
+Rebase it on main before building on it.
+
+NEXT: SLICE 22, LATE_CHECKOUT (branch slice/22-late-checkout). Its owner checkpoint is the
+decision table: 10 ordered rules, first match wins, each decision naming its rule. It has
+three open points:
+  (1) a request after maximum_time: DENIED (recommended, stated policy) or STAFF_REVIEW
+      (D2 §30, never declines on time)?
+  (2) departing on another day, or not checked in: STAFF_REVIEW (recommended)?
+  (3) tasks: APPROVED low, APPROVED_WITH_FEE medium, STAFF_REVIEW medium, all to
+      front_office_manager; DENIED raises none (recommended)?
+MY DECISIONS: (1) ____  (2) ____  (3) ____
+If that line is blank, show me the table and the three points, then WAIT - no code before my
+yes. Once decided: set the file's "status" to approved, and record my answers in it. Then build
+slice 22 exactly as plan-v3 §5 says, with the exit test from V9/V10:
+- 15:00 -> APPROVED_WITH_FEE 25.00 USD as Money.
+- Both sides of both thresholds: 14:00, 14:01, 16:00, 16:01.
+- D2 §1's policy as a second, test-only property.
+- An OK4 reservation or an undecided parameter gives STAFF_REVIEW naming why.
+- The sandbox gives STAFF_REVIEW to everything.
+- The same decision through both providers.
+- A double submission gives one decision and one action.
+- An AST guard proves no model is reachable from hotelcontrols/guest/.
+- Blanking any single evidence field or parameter gives STAFF_REVIEW naming it.
+
+Slice 22 constraints:
+- Tenant values live in a new guest_services.LATE_CHECKOUT block of each tenant file.
+- Type them with slice 21's ParameterSchema.from_dict(template["parameters"]).typed(...).
+- Check parameter ordering in hotelcontrols/guest/.
+- The fee is repeated Money.plus; the kernel is unchanged.
+- MUST NOT change: hotelcontrols/spec/, spec/parameters.json, kernel/, providers/, evidence/,
+  evaluator/ (reuse by import), runner/, compiler/, spec/ir/.
+- fixtures/api/: new files only.
+
+THEN SLICE 23, the evidence refresh (owner approves EACH call at the time).
+- Print each request with tools.probe --plan: getRooms, getRoomTypes, RoomStatusInquiry, and
+  one reservation call WITH room prices (#49).
+- Make NO call without my yes to that call. If I don't approve, skip the slice; nothing
+  depends on it.
+- Scrub before staging. Add a new capture label and never edit an old file.
+- hotelcontrols/ is not changed at all.
+- Re-measure criterion 1 per capture, never rounded.
+
+THEN SLICE 24, host auth plus per-property credentials (#22).
+- Brief check with me first: is the ui/ development login acceptable as a labelled stand-in?
+- HMAC-SHA256 signed tenant context, verified with hmac.compare_digest, expiry checked through
+  the injected clock. The secret comes from the environment with no default.
+- Credentials.from_environment(provider, property).
+- Auth off -> all goldens byte-identical. ui/ signs with node:crypto, so no new package.
+- The PR that closes v3 deletes docs/v3-implementation-brief.md.
+
+Guards every slice must respect:
+- tests/unit/test_v3_slice_scope.py fails a branch that touches anything outside that slice's
+  "May change" line. If it fails, STOP and ask me; never widen the table.
+- tests/integration/test_v1_no_answer_changed.py: a declared verdict change goes in its
+  DECLARED dict, in the PR that made it. Slices 22-24 foresee none.
+- Editing a rule makes a new version: bump "version", then python3 -m tools.lock_spec.
+- Store reads are keyword-only on tenant_id; every SQL on a tenant table carries
+  tenant_id = ?. The new decisions table is covered automatically.
+
+Still open for me (do not decide them yourself):
+- Should drafts stay out of the findings queue? (Slice 18 decided they do.)
+- Should tools.serve attach the operational log in a later slice?
+FLAGGED: the comment at hotelcontrols/evaluator/predicates.py:138-139 still says the "has not
+supplied" branch means "never declared"; since slice 21 it also means "not decided". evaluator/
+is a must-not in every remaining slice, so fix it through the bug workflow if at all: a GitHub
+issue first, then fix/NN-..., then a PR "Fixes #NN".
+
+Working agreement: one slice per PR. After CI is green on test (3.11) and test (3.13),
+squash-merge, report to me, then open the next slice. Ask me at the brief's checkpoints
+(22 decision table, 23 per call, 24 brief check). Before ending the session, update
+docs/session-handoff.md and the plan-v3 status table.
+```
+
+## The STATE block — read by the session, not pasted
 
 ```
 Continue building miniHotelPMS. Working directory: /Users/sauravs/Desktop/Work/miniHotelPMS
