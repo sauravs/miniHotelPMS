@@ -3,11 +3,12 @@
 Paste the block below into a fresh session to resume. Everything it references is in the
 repository; nothing depends on the previous conversation.
 
-**Last updated:** 2026-10-09, at the end of the first v3 implementation session, on `main` at
-`3041496`. The v2 build is complete, slices 0–15. **v3 is slices 16–24, APPROVED by the owner
-(PR #50). Merged: fix #48 (#52), slice 16 (#53), fix #54 (#55), slice 17 (#56), fix #57 (#58).
-Nothing is open but issues #59 (read it before slice 18) and #22 (slice 24's). Next: slice 18.** Start every session from
-`docs/v3-implementation-brief.md` §1.
+**Last updated:** 2026-10-09, at the end of the second v3 implementation session, on `main` at
+`137dc21`. The v2 build is complete, slices 0–15. **v3 is slices 16–24, APPROVED by the owner
+(PR #50). Merged: fix #48 (#52), slice 16 (#53), fix #54 (#55), slice 17 (#56), fix #57 (#58),
+slice 18 findings queue (#61), slice 19 email (#62), slice 20 operational log (#63). Issue #59
+is closed by #61. Only #22 (slice 24's) is open. Next: slice 21, which starts with an OWNER
+CHECKPOINT.** Start every session from `docs/v3-implementation-brief.md` §1.
 
 **The bounded probe of the live sandbox is now v3 slice 23** (decision D16): planned, printed, and
 still gated on the owner's approval of each call *at the time*. Read
@@ -30,19 +31,32 @@ specification and the execution trackers. docs/plan.md is the v2 build log (slic
 docs/plan-v3.md is authoritative for what is next (slices 16-24).
 
 STATE: v2 IS COMPLETE (slices 0-15) AND v3 IS UNDER CONSTRUCTION (docs/plan-v3.md). Merged:
-fix #48 (#52), slice 16 (#53), fix #54 (#55), slice 17 (#56), fix #57 (#58). Baseline on main at
-3041496: 2321 passed / 3 skipped (the v3 scope guard skips off a slice branch; on slice/18-* expect
-2322 / 2), 1091 spec checks, 131 API goldens identical to a rebuild (history is one file per
-control per property), 11 DemoPMS files identical, spec lock current, 96% coverage. The React UI
-has 173 Vitest and 19 Playwright tests.
+fix #48 (#52), slice 16 (#53), fix #54 (#55), slice 17 (#56), fix #57 (#58), slice 18 (#61),
+slice 19 (#62), slice 20 (#63). Baseline on main at 137dc21: 2499 passed / 3 skipped (the v3
+scope guard skips off a slice branch; on slice/21-* expect 2500 / 2), 1091 spec checks, 135 API
+goldens identical to a rebuild, 11 DemoPMS files identical, spec lock current, 97% coverage.
+The React UI has 185 Vitest and 22 Playwright tests.
 
-SLICE 18 HAS A PLAN FINDING - READ ISSUE #59 FIRST. Its exit test 1 names checkout_money_owed, which
-has NO FAIL on any capture (0 FAIL at every instant 2026-07-01..31, empty in 2024), so as written
-it passes with zero records. The only FAIL in all captured evidence is checkout_unrefunded_credit
-on 007004348 (-490.75 ILS; IR action: medium / finance). Prove the mapping on that real FAIL, state
-money-owed's 0 FAIL -> 0 records as a fact, prove money-owed's high/finance mapping on a CONSTRUCTED
-run labelled as such, and add a correction note to plan-v3's slice-18 exit test in that PR. Never
-edit a fixture or invent a FAIL.
+SLICE 21 STARTS WITH AN OWNER CHECKPOINT - NO CODE BEFORE A YES. The sandbox's
+nominated_rate_codes goes from [] ("decided: none") to null ("not decided"), because nobody can
+decide a vendor test property's rate codes (plan-v3 §3.2, #49). Dry-run that change (in memory or
+a scratch spec dir, never committed) and SHOW THE OWNER its effect on required_reservation_fields:
+counts, reason strings, golden diff. Get a yes before any code. Then build slice 21 as plan-v3 §5
+says. Its may-change line includes fixtures/api/ (declared, owner-confirmed) and spec/tenants/;
+evaluator/ is a must-not ("has not supplied" path, no evaluator change).
+
+THE FINDINGS QUEUE EXISTS (slices 18-20). A FAIL of a REVIEWED control raises one task in the
+`actions` table, keyed (property, control, policy version, record); UNKNOWN/EXCLUDED, a blocked
+run and a run that concluded nothing raise none. Drafts raise none (their action block is
+borrowed) - a call made in slice 18 and still awaiting the owner's confirm. A person moves a task
+pending -> done | dismissed; a later PASS annotates and never closes. /queue and /api/actions
+state each control's latest conclusion beside the tasks ("not an all-clear"). The demo store is
+in memory unless --store PATH. Email (slice 19) is a Notifier protocol in the engine and an SMTP
+backend in tools/notifiers/, wired only by `tools.serve --notify smtp`, behind
+HOTELCONTROLS_NOTIFY=1 AND no test runner; an email never carries the verdict's reason. The
+operational log (slice 20) is JSON lines from hotelcontrols/ops/, stamped by the injected clock;
+the server attaches it to stderr (--log). FLAGGED: tools/serve.py was outside slice 20's
+may-change line, so the compose launcher does not attach the log yet.
 
 SINCE SLICE 17 EVERY STORE READ NAMES ITS PROPERTY: RunStore.load(run_id, *, tenant_id) and
 RunStore.history(control_id, *, tenant_id). Links to /api/runs/<id> and /history/<id> carry
@@ -62,11 +76,13 @@ EDITING A RULE MAKES A NEW VERSION. Change an IR's verdict-bearing content -> bu
 python3 -m tools.lock_spec. validate_spec fails an edit without a bump; every run names
 policy_version + policy_digest; a run stored before slice 16 reads "version not recorded".
 
-v3 IS APPROVED (PR #50). START FROM docs/v3-implementation-brief.md. ORDER: fix #48 (the card on file is a placeholder on every
-capture - make it UNKNOWN), then slices 16 versioning, 17 tenant-scoped store, 18 findings queue,
-19 email (two locks), 20 operational log, 21 typed hotel parameters with "not decided",
-22 LATE_CHECKOUT (structured, advisory, no model), 23 evidence refresh (owner approves each call),
-24 authentication at the host (HMAC-signed context) + credentials per property (#22). Each slice
+v3 IS APPROVED (PR #50). START FROM docs/v3-implementation-brief.md. DONE: fix #48, slices 16
+versioning, 17 tenant-scoped store, 18 findings queue, 19 email (two locks), 20 operational log.
+REMAINING, IN ORDER: 21 typed hotel parameters with "not decided" (owner checkpoint first),
+22 LATE_CHECKOUT (structured, advisory, no model; the decision table is a spec file the owner
+approves before any code), 23 evidence refresh (owner approves EACH call at the time; skipped if
+not), 24 authentication at the host (HMAC-signed context) + credentials per property (#22; brief
+check that the ui/ development login is acceptable as a labelled stand-in). Each slice
 in plan-v3.md states what it may and must not change, its test gate and its exit test. The first
 commit of slice 16 adds tests/unit/test_v3_slice_scope.py, the generalised slice-15 guard.
 
@@ -160,8 +176,9 @@ Keep working the same way:
     fixtures/demopms/ is GENERATED - change tools/transcode_demopms.py and rebuild.
   - Do not call the MiniHotel sandbox without asking me first, each time (decision D3).
 
-Work autonomously through the remaining slices, reporting after each merge. Ask me only when a
-decision is genuinely mine to make.
+Work autonomously through the remaining slices, reporting after each merge. Ask me at the
+brief's checkpoints (slices 21, 22, 23 per call, 24) and when a decision is genuinely mine.
+Before ending the session, update docs/session-handoff.md and the plan-v3 status table.
 ```
 
 ---
@@ -179,6 +196,32 @@ split into `checkout_money_owed` and `checkout_unrefunded_credit`; **D9 — the 
 seam exercised against a stub, not a wired model**; **D10 — a model may draft a *sentence*, never a
 rule**; and **D11 — a second, React surface, as an addition rather than a rewrite**, with compose
 as its one owner-approved write path.
+
+### What slices 18, 19 and 20 built, in three paragraphs
+
+**Slice 18, the findings queue (#61).** `hotelcontrols/actions/records.py` is pure: `findings_from(run,
+ir)` turns a run into tasks using the IR's own `action` block (severity, audience), read for the
+first time. Only a FAIL raises one. The `actions` table enforces the natural key with a `UNIQUE`
+constraint, is tenant-owned under slice 17's guard (seen failing on a planted unscoped `SELECT`),
+and `make_run_id` is untouched. The web layer raises tasks after saving a run; `runner/` is
+untouched. Issue #59 was resolved there: the mapping is proven on 007004348 (medium/finance, both
+providers), money owed's 0 FAIL -> 0 tasks is stated as a fact at 32 instants, and its high/finance
+mapping is proven on a constructed run. React has `/queue` too.
+
+**Slice 19, email (#62).** `actions/notify.py` holds the `Notifier` protocol and `dispatch`, scoped to the
+run's own FAILs. `tools/notifiers/smtp.py` is the only `smtplib` import in the repository, requires
+verified STARTTLS, and refuses unless `HOTELCONTROLS_NOTIFY=1` and no test runner is loaded. Routes are
+`HOTELCONTROLS_NOTIFY_<AUDIENCE>`, no default; a missing one leaves the task unsent *saying so*. One
+email per task per channel through a claimed marker on the task. An email carries record id,
+control, amount with currency and a link - never the verdict's reason, and a failure note never
+carries an address. `tests/guest_details.py` collects every guest detail in the 2026 captures for
+the no-PII tests.
+
+**Slice 20, the operational log (#63).** `hotelcontrols/ops/log.py`: JSON lines through stdlib
+`logging`, one per request, run and dispatch, each carrying tenant_id, run_id, control_id,
+policy_version and provider, stamped by the injected clock - the formatter never writes the
+`LogRecord`'s own time. No blocked reason, delivery note, address or query string is copied.
+`evaluator/` and `providers/` import no logging.
 
 ### What slice 15 built, in one paragraph
 
@@ -320,7 +363,9 @@ public, which was defensible and made the habit dangerous.
 | Before | Decision |
 | --- | --- |
 | ~~now~~ | ~~Approve `docs/plan-v3.md`~~ — **approved and merged 2026-10-09, PR #50** |
-| v3 slice 21 | Confirm the one declared verdict change: the sandbox's nominated rate codes become `null` (*not decided*) instead of `[]` (*decided: none*) |
+| v3 slice 21 — **next** | Confirm the one declared verdict change: the sandbox's nominated rate codes become `null` (*not decided*) instead of `[]` (*decided: none*). Show the dry run first |
+| any time | Confirm or overrule slice 18's call that **drafts raise no tasks** (a draft's severity and audience are borrowed from its template) |
+| any time | Whether the compose launcher (`tools.serve`) should attach the operational log too (`--log`), in a later slice whose scope allows `tools/serve.py` |
 | v3 slice 22 | Approve the `LATE_CHECKOUT` decision table (a spec file) before any code |
 | v3 slice 23 | **Approval of each probe call at the time** — `getRooms`, `getRoomTypes`, `RoomStatusInquiry` (1.2), plus one reservation call with room prices (#49). D3, R8 |
 | any time | Ask MiniHotel what `<CreditCard Number="****" ExpirationDate="202101"/>` means (question 2.8, #48). It is the only thing that can unblock G4 |
@@ -328,6 +373,21 @@ public, which was defensible and made the habit dangerous.
 | any time | Ask MiniHotel what `OK4` and `WL` mean (question 2.1). They cover 44 of the 217 reservations ever seen, and they are why the known duplicate pair resolves to UNKNOWN rather than to an answer |
 
 ### Things that will look like bugs and are not
+
+**The queue page says "this queue is held in memory and is lost on restart".** Correct: the demo's
+store is `:memory:` unless the server is started with `--store PATH`. It says so rather than imply a
+persistence it lacks (brief §8.8).
+
+**The queue is empty and says "not an all-clear".** Correct. A task is raised only by a VIOLATION of a
+reviewed control in a run made against this store. The table below the tasks says what each
+control's latest run concluded; the only FAIL in all captured evidence is 007004348.
+
+**"Email is not wired here".** Correct by default. Only `tools.serve --notify smtp` wires a notifier,
+and it still refuses until `HOTELCONTROLS_NOTIFY=1` is set outside a test process. In JSON, `email`
+and each task's `delivery` exist only when a notifier is wired - absent is not "not sent".
+
+**`tools.serve` prints no JSON log lines.** Known and flagged: slice 20 could not change
+`tools/serve.py`. `python3 -m hotelcontrols.web.server` writes them to stderr (`--log`).
 
 **`/compose` says "No proposer is wired".** Correct. The front end is opt-in. Start it with
 `HOTELCONTROLS_COMPOSE=1 python3 -m tools.serve --llm stub`. The same is true of the React UI's

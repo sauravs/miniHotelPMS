@@ -24,7 +24,7 @@ that adding a PMS is a new adapter plus a mapping file, not a change to any rule
 | v2 documents | **Done** — prd, context, architecture, plan, open questions |
 | v2 code | **All 12 slices merged**, plus slice 13 (compose) and slice 14 (UI/UX pass). 1940 tests at slice 14 (1996 today), 96% coverage, 1080 spec checks, CI green. 11 of 12 criteria met; criterion 1 is recorded as **not met** with its arithmetic in `docs/plan.md` |
 | Slice 15: React UI | **Done** — `ui/`, a Next.js client of the JSON API. The engine is unchanged and both surfaces ship. 152 Vitest and 19 Playwright tests; criteria 2, 3, 8 and 10 re-proven. See `ui/README.md` |
-| v3 plan | **Approved 2026-10-09 (PR #50)** — `docs/plan-v3.md`; start from `docs/v3-implementation-brief.md`. Slices 16–24, decisions D12–D16, criteria V1–V12. Baseline on `7f384c4`: **1996 passed / 2 skipped, 1080 spec checks, 120 goldens and 11 DemoPMS files identical, 96% coverage**. **Progress: fix #48 (#52), slice 16 policy versioning (#53), fix #54 (#55), slice 17 tenant-scoped store (#56), fix #57 (#58) merged. Next: slice 18 — read issue #59 first.** Track the live state in the `docs/plan-v3.md` status table |
+| v3 plan | **Approved 2026-10-09 (PR #50)** — `docs/plan-v3.md`; start from `docs/v3-implementation-brief.md`. Slices 16–24, decisions D12–D16, criteria V1–V12. **Progress: fix #48 (#52), slices 16 policy versioning (#53), 17 tenant-scoped store (#56), 18 findings queue (#61), 19 email (#62), 20 operational log (#63) merged, plus doc fixes #55 and #58. Baseline on `137dc21`: 2499 passed / 3 skipped, 1091 spec checks, 135 goldens and 11 DemoPMS files identical, 97% coverage. Next: slice 21 — owner checkpoint first.** Track the live state in the `docs/plan-v3.md` status table |
 
 ## Documents, in reading order
 
@@ -162,7 +162,9 @@ The issue is written **before** the fix, while the reproduction is still known.
 PYTHONDONTWRITEBYTECODE=1 python3 -m pytest -q     # the suite, offline
 python3 -m tools.validate_spec                     # spec + fixture checks, incl. the spec lock
 python3 -m tools.lock_spec                         # AFTER bumping a rule's version: record it
-python3 -m hotelcontrols.web.server                # the demo, http://127.0.0.1:8765/
+python3 -m hotelcontrols.web.server                # the demo, http://127.0.0.1:8765/ (JSON log to stderr)
+python3 -m hotelcontrols.web.server --store runs.db  # ...keeping history and the findings queue
+python3 -m tools.serve --llm off --notify smtp     # email each new task; needs HOTELCONTROLS_NOTIFY=1
 HOTELCONTROLS_COMPOSE=1 python3 -m tools.serve --llm stub    # the demo + /compose, no model needed
 HOTELCONTROLS_COMPOSE=1 python3 -m tools.serve --llm local   # ...backed by Ollama. Free, offline
 python3 -m tools.scrub_fixtures <in> <out>         # pseudonymise a raw capture
