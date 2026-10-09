@@ -26,7 +26,15 @@ BASELINE = "7f384c4"
 ANSWER_KEYS = ("verdicts", "counts", "coverage")
 
 # golden path under fixtures/api/ -> the PR that declared its answer changed, and why.
-DECLARED: dict[str, str] = {}
+_SLICE_21 = ("slice 21: nominated_rate_codes [] -> null (not decided), plan-v3 §3.2, #49. No "
+             "count or outcome moved; 24 reasons now name the undecided parameter instead of the "
+             "absent rate code. Pinned exactly by tests/integration/test_typed_parameters.py")
+DECLARED: dict[str, str] = {
+    "run/required_reservation_fields.sandbox.sandbox2026.json": _SLICE_21,
+    "run/required_reservation_fields.demo.demo2026.json": _SLICE_21,
+    "runs/c7be275548a09e40.json": _SLICE_21,          # the sandbox run, re-read from the store
+    "runs/4270ab5ef6c1068c.json": _SLICE_21,          # the demo run, re-read from the store
+}
 
 
 def _git(*args: str) -> str:

@@ -26,7 +26,7 @@
         "records": 71
       },
       {
-        "reason": "whether this control applies could not be established: stay.rate_code is unknown (stay.rate_code is absent from the provider response)",
+        "reason": "whether this control applies could not be established: this property has not supplied 'nominated_rate_codes', which this control needs",
         "records": 24
       },
       {
@@ -822,7 +822,7 @@
       "record_id": "007003932",
       "outcome": "UNKNOWN",
       "means": "The evidence needed to decide this was not available, so it is not a pass and not a failure. The gaps are named in the table below.",
-      "reason": "whether this control applies could not be established: stay.rate_code is unknown (stay.rate_code is absent from the provider response)",
+      "reason": "whether this control applies could not be established: this property has not supplied 'nominated_rate_codes', which this control needs",
       "evidence": [
         {
           "field": "stay.rate_code",
@@ -981,7 +981,7 @@
       "record_id": "007004100",
       "outcome": "UNKNOWN",
       "means": "The evidence needed to decide this was not available, so it is not a pass and not a failure. The gaps are named in the table below.",
-      "reason": "whether this control applies could not be established: stay.rate_code is unknown (stay.rate_code is absent from the provider response)",
+      "reason": "whether this control applies could not be established: this property has not supplied 'nominated_rate_codes', which this control needs",
       "evidence": [
         {
           "field": "stay.rate_code",
@@ -1087,7 +1087,7 @@
       "record_id": "007004312",
       "outcome": "UNKNOWN",
       "means": "The evidence needed to decide this was not available, so it is not a pass and not a failure. The gaps are named in the table below.",
-      "reason": "whether this control applies could not be established: stay.rate_code is unknown (stay.rate_code is absent from the provider response)",
+      "reason": "whether this control applies could not be established: this property has not supplied 'nominated_rate_codes', which this control needs",
       "evidence": [
         {
           "field": "stay.rate_code",
@@ -1140,7 +1140,7 @@
       "record_id": "007004313",
       "outcome": "UNKNOWN",
       "means": "The evidence needed to decide this was not available, so it is not a pass and not a failure. The gaps are named in the table below.",
-      "reason": "whether this control applies could not be established: stay.rate_code is unknown (stay.rate_code is absent from the provider response)",
+      "reason": "whether this control applies could not be established: this property has not supplied 'nominated_rate_codes', which this control needs",
       "evidence": [
         {
           "field": "stay.rate_code",
@@ -1352,7 +1352,7 @@
       "record_id": "007004344",
       "outcome": "UNKNOWN",
       "means": "The evidence needed to decide this was not available, so it is not a pass and not a failure. The gaps are named in the table below.",
-      "reason": "whether this control applies could not be established: stay.rate_code is unknown (stay.rate_code is absent from the provider response)",
+      "reason": "whether this control applies could not be established: this property has not supplied 'nominated_rate_codes', which this control needs",
       "evidence": [
         {
           "field": "stay.rate_code",
@@ -1405,7 +1405,7 @@
       "record_id": "007004353",
       "outcome": "UNKNOWN",
       "means": "The evidence needed to decide this was not available, so it is not a pass and not a failure. The gaps are named in the table below.",
-      "reason": "whether this control applies could not be established: stay.rate_code is unknown (stay.rate_code is absent from the provider response)",
+      "reason": "whether this control applies could not be established: this property has not supplied 'nominated_rate_codes', which this control needs",
       "evidence": [
         {
           "field": "stay.rate_code",
@@ -1458,7 +1458,7 @@
       "record_id": "007004354",
       "outcome": "UNKNOWN",
       "means": "The evidence needed to decide this was not available, so it is not a pass and not a failure. The gaps are named in the table below.",
-      "reason": "whether this control applies could not be established: stay.rate_code is unknown (stay.rate_code is absent from the provider response)",
+      "reason": "whether this control applies could not be established: this property has not supplied 'nominated_rate_codes', which this control needs",
       "evidence": [
         {
           "field": "stay.rate_code",
@@ -1511,7 +1511,7 @@
       "record_id": "007004355",
       "outcome": "UNKNOWN",
       "means": "The evidence needed to decide this was not available, so it is not a pass and not a failure. The gaps are named in the table below.",
-      "reason": "whether this control applies could not be established: stay.rate_code is unknown (stay.rate_code is absent from the provider response)",
+      "reason": "whether this control applies could not be established: this property has not supplied 'nominated_rate_codes', which this control needs",
       "evidence": [
         {
           "field": "stay.rate_code",
@@ -1617,7 +1617,7 @@
       "record_id": "007004357",
       "outcome": "UNKNOWN",
       "means": "The evidence needed to decide this was not available, so it is not a pass and not a failure. The gaps are named in the table below.",
-      "reason": "whether this control applies could not be established: stay.rate_code is unknown (stay.rate_code is absent from the provider response)",
+      "reason": "whether this control applies could not be established: this property has not supplied 'nominated_rate_codes', which this control needs",
       "evidence": [
         {
           "field": "stay.rate_code",
@@ -1988,7 +1988,7 @@
       "record_id": "007004364",
       "outcome": "UNKNOWN",
       "means": "The evidence needed to decide this was not available, so it is not a pass and not a failure. The gaps are named in the table below.",
-      "reason": "whether this control applies could not be established: stay.rate_code is unknown (stay.rate_code is absent from the provider response)",
+      "reason": "whether this control applies could not be established: this property has not supplied 'nominated_rate_codes', which this control needs",
       "evidence": [
         {
           "field": "stay.rate_code",
@@ -2041,7 +2041,7 @@
       "record_id": "007004365",
       "outcome": "UNKNOWN",
       "means": "The evidence needed to decide this was not available, so it is not a pass and not a failure. The gaps are named in the table below.",
-      "reason": "whether this control applies could not be established: stay.rate_code is unknown (stay.rate_code is absent from the provider response)",
+      "reason": "whether this control applies could not be established: this property has not supplied 'nominated_rate_codes', which this control needs",
       "evidence": [
         {
           "field": "stay.rate_code",
@@ -2094,7 +2094,7 @@
       "record_id": "007004366",
       "outcome": "UNKNOWN",
       "means": "The evidence needed to decide this was not available, so it is not a pass and not a failure. The gaps are named in the table below.",
-      "reason": "whether this control applies could not be established: stay.rate_code is unknown (stay.rate_code is absent from the provider response)",
+      "reason": "whether this control applies could not be established: this property has not supplied 'nominated_rate_codes', which this control needs",
       "evidence": [
         {
           "field": "stay.rate_code",
@@ -2147,7 +2147,7 @@
       "record_id": "007004367",
       "outcome": "UNKNOWN",
       "means": "The evidence needed to decide this was not available, so it is not a pass and not a failure. The gaps are named in the table below.",
-      "reason": "whether this control applies could not be established: stay.rate_code is unknown (stay.rate_code is absent from the provider response)",
+      "reason": "whether this control applies could not be established: this property has not supplied 'nominated_rate_codes', which this control needs",
       "evidence": [
         {
           "field": "stay.rate_code",
@@ -2306,7 +2306,7 @@
       "record_id": "007004372",
       "outcome": "UNKNOWN",
       "means": "The evidence needed to decide this was not available, so it is not a pass and not a failure. The gaps are named in the table below.",
-      "reason": "whether this control applies could not be established: stay.rate_code is unknown (stay.rate_code is absent from the provider response)",
+      "reason": "whether this control applies could not be established: this property has not supplied 'nominated_rate_codes', which this control needs",
       "evidence": [
         {
           "field": "stay.rate_code",
@@ -3313,7 +3313,7 @@
       "record_id": "007004391",
       "outcome": "UNKNOWN",
       "means": "The evidence needed to decide this was not available, so it is not a pass and not a failure. The gaps are named in the table below.",
-      "reason": "whether this control applies could not be established: stay.rate_code is unknown (stay.rate_code is absent from the provider response)",
+      "reason": "whether this control applies could not be established: this property has not supplied 'nominated_rate_codes', which this control needs",
       "evidence": [
         {
           "field": "stay.rate_code",
@@ -3843,7 +3843,7 @@
       "record_id": "007004401",
       "outcome": "UNKNOWN",
       "means": "The evidence needed to decide this was not available, so it is not a pass and not a failure. The gaps are named in the table below.",
-      "reason": "whether this control applies could not be established: stay.rate_code is unknown (stay.rate_code is absent from the provider response)",
+      "reason": "whether this control applies could not be established: this property has not supplied 'nominated_rate_codes', which this control needs",
       "evidence": [
         {
           "field": "stay.rate_code",
@@ -3896,7 +3896,7 @@
       "record_id": "007004402",
       "outcome": "UNKNOWN",
       "means": "The evidence needed to decide this was not available, so it is not a pass and not a failure. The gaps are named in the table below.",
-      "reason": "whether this control applies could not be established: stay.rate_code is unknown (stay.rate_code is absent from the provider response)",
+      "reason": "whether this control applies could not be established: this property has not supplied 'nominated_rate_codes', which this control needs",
       "evidence": [
         {
           "field": "stay.rate_code",
@@ -4320,7 +4320,7 @@
       "record_id": "007004426",
       "outcome": "UNKNOWN",
       "means": "The evidence needed to decide this was not available, so it is not a pass and not a failure. The gaps are named in the table below.",
-      "reason": "whether this control applies could not be established: stay.rate_code is unknown (stay.rate_code is absent from the provider response)",
+      "reason": "whether this control applies could not be established: this property has not supplied 'nominated_rate_codes', which this control needs",
       "evidence": [
         {
           "field": "stay.rate_code",
@@ -4850,7 +4850,7 @@
       "record_id": "007004436",
       "outcome": "UNKNOWN",
       "means": "The evidence needed to decide this was not available, so it is not a pass and not a failure. The gaps are named in the table below.",
-      "reason": "whether this control applies could not be established: stay.rate_code is unknown (stay.rate_code is absent from the provider response)",
+      "reason": "whether this control applies could not be established: this property has not supplied 'nominated_rate_codes', which this control needs",
       "evidence": [
         {
           "field": "stay.rate_code",
@@ -5274,7 +5274,7 @@
       "record_id": "007004444",
       "outcome": "UNKNOWN",
       "means": "The evidence needed to decide this was not available, so it is not a pass and not a failure. The gaps are named in the table below.",
-      "reason": "whether this control applies could not be established: stay.rate_code is unknown (stay.rate_code is absent from the provider response)",
+      "reason": "whether this control applies could not be established: this property has not supplied 'nominated_rate_codes', which this control needs",
       "evidence": [
         {
           "field": "stay.rate_code",
@@ -5327,7 +5327,7 @@
       "record_id": "007004445",
       "outcome": "UNKNOWN",
       "means": "The evidence needed to decide this was not available, so it is not a pass and not a failure. The gaps are named in the table below.",
-      "reason": "whether this control applies could not be established: stay.rate_code is unknown (stay.rate_code is absent from the provider response)",
+      "reason": "whether this control applies could not be established: this property has not supplied 'nominated_rate_codes', which this control needs",
       "evidence": [
         {
           "field": "stay.rate_code",
@@ -5380,7 +5380,7 @@
       "record_id": "007004446",
       "outcome": "UNKNOWN",
       "means": "The evidence needed to decide this was not available, so it is not a pass and not a failure. The gaps are named in the table below.",
-      "reason": "whether this control applies could not be established: stay.rate_code is unknown (stay.rate_code is absent from the provider response)",
+      "reason": "whether this control applies could not be established: this property has not supplied 'nominated_rate_codes', which this control needs",
       "evidence": [
         {
           "field": "stay.rate_code",
@@ -5433,7 +5433,7 @@
       "record_id": "007004447",
       "outcome": "UNKNOWN",
       "means": "The evidence needed to decide this was not available, so it is not a pass and not a failure. The gaps are named in the table below.",
-      "reason": "whether this control applies could not be established: stay.rate_code is unknown (stay.rate_code is absent from the provider response)",
+      "reason": "whether this control applies could not be established: this property has not supplied 'nominated_rate_codes', which this control needs",
       "evidence": [
         {
           "field": "stay.rate_code",
@@ -5486,7 +5486,7 @@
       "record_id": "007004448",
       "outcome": "UNKNOWN",
       "means": "The evidence needed to decide this was not available, so it is not a pass and not a failure. The gaps are named in the table below.",
-      "reason": "whether this control applies could not be established: stay.rate_code is unknown (stay.rate_code is absent from the provider response)",
+      "reason": "whether this control applies could not be established: this property has not supplied 'nominated_rate_codes', which this control needs",
       "evidence": [
         {
           "field": "stay.rate_code",

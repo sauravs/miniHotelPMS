@@ -378,7 +378,12 @@ def _check_tenant_settings(ir: ControlIR, tenant: TenantConfig, where: str) -> l
         # A hotel with one nominated rate code writing "RACK" for ["RACK"] is the likely
         # mistake, and onboarding a property is documented as editing this one JSON file and
         # writing no Python. So it is caught here, where the reason can name the setting.
-        if predicate.get("operator") in ("in", "not_in"):
+        #
+        # Since slice 21 `TenantConfig.load` refuses it earlier still, against the parameter's
+        # declared type; this stays as the lock for a tenant built without a schema. An
+        # UNDECIDED setting (null) has no shape to check - it is declared, which is all a rule
+        # needs, and the evaluator answers UNKNOWN naming it.
+        if predicate.get("operator") in ("in", "not_in") and tenant.is_decided(name):
             supplied = tenant.setting(name)
             if not isinstance(supplied, (list, tuple, set, frozenset)):
                 problems.append(Problem(

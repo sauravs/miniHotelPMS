@@ -20,17 +20,30 @@ A code that is not in the map resolves to UNKNOWN. Never a guess. Across every c
 217 distinct reservations - one in five - carry a status documented nowhere (`OK4`, `WL`).
 Silently mapping one of those to something plausible would include or exclude reservations from
 a control's scope invisibly, which is the quietest possible way for this system to be wrong.
+
+AND ITS TWIN, SINCE SLICE 21: A DECISION NOBODY MADE IS NOT "NONE"
+------------------------------------------------------------------
+A setting written `null` is NOT DECIDED. It stays declared (`has_setting`), but it is kept out
+of `settings` - the dict the runner hands the evaluator - and listed in `undecided`. A predicate
+reading it therefore answers UNKNOWN through the evaluator's existing "this property has not
+supplied X" branch, naming the parameter, with no evaluator change. `[]` still means "decided:
+none", which is a real answer a hotel can give. `spec/parameters.py` says why the two must
+differ: in an exception, `[]` exempts nobody, so a missing answer would become an accusation.
 """
 from __future__ import annotations
 
 import json
 import pathlib
+import re
 from dataclasses import dataclass, field
 from typing import Any
 
 from ..kernel import Clock, PropertyClock
 from .errors import SpecError
+from .parameters import ParameterSchema
 from .registry import SPEC_DIR
+
+_CURRENCY = re.compile(r"[A-Z]{3}")
 
 
 @dataclass(frozen=True, slots=True)
@@ -45,7 +58,13 @@ class TenantConfig:
     status_map: dict[str, str] = field(default_factory=dict)
     department_map: dict[str, str] = field(default_factory=dict)
     known_unmapped_statuses: tuple[str, ...] = ()
+    # DECIDED values only - see "its twin" in the module docstring.
     settings: dict[str, Any] = field(default_factory=dict)
+    # Declared as `null`: not decided. Never a value, never "none".
+    undecided: tuple[str, ...] = ()
+    # The currencies this property's money is in, as its evidence shows them. A Money parameter
+    # in any other currency is refused at load, never converted (R9).
+    currencies: tuple[str, ...] = ()
 
     def __post_init__(self) -> None:
         # Validate the timezone AT LOAD rather than at first use. A typo here shifts every
@@ -63,8 +82,20 @@ class TenantConfig:
         # code halfway through a run and change what a control applied to.
         object.__setattr__(self, "status_map", dict(self.status_map))
         object.__setattr__(self, "department_map", dict(self.department_map))
-        object.__setattr__(self, "settings", dict(self.settings))
         object.__setattr__(self, "known_unmapped_statuses", tuple(self.known_unmapped_statuses))
+
+        # Split "not decided" out of the values HERE, not only in `load`, so that no way of
+        # building a tenant - a test, a tool, a future caller - can hand the evaluator a None
+        # and have a predicate read it as an empty answer.
+        nulls = {name for name, value in self.settings.items() if value is None}
+        clash = set(self.undecided) & (set(self.settings) - nulls)
+        if clash:
+            raise SpecError("tenant %r: %s cannot be both decided and not decided"
+                            % (self.tenant_id, ", ".join(sorted(clash))))
+        object.__setattr__(self, "settings", {name: value for name, value
+                                              in self.settings.items() if value is not None})
+        object.__setattr__(self, "undecided", tuple(sorted(set(self.undecided) | nulls)))
+        object.__setattr__(self, "currencies", _currency_codes(self.tenant_id, self.currencies))
 
         overlap = set(self.status_map) & set(self.known_unmapped_statuses)
         if overlap:
@@ -77,17 +108,35 @@ class TenantConfig:
     # ------------------------------------------------------------------ loading
     @classmethod
     def load(cls, tenant_id: str, spec_dir: pathlib.Path | str = SPEC_DIR) -> TenantConfig:
+        """One property, its settings TYPED against `spec/parameters.json` (slice 21).
+
+        Every engine path reaches a tenant through here - the web app and `validate_spec` both
+        do - so a wrong type, unit or currency is refused before any control runs.
+        """
         path = pathlib.Path(spec_dir) / "tenants" / ("%s.json" % tenant_id)
         if not path.is_file():
             raise SpecError("no tenant configuration called %r in %s"
                             % (tenant_id, path.parent))
-        return cls.from_dict(json.loads(path.read_text(encoding="utf-8")))
+        return cls.from_dict(json.loads(path.read_text(encoding="utf-8")),
+                             parameters=ParameterSchema.load(spec_dir))
 
     @classmethod
-    def from_dict(cls, raw: dict[str, Any]) -> TenantConfig:
+    def from_dict(cls, raw: dict[str, Any],
+                  parameters: ParameterSchema | None = None) -> TenantConfig:
+        """Build a tenant from its file's contents, typing its settings if given a schema.
+
+        Untyped without one, which is what unit tests that build a tenant by hand rely on -
+        and `null` is still "not decided" either way, because `__post_init__` enforces that.
+        """
         try:
+            tenant_id = raw["tenant_id"]
+            settings = raw.get("settings", {})
+            currencies = _currency_codes(tenant_id, raw.get("currencies", ()))
+            if parameters is not None:
+                settings = parameters.typed(settings, tenant_id=tenant_id,
+                                            currencies=currencies)
             return cls(
-                tenant_id=raw["tenant_id"],
+                tenant_id=tenant_id,
                 provider=raw["provider"],
                 timezone=raw["timezone"],
                 name=raw.get("name", ""),
@@ -95,7 +144,8 @@ class TenantConfig:
                 status_map=raw.get("status_map", {}),
                 department_map=raw.get("department_map", {}),
                 known_unmapped_statuses=tuple(raw.get("known_unmapped_statuses", ())),
-                settings=raw.get("settings", {}),
+                settings=settings,
+                currencies=currencies,
             )
         except KeyError as exc:
             raise SpecError("tenant configuration is missing %s" % exc) from None
@@ -120,16 +170,29 @@ class TenantConfig:
         Raises for an undeclared name rather than returning an empty default. An IR naming a
         setting nobody defined would otherwise evaluate against `[]` and silently exclude
         every record - a control reporting nothing to see, because it was misconfigured.
+
+        Raises for an UNDECIDED one too, rather than returning None: a caller handed None
+        can read it as empty, which is the exact confusion slice 21 removes.
         """
+        if name in self.undecided:
+            raise SpecError(
+                "tenant %r: %r is not decided (null in its configuration). A control reading "
+                "it answers UNKNOWN naming it; nothing may read it as empty"
+                % (self.tenant_id, name))
         try:
             return self.settings[name]
         except KeyError:
             raise SpecError(
                 "tenant %r declares no setting %r. A control referencing it cannot be "
-                "evaluated - add it to the tenant configuration, with an empty value if the "
-                "hotel has not decided yet" % (self.tenant_id, name)) from None
+                "evaluated - add it to the tenant configuration, as null if the hotel has not "
+                "decided yet" % (self.tenant_id, name)) from None
 
     def has_setting(self, name: str) -> bool:
+        """Declared - decided or not. Whether a control may NAME it, not whether it has a value."""
+        return name in self.settings or name in self.undecided
+
+    def is_decided(self, name: str) -> bool:
+        """Has the hotel given an answer, even "none"? `[]` is decided; `null` is not."""
         return name in self.settings
 
     # ------------------------------------------------------------------ time
@@ -141,6 +204,22 @@ class TenantConfig:
         one whose answer is correct (F11).
         """
         return PropertyClock(self.timezone, instant=instant)
+
+
+def _currency_codes(tenant_id: str, codes: Any) -> tuple[str, ...]:
+    """The property's currencies as sorted three-letter codes, or a refusal naming the bad one.
+
+    Checked before any Money parameter is read against them, so a misspelt `usd` is reported as
+    itself rather than as every fee being "in a currency the property does not use".
+    """
+    if isinstance(codes, str) or not isinstance(codes, (list, tuple)):
+        raise SpecError("tenant %r: currencies must be a list of codes like [\"USD\"], not %r"
+                        % (tenant_id, codes))
+    for code in codes:
+        if not isinstance(code, str) or not _CURRENCY.fullmatch(code):
+            raise SpecError("tenant %r: currency %r is not a three-letter code like 'USD'"
+                            % (tenant_id, code))
+    return tuple(sorted(set(codes)))
 
 
 def available(spec_dir: pathlib.Path | str = SPEC_DIR) -> tuple[str, ...]:

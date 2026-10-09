@@ -72,9 +72,17 @@ class TestPropertySettings:
 
         v1's control 15 IR literally contained `["<hotel-nominated rate codes>"]` - a
         placeholder sitting in a rule that was otherwise executable.
+
+        Until slice 21 this asserted `[]` and `{}`: "decided: none". That was not true - the
+        sandbox is the vendor's test property and nobody can decide its rate codes (plan-v3
+        §3.2, #49) - so both are now `null`, NOT DECIDED: declared, and never shown to the
+        evaluator as a value. Changing this assertion IS slice 21's declared change, shown as
+        a dry run at the slice-start checkpoint before any code.
         """
-        assert tenant.setting("nominated_rate_codes") == []
-        assert tenant.setting("rate_plan_permitted_room_types") == {}
+        for name in ("nominated_rate_codes", "rate_plan_permitted_room_types"):
+            assert tenant.has_setting(name)
+            assert not tenant.is_decided(name)
+            assert name not in tenant.settings
 
     def test_an_undeclared_setting_is_an_error_not_an_empty_default(self, tenant):
         """An IR naming a setting nobody defined must be caught by the validator, not

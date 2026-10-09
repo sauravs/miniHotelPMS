@@ -23,8 +23,8 @@ import pathlib
 import sys
 
 from hotelcontrols.compiler import compile_sentence, deployment_of
-from hotelcontrols.spec import (Problem, Registry, TenantConfig, available, load, load_schema,
-                                validate)
+from hotelcontrols.spec import (ParameterSchema, Problem, Registry, SpecError, TenantConfig,
+                                available, load, load_schema, validate)
 from hotelcontrols.spec import lock as spec_lock
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
@@ -56,6 +56,7 @@ def main(argv: list[str] | None = None) -> int:
     registry = Registry.load(spec)
     ir_schema = load_schema(spec)
 
+    _check_parameters(checker, spec)
     tenants = _load_tenants(checker, spec)
     providers = _check_providers(checker, registry, spec)
     _check_registry(checker, registry, providers)
@@ -66,10 +67,26 @@ def main(argv: list[str] | None = None) -> int:
 
 
 # --------------------------------------------------------------------------- sections
+def _check_parameters(checker: Checker, spec: pathlib.Path) -> None:
+    """Slice 21: the parameter schema itself - known types, `required` stated, no defaults.
+
+    Checked on its own so a broken schema is reported once, as itself, before every tenant
+    that loads against it fails for the same reason.
+    """
+    try:
+        ParameterSchema.load(spec)
+    except SpecError as exc:
+        checker.check(False, "parameters.json", str(exc))
+        return
+    checker.check(True, "parameters.json", "")
+
+
 def _load_tenants(checker: Checker, spec: pathlib.Path) -> dict[str, TenantConfig]:
     tenants: dict[str, TenantConfig] = {}
     for path in sorted((spec / "tenants").glob("*.json")):
         try:
+            # Since slice 21 this also TYPES every setting against spec/parameters.json, and a
+            # wrong type, unit or currency fails here naming the parameter.
             tenant = TenantConfig.load(path.stem, spec)
         except Exception as exc:                       # a bad tenant file is a spec error
             checker.check(False, "tenant %s" % path.stem, str(exc))
@@ -240,11 +257,14 @@ def _report(checker: Checker, registry: Registry, providers: dict[str, dict],
         print("\n  Controls not yet locked (bumped or new): %s" % ", ".join(pending))
         print("    Run `python3 -m tools.lock_spec` before this merges.")
 
-    empty = [t.tenant_id for t in tenants.values()
-             if not any(t.settings.get(k) for k in t.settings)]
-    if empty:
-        print("\n  Tenants with no settings supplied yet: %s" % ", ".join(empty))
-        print("    Controls needing them answer UNKNOWN or exclude every record, honestly.")
+    # Not a failure: `null` is an honest state. Named per property and per parameter, because
+    # "not decided" is a question for that hotel, and the answer is a line in its tenant file.
+    undecided = [t for t in sorted(tenants.values(), key=lambda t: t.tenant_id) if t.undecided]
+    if undecided:
+        print("\n  Parameters not decided yet (null - controls reading them answer UNKNOWN "
+              "naming them):")
+        for tenant in undecided:
+            print("    - %s: %s" % (tenant.tenant_id, ", ".join(tenant.undecided)))
     return 0
 
 

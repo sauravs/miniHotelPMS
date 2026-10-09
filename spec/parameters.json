@@ -1,0 +1,18 @@
+{
+  "note": "THE TYPE OF EVERYTHING A HOTEL DECIDES (slice 21, G6a narrowed). A tenant file in spec/tenants/ may state only what is declared here, and each value is checked against its type when the tenant loads - a wrong type, unit or currency is refused naming the parameter. `null` in a tenant file means NOT DECIDED: the setting is declared, a control reading it answers UNKNOWN naming it, and it is never read as an empty answer. `[]` means DECIDED: NONE. NO PARAMETER HAS A DEFAULT, and a `default` here is refused, because a default is the engine deciding for a hotel. Types: text_list, text_list_map, money ({\"amount\": \"25.00\", \"currency\": \"USD\"}, in a currency the property states it uses), time_of_day (\"14:00\", on the property's own clock), choice (one of `options`). See hotelcontrols/spec/parameters.py.",
+
+  "parameters": {
+    "nominated_rate_codes": {
+      "type": "text_list",
+      "required": true,
+      "description": "The rate codes on which control 15 (required_reservation_fields) requires the guest's email, phone and identification number.",
+      "note": "Read with `in` by control 15's scope. [] is a decision - no rate carries the requirement, and every record is excluded honestly. null is not a decision - whether a reservation is in scope cannot be said, and the control answers UNKNOWN naming this parameter. Only the hotel can supply it (open question 1.4), and even then it moves nothing until a capture carries rate codes (#49, v3 slice 23)."
+    },
+    "rate_plan_permitted_room_types": {
+      "type": "text_list_map",
+      "required": true,
+      "description": "For each rate code, the room types it may be sold in.",
+      "note": "What control 9 (rate_room_category_consistency) would need from the hotel, because MiniHotel's rate codes and its price-list codes are different key spaces (R13, open question 1.6). No engine code reads the value today: the control's tenant-sourced reference answers 'has not supplied it' either way."
+    }
+  }
+}
