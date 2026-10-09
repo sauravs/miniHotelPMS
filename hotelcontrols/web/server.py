@@ -21,9 +21,12 @@ from __future__ import annotations
 
 import argparse
 import html
+import logging
 import re
+import sys
 from http.server import BaseHTTPRequestHandler, HTTPServer
 
+from ..ops import LOGGER_NAME, JsonLines, attach
 from ..store import RunStore
 from .app import App
 
@@ -148,7 +151,27 @@ def parser() -> argparse.ArgumentParser:
     built.add_argument("--store", metavar="PATH", default=None,
                        help="keep the run history and the findings queue in this SQLite file "
                             "(default: in memory, lost on restart)")
+    # Slice 20: the operational log, as JSON lines. On by default for the server - somebody
+    # running the service should see what ran - and stderr, so it never mixes with a page.
+    built.add_argument("--log", metavar="PATH", default="-",
+                       help="write the operational log as JSON lines to PATH, '-' for stderr "
+                            "(the default) or 'off'")
     return built
+
+
+def configure_log(target: str) -> logging.Handler | None:
+    """Attach the operational log to stderr ("-"), to a file, or to nothing ("off")."""
+    if target == "off":
+        return None
+    if target == "-":
+        return attach(sys.stderr)
+    handler = logging.FileHandler(target, encoding="utf-8")
+    handler.setFormatter(JsonLines())
+    logger = logging.getLogger(LOGGER_NAME)
+    logger.addHandler(handler)
+    logger.setLevel(logging.INFO)
+    logger.propagate = False
+    return handler
 
 
 def build_app(store: str | None) -> App:
@@ -160,6 +183,7 @@ def main(argv: list[str] | None = None) -> int:
     arguments = parser().parse_args(argv)
     if arguments.store:
         Handler.app = build_app(arguments.store)
+    configure_log(arguments.log)
 
     server = SERVER((arguments.host, arguments.port), Handler)
     print("Controls at http://%s:%d/ - no network access, no dependencies, ctrl-c to stop."

@@ -45,6 +45,14 @@ A `Notifier` is injected - by `tools/serve.py`, never looked up - and `_execute`
 tasks the run just failed, each emailed once. With none wired, which is the default and what
 `python3 -m hotelcontrols.web.server` builds, nothing is sent and every payload is exactly what
 it was before this slice.
+
+AND WRITES DOWN WHAT IT DID (slice 20)
+---------------------------------------
+Three operational records, all from this layer: one per REQUEST (path without its query string,
+status, duration), one per RUN (after it is saved, so it carries its `run_id`: calls, counts,
+coverage, duration), and one per DISPATCH (audience and outcome). The run's own identity is
+gathered into `_trace` while a request is handled, so the request line can name the run it
+caused. `runner/` is untouched; nothing is logged below this layer.
 """
 from __future__ import annotations
 
@@ -56,6 +64,7 @@ from dataclasses import replace
 from typing import NamedTuple
 
 from ..actions import OPERATOR, TransitionRefused, dispatch, findings_from
+from ..ops import OpsLog, elapsed_ms
 from ..compiler import Turn, compile_sentence, deployment_of, normalise
 from ..kernel import FixedClock, Outcome, PropertyClock
 from ..providers import registry as providers
@@ -101,7 +110,7 @@ class App:
 
     def __init__(self, spec_dir=None, store: RunStore | None = None,
                  proposer=None, draft_dir=None, clock=None, notifier=None,
-                 public_url: str = PUBLIC_URL) -> None:
+                 public_url: str = PUBLIC_URL, ops: OpsLog | None = None) -> None:
         self.spec_dir = spec_dir
         self.store = store if store is not None else RunStore(":memory:")
         # THE CLOCK A PERSON'S MOVES ARE STAMPED WITH (slice 18). A run's instants come from
@@ -114,6 +123,14 @@ class App:
         # that can reach a mail server lives in `tools/notifiers/`, behind two locks.
         self.notifier = notifier
         self.public_url = public_url
+        # THE OPERATIONAL LOG (slice 20). Stamped by the injected clock when there is one, by
+        # the kernel's clock in UTC otherwise. Its logger has no handler until the server
+        # attaches one (`--log`), so an App built in a test or a notebook writes nothing.
+        self.ops = ops if ops is not None else OpsLog(clock=clock)
+        # The identity of whatever this request touched - its property, and the run it made -
+        # gathered while it is handled so the request line can carry it. Reset per request;
+        # the server is serial, so one request is handled at a time.
+        self._trace: dict = {}
         self.registry = Registry.load(spec_dir) if spec_dir else Registry.load()
         # Every provider call this app has spent, so a test can assert that re-reading a stored
         # run costs none of them (R1). It is also the number a demo operator should watch.
@@ -143,10 +160,12 @@ class App:
         a reader nothing and a stack trace tells them nothing they can act on.
         """
         segments, query, wants_json = self._parse(path)
+        started = self._begin()
         try:
-            return self.route(segments, query)
+            response = self.route(segments, query)
         except Exception as exc:                                        # noqa: BLE001
-            return self._failure(exc, wants_json)
+            response = self._failure(exc, wants_json)
+        return self._logged("GET", path, response, started)
 
     def handle_post(self, path: str, body: str) -> Response:
         """The same, for the routes that write something.
@@ -162,10 +181,24 @@ class App:
         segments, query, wants_json = self._parse(path)
         form = {key: values[0] for key, values
                 in urllib.parse.parse_qs(body or "").items() if values}
+        started = self._begin()
         try:
-            return self.route_post(segments, {**query, **form})
+            response = self.route_post(segments, {**query, **form})
         except Exception as exc:                                        # noqa: BLE001
-            return self._failure(exc, wants_json)
+            response = self._failure(exc, wants_json)
+        return self._logged("POST", path, response, started)
+
+    def _begin(self):
+        self._trace = {}
+        return self.ops.now()
+
+    def _logged(self, method: str, path: str, response: Response, started) -> Response:
+        """One request line. The PATH only - never the query string, never a form body - which
+        is the access log's existing rule (`server.Handler.log_message`), kept."""
+        self.ops.emit("request", method=method, path=urllib.parse.urlsplit(path).path,
+                      status=response.status,
+                      duration_ms=elapsed_ms(started, self.ops.now()), **self._trace)
+        return response
 
     def _parse(self, path: str) -> tuple[tuple[str, ...], dict, bool]:
         split = urllib.parse.urlsplit(path)
@@ -787,22 +820,53 @@ class App:
             raise _Refused(400, "%r is not a date this engine can read. Write it as "
                                 "YYYY-MM-DD." % as_of) from None
 
+        started = self.ops.now()
         result = run(control_id, tenant, adapter, clock, evidence_label=capture,
                      spec_dir=self._spec_dir_for(control_id, tenant_id))
         self.provider_calls += result.calls
         saved = replace(result, run_id=self.store.save(result))
+        # Slice 20: from here on, every line this request writes names this run.
+        self._trace.update(tenant_id=tenant_id, run_id=saved.run_id, control_id=control_id,
+                           policy_version=saved.policy_version, provider=saved.provider)
+        raised = 0
         # THE LAYER ABOVE THE RUN RAISES ITS TASKS (slice 18). Only a FAIL raises one, only for
         # a reviewed control, and only once per natural key however often this is re-run. A
         # draft raises none: its `action` block was borrowed along with its population.
+        deliveries = ()
         if control_id in self._controls():
             findings = findings_from(saved, ir)
-            self.store.record_findings(findings)
+            raised = self.store.record_findings(findings)
             # Slice 19: each task this run failed, emailed once. Scoped to THIS run's FAILs, so a
             # run that concluded nothing or was blocked sends nothing, by construction.
             if self.notifier is not None:
-                dispatch(saved, findings, self.store, self.notifier,
-                         public_url=self.public_url, at=self._now(tenant_id))
+                deliveries = dispatch(saved, findings, self.store, self.notifier,
+                                      public_url=self.public_url, at=self._now(tenant_id))
+        self._log_run(saved, started, raised)
+        for delivery in deliveries:
+            # The audience and the outcome. Never the note and never the addresses: a route is
+            # staff personal data, and a note is a backend's words.
+            record = self.store.action(delivery.action_id, tenant_id=tenant_id)
+            self.ops.emit("dispatch", action_id=delivery.action_id, outcome=delivery.outcome,
+                          audience=record.audience if record else None, **self._trace)
         return saved, ir, tenant
+
+    def _log_run(self, saved, started, raised: int) -> None:
+        """One run line: what it asked, what it cost, and whether it concluded anything.
+
+        Counts only for a run that was not blocked - the payload's own rule (F5) - and the
+        blocked REASON is not copied: it is a provider's words, and nothing a provider says is
+        logged above the boundary. `blocked: true` and the run id lead to it on the run itself.
+        """
+        coverage = saved.coverage
+        fields = dict(evidence=saved.evidence_label, as_of=saved.as_of, calls=saved.calls,
+                      blocked=saved.is_blocked,
+                      coverage={"evaluated": coverage.evaluated, "total": coverage.total,
+                                "concluded": coverage.concluded},
+                      raised=raised, started_at=started.isoformat(),
+                      duration_ms=elapsed_ms(started, self.ops.now()))
+        if not saved.is_blocked:
+            fields["counts"] = saved.counts
+        self.ops.emit("run", **fields, **self._trace)
 
     def _plan(self, ir: ControlIR, tenant: TenantConfig, as_of: str) -> object:
         """When this control runs next on this provider - finding F7, on the page at last.
@@ -894,6 +958,9 @@ class App:
         tenant_id = query.get("property")
         if tenant_id not in tenants:
             tenant_id = tenants[0]
+        # The VALIDATED property, for this request's log line (slice 20) - never the raw value
+        # from the URL, which is whatever somebody typed.
+        self._trace.setdefault("tenant_id", tenant_id)
         package = providers.load(self._tenant(tenant_id).provider)
         capture = query.get("evidence")
         if capture not in package.captures:

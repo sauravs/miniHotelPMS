@@ -18,13 +18,10 @@ from datetime import datetime
 
 import pytest
 
-from hotelcontrols.evidence.budget import CallBudget
-from hotelcontrols.evidence.cache import ResponseCache
-from hotelcontrols.evidence.population import population
 from hotelcontrols.kernel import FixedClock
-from hotelcontrols.providers import registry as providers
-from hotelcontrols.spec import TenantConfig, available, available_tenants, load
+from hotelcontrols.spec import available, available_tenants, load
 from hotelcontrols.web import App
+from tests import guest_details as guest_detail_probe
 from tools.notifiers import RecordingNotifier
 
 PROPERTIES = {"sandbox": "sandbox2026", "demo": "demo2026"}
@@ -34,9 +31,6 @@ PUBLIC = "http://controls.example.test"
 
 # Every audience any shipped rule names, each routed to one fictional address.
 AUDIENCES = sorted({load(c)["action"]["audience"] for c in available()})
-GUEST_FIELDS = ("reservation.guest.given_name", "reservation.guest.surname",
-                "reservation.guest.email", "reservation.guest.phone",
-                "reservation.guest.id_number")
 
 
 def wired(routes=None):
@@ -147,25 +141,7 @@ class TestAMissingRouteIsStated:
 def guest_details():
     """Every guest name, email, phone and id number in the 2026 captures, per provider, read
     through the adapters - so the no-PII test below checks against what is really there."""
-    found = set()
-    for property_id, capture in PROPERTIES.items():
-        tenant = TenantConfig.load(property_id)
-        adapter, source = providers.load(tenant.provider).build(tenant, capture)
-        records = population(load("required_reservation_fields"), adapter,
-                             FixedClock.at(source.as_of, tenant.timezone),
-                             ResponseCache(adapter.fetch, CallBudget(1000)))
-        for record in records:
-            for field in GUEST_FIELDS:
-                value = adapter.resolve(field, record)
-                if value.is_known and isinstance(value.payload, str) and value.payload.strip():
-                    found.add(value.payload.strip())
-    # Measured, not assumed: the captures hold phone "numbers" of two and three digits (`04`,
-    # `08`, `265`) and a four-digit id. A value that short cannot be told apart from the day in
-    # `2026-07-08` or a digit of an amount, so purely numeric values under five digits are left
-    # out - they identify nobody. Every name, every email and every longer number stays in.
-    found = {d for d in found if not (d.isdigit() and len(d) < 5)}
-    assert len(found) > 50, "the PII probe found almost nothing - it would pass vacuously"
-    return found
+    return guest_detail_probe.collect()
 
 
 class TestNoEmailCarriesGuestDetails:
@@ -175,9 +151,7 @@ class TestNoEmailCarriesGuestDetails:
     failed (labelled constructed; `render_message` is the same function either way)."""
 
     def _leaks(self, message, details):
-        text = message.subject + "\n" + message.body
-        return sorted(d for d in details if re.search(r"(?<!\w)%s(?!\w)" % re.escape(d), text)) \
-            + (["****"] if "****" in text else [])
+        return guest_detail_probe.leaks(message.subject + "\n" + message.body, details)
 
     def test_every_real_fail_in_every_capture(self, guest_details):
         app, notifier = wired()
