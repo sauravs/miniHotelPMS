@@ -1,0 +1,143 @@
+{
+  "control_id": "checkout_money_owed",
+  "control_name": "Checkout With Money Owed",
+  "natural_language": "A reservation cannot be closed while the guest still owes money.",
+  "tenant_id": "demo",
+  "provider": "demopms",
+  "evidence": {
+    "label": "demo2026",
+    "synthetic": true
+  },
+  "as_of": "2026-07-08",
+  "created_at": "2026-07-08T00:00:00+03:00",
+  "calls": 3,
+  "run_id": "6a90e68ebd631e52",
+  "blocked": null,
+  "coverage": {
+    "evaluated": 2,
+    "total": 2,
+    "concluded": true,
+    "headline": "Concluded about every record in the population.",
+    "reasons": []
+  },
+  "freshness": {
+    "stale": false,
+    "headline": "This evidence was captured 62 days AFTER the instant this run asks about, so it may describe a later state than the question."
+  },
+  "readiness": [],
+  "verdicts": [
+    {
+      "record_id": "007004348",
+      "outcome": "PASS",
+      "means": "The rule holds for this record.",
+      "reason": "folio.balance_due is -490.75 ILS, which satisfies `lte 0`",
+      "evidence": [
+        {
+          "field": "folio.balance_due",
+          "known": true,
+          "value": "-490.75 ILS",
+          "unit": "ILS",
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/ledger"
+        },
+        {
+          "field": "reservation.status",
+          "known": true,
+          "value": "checked_out",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.departure_date",
+          "known": true,
+          "value": "2026-07-07",
+          "unit": "date",
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "folio.currency",
+          "known": true,
+          "value": "ILS",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/ledger"
+        },
+        {
+          "field": "reservation.currency",
+          "known": true,
+          "value": "USD",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        }
+      ]
+    },
+    {
+      "record_id": "007004351",
+      "outcome": "PASS",
+      "means": "The rule holds for this record.",
+      "reason": "folio.balance_due is 0 ILS, which satisfies `lte 0`",
+      "evidence": [
+        {
+          "field": "folio.balance_due",
+          "known": true,
+          "value": "0 ILS",
+          "unit": "ILS",
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/ledger"
+        },
+        {
+          "field": "reservation.status",
+          "known": true,
+          "value": "checked_out",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.departure_date",
+          "known": true,
+          "value": "2026-07-08",
+          "unit": "date",
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "folio.currency",
+          "known": true,
+          "value": "ILS",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/ledger"
+        },
+        {
+          "field": "reservation.currency",
+          "known": true,
+          "value": "USD",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        }
+      ]
+    }
+  ],
+  "counts": {
+    "PASS": 2,
+    "FAIL": 0,
+    "UNKNOWN": 0,
+    "EXCLUDED": 0,
+    "total": 2
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "control_id": "checkout_money_owed",
+  "control_name": "Checkout With Money Owed",
+  "natural_language": "A reservation cannot be closed while the guest still owes money.",
+  "tenant_id": "sandbox",
+  "provider": "minihotel",
+  "evidence": {
+    "label": "sandbox2024",
+    "synthetic": false
+  },
+  "as_of": "2024-09-01",
+  "created_at": "2024-09-01T00:00:00+03:00",
+  "calls": 1,
+  "run_id": "4b190a898ad36d4c",
+  "blocked": null,
+  "coverage": {
+    "evaluated": 0,
+    "total": 0,
+    "concluded": false,
+    "headline": "This control's population was empty - there was nothing to check.",
+    "reasons": []
+  },
+  "freshness": {
+    "stale": false,
+    "headline": "This evidence was captured 730 days AFTER the instant this run asks about, so it may describe a later state than the question."
+  },
+  "readiness": [],
+  "verdicts": [],
+  "counts": {
+    "PASS": 0,
+    "FAIL": 0,
+    "UNKNOWN": 0,
+    "EXCLUDED": 0,
+    "total": 0
+  }
+}

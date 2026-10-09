@@ -33,6 +33,10 @@ ruleEngineAnishLegacy/
 
 # ---------------------------------------------------------------- generated
 runs/
+# ...but not the golden payloads of /api/runs/<run_id>, which are committed evidence of
+# the API contract (tools/dump_api_fixtures.py). Without this line the rule above drops
+# them silently, and the rebuild test passes locally and fails in CI.
+!fixtures/api/runs/
 *.sqlite3
 *.db
 docs/generated/

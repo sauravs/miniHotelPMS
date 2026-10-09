@@ -1,0 +1,29 @@
+{
+  "control_id": "resource_occupancy_consistency",
+  "control_name": "Resource Occupancy Consistency",
+  "natural_language": "A room must not be occupied by two overlapping reservations at the same time.",
+  "tenant_id": "demo",
+  "provider": "demopms",
+  "evidence": {
+    "label": "demo2026",
+    "synthetic": true
+  },
+  "as_of": "2026-07-08",
+  "created_at": "2026-07-08T00:00:00+03:00",
+  "calls": 1,
+  "run_id": "0a830c58a1da210a",
+  "blocked": "This control needs evidence this body of responses does not hold: this capture cannot answer that question: window was captured for 2024-08-14..2024-08-21 and the run asks for 2026-07-08..2026-07-15. An empty population here would look exactly like 'no violations found', and a population from the WRONG window would look like an answer, so it is refused instead",
+  "coverage": {
+    "evaluated": 0,
+    "total": 0,
+    "concluded": false,
+    "headline": "This control's population was empty - there was nothing to check.",
+    "reasons": []
+  },
+  "freshness": {
+    "stale": false,
+    "headline": "This evidence was captured 62 days AFTER the instant this run asks about, so it may describe a later state than the question."
+  },
+  "readiness": [],
+  "verdicts": []
+}
