@@ -1,0 +1,67 @@
+{
+  "control_id": "rate_room_category_consistency",
+  "providers": [
+    {
+      "provider": "demopms",
+      "available": 3,
+      "total": 5,
+      "executable": false,
+      "headline": "demopms: 3 of 5 fields available - connect a source for rate_plan.code, rate_plan.permitted_room_types",
+      "sources": [
+        {
+          "name": "pms",
+          "available": 3,
+          "total": 4,
+          "missing": [
+            "rate_plan.permitted_room_types"
+          ]
+        },
+        {
+          "name": "tenant",
+          "available": 0,
+          "total": 1,
+          "missing": [
+            "rate_plan.code"
+          ]
+        }
+      ],
+      "unresolvable": [
+        "rate_plan.permitted_room_types"
+      ],
+      "tenant_supplied": [
+        "rate_plan.code"
+      ]
+    },
+    {
+      "provider": "minihotel",
+      "available": 3,
+      "total": 5,
+      "executable": false,
+      "headline": "minihotel: 3 of 5 fields available - connect a source for rate_plan.code, rate_plan.permitted_room_types",
+      "sources": [
+        {
+          "name": "pms",
+          "available": 3,
+          "total": 4,
+          "missing": [
+            "rate_plan.permitted_room_types"
+          ]
+        },
+        {
+          "name": "tenant",
+          "available": 0,
+          "total": 1,
+          "missing": [
+            "rate_plan.code"
+          ]
+        }
+      ],
+      "unresolvable": [
+        "rate_plan.permitted_room_types"
+      ],
+      "tenant_supplied": [
+        "rate_plan.code"
+      ]
+    }
+  ]
+}

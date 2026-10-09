@@ -1,0 +1,73 @@
+{
+  "control_id": "duplicate_channel_reservation",
+  "runs": [
+    {
+      "run_id": "a3302f0bfe75c3d3",
+      "created_at": "2026-07-08T00:00:00+03:00",
+      "provider": "minihotel",
+      "evidence_label": "sandbox2026",
+      "as_of": "2026-07-08",
+      "calls": 1,
+      "blocked": null,
+      "concluded": true,
+      "counts": {
+        "PASS": 4,
+        "FAIL": 0,
+        "UNKNOWN": 10,
+        "EXCLUDED": 26,
+        "total": 40
+      }
+    },
+    {
+      "run_id": "7682f58b49194b12",
+      "created_at": "2026-07-08T00:00:00+03:00",
+      "provider": "demopms",
+      "evidence_label": "demo2026",
+      "as_of": "2026-07-08",
+      "calls": 1,
+      "blocked": null,
+      "concluded": true,
+      "counts": {
+        "PASS": 4,
+        "FAIL": 0,
+        "UNKNOWN": 10,
+        "EXCLUDED": 26,
+        "total": 40
+      }
+    },
+    {
+      "run_id": "c6184f1a690effe3",
+      "created_at": "2024-09-01T00:00:00+03:00",
+      "provider": "demopms",
+      "evidence_label": "demo2024",
+      "as_of": "2024-09-01",
+      "calls": 1,
+      "blocked": null,
+      "concluded": false,
+      "counts": {
+        "PASS": 0,
+        "FAIL": 0,
+        "UNKNOWN": 1,
+        "EXCLUDED": 6,
+        "total": 7
+      }
+    },
+    {
+      "run_id": "2d4c1326a1ec64bf",
+      "created_at": "2024-09-01T00:00:00+03:00",
+      "provider": "minihotel",
+      "evidence_label": "sandbox2024",
+      "as_of": "2024-09-01",
+      "calls": 1,
+      "blocked": null,
+      "concluded": false,
+      "counts": {
+        "PASS": 0,
+        "FAIL": 0,
+        "UNKNOWN": 1,
+        "EXCLUDED": 6,
+        "total": 7
+      }
+    }
+  ]
+}

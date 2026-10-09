@@ -1,0 +1,77 @@
+{
+  "control_id": "checkout_unrefunded_credit",
+  "control_name": "Checkout With An Unrefunded Credit",
+  "natural_language": "A reservation cannot be closed while the hotel still owes the guest a refund.",
+  "tenant_id": "sandbox",
+  "provider": "minihotel",
+  "evidence": {
+    "label": "sandbox2024",
+    "synthetic": false
+  },
+  "as_of": "2024-09-01",
+  "created_at": "2024-09-01T00:00:00+03:00",
+  "calls": 1,
+  "run_id": "be64f79a551b5251",
+  "blocked": null,
+  "coverage": {
+    "evaluated": 0,
+    "total": 0,
+    "concluded": false,
+    "headline": "This control's population was empty - there was nothing to check.",
+    "reasons": []
+  },
+  "freshness": {
+    "stale": false,
+    "headline": "This evidence was captured 730 days AFTER the instant this run asks about, so it may describe a later state than the question."
+  },
+  "readiness": [
+    {
+      "provider": "demopms",
+      "available": 5,
+      "total": 5,
+      "executable": true,
+      "headline": "demopms: 5 of 5 fields available",
+      "sources": [
+        {
+          "name": "pms",
+          "available": 5,
+          "total": 5,
+          "missing": []
+        }
+      ],
+      "unresolvable": [],
+      "tenant_supplied": []
+    },
+    {
+      "provider": "minihotel",
+      "available": 5,
+      "total": 5,
+      "executable": true,
+      "headline": "minihotel: 5 of 5 fields available",
+      "sources": [
+        {
+          "name": "pms",
+          "available": 5,
+          "total": 5,
+          "missing": []
+        }
+      ],
+      "unresolvable": [],
+      "tenant_supplied": []
+    }
+  ],
+  "verdicts": [],
+  "counts": {
+    "PASS": 0,
+    "FAIL": 0,
+    "UNKNOWN": 0,
+    "EXCLUDED": 0,
+    "total": 0
+  },
+  "execution": {
+    "mode": "daily",
+    "declared_mode": "daily",
+    "fell_back": false,
+    "headline": "Runs daily, due now. It is a review queue rather than an alert, so once per property day is enough."
+  }
+}

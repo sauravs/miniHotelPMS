@@ -405,3 +405,42 @@ class TestSliceFourteenAFirstTimeReaderCanLearnThePageFromThePage:
             assert body.rstrip().endswith("</html>"), control_id
             assert "<script" not in body.lower(), control_id
             assert "onclick" not in body.lower(), control_id
+
+
+# ---------------------------------------------------------------------------------------
+class TestSlice15TheSecondClientsRoutesOnTheFullMatrix:
+    """The four read-only routes slice 15 adds, over real captured evidence. The module-scoped
+    app has run the whole matrix by now, so every control has a history to report."""
+
+    def test_the_controls_list_answers_for_every_control(self, app):
+        status, content_type, body = app.handle("/api/controls")
+        assert status == 200 and content_type.startswith("application/json")
+        assert [c["control_id"] for c in json.loads(body)["controls"]] == list(CONTROLS)
+
+    def test_the_properties_list_covers_every_evidence_set(self, app):
+        payload = json.loads(app.handle("/api/properties").body)
+        listed = {(p["id"], c) for p in payload["properties"] for c in p["captures"]}
+        assert listed == set(evidence_sets(app))
+
+    @pytest.mark.parametrize("control_id", CONTROLS)
+    def test_history_answers_for_every_control_and_matches_the_page(self, control_id, app):
+        """Same rows as `/history/<id>` renders: every run id the page links to is in the
+        JSON, and no other. Order among equal timestamps is the JSON's own, by run id."""
+        for tenant_id, capture in evidence_sets(app):
+            app.handle("/api/run/%s?property=%s&evidence=%s" % (control_id, tenant_id, capture))
+        status, _ct, body = app.handle("/api/history/%s" % control_id)
+        assert status == 200
+        rows = json.loads(body)["runs"]
+        page = app.handle("/history/%s" % control_id).body
+        assert {row["run_id"] for row in rows} == set(re.findall(r'href="/api/runs/([^"]+)"',
+                                                                 page))
+        for row in rows:
+            assert ("counts" in row) is (not row["blocked"])
+            assert isinstance(row["concluded"], bool)
+
+    def test_none_of_them_spends_a_provider_call(self, app):
+        before = app.provider_calls
+        for path in ["/api/controls", "/api/properties", "/api/drafts"] + [
+                "/api/history/%s" % control_id for control_id in CONTROLS]:
+            assert app.handle(path).status == 200, path
+        assert app.provider_calls == before

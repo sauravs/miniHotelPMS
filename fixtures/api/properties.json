@@ -1,0 +1,28 @@
+{
+  "properties": [
+    {
+      "id": "demo",
+      "name": "The same hotel, on DemoPMS",
+      "provider": "demopms",
+      "captures": [
+        "demo2024",
+        "demo2026"
+      ],
+      "default_capture": "demo2026"
+    },
+    {
+      "id": "sandbox",
+      "name": "MiniHotel vendor sandbox",
+      "provider": "minihotel",
+      "captures": [
+        "sandbox2024",
+        "sandbox2026"
+      ],
+      "default_capture": "sandbox2026"
+    }
+  ],
+  "default": {
+    "property": "demo",
+    "evidence": "demo2026"
+  }
+}

@@ -1,0 +1,505 @@
+{
+  "controls": [
+    {
+      "control_id": "checkout_money_owed",
+      "name": "Checkout With Money Owed",
+      "natural_language": "A reservation cannot be closed while the guest still owes money.",
+      "entity": "reservation",
+      "reviewed": true,
+      "readiness": [
+        {
+          "provider": "demopms",
+          "available": 5,
+          "total": 5,
+          "executable": true,
+          "headline": "demopms: 5 of 5 fields available",
+          "sources": [
+            {
+              "name": "pms",
+              "available": 5,
+              "total": 5,
+              "missing": []
+            }
+          ],
+          "unresolvable": [],
+          "tenant_supplied": []
+        },
+        {
+          "provider": "minihotel",
+          "available": 5,
+          "total": 5,
+          "executable": true,
+          "headline": "minihotel: 5 of 5 fields available",
+          "sources": [
+            {
+              "name": "pms",
+              "available": 5,
+              "total": 5,
+              "missing": []
+            }
+          ],
+          "unresolvable": [],
+          "tenant_supplied": []
+        }
+      ]
+    },
+    {
+      "control_id": "checkout_unrefunded_credit",
+      "name": "Checkout With An Unrefunded Credit",
+      "natural_language": "A reservation cannot be closed while the hotel still owes the guest a refund.",
+      "entity": "reservation",
+      "reviewed": true,
+      "readiness": [
+        {
+          "provider": "demopms",
+          "available": 5,
+          "total": 5,
+          "executable": true,
+          "headline": "demopms: 5 of 5 fields available",
+          "sources": [
+            {
+              "name": "pms",
+              "available": 5,
+              "total": 5,
+              "missing": []
+            }
+          ],
+          "unresolvable": [],
+          "tenant_supplied": []
+        },
+        {
+          "provider": "minihotel",
+          "available": 5,
+          "total": 5,
+          "executable": true,
+          "headline": "minihotel: 5 of 5 fields available",
+          "sources": [
+            {
+              "name": "pms",
+              "available": 5,
+              "total": 5,
+              "missing": []
+            }
+          ],
+          "unresolvable": [],
+          "tenant_supplied": []
+        }
+      ]
+    },
+    {
+      "control_id": "duplicate_channel_reservation",
+      "name": "Duplicate Channel Reservation",
+      "natural_language": "Two active reservations must not share the same channel confirmation number.",
+      "entity": "reservation",
+      "reviewed": true,
+      "readiness": [
+        {
+          "provider": "demopms",
+          "available": 4,
+          "total": 4,
+          "executable": true,
+          "headline": "demopms: 4 of 4 fields available",
+          "sources": [
+            {
+              "name": "pms",
+              "available": 4,
+              "total": 4,
+              "missing": []
+            }
+          ],
+          "unresolvable": [],
+          "tenant_supplied": []
+        },
+        {
+          "provider": "minihotel",
+          "available": 4,
+          "total": 4,
+          "executable": true,
+          "headline": "minihotel: 4 of 4 fields available",
+          "sources": [
+            {
+              "name": "pms",
+              "available": 4,
+              "total": 4,
+              "missing": []
+            }
+          ],
+          "unresolvable": [],
+          "tenant_supplied": []
+        }
+      ]
+    },
+    {
+      "control_id": "inactive_room_future_stay",
+      "name": "Inactive Room Assigned to Future Stay",
+      "natural_language": "No future reservation may reference a room that is inactive or decommissioned.",
+      "entity": "stay",
+      "reviewed": true,
+      "readiness": [
+        {
+          "provider": "demopms",
+          "available": 5,
+          "total": 5,
+          "executable": true,
+          "headline": "demopms: 5 of 5 fields available",
+          "sources": [
+            {
+              "name": "pms",
+              "available": 5,
+              "total": 5,
+              "missing": []
+            }
+          ],
+          "unresolvable": [],
+          "tenant_supplied": []
+        },
+        {
+          "provider": "minihotel",
+          "available": 5,
+          "total": 5,
+          "executable": true,
+          "headline": "minihotel: 5 of 5 fields available",
+          "sources": [
+            {
+              "name": "pms",
+              "available": 5,
+              "total": 5,
+              "missing": []
+            }
+          ],
+          "unresolvable": [],
+          "tenant_supplied": []
+        }
+      ]
+    },
+    {
+      "control_id": "ooo_room_protection",
+      "name": "Out-of-Service Room Protection",
+      "natural_language": "A room with an active out-of-service period must not have an arriving reservation.",
+      "entity": "room",
+      "reviewed": true,
+      "readiness": [
+        {
+          "provider": "demopms",
+          "available": 8,
+          "total": 8,
+          "executable": true,
+          "headline": "demopms: 8 of 8 fields available",
+          "sources": [
+            {
+              "name": "pms",
+              "available": 8,
+              "total": 8,
+              "missing": []
+            }
+          ],
+          "unresolvable": [],
+          "tenant_supplied": []
+        },
+        {
+          "provider": "minihotel",
+          "available": 8,
+          "total": 8,
+          "executable": true,
+          "headline": "minihotel: 8 of 8 fields available",
+          "sources": [
+            {
+              "name": "pms",
+              "available": 8,
+              "total": 8,
+              "missing": []
+            }
+          ],
+          "unresolvable": [],
+          "tenant_supplied": []
+        }
+      ]
+    },
+    {
+      "control_id": "rate_room_category_consistency",
+      "name": "Rate / Room-Category Consistency",
+      "natural_language": "A reservation using a given rate may only be sold in the room categories that rate permits.",
+      "entity": "stay",
+      "reviewed": true,
+      "readiness": [
+        {
+          "provider": "demopms",
+          "available": 3,
+          "total": 5,
+          "executable": false,
+          "headline": "demopms: 3 of 5 fields available - connect a source for rate_plan.code, rate_plan.permitted_room_types",
+          "sources": [
+            {
+              "name": "pms",
+              "available": 3,
+              "total": 4,
+              "missing": [
+                "rate_plan.permitted_room_types"
+              ]
+            },
+            {
+              "name": "tenant",
+              "available": 0,
+              "total": 1,
+              "missing": [
+                "rate_plan.code"
+              ]
+            }
+          ],
+          "unresolvable": [
+            "rate_plan.permitted_room_types"
+          ],
+          "tenant_supplied": [
+            "rate_plan.code"
+          ]
+        },
+        {
+          "provider": "minihotel",
+          "available": 3,
+          "total": 5,
+          "executable": false,
+          "headline": "minihotel: 3 of 5 fields available - connect a source for rate_plan.code, rate_plan.permitted_room_types",
+          "sources": [
+            {
+              "name": "pms",
+              "available": 3,
+              "total": 4,
+              "missing": [
+                "rate_plan.permitted_room_types"
+              ]
+            },
+            {
+              "name": "tenant",
+              "available": 0,
+              "total": 1,
+              "missing": [
+                "rate_plan.code"
+              ]
+            }
+          ],
+          "unresolvable": [
+            "rate_plan.permitted_room_types"
+          ],
+          "tenant_supplied": [
+            "rate_plan.code"
+          ]
+        }
+      ]
+    },
+    {
+      "control_id": "required_reservation_fields",
+      "name": "Required Reservation Fields",
+      "natural_language": "Every reservation on a given rate must record the guest's email, phone and identification number.",
+      "entity": "reservation",
+      "reviewed": true,
+      "readiness": [
+        {
+          "provider": "demopms",
+          "available": 5,
+          "total": 5,
+          "executable": true,
+          "headline": "demopms: 5 of 5 fields available",
+          "sources": [
+            {
+              "name": "pms",
+              "available": 5,
+              "total": 5,
+              "missing": []
+            }
+          ],
+          "unresolvable": [],
+          "tenant_supplied": []
+        },
+        {
+          "provider": "minihotel",
+          "available": 5,
+          "total": 5,
+          "executable": true,
+          "headline": "minihotel: 5 of 5 fields available",
+          "sources": [
+            {
+              "name": "pms",
+              "available": 5,
+              "total": 5,
+              "missing": []
+            }
+          ],
+          "unresolvable": [],
+          "tenant_supplied": []
+        }
+      ]
+    },
+    {
+      "control_id": "resource_occupancy_consistency",
+      "name": "Resource Occupancy Consistency",
+      "natural_language": "A room must not be occupied by two overlapping reservations at the same time.",
+      "entity": "occupancy",
+      "reviewed": true,
+      "readiness": [
+        {
+          "provider": "demopms",
+          "available": 5,
+          "total": 5,
+          "executable": true,
+          "headline": "demopms: 5 of 5 fields available",
+          "sources": [
+            {
+              "name": "pms",
+              "available": 5,
+              "total": 5,
+              "missing": []
+            }
+          ],
+          "unresolvable": [],
+          "tenant_supplied": []
+        },
+        {
+          "provider": "minihotel",
+          "available": 5,
+          "total": 5,
+          "executable": true,
+          "headline": "minihotel: 5 of 5 fields available",
+          "sources": [
+            {
+              "name": "pms",
+              "available": 5,
+              "total": 5,
+              "missing": []
+            }
+          ],
+          "unresolvable": [],
+          "tenant_supplied": []
+        }
+      ]
+    },
+    {
+      "control_id": "room_assignment_active_room",
+      "name": "Room Assignment Validity - Room Is Active",
+      "natural_language": "A reservation must not be assigned to a room that is out of service on the stay dates.",
+      "entity": "stay",
+      "reviewed": true,
+      "readiness": [
+        {
+          "provider": "demopms",
+          "available": 6,
+          "total": 6,
+          "executable": true,
+          "headline": "demopms: 6 of 6 fields available",
+          "sources": [
+            {
+              "name": "pms",
+              "available": 6,
+              "total": 6,
+              "missing": []
+            }
+          ],
+          "unresolvable": [],
+          "tenant_supplied": []
+        },
+        {
+          "provider": "minihotel",
+          "available": 6,
+          "total": 6,
+          "executable": true,
+          "headline": "minihotel: 6 of 6 fields available",
+          "sources": [
+            {
+              "name": "pms",
+              "available": 6,
+              "total": 6,
+              "missing": []
+            }
+          ],
+          "unresolvable": [],
+          "tenant_supplied": []
+        }
+      ]
+    },
+    {
+      "control_id": "room_assignment_type_validity",
+      "name": "Room Assignment Validity - Room Exists and Type Is Allowed",
+      "natural_language": "A reservation may only be assigned to a room that exists and whose type is one the hotel has defined, and the reservation's room type must match the room's actual type.",
+      "entity": "stay",
+      "reviewed": true,
+      "readiness": [
+        {
+          "provider": "demopms",
+          "available": 6,
+          "total": 6,
+          "executable": true,
+          "headline": "demopms: 6 of 6 fields available",
+          "sources": [
+            {
+              "name": "pms",
+              "available": 6,
+              "total": 6,
+              "missing": []
+            }
+          ],
+          "unresolvable": [],
+          "tenant_supplied": []
+        },
+        {
+          "provider": "minihotel",
+          "available": 6,
+          "total": 6,
+          "executable": true,
+          "headline": "minihotel: 6 of 6 fields available",
+          "sources": [
+            {
+              "name": "pms",
+              "available": 6,
+              "total": 6,
+              "missing": []
+            }
+          ],
+          "unresolvable": [],
+          "tenant_supplied": []
+        }
+      ]
+    },
+    {
+      "control_id": "room_capacity_compliance",
+      "name": "Room Capacity Compliance",
+      "natural_language": "The number of guests assigned to a room must not exceed the room's configured occupancy capacity.",
+      "entity": "stay",
+      "reviewed": true,
+      "readiness": [
+        {
+          "provider": "demopms",
+          "available": 10,
+          "total": 10,
+          "executable": true,
+          "headline": "demopms: 10 of 10 fields available",
+          "sources": [
+            {
+              "name": "pms",
+              "available": 10,
+              "total": 10,
+              "missing": []
+            }
+          ],
+          "unresolvable": [],
+          "tenant_supplied": []
+        },
+        {
+          "provider": "minihotel",
+          "available": 10,
+          "total": 10,
+          "executable": true,
+          "headline": "minihotel: 10 of 10 fields available",
+          "sources": [
+            {
+              "name": "pms",
+              "available": 10,
+              "total": 10,
+              "missing": []
+            }
+          ],
+          "unresolvable": [],
+          "tenant_supplied": []
+        }
+      ]
+    }
+  ]
+}

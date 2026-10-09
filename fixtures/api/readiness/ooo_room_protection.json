@@ -1,0 +1,39 @@
+{
+  "control_id": "ooo_room_protection",
+  "providers": [
+    {
+      "provider": "demopms",
+      "available": 8,
+      "total": 8,
+      "executable": true,
+      "headline": "demopms: 8 of 8 fields available",
+      "sources": [
+        {
+          "name": "pms",
+          "available": 8,
+          "total": 8,
+          "missing": []
+        }
+      ],
+      "unresolvable": [],
+      "tenant_supplied": []
+    },
+    {
+      "provider": "minihotel",
+      "available": 8,
+      "total": 8,
+      "executable": true,
+      "headline": "minihotel: 8 of 8 fields available",
+      "sources": [
+        {
+          "name": "pms",
+          "available": 8,
+          "total": 8,
+          "missing": []
+        }
+      ],
+      "unresolvable": [],
+      "tenant_supplied": []
+    }
+  ]
+}

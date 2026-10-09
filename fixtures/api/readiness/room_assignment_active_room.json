@@ -1,0 +1,39 @@
+{
+  "control_id": "room_assignment_active_room",
+  "providers": [
+    {
+      "provider": "demopms",
+      "available": 6,
+      "total": 6,
+      "executable": true,
+      "headline": "demopms: 6 of 6 fields available",
+      "sources": [
+        {
+          "name": "pms",
+          "available": 6,
+          "total": 6,
+          "missing": []
+        }
+      ],
+      "unresolvable": [],
+      "tenant_supplied": []
+    },
+    {
+      "provider": "minihotel",
+      "available": 6,
+      "total": 6,
+      "executable": true,
+      "headline": "minihotel: 6 of 6 fields available",
+      "sources": [
+        {
+          "name": "pms",
+          "available": 6,
+          "total": 6,
+          "missing": []
+        }
+      ],
+      "unresolvable": [],
+      "tenant_supplied": []
+    }
+  ]
+}

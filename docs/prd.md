@@ -111,7 +111,18 @@ of those failures traces to one of three capabilities that were scoped out of th
 - **The full six-stage pipeline** from `control_rule_architecture.docx` §17, including stage 1.
 - **Execution semantics**: trigger classification and freshness computed as pure functions.
 - **Persistence**: run history in SQLite, re-readable without spending a provider call.
-- **A web surface**: server-rendered, no JavaScript, every verdict traceable to its fields.
+- **Two web surfaces over one JSON API**, every verdict traceable to its fields on both.
+  - **The audit surface**: server-rendered, no JavaScript, part of the engine. It is offline,
+    printable and needs no third-party code. It is what proves criterion 11 at the page level, and
+    it stays.
+  - **The product surface** (slice 15): a Next.js + TypeScript UI under `ui/`, outside the engine,
+    added because it converges with the superset product it will be patched into. It is a
+    *client* of the read-only JSON API and nothing more. No engine file changes to accommodate it,
+    and a test enforces that on every slice-15 branch. It must re-prove criteria 2, 3, 8 and 10
+    in its own suite, because the engine's tests say nothing about it.
+
+  Two surfaces was the owner's decision, recorded in slice 15. Retiring the audit surface would be a
+  separate, later decision based on evidence.
 - **An opt-in transport** with rate limiting, retry and a fixture record mode — off by default and
   unreachable from a test.
 

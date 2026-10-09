@@ -1,0 +1,59 @@
+{
+  "control_id": "rate_room_category_consistency",
+  "runs": [
+    {
+      "run_id": "2b562825a8d7539e",
+      "created_at": "2026-07-08T00:00:00+03:00",
+      "provider": "minihotel",
+      "evidence_label": "sandbox2026",
+      "as_of": "2026-07-08",
+      "calls": 1,
+      "blocked": null,
+      "concluded": false,
+      "counts": {
+        "PASS": 0,
+        "FAIL": 0,
+        "UNKNOWN": 40,
+        "EXCLUDED": 71,
+        "total": 111
+      }
+    },
+    {
+      "run_id": "1c9c18c57cdbc12e",
+      "created_at": "2026-07-08T00:00:00+03:00",
+      "provider": "demopms",
+      "evidence_label": "demo2026",
+      "as_of": "2026-07-08",
+      "calls": 1,
+      "blocked": null,
+      "concluded": false,
+      "counts": {
+        "PASS": 0,
+        "FAIL": 0,
+        "UNKNOWN": 40,
+        "EXCLUDED": 71,
+        "total": 111
+      }
+    },
+    {
+      "run_id": "1f8eaaa0099ac75a",
+      "created_at": "2024-09-01T00:00:00+03:00",
+      "provider": "demopms",
+      "evidence_label": "demo2024",
+      "as_of": "2024-09-01",
+      "calls": 1,
+      "blocked": "This control needs evidence this body of responses does not hold: this capture cannot answer that question: arrival was captured for 2024-08-01..2024-08-31 and the run asks for 2024-09-01..2024-11-30. An empty population here would look exactly like 'no violations found', and a population from the WRONG window would look like an answer, so it is refused instead",
+      "concluded": false
+    },
+    {
+      "run_id": "1cc6ea96f43ec2e9",
+      "created_at": "2024-09-01T00:00:00+03:00",
+      "provider": "minihotel",
+      "evidence_label": "sandbox2024",
+      "as_of": "2024-09-01",
+      "calls": 1,
+      "blocked": "This control needs evidence this body of responses does not hold: this capture cannot answer that question: ArrivalDate was captured for 2024-08-01..2024-08-31 and the run asks for 2024-09-01..2024-11-30. An empty population here would look exactly like 'no violations found', and a population from the WRONG window would look like an answer, so it is refused instead",
+      "concluded": false
+    }
+  ]
+}

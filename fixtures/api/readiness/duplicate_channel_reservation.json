@@ -1,0 +1,39 @@
+{
+  "control_id": "duplicate_channel_reservation",
+  "providers": [
+    {
+      "provider": "demopms",
+      "available": 4,
+      "total": 4,
+      "executable": true,
+      "headline": "demopms: 4 of 4 fields available",
+      "sources": [
+        {
+          "name": "pms",
+          "available": 4,
+          "total": 4,
+          "missing": []
+        }
+      ],
+      "unresolvable": [],
+      "tenant_supplied": []
+    },
+    {
+      "provider": "minihotel",
+      "available": 4,
+      "total": 4,
+      "executable": true,
+      "headline": "minihotel: 4 of 4 fields available",
+      "sources": [
+        {
+          "name": "pms",
+          "available": 4,
+          "total": 4,
+          "missing": []
+        }
+      ],
+      "unresolvable": [],
+      "tenant_supplied": []
+    }
+  ]
+}
