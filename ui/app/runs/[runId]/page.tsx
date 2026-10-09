@@ -13,18 +13,27 @@ import { EngineRefused, getOutcomes, getPlan, getReadiness, getStoredRun } from 
 
 export const dynamic = "force-dynamic";
 
-export default async function StoredRunPage({ params }: { params: Promise<{ runId: string }> }) {
-  const { runId } = await params;
+export default async function StoredRunPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ runId: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const [{ runId }, query] = await Promise.all([params, searchParams]);
+  // Read FOR a property (slice 17): another property's run is the same 404 as one that never
+  // existed, so this page cannot be used to learn which run ids exist elsewhere.
+  const property = [query.property].flat()[0] ?? "";
   let run;
   try {
-    run = await getStoredRun(runId);
+    run = await getStoredRun(runId, property);
   } catch (error) {
     if (error instanceof EngineRefused && error.status === 404) notFound();
     throw error;
   }
   const [outcomes, readiness, plan] = await Promise.all([
     getOutcomes(),
-    getReadiness(run.control_id),
+    getReadiness(run.control_id, run.tenant_id),
     getPlan(run.control_id, run.tenant_id, run.as_of),
   ]);
   return <RunView run={run} outcomes={outcomes} readiness={readiness.providers} plan={plan} />;

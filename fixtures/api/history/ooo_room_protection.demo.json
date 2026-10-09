@@ -1,0 +1,46 @@
+{
+  "control_id": "ooo_room_protection",
+  "property": "demo",
+  "runs": [
+    {
+      "run_id": "838b32f05820b6c0",
+      "created_at": "2026-07-08T00:00:00+03:00",
+      "provider": "demopms",
+      "evidence_label": "demo2026",
+      "as_of": "2026-07-08",
+      "calls": 2,
+      "policy_version": 2,
+      "policy_digest": "sha256:14ce05f55153cbb65edcda9397ca7e17bfbfd6eefdfefce46ac881ba0b58b004",
+      "blocked": null,
+      "concluded": false,
+      "headline": "This control reached no conclusion about any of its 28 record(s). It has not found the property compliant; it has not looked.",
+      "counts": {
+        "PASS": 0,
+        "FAIL": 0,
+        "UNKNOWN": 0,
+        "EXCLUDED": 28,
+        "total": 28
+      }
+    },
+    {
+      "run_id": "5dbda5e62069da3a",
+      "created_at": "2024-09-01T00:00:00+03:00",
+      "provider": "demopms",
+      "evidence_label": "demo2024",
+      "as_of": "2024-09-01",
+      "calls": 2,
+      "policy_version": 2,
+      "policy_digest": "sha256:14ce05f55153cbb65edcda9397ca7e17bfbfd6eefdfefce46ac881ba0b58b004",
+      "blocked": null,
+      "concluded": false,
+      "headline": "This control reached no conclusion about any of its 28 record(s). It has not found the property compliant; it has not looked.",
+      "counts": {
+        "PASS": 0,
+        "FAIL": 0,
+        "UNKNOWN": 0,
+        "EXCLUDED": 28,
+        "total": 28
+      }
+    }
+  ]
+}

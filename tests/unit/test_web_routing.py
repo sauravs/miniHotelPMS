@@ -944,8 +944,15 @@ class TestSlice15TheControlsListIsOneRequest:
         status, _payload = _json(app, "/api/controls")
         assert status == 200
         assert app.provider_calls == 0
-        assert app.store.history() == []
+        assert _no_run_stored(app)
 
+
+
+def _no_run_stored(app) -> bool:
+    """No run was written for ANY property. History is read per property since slice 17, so
+    "nothing was stored" is a statement about every property, checked one at a time."""
+    from hotelcontrols.spec import available_tenants
+    return all(app.store.history(tenant_id=t) == [] for t in available_tenants())
 
 class TestSlice15ThePropertiesListPowersTheEvidencePicker:
 
@@ -973,7 +980,7 @@ class TestSlice15ThePropertiesListPowersTheEvidencePicker:
         _no_run_may_happen(monkeypatch)
         app = App()
         assert _json(app, "/api/properties")[0] == 200
-        assert app.provider_calls == 0 and app.store.history() == []
+        assert app.provider_calls == 0 and _no_run_stored(app)
 
 
 class TestSlice15HistoryAsData:
@@ -982,20 +989,21 @@ class TestSlice15HistoryAsData:
     def test_an_unknown_control_is_the_same_404_the_page_gives(self):
         app = App()
         page_status = app.handle("/history/no_such_control").status
-        status, payload = _json(app, "/api/history/no_such_control")
+        status, payload = _json(app, "/api/history/no_such_control?property=sandbox")
         assert status == page_status == 404
         assert "error" in payload
 
     def test_a_control_never_run_has_an_empty_history_not_a_refusal(self):
-        status, payload = _json(App(), "/api/history/checkout_money_owed")
+        status, payload = _json(App(), "/api/history/checkout_money_owed?property=sandbox")
         assert status == 200
-        assert payload == {"control_id": "checkout_money_owed", "runs": []}
+        assert payload == {"control_id": "checkout_money_owed", "property": "sandbox",
+                           "runs": []}
 
     def test_a_run_appears_with_its_evidence_and_counts(self):
         app = App()
         live = json.loads(app.handle(
             "/api/run/checkout_money_owed?property=sandbox&evidence=sandbox2026").body)
-        _status, payload = _json(app, "/api/history/checkout_money_owed")
+        _status, payload = _json(app, "/api/history/checkout_money_owed?property=sandbox")
         (row,) = payload["runs"]
         assert row["run_id"] == live["run_id"]
         assert row["evidence_label"] == "sandbox2026"
@@ -1011,7 +1019,7 @@ class TestSlice15HistoryAsData:
         renders counts whenever they exist reproduces finding F5. `concluded` is the gate."""
         app = App()
         app.handle("/api/run/ooo_room_protection?property=sandbox&evidence=sandbox2026")
-        (row,) = _json(app, "/api/history/ooo_room_protection")[1]["runs"]
+        (row,) = _json(app, "/api/history/ooo_room_protection?property=sandbox")[1]["runs"]
         assert row["concluded"] is False
         assert row["counts"]["EXCLUDED"] == row["counts"]["total"] == 28
 
@@ -1021,7 +1029,7 @@ class TestSlice15HistoryAsData:
         app = App()
         app.handle("/api/run/resource_occupancy_consistency?property=sandbox"
                    "&evidence=sandbox2026")
-        (row,) = _json(app, "/api/history/resource_occupancy_consistency")[1]["runs"]
+        (row,) = _json(app, "/api/history/resource_occupancy_consistency?property=sandbox")[1]["runs"]
         assert row["blocked"]
         assert "counts" not in row
         assert row["concluded"] is False
@@ -1030,7 +1038,7 @@ class TestSlice15HistoryAsData:
         app = App()
         for capture in ("sandbox2024", "sandbox2026"):
             app.handle("/api/run/checkout_money_owed?property=sandbox&evidence=%s" % capture)
-        rows = _json(app, "/api/history/checkout_money_owed")[1]["runs"]
+        rows = _json(app, "/api/history/checkout_money_owed?property=sandbox")[1]["runs"]
         stamps = [row["created_at"] for row in rows]
         assert stamps == sorted(stamps, reverse=True)
         assert len(rows) == 2
@@ -1040,7 +1048,7 @@ class TestSlice15HistoryAsData:
         app = App()
         app.handle("/api/run/checkout_money_owed?property=sandbox&evidence=sandbox2026")
         before = app.provider_calls
-        _json(app, "/api/history/checkout_money_owed")
+        _json(app, "/api/history/checkout_money_owed?property=sandbox")
         assert app.provider_calls == before
 
 
@@ -1100,7 +1108,7 @@ class TestSlice15HistoryRowsCarryTheEnginesSentence:
         app = App()
         live = json.loads(app.handle(
             "/api/run/ooo_room_protection?property=sandbox&evidence=sandbox2026").body)
-        (row,) = _json(app, "/api/history/ooo_room_protection")[1]["runs"]
+        (row,) = _json(app, "/api/history/ooo_room_protection?property=sandbox")[1]["runs"]
         assert row["headline"] == live["coverage"]["headline"]
         assert "reached no conclusion" in row["headline"]
 
@@ -1108,7 +1116,7 @@ class TestSlice15HistoryRowsCarryTheEnginesSentence:
         app = App()
         live = json.loads(app.handle(
             "/api/run/checkout_money_owed?property=sandbox&evidence=sandbox2026").body)
-        (row,) = _json(app, "/api/history/checkout_money_owed")[1]["runs"]
+        (row,) = _json(app, "/api/history/checkout_money_owed?property=sandbox")[1]["runs"]
         assert row["headline"] == live["coverage"]["headline"]
 
     def test_a_blocked_row_has_no_headline_because_its_reason_is_the_sentence(self):
@@ -1117,7 +1125,7 @@ class TestSlice15HistoryRowsCarryTheEnginesSentence:
         app = App()
         app.handle("/api/run/resource_occupancy_consistency?property=sandbox"
                    "&evidence=sandbox2026")
-        (row,) = _json(app, "/api/history/resource_occupancy_consistency")[1]["runs"]
+        (row,) = _json(app, "/api/history/resource_occupancy_consistency?property=sandbox")[1]["runs"]
         assert row["blocked"] and row["headline"] is None
 
 
@@ -1145,7 +1153,7 @@ class TestSlice15ThePlanForAStoredRun:
         app = App()
         assert _json(app, "/api/plan/checkout_money_owed?property=sandbox&as_of=2026-07-08")[0] \
             == 200
-        assert app.provider_calls == 0 and app.store.history() == []
+        assert app.provider_calls == 0 and _no_run_stored(app)
 
     def test_an_unknown_control_is_the_same_404(self):
         assert _json(App(), "/api/plan/no_such_control?as_of=2026-07-08")[0] == 404

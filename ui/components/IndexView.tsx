@@ -161,7 +161,9 @@ function ControlCard({ control, selection }: { control: ControlEntry; selection:
       <p className="meta">
         <code>{control.control_id}</code> · one record is one {control.entity}
         {control.reviewed ? null : " · not counted in the criterion-1 figure"} ·{" "}
-        <a href={`/history/${encodeURIComponent(control.control_id)}`}>history</a>
+        <a href={`/history/${encodeURIComponent(control.control_id)}?property=${encodeURIComponent(selection.property)}`}>
+          history
+        </a>
       </p>
       {control.readiness.map((report) => (
         <p key={report.provider} className={`readiness${report.executable ? "" : " short"}`}>

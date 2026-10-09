@@ -15,7 +15,7 @@ for (const [state, id, empty] of [
   ["no runs yet", "checkout_money_owed", true],
 ] as const) {
   test(`axe finds no violations on a history with ${state}`, async ({ page }) => {
-    const history = empty ? { control_id: id, runs: [] } : golden<History>(`history/${id}.json`);
+    const history = empty ? { control_id: id, property: "sandbox", runs: [] } : golden<History>(`history/${id}.sandbox.json`);
     await show(page, <HistoryView control={control(id)} history={history} outcomes={outcomes} />);
     const { violations } = await new AxeBuilder({ page }).analyze();
     expect(violations.map((v) => `${v.id}: ${v.help} (${v.nodes.length})`)).toEqual([]);

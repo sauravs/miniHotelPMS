@@ -25,7 +25,10 @@ export function HistoryView({
   history: History;
   outcomes: Outcomes;
 }) {
-  const runHref = `/run/${encodeURIComponent(control.control_id)}`;
+  const runHref = `/run/${encodeURIComponent(control.control_id)}?property=${encodeURIComponent(history.property)}`;
+  // A stored run is read FOR a property (slice 17), so every link carries this history's.
+  const storedHref = (runId: string) =>
+    `/runs/${encodeURIComponent(runId)}?property=${encodeURIComponent(history.property)}`;
   return (
     <>
       <Explainer lede="Every run of this control the engine has kept, newest first - what it was asked, what it answered, and what the answer cost.">
@@ -56,8 +59,8 @@ export function HistoryView({
       <div className="card">
         <p className="sentence">{control.natural_language}</p>
         <p className="meta">
-          <strong>{control.name}</strong> · <code>{control.control_id}</code> ·{" "}
-          <a href={runHref}>run it</a>
+          <strong>{control.name}</strong> · <code>{control.control_id}</code> · property{" "}
+          <strong>{history.property}</strong> · <a href={runHref}>run it</a>
         </p>
       </div>
 
@@ -96,7 +99,7 @@ export function HistoryView({
                   {group.rows.map((run) => (
                     <tr key={run.run_id} data-run-id={run.run_id}>
                       <td className="mono">
-                        <a href={`/runs/${encodeURIComponent(run.run_id)}`}>{run.run_id}</a>
+                        <a href={storedHref(run.run_id)}>{run.run_id}</a>
                       </td>
                       <td>{run.created_at}</td>
                       <td>

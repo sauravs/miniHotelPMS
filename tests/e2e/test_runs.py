@@ -178,19 +178,20 @@ class TestHistoryAndReReading:
                 stored = Run_at(result, hour)
                 ids.append(store.save(stored))
 
-            history = store.history("checkout_unrefunded_credit")
+            history = store.history("checkout_unrefunded_credit", tenant_id="sandbox")
             assert len(history) == 3
             assert [row["created_at"] for row in history] == \
                 sorted((row["created_at"] for row in history), reverse=True)
 
-            restored = store.load(ids[0])
+            restored = store.load(ids[0], tenant_id="sandbox")
             assert restored.counts == a_run("checkout_unrefunded_credit").counts
             assert restored.verdicts[0].evidence
 
     def test_a_stored_run_keeps_the_overpayment_visible(self):
         """The number that motivated decision D8 has to survive being written down."""
         with RunStore() as store:
-            restored = store.load(store.save(a_run("checkout_unrefunded_credit")))
+            restored = store.load(store.save(a_run("checkout_unrefunded_credit")),
+                                  tenant_id="sandbox")
         failing = [v for v in restored.verdicts if v.outcome is Outcome.FAIL]
         assert failing and "-490.75 ILS" in failing[0].reason
 

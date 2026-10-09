@@ -89,7 +89,7 @@ class TestARunNamesItsPolicy:
         result = _run()
         for store in (RunStore(), RunStore(tmp_path / "runs.sqlite3")):
             with store:
-                again = store.load(store.save(result))
+                again = store.load(store.save(result), tenant_id="sandbox")
                 assert (again.policy_version, again.policy_digest) == (
                     result.policy_version, result.policy_digest)
 
@@ -132,7 +132,7 @@ class TestARunStoredBeforeThisSliceSaysVersionNotRecorded:
         path = tmp_path / "old.sqlite3"
         _old_database(path)
         with RunStore(path) as store:
-            old = store.load("pre16")
+            old = store.load("pre16", tenant_id="sandbox")
             assert old is not None
             assert old.policy_version is None and old.policy_digest is None, (
                 "a run from before rules were versioned cannot claim today's version")
@@ -141,9 +141,9 @@ class TestARunStoredBeforeThisSliceSaysVersionNotRecorded:
         path = tmp_path / "old.sqlite3"
         _old_database(path)
         app = App(store=RunStore(path))
-        payload = json.loads(app.handle("/api/runs/pre16").body)
+        payload = json.loads(app.handle("/api/runs/pre16?property=sandbox").body)
         assert payload["policy_version"] is None and payload["policy_digest"] is None
-        old = app.store.load("pre16")
+        old = app.store.load("pre16", tenant_id="sandbox")
         assert "version not recorded" in text_of(render.run_page(old)).lower()
 
     def test_the_history_says_not_recorded_for_it_and_names_the_version_for_a_new_one(
@@ -153,11 +153,11 @@ class TestARunStoredBeforeThisSliceSaysVersionNotRecorded:
         app = App(store=RunStore(path))
         app.handle("/api/run/%s?property=sandbox" % CONTROL)       # a new, versioned run
         rows = {row["run_id"]: row for row in
-                json.loads(app.handle("/api/history/%s" % CONTROL).body)["runs"]}
+                json.loads(app.handle("/api/history/%s?property=sandbox" % CONTROL).body)["runs"]}
         assert rows["pre16"]["policy_version"] is None and rows["pre16"]["policy_digest"] is None
         (new,) = [row for run_id, row in rows.items() if run_id != "pre16"]
         assert new["policy_version"] == 2 and new["policy_digest"] == load(CONTROL).digest
-        text = text_of(app.handle("/history/%s" % CONTROL).body).lower()
+        text = text_of(app.handle("/history/%s?property=sandbox" % CONTROL).body).lower()
         assert "version not recorded" in text and "judged under v2" in text
 
     def test_the_migrated_database_keeps_accepting_runs(self, tmp_path):
@@ -165,9 +165,9 @@ class TestARunStoredBeforeThisSliceSaysVersionNotRecorded:
         _old_database(path)
         with RunStore(path) as store:
             run_id = store.save(_run())
-            assert store.load(run_id).policy_version == 2
+            assert store.load(run_id, tenant_id="sandbox").policy_version == 2
         with RunStore(path) as reopened:                     # and migrating twice is harmless
-            assert reopened.load("pre16").policy_version is None
+            assert reopened.load("pre16", tenant_id="sandbox").policy_version is None
 
 
 # --------------------------------------------------------------------------- v2 beside v3
@@ -202,11 +202,11 @@ class TestTwoVersionsOfOneRuleAreDistinguishableInHistory:
         store.save(v3)
 
         app = App(spec_dir=spec, store=store)
-        rows = json.loads(app.handle("/api/history/%s" % CONTROL).body)["runs"]
+        rows = json.loads(app.handle("/api/history/%s?property=sandbox" % CONTROL).body)["runs"]
         assert [(r["policy_version"], r["policy_digest"]) for r in rows] == [
             (3, v3.policy_digest), (2, v2.policy_digest)]
 
-        text = text_of(app.handle("/history/%s" % CONTROL).body).lower()
+        text = text_of(app.handle("/history/%s?property=sandbox" % CONTROL).body).lower()
         assert text.index("judged under v3") < text.index("judged under v2"), (
             "grouped, newest version first")
 
@@ -227,7 +227,7 @@ class TestTwoVersionsOfOneRuleAreDistinguishableInHistory:
         store.save(_run(spec_dir=spec, created_at=datetime(2026, 7, 8, 10, tzinfo=timezone.utc)))
 
         app = App(spec_dir=spec, store=store)
-        body = app.handle("/history/%s" % CONTROL).body
+        body = app.handle("/history/%s?property=sandbox" % CONTROL).body
         assert text_of(body).lower().count("judged under v2") == 2
 
     def test_a_rerun_of_the_same_question_is_always_labelled_with_the_rule_that_judged_it(
@@ -242,6 +242,6 @@ class TestTwoVersionsOfOneRuleAreDistinguishableInHistory:
         self._bump_to_v3(spec)
         second = json.loads(app.handle("/api/run/%s?property=sandbox" % CONTROL).body)
         assert first["run_id"] == second["run_id"]
-        stored = json.loads(app.handle("/api/runs/%s" % second["run_id"]).body)
+        stored = json.loads(app.handle("/api/runs/%s?property=sandbox" % second["run_id"]).body)
         assert stored["policy_version"] == 3
         assert stored["verdicts"] == second["verdicts"]

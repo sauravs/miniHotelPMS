@@ -172,14 +172,14 @@ class App:
         if len(parts) == 2 and parts[0] == "run":
             return self._run_page(parts[1], query)
         if len(parts) == 2 and parts[0] == "history":
-            return self._history(parts[1])
+            return self._history(parts[1], query)
         if len(parts) == 3 and parts[:2] == ["api", "run"]:
             return self._run_json(parts[2], query)
         if len(parts) == 3 and parts[:2] == ["api", "runs"]:
-            return self._stored_run(parts[2])
+            return self._stored_run(parts[2], query)
         if len(parts) == 3 and parts[:2] == ["api", "readiness"]:
             return Response(200, JSON, render.readiness_json(
-                parts[2], self._readiness(self._ir(parts[2]))))
+                parts[2], self._readiness(self._ir(parts[2], self._selection(query)[0]))))
         if parts == ["compose"]:
             return self._compose_page(query)
         # Slice 15: what a second client needs to build the index and history pages.
@@ -188,9 +188,9 @@ class App:
         if parts == ["api", "properties"]:
             return self._properties_json()
         if len(parts) == 3 and parts[:2] == ["api", "history"]:
-            return self._history_json(parts[2])
+            return self._history_json(parts[2], query)
         if parts == ["api", "drafts"]:
-            return self._drafts_json()
+            return self._drafts_json(query)
         if parts == ["api", "outcomes"]:
             return self._outcomes_json()
         if parts == ["api", "compose"]:
@@ -236,7 +236,7 @@ class App:
             templates=self._templates(),
             template=self._template_id(query.get("template")),
             selection=self._selection(query),
-            drafts=self._draft_irs(),
+            drafts=self._draft_irs(self._selection(query)[0]),
             **extra))
 
     def _compose_turn(self, form: dict) -> Response:
@@ -323,7 +323,10 @@ class App:
                                        tenant=self._tenant(self._selection(form)[0]),
                                        ir_schema=self._schema())
         if compilation.ok:
-            path = self.draft_dir / "ir" / ("%s.json" % control_id)
+            # Filed under the property it was composed for (slice 17, QA Q10 collision A2): two
+            # hotels composing `late_checkout_policy` are two drafts, not one overwriting the
+            # other. Reviewed controls in spec/ir/ stay a shared library by design.
+            path = self._draft_root(self._selection(form)[0]) / "ir" / ("%s.json" % control_id)
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_text(json.dumps(compilation.ir, indent=2) + "\n", encoding="utf-8")
         return control_id, sentence, compilation
@@ -449,7 +452,7 @@ class App:
         return Response(200, HTML,
                         render.index_page(entries, properties, (tenant_id, capture),
                                           compose=self._proposer_name(),
-                                          drafts=self._draft_irs()))
+                                          drafts=self._draft_irs(tenant_id)))
 
     def _run_page(self, control_id: str, query: dict) -> Response:
         result, ir, tenant = self._execute(control_id, query)
@@ -464,18 +467,26 @@ class App:
         return Response(200, JSON, render.run_json(result, plan=self._plan(ir, tenant, result.as_of),
                                                    readiness=self._readiness(ir)))
 
-    def _stored_run(self, run_id: str) -> Response:
-        """A past run, re-read from SQLite. Zero provider calls, by construction (R1)."""
-        stored = self.store.load(run_id)
+    def _stored_run(self, run_id: str, query: dict) -> Response:
+        """A past run, re-read from SQLite. Zero provider calls, by construction (R1).
+
+        Read FOR the selected property (slice 17). Another property's run is the same 404 as a
+        run that never existed, word for word, so the difference cannot be used to learn which
+        run ids exist in somebody else's hotel. Until slice 24, `?property=` is a selection and
+        not an identity; what this guarantees is that the selection is honoured.
+        """
+        stored = self.store.load(run_id, tenant_id=self._selection(query)[0])
         if stored is None:
             raise _Refused(404, "No stored run called %r. Past runs are listed at "
                                 "/history/<control_id>." % run_id)
         return Response(200, JSON, render.run_json(stored))
 
-    def _history(self, control_id: str) -> Response:
-        self._ir(control_id)          # refuse an unknown id here rather than showing an empty
+    def _history(self, control_id: str, query: dict) -> Response:
+        tenant_id = self._selection(query)[0]
+        self._ir(control_id, tenant_id)   # refuse an unknown id here rather than an empty page
         return Response(200, HTML, render.history_page(
-            control_id, self.store.history(control_id)))
+            control_id, self.store.history(control_id, tenant_id=tenant_id),
+            tenant_id=tenant_id))
 
     # ------------------------------------------------------------------ JSON for a second client
     # Slice 15 adds a React UI as a SECOND client of this API, and these four routes are what it
@@ -492,7 +503,7 @@ class App:
             {"controls": [self._control_json(ir, reviewed=True)
                           for ir in map(self._ir, self._controls())]}, indent=2))
 
-    def _drafts_json(self) -> Response:
+    def _drafts_json(self, query: dict) -> Response:
         """The composed controls, each flagged unreviewed IN the object, not by its list.
 
         With no drafts directory the absence is stated: "nothing filed" and "nowhere to file"
@@ -500,7 +511,8 @@ class App:
         """
         return Response(200, JSON, json.dumps(
             {"wired": self.draft_dir is not None,
-             "drafts": [self._control_json(ir, reviewed=False) for ir in self._draft_irs()]},
+             "drafts": [self._control_json(ir, reviewed=False)
+                        for ir in self._draft_irs(self._selection(query)[0])]},
             indent=2))
 
     def _outcomes_json(self) -> Response:
@@ -531,8 +543,8 @@ class App:
         `as_of` is REQUIRED. A plan is relative to an instant, and defaulting to today would
         answer a different question from the stored run it is shown beside.
         """
-        ir = self._ir(control_id)
         tenant_id, _capture = self._selection(query)
+        ir = self._ir(control_id, tenant_id)
         tenant = self._tenant(tenant_id)
         as_of = query.get("as_of")
         if not as_of:
@@ -574,7 +586,7 @@ class App:
             {"properties": properties, "default": {"property": tenant_id, "evidence": capture}},
             indent=2))
 
-    def _history_json(self, control_id: str) -> Response:
+    def _history_json(self, control_id: str, query: dict) -> Response:
         """The rows `/history/<id>` renders, as data, with the two gates a chart needs.
 
         THE SAME RULES `run_json` KEEPS, because a history row is a run seen from further away.
@@ -585,10 +597,15 @@ class App:
 
         Newest first with ties broken by `run_id`, in the store's own ORDER BY (issue #35), so
         this payload, the page and the golden copy in `fixtures/api/` list runs in one order.
+
+        ONE PROPERTY'S runs (slice 17), and `property` says which: `?property=` falls back to
+        the default when it names nothing, and a client must be able to see that it was given
+        the default's history rather than the one it asked for.
         """
-        self._ir(control_id)          # the same 404 the page gives, for the same reason
+        tenant_id = self._selection(query)[0]
+        self._ir(control_id, tenant_id)   # the same 404 the page gives, for the same reason
         runs = []
-        for row in self.store.history(control_id):
+        for row in self.store.history(control_id, tenant_id=tenant_id):
             counts = {outcome.value: row[render._HISTORY_COLUMN[outcome]] or 0
                       for outcome in Outcome}
             counts["total"] = row["total"] or 0
@@ -607,14 +624,14 @@ class App:
             if not row["blocked"]:
                 entry["counts"] = counts
             runs.append(entry)
-        return Response(200, JSON, json.dumps({"control_id": control_id, "runs": runs},
-                                              indent=2))
+        return Response(200, JSON, json.dumps(
+            {"control_id": control_id, "property": tenant_id, "runs": runs}, indent=2))
 
     # ------------------------------------------------------------------ doing the work
     def _execute(self, control_id: str, query: dict):
         """Run one control over one body of evidence, and keep the result."""
-        ir = self._ir(control_id)
         tenant_id, capture = self._selection(query)
+        ir = self._ir(control_id, tenant_id)
         tenant = self._tenant(tenant_id)
         package = providers.load(tenant.provider)
         adapter, source = package.build(tenant, capture)
@@ -628,7 +645,7 @@ class App:
                                 "YYYY-MM-DD." % as_of) from None
 
         result = run(control_id, tenant, adapter, clock, evidence_label=capture,
-                     spec_dir=self._spec_dir_for(control_id))
+                     spec_dir=self._spec_dir_for(control_id, tenant_id))
         self.provider_calls += result.calls
         return replace(result, run_id=self.store.save(result)), ir, tenant
 
@@ -662,36 +679,47 @@ class App:
         """
         return available(self.spec_dir) if self.spec_dir else available()
 
-    def _drafts(self) -> tuple[str, ...]:
-        """Controls composed from prose and filed but not reviewed."""
-        if self.draft_dir is None:
+    def _draft_root(self, tenant_id: str):
+        """One property's drafts: a spec root of its own, `<drafts>/<property>/ir/*.json`.
+
+        Per property since slice 17 (QA Q10, collision A2). A spec root, so `available` and
+        `load` read it with no change to the spec layer. `tenant_id` has already been through
+        `_selection`, so it names a configured property and never a path of its own.
+        """
+        return self.draft_dir / tenant_id
+
+    def _drafts(self, tenant_id: str) -> tuple[str, ...]:
+        """Controls this property composed from prose and filed but not reviewed."""
+        if self.draft_dir is None or not (self._draft_root(tenant_id) / "ir").is_dir():
             return ()
-        return available(self.draft_dir)
+        return available(self._draft_root(tenant_id))
 
-    def _draft_irs(self) -> tuple[ControlIR, ...]:
-        return tuple(load(control_id, self.draft_dir) for control_id in self._drafts())
+    def _draft_irs(self, tenant_id: str) -> tuple[ControlIR, ...]:
+        return tuple(load(control_id, self._draft_root(tenant_id))
+                     for control_id in self._drafts(tenant_id))
 
-    def is_draft(self, control_id: str) -> bool:
-        """Whether this id names a draft. Read by the renderer to badge it as unreviewed."""
-        return control_id in self._drafts()
+    def is_draft(self, control_id: str, tenant_id: str) -> bool:
+        """Whether this id names one of this property's drafts, to badge it as unreviewed."""
+        return control_id in self._drafts(tenant_id)
 
-    def _spec_dir_for(self, control_id: str):
+    def _spec_dir_for(self, control_id: str, tenant_id: str | None = None):
         """Which spec root holds this control, as `load` and `run` both want it.
 
         Reviewed controls win over drafts, and `_compose_accept` refuses an id that already
         names one - so the precedence here can never be the thing that decides which of two
-        rules a stored run was produced by.
+        rules a stored run was produced by. A draft is found only under the property asking:
+        another property's draft of the same name is not this property's rule (slice 17).
         """
         if control_id in self._controls():
             return self.spec_dir
-        if control_id in self._drafts():
-            return self.draft_dir
+        if tenant_id is not None and control_id in self._drafts(tenant_id):
+            return self._draft_root(tenant_id)
         # Neither. Let the spec loader refuse it by name, exactly as it did before drafts
         # existed - it is the layer that owns that message, and it renders as a 404.
         return self.spec_dir
 
-    def _ir(self, control_id: str) -> ControlIR:
-        spec_dir = self._spec_dir_for(control_id)
+    def _ir(self, control_id: str, tenant_id: str | None = None) -> ControlIR:
+        spec_dir = self._spec_dir_for(control_id, tenant_id)
         return load(control_id, spec_dir) if spec_dir else load(control_id)
 
     def _tenant(self, tenant_id: str) -> TenantConfig:

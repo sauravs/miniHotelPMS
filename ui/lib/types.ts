@@ -166,6 +166,9 @@ export interface HistoryRow {
 
 export interface History {
   control_id: string;
+  /** Whose history this is (slice 17). The engine falls back to its default property when the
+   * one asked for names nothing, and this says which it answered for. */
+  property: string;
   runs: HistoryRow[];
 }
 

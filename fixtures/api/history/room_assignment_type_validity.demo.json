@@ -1,31 +1,12 @@
 {
   "control_id": "room_assignment_type_validity",
+  "property": "demo",
   "runs": [
     {
       "run_id": "63c1bc772fded4d3",
       "created_at": "2026-07-08T00:00:00+03:00",
       "provider": "demopms",
       "evidence_label": "demo2026",
-      "as_of": "2026-07-08",
-      "calls": 3,
-      "policy_version": 2,
-      "policy_digest": "sha256:af9c9b94c599e35620c48e3fcdac33b56ed0d7eb6fd7fa01522adcdbf96db13e",
-      "blocked": null,
-      "concluded": true,
-      "headline": "Concluded about 27 of 111 record(s); the rest were excluded or could not be answered.",
-      "counts": {
-        "PASS": 27,
-        "FAIL": 0,
-        "UNKNOWN": 13,
-        "EXCLUDED": 71,
-        "total": 111
-      }
-    },
-    {
-      "run_id": "4f69986967c9515c",
-      "created_at": "2026-07-08T00:00:00+03:00",
-      "provider": "minihotel",
-      "evidence_label": "sandbox2026",
       "as_of": "2026-07-08",
       "calls": 3,
       "policy_version": 2,
@@ -51,19 +32,6 @@
       "policy_version": 2,
       "policy_digest": "sha256:af9c9b94c599e35620c48e3fcdac33b56ed0d7eb6fd7fa01522adcdbf96db13e",
       "blocked": "This control needs evidence this body of responses does not hold: this capture cannot answer that question: arrival was captured for 2024-08-01..2024-08-31 and the run asks for 2024-09-01..2024-11-30. An empty population here would look exactly like 'no violations found', and a population from the WRONG window would look like an answer, so it is refused instead",
-      "concluded": false,
-      "headline": null
-    },
-    {
-      "run_id": "41db7746abbb3b14",
-      "created_at": "2024-09-01T00:00:00+03:00",
-      "provider": "minihotel",
-      "evidence_label": "sandbox2024",
-      "as_of": "2024-09-01",
-      "calls": 1,
-      "policy_version": 2,
-      "policy_digest": "sha256:af9c9b94c599e35620c48e3fcdac33b56ed0d7eb6fd7fa01522adcdbf96db13e",
-      "blocked": "This control needs evidence this body of responses does not hold: this capture cannot answer that question: ArrivalDate was captured for 2024-08-01..2024-08-31 and the run asks for 2024-09-01..2024-11-30. An empty population here would look exactly like 'no violations found', and a population from the WRONG window would look like an answer, so it is refused instead",
       "concluded": false,
       "headline": null
     }

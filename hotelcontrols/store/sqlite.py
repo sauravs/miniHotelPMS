@@ -25,6 +25,19 @@ survive as that, or every direct booking looks like a duplicate of every other o
 So does the run's FRESHNESS (finding F7): when the evidence was obtained, and what the control
 asked for. Re-reading a stored run has to report what was true when it ran, not what would be
 true if it ran now - a verdict's freshness is a property of the run rather than of the reader.
+
+EVERY READ NAMES ITS PROPERTY (slice 17, G5)
+--------------------------------------------
+One store holds every property's runs, and one missed `WHERE` would hand one hotel another's
+verdicts - a breach, not a bug. So every read takes the property as a KEYWORD-ONLY argument with
+NO DEFAULT: a call without one is a `TypeError` where it is written, never a query that quietly
+returns everything. Another property's run reads as absent, exactly like a run that never
+existed, so a run id cannot be probed for existence. And every SQL statement here that reads,
+updates or deletes a tenant-owned table carries a bound tenant predicate in its own text - which
+`tests/unit/test_tenant_scoped_store.py` checks over every literal in this package and over every
+statement SQLite actually executes, for every table `schema.sql` creates, including the ones v3
+adds later. `verdicts` and `evidence` carry no property of their own; they are scoped through
+their run, by a join or a subquery on `runs.tenant_id`.
 """
 from __future__ import annotations
 
@@ -41,6 +54,13 @@ from ..runner import Run
 SCHEMA = pathlib.Path(__file__).resolve().parent / "schema.sql"
 
 _NOT_APPLICABLE_TAG = {"__not_applicable__": True}
+
+# The `runs` columns a save writes, in one place, so the insert and its update half cannot list
+# different ones. `run_id` first: it is the conflict key and is never updated.
+_RUN_COLUMNS = ("run_id", "control_id", "control_name", "natural_language", "tenant_id",
+                "provider", "evidence_label", "evidence_is_synthetic", "as_of", "created_at",
+                "calls", "blocked", "observed_at", "maximum_age", "policy_version",
+                "policy_digest")
 
 
 # --------------------------------------------------------------------------- encoding
@@ -134,18 +154,34 @@ class RunStore:
             # Columns NAMED rather than positional. A migrated database gains its columns in the
             # order they were added and a fresh one in the order the schema lists them; naming
             # them is what makes those two orders irrelevant.
-            self._connection.execute(
-                "INSERT OR REPLACE INTO runs (run_id, control_id, control_name, "
-                "natural_language, tenant_id, provider, evidence_label, evidence_is_synthetic, "
-                "as_of, created_at, calls, blocked, observed_at, maximum_age, policy_version, "
-                "policy_digest) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+            #
+            # An UPSERT whose update half fires only for the SAME property (slice 17). The
+            # `INSERT OR REPLACE` this used to be replaced by run id alone. Ids hash the
+            # property, so two properties' runs do not collide by accident - but a run carrying
+            # another property's id would have replaced that property's verdicts. Now it
+            # changes no row, and is refused by name.
+            written = self._connection.execute(
+                "INSERT INTO runs (%s) VALUES (%s) ON CONFLICT(run_id) DO UPDATE SET %s "
+                "WHERE runs.tenant_id = excluded.tenant_id"
+                % (", ".join(_RUN_COLUMNS), ",".join("?" * len(_RUN_COLUMNS)),
+                   ", ".join("%s = excluded.%s" % (c, c) for c in _RUN_COLUMNS[1:])),
                 (run_id, run.control_id, run.control_name, run.natural_language, run.tenant_id,
                  run.provider, run.evidence_label, int(run.evidence_is_synthetic), run.as_of,
                  run.created_at.isoformat(), run.calls, run.blocked,
                  run.observed_at.isoformat() if run.observed_at else None,
                  run.maximum_age or None, run.policy_version, run.policy_digest))
-            self._connection.execute("DELETE FROM verdicts WHERE run_id = ?", (run_id,))
-            self._connection.execute("DELETE FROM evidence WHERE run_id = ?", (run_id,))
+            if written.rowcount != 1:
+                raise ValueError("run id %r already belongs to another property; refusing to "
+                                 "replace its verdicts" % run_id)
+            # Scoped through the run, like every other statement on a tenant-owned table.
+            self._connection.execute(
+                "DELETE FROM verdicts WHERE run_id IN "
+                "(SELECT run_id FROM runs WHERE run_id = ? AND tenant_id = ?)",
+                (run_id, run.tenant_id))
+            self._connection.execute(
+                "DELETE FROM evidence WHERE run_id IN "
+                "(SELECT run_id FROM runs WHERE run_id = ? AND tenant_id = ?)",
+                (run_id, run.tenant_id))
             for position, verdict in enumerate(run.verdicts):
                 self._connection.execute(
                     "INSERT INTO verdicts VALUES (?,?,?,?,?)",
@@ -161,16 +197,24 @@ class RunStore:
         return run_id
 
     # ------------------------------------------------------------------ reading
-    def load(self, run_id: str) -> Run | None:
-        """Re-read a stored run WITHOUT spending a single provider call (R1)."""
+    def load(self, run_id: str, *, tenant_id: str) -> Run | None:
+        """Re-read a stored run WITHOUT spending a single provider call (R1).
+
+        `tenant_id` is keyword-only with no default (slice 17): a run is read FOR a property.
+        Another property's run returns None, exactly as a run that does not exist does, so the
+        web layer answers both with the same 404 and a run id cannot be probed for existence.
+        """
         row = self._connection.execute(
-            "SELECT * FROM runs WHERE run_id = ?", (run_id,)).fetchone()
+            "SELECT * FROM runs WHERE run_id = ? AND tenant_id = ?",
+            (run_id, tenant_id)).fetchone()
         if row is None:
             return None
 
         evidence: dict[int, list[EvidenceLine]] = {}
         for line in self._connection.execute(
-                "SELECT * FROM evidence WHERE run_id = ? ORDER BY position, line", (run_id,)):
+                "SELECT e.* FROM evidence e JOIN runs r ON r.run_id = e.run_id "
+                "WHERE e.run_id = ? AND r.tenant_id = ? ORDER BY e.position, e.line",
+                (run_id, tenant_id)):
             value = (Value.known(decode_payload(line["payload_json"]), unit=line["unit"],
                                  source=line["source"])
                      if line["is_known"]
@@ -183,7 +227,9 @@ class RunStore:
             Verdict(Outcome(v["outcome"]), v["reason"], evidence.get(v["position"], []),
                     control_id=row["control_id"], record_id=v["record_id"])
             for v in self._connection.execute(
-                "SELECT * FROM verdicts WHERE run_id = ? ORDER BY position", (run_id,)))
+                "SELECT v.* FROM verdicts v JOIN runs r ON r.run_id = v.run_id "
+                "WHERE v.run_id = ? AND r.tenant_id = ? ORDER BY v.position",
+                (run_id, tenant_id)))
 
         return Run(
             control_id=row["control_id"], control_name=row["control_name"],
@@ -197,8 +243,12 @@ class RunStore:
             maximum_age=row["maximum_age"] or "",
             policy_version=row["policy_version"], policy_digest=row["policy_digest"])
 
-    def history(self, control_id: str | None = None, limit: int = 50) -> list[dict]:
-        """Past runs, newest first, as summaries.
+    def history(self, control_id: str | None = None, limit: int = 50, *,
+                tenant_id: str) -> list[dict]:
+        """One property's past runs, newest first, as summaries.
+
+        `tenant_id` is keyword-only with no default (slice 17): there is no "every property's
+        history", because nothing that reads it is entitled to it.
 
         Summaries rather than whole runs: a history page wants counts and a date, and loading
         every evidence table to render a list would make the cheap thing expensive.
@@ -213,11 +263,12 @@ class RunStore:
                  "  SUM(v.outcome = 'PASS') AS passes, SUM(v.outcome = 'FAIL') AS fails, "
                  "  SUM(v.outcome = 'UNKNOWN') AS unknowns, "
                  "  SUM(v.outcome = 'EXCLUDED') AS excluded, COUNT(v.position) AS total "
-                 "FROM runs r LEFT JOIN verdicts v ON v.run_id = r.run_id ")
-        params: tuple = ()
+                 "FROM runs r LEFT JOIN verdicts v ON v.run_id = r.run_id "
+                 "WHERE r.tenant_id = ? ")
+        params: tuple = (tenant_id,)
         if control_id is not None:
-            query += "WHERE r.control_id = ? "
-            params = (control_id,)
+            query += "AND r.control_id = ? "
+            params += (control_id,)
         # `run_id` breaks ties, and ties are the norm: both properties' 2026 captures describe
         # the same instant. SQLite promises no order among equal keys, so without it the order
         # of a history page was the SQLite build's (issue #35).

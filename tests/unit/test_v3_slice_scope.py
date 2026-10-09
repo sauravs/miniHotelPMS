@@ -132,7 +132,9 @@ MAY_CHANGE = {
 
 # A draft filed from the compose window during a local demo lands here untracked. It is a
 # reader's working state, not a change to the spec, and it is never committed by a slice.
-LOCAL_STATE = ("spec/drafts/ir/",)
+# `spec/drafts/ir/` until slice 17, and `spec/drafts/<property>/ir/` since drafts became per
+# property. Only an UNTRACKED draft file is exempt - a committed one is still a change.
+LOCAL_STATE = re.compile(r"^spec/drafts/(?:[^/]+/)?ir/[^/]+\.json$")
 
 _SLICE_BRANCH = re.compile(r"^slice/(\d+)-")
 
@@ -166,7 +168,7 @@ def violations(slice_number: int, changes, untracked=()) -> list[str]:
     for status, path in sorted(set(changes) | {("A", p) for p in untracked}):
         if path.startswith(ALWAYS):
             continue
-        if status == "A" and path in untracked and path.startswith(LOCAL_STATE):
+        if status == "A" and path in untracked and LOCAL_STATE.match(path):
             continue
         if not any(_permits(prefix, kind, status, path) for prefix, kind in rows):
             found.append("%s %s" % (status, path))
@@ -304,7 +306,14 @@ class TestTheGuardRule:
                                ("M", "hotelcontrols/providers/transport/retry.py")]) == [
             "M hotelcontrols/providers/transport/retry.py", "M hotelcontrols/store/sqlite.py"]
 
-    def test_a_draft_filed_during_a_demo_is_local_state_but_a_committed_one_is_not(self):
-        draft = "spec/drafts/ir/my_rule.json"
-        assert violations(16, [], untracked=[draft]) == []
-        assert violations(16, [("A", draft)]) == ["A %s" % draft]
+    @pytest.mark.parametrize("draft", ["spec/drafts/ir/my_rule.json",
+                                       "spec/drafts/sandbox/ir/my_rule.json"])
+    def test_a_draft_filed_during_a_demo_is_local_state_but_a_committed_one_is_not(self, draft):
+        """Both layouts: before slice 17 and since (drafts per property)."""
+        assert violations(17, [], untracked=[draft]) == []
+        assert violations(17, [("A", draft)]) == ["A %s" % draft]
+
+    def test_only_a_draft_file_is_local_state_not_anything_under_spec_drafts(self):
+        stray = ["spec/drafts/notes.py", "spec/drafts/sandbox/ir/deeper/x.json",
+                 "spec/drafts/sandbox/canonical_fields.json"]
+        assert violations(17, [], untracked=stray) == ["A %s" % p for p in sorted(stray)]

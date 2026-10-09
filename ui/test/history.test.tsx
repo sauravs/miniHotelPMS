@@ -17,7 +17,8 @@ afterEach(cleanup);
 const textOf = (element: Element) => (element.textContent ?? "").replace(/\s+/g, " ").trim();
 const { controls } = golden<{ controls: ControlEntry[] }>("controls.json");
 const control = (id: string) => controls.find((c) => c.control_id === id)!;
-const history = (id: string) => golden<History>(`history/${id}.json`);
+// One golden per control per property since slice 17. These tests read the sandbox's.
+const history = (id: string) => golden<History>(`history/${id}.sandbox.json`);
 const rows = (container: HTMLElement) => [...container.querySelectorAll<HTMLElement>("tr[data-run-id]")];
 
 describe("the three states of a row", () => {
@@ -51,7 +52,7 @@ describe("the three states of a row", () => {
     const h = history("inactive_room_future_stay");
     const { container } = render(<HistoryView control={control("inactive_room_future_stay")} history={h} outcomes={outcomes} />);
     const concluded = rows(container).filter((_, index) => h.runs[index].concluded);
-    expect(concluded.length).toBeGreaterThanOrEqual(2); // its 2026 runs; the 2024 ones are blocked
+    expect(concluded.length).toBeGreaterThanOrEqual(1); // the sandbox's 2026 run; its 2024 one is blocked
     concluded.forEach((row) => {
       const counts = h.runs.find((r) => r.run_id === row.getAttribute("data-run-id"))!.counts!;
       expect(textOf(row.querySelector(".counts")!)).toBe(
@@ -67,7 +68,7 @@ describe("every row is a question, re-readable for free", () => {
     const { container } = render(<HistoryView control={control("checkout_money_owed")} history={h} outcomes={outcomes} />);
     rows(container).forEach((row, index) => {
       const run = h.runs[index];
-      expect(row.querySelector("a")!.getAttribute("href")).toBe(`/runs/${run.run_id}`);
+      expect(row.querySelector("a")!.getAttribute("href")).toBe(`/runs/${run.run_id}?property=sandbox`);
       const text = textOf(row);
       for (const value of [run.evidence_label, run.provider, run.as_of, String(run.calls)]) expect(text).toContain(value);
     });
@@ -90,17 +91,19 @@ describe("every row is a question, re-readable for free", () => {
 describe("an empty history is a first page, not a blank one", () => {
   it("says the control has not been run and offers to run it", () => {
     const { container } = render(
-      <HistoryView control={control("checkout_money_owed")} history={{ control_id: "checkout_money_owed", runs: [] }} outcomes={outcomes} />,
+      <HistoryView control={control("checkout_money_owed")} history={{ control_id: "checkout_money_owed", property: "sandbox", runs: [] }} outcomes={outcomes} />,
     );
     expect(textOf(container)).toContain("has not been run");
     expect(container.querySelector("table")).toBeNull();
-    expect(container.querySelector('a[href="/run/checkout_money_owed"]')).not.toBeNull();
+    expect(container.querySelector('a[href="/run/checkout_money_owed?property=sandbox"]')).not.toBeNull();
   });
 });
 
 describe("parity over every history golden", () => {
   const names = readdirSync(GOLDEN + "history").sort();
-  it("there is one per control", () => expect(names).toHaveLength(controls.length));
+  const properties = golden<{ properties: { id: string }[] }>("properties.json").properties;
+  it("there is one per control per property", () =>
+    expect(names).toHaveLength(controls.length * properties.length));
 
   it.each(names)("%s", (name) => {
     const h = golden<History>(`history/${name}`);
@@ -128,6 +131,7 @@ describe("slice 16 - history groups by the rule that judged each run (V3)", () =
     const base = history("checkout_money_owed").runs[0];
     const h: History = {
       control_id: "checkout_money_owed",
+      property: "sandbox",
       runs: [
         { ...base, run_id: "v3run", policy_version: 3, policy_digest: "sha256:" + "b".repeat(64) },
         { ...base, run_id: "v2run", policy_version: 2, policy_digest: "sha256:" + "a".repeat(64) },
@@ -148,6 +152,7 @@ describe("slice 16 - history groups by the rule that judged each run (V3)", () =
     const base = history("checkout_money_owed").runs[0];
     const h: History = {
       control_id: "checkout_money_owed",
+      property: "sandbox",
       runs: [
         { ...base, run_id: "edited", policy_version: 2, policy_digest: "sha256:" + "c".repeat(64) },
         { ...base, run_id: "reviewed", policy_version: 2, policy_digest: "sha256:" + "a".repeat(64) },
@@ -155,5 +160,29 @@ describe("slice 16 - history groups by the rule that judged each run (V3)", () =
     };
     const { container } = render(<HistoryView control={control("checkout_money_owed")} history={h} outcomes={outcomes} />);
     expect(container.querySelectorAll("tbody[data-policy]")).toHaveLength(2);
+  });
+});
+
+describe("slice 17 - a history is one property's (V4)", () => {
+  it("names the property it is for, and links every run and the run button with it", () => {
+    const h = history("checkout_money_owed");
+    expect(h.property).toBe("sandbox");
+    const { container } = render(<HistoryView control={control("checkout_money_owed")} history={h} outcomes={outcomes} />);
+    expect(textOf(container)).toContain("property sandbox");
+    for (const row of rows(container)) {
+      expect(row.querySelector("a")!.getAttribute("href")).toMatch(/\?property=sandbox$/);
+    }
+    expect(container.querySelector('a[href="/run/checkout_money_owed?property=sandbox"]')).not.toBeNull();
+  });
+
+  it("every history golden lists only its own property's runs", () => {
+    for (const name of readdirSync(GOLDEN + "history")) {
+      const h = golden<History>(`history/${name}`);
+      expect(name).toBe(`${h.control_id}.${h.property}.json`);
+      for (const row of h.runs) {
+        const stored = golden<{ tenant_id: string }>(`runs/${row.run_id}.json`);
+        expect(stored.tenant_id).toBe(h.property);
+      }
+    }
   });
 });

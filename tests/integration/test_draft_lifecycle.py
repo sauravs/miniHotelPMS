@@ -71,7 +71,9 @@ def composed(draft_dir):
     from urllib.parse import quote_plus
     status, _ct, _body = app.handle_post("/compose/accept", FORM + quote_plus(sentence))
     assert status == 303
-    return app, draft_dir, sentence
+    # Filed under the property it was composed for (slice 17): `<drafts>/sandbox/` is that
+    # property's own drafts root, and every test below reads the draft from there.
+    return app, draft_dir / "sandbox", sentence
 
 
 def a_run(property_id, draft_dir, control_id="guest_email_on_file"):
@@ -94,7 +96,7 @@ class TestTheDraftIsAnOrdinaryControl:
     def test_it_passes_the_same_validator_every_shipped_control_passes(self, composed):
         _app, draft_dir, _sentence = composed
         ir = load("guest_email_on_file", draft_dir)
-        assert validate(ir, Registry.load(), spec_dir=draft_dir) == []
+        assert validate(ir, Registry.load(), spec_dir=draft_dir.parent) == []
 
     def test_the_spec_loader_lists_it_with_no_special_casing(self, composed):
         _app, draft_dir, _sentence = composed
@@ -176,12 +178,14 @@ class TestItIsStillNotAShippedControl:
 
     def test_the_app_keeps_the_two_lists_apart(self, composed):
         app, _draft_dir, _sentence = composed
-        assert "guest_email_on_file" in app._drafts()
+        assert "guest_email_on_file" in app._drafts("sandbox")
         assert "guest_email_on_file" not in app._controls()
 
     def test_a_draft_is_run_from_the_drafts_root(self, composed):
         """So a draft and a reviewed control of the same name could never be confused for one
         another - and `_compose_accept` refuses that collision anyway."""
         app, draft_dir, _sentence = composed
-        assert app._spec_dir_for("guest_email_on_file") == draft_dir
+        assert app._spec_dir_for("guest_email_on_file", "sandbox") == draft_dir
         assert app._spec_dir_for("checkout_money_owed") == app.spec_dir
+        # Slice 17: another property does not find this property's draft at all.
+        assert app._spec_dir_for("guest_email_on_file", "demo") == app.spec_dir

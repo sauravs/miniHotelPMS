@@ -87,8 +87,9 @@ class TestLayer1TheGoldensAreTheApi:
     def test_every_run_a_history_names_resolves_to_a_stored_payload(self):
         """R1's promise, kept by the fixtures too: a past run is re-read, never re-run."""
         for control_id in available():
-            for row in golden("history/%s.json" % control_id)["runs"]:
-                assert (GOLDEN / "runs" / ("%s.json" % row["run_id"])).is_file(), row
+            for tenant_id in available_tenants():
+                for row in golden("history/%s.%s.json" % (control_id, tenant_id))["runs"]:
+                    assert (GOLDEN / "runs" / ("%s.json" % row["run_id"])).is_file(), row
 
     def test_a_stored_run_says_what_the_live_run_said(self):
         """`/api/runs/<id>` is what the React history page links to. It must carry the same
@@ -186,10 +187,21 @@ class TestLayer2TheShapeEveryComponentDependsOn:
     def test_history_rows_carry_the_same_two_gates(self):
         """A history chart is a run chart seen from further away: `concluded` beside counts,
         and no counts for a blocked run."""
-        rows = golden("history/ooo_room_protection.json")["runs"]
+        rows = golden("history/ooo_room_protection.sandbox.json")["runs"]
         assert rows and all(row["concluded"] is False and "counts" in row for row in rows)
-        rows = golden("history/resource_occupancy_consistency.json")["runs"]
+        rows = golden("history/resource_occupancy_consistency.sandbox.json")["runs"]
         assert rows and all(row["blocked"] and "counts" not in row for row in rows)
+
+    def test_a_history_golden_holds_one_propertys_runs_and_says_which(self):
+        """Slice 17 (V4): one file per control per property, and every run it lists belongs to
+        that property - a history mixing two hotels is the read the slice made impossible."""
+        owner = {golden(name)["run_id"]: golden(name)["tenant_id"] for name in RUNS}
+        for control_id in available():
+            for tenant_id in available_tenants():
+                history = golden("history/%s.%s.json" % (control_id, tenant_id))
+                assert history["property"] == tenant_id
+                assert history["runs"], (control_id, tenant_id)
+                assert {owner[row["run_id"]] for row in history["runs"]} == {tenant_id}
 
     def test_the_drafts_golden_is_the_unwired_state(self):
         """Drafts are a reader's working state. The golden is the absence, stated."""

@@ -17,5 +17,6 @@ export async function startRun(formData: FormData): Promise<void> {
   const evidence = String(formData.get(`evidence:${property}`) ?? "");
   // The ids reach the engine URL-encoded and the engine refuses one it does not know by name.
   const run = await runControlOnce(controlId, property, evidence);
-  redirect(`/runs/${encodeURIComponent(run.run_id)}`);
+  // With its property: a stored run is read FOR a property (slice 17).
+  redirect(`/runs/${encodeURIComponent(run.run_id)}?property=${encodeURIComponent(run.tenant_id)}`);
 }

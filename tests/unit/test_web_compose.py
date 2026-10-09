@@ -49,6 +49,12 @@ def drafts(tmp_path):
     return directory
 
 
+def _filed(drafts) -> list:
+    """Every draft filed under any property's drafts root (slice 17: `<drafts>/<property>/ir/`).
+    The fixture's own empty `ir/` and the two copied vocabulary files are not drafts."""
+    return sorted(p for p in drafts.rglob("*.json") if p.parent.name == "ir")
+
+
 @pytest.fixture
 def app(drafts):
     return App(proposer=StubProposer(), draft_dir=drafts)
@@ -105,7 +111,7 @@ class TestATurn:
 
     def test_nothing_is_filed_by_asking(self, app, drafts):
         app.handle_post("/compose", "prose=every+reservation+must+record+a+guest+email")
-        assert list((drafts / "ir").iterdir()) == [], "asking must not write anything"
+        assert _filed(drafts) == [], "asking must not write anything"
 
     def test_the_sentence_arrives_in_an_editable_box(self, app):
         """The model's output is a suggestion. What runs is what a person committed to."""
@@ -169,11 +175,11 @@ class TestFilingADraft:
         status, _ct, body = app.handle_post("/compose/accept", EMAIL_RULE)
         assert status == 303
         assert "/run/my_draft" in body
-        assert (drafts / "ir" / "my_draft.json").exists()
+        assert (drafts / "sandbox" / "ir" / "my_draft.json").exists()
 
     def test_the_draft_is_a_real_validated_ir(self, app, drafts):
         app.handle_post("/compose/accept", EMAIL_RULE)
-        ir = json.loads((drafts / "ir" / "my_draft.json").read_text(encoding="utf-8"))
+        ir = json.loads((drafts / "sandbox" / "ir" / "my_draft.json").read_text(encoding="utf-8"))
         assert ir["control_id"] == "my_draft"
         assert ir["source_control"] == "composed"
         assert ir["restricted_language"].startswith("every reservation where")
@@ -183,14 +189,14 @@ class TestFilingADraft:
         """The provenance has to survive being read six months later by somebody who never saw
         the compose screen."""
         app.handle_post("/compose/accept", EMAIL_RULE)
-        ir = json.loads((drafts / "ir" / "my_draft.json").read_text(encoding="utf-8"))
+        ir = json.loads((drafts / "sandbox" / "ir" / "my_draft.json").read_text(encoding="utf-8"))
         caveats = " ".join(ir["caveats"])
         assert "DRAFT" in caveats and "criterion-1" in caveats
 
     def test_what_compiles_is_the_edited_sentence(self, app, drafts):
         """The box wins over whatever the model said. That is where the human is in the loop."""
         app.handle_post("/compose/accept", EMAIL_RULE.replace("at+most+0", "at+least+0"))
-        ir = json.loads((drafts / "ir" / "my_draft.json").read_text(encoding="utf-8"))
+        ir = json.loads((drafts / "sandbox" / "ir" / "my_draft.json").read_text(encoding="utf-8"))
         assert ir["assertion"]["predicates"][0]["operator"] == "gte"
 
     def test_a_draft_runs_end_to_end(self, app):
@@ -214,7 +220,7 @@ class TestFilingADraft:
             EMAIL_RULE.replace("control_id=my_draft", "control_id=..%2F..%2Fetc%2Fpasswd"))
         assert status in (303, 400)
         assert not list(drafts.parent.glob("**/passwd*"))
-        for path in (drafts / "ir").iterdir():
+        for path in _filed(drafts):
             assert path.name.endswith(".json") and "/" not in path.stem
 
     def test_a_sentence_that_does_not_compile_is_not_filed(self, app, drafts):
@@ -224,7 +230,7 @@ class TestFilingADraft:
             "&control_id=bad&template=checkout_money_owed")
         assert status == 200
         assert "REFUSED" in text_of(body)
-        assert list((drafts / "ir").iterdir()) == []
+        assert _filed(drafts) == []
 
     def test_an_empty_sentence_is_refused(self, app):
         assert app.handle_post("/compose/accept", "sentence=&control_id=x")[0] == 400
@@ -247,15 +253,17 @@ class TestADraftIsMarkedEverywhereItAppears:
 
     def test_the_index_badges_it_and_says_it_is_uncounted(self, app):
         app.handle_post("/compose/accept", EMAIL_RULE)
-        readable = text_of(app.handle("/")[2])
+        readable = text_of(app.handle("/?property=sandbox")[2])
         assert "draft" in readable and "unreviewed" in readable
         assert "not counted in the criterion-1 figure" in readable
 
     def test_a_draft_is_not_one_of_the_reviewed_controls(self, app):
         app.handle_post("/compose/accept", EMAIL_RULE)
         assert "my_draft" not in app._controls()
-        assert "my_draft" in app._drafts()
-        assert app.is_draft("my_draft")
+        assert "my_draft" in app._drafts("sandbox")
+        assert app.is_draft("my_draft", "sandbox")
+        # Slice 17: filed for one property, it is not another property's draft.
+        assert not app.is_draft("my_draft", "demo")
 
     def test_a_draft_cannot_be_borrowed_as_a_population_template(self, app):
         """Only reviewed controls are offered, so a draft's population cannot propagate into
@@ -323,7 +331,7 @@ class TestTheComposePageShowsWhatIsAlreadyFiled:
         """So a second visit is a place to work from rather than a blank box. The sentence is
         shown because it is the reviewable artefact - the thing a person promotes or deletes."""
         app.handle_post("/compose/accept", EMAIL_RULE)
-        readable = text_of(app.handle("/compose")[2])
+        readable = text_of(app.handle("/compose?property=sandbox")[2])
         assert "Drafts" in readable
         assert "My Draft" in readable
         assert "folio.balance_due at most 0" in readable
@@ -374,7 +382,7 @@ class TestAnEmptySpecDirectoryHasNothingToBorrow:
         spec, drafts = bare
         app = App(spec_dir=spec, proposer=StubProposer(), draft_dir=drafts)
         app.handle_post("/compose/accept", EMAIL_RULE)
-        assert list((drafts / "ir").iterdir()) == []
+        assert _filed(drafts) == []
 
 
 class TestSliceFourteenTheComposeWindowExplainsItself:
@@ -444,7 +452,7 @@ class TestSlice15DraftsAsData:
 
     def test_a_filed_draft_is_listed_and_flagged_unreviewed(self, app):
         app.handle_post("/compose/accept", EMAIL_RULE)
-        payload = json.loads(app.handle("/api/drafts").body)
+        payload = json.loads(app.handle("/api/drafts?property=sandbox").body)
         (draft,) = payload["drafts"]
         assert draft["control_id"] == "my_draft"
         assert draft["name"] == "My Draft"
@@ -509,7 +517,7 @@ class TestSlice15ComposeAsJson:
         assert "reservation.guest.email" in result["fields"]
         assert result["problems"] == []
         assert payload["conversation"]
-        assert list((drafts / "ir").iterdir()) == [], "asking must not write anything"
+        assert _filed(drafts) == [], "asking must not write anything"
 
     def test_a_refusal_names_the_missing_vocabulary_and_offers_nothing_to_file(self, app):
         result = self.post(app, "/api/compose", self.REFUSED)[1]["result"]
@@ -538,15 +546,15 @@ class TestSlice15ComposeAsJson:
         assert status == 201
         assert payload == {"control_id": "my_draft", "property": "sandbox",
                            "evidence": "sandbox2026", "reviewed": False}
-        assert (drafts / "ir" / "my_draft.json").is_file()
-        listed = json.loads(app.handle("/api/drafts").body)["drafts"]
+        assert (drafts / "sandbox" / "ir" / "my_draft.json").is_file()
+        listed = json.loads(app.handle("/api/drafts?property=sandbox").body)["drafts"]
         assert [d["control_id"] for d in listed] == ["my_draft"]
 
     def test_what_is_filed_is_the_sentence_sent_back_not_the_proposal(self, app, drafts):
         """D10: a person is between the model and the rule."""
         edited = EMAIL_RULE.replace("at+most+0", "at+most+5")
         self.post(app, "/api/compose/accept", edited)
-        filed = json.loads((drafts / "ir" / "my_draft.json").read_text())
+        filed = json.loads((drafts / "sandbox" / "ir" / "my_draft.json").read_text())
         assert "at most 5" in filed["restricted_language"]
         assert "5" in json.dumps(filed["assertion"])
 
@@ -557,7 +565,7 @@ class TestSlice15ComposeAsJson:
                                     "&template=checkout_money_owed")
         assert status == 422
         assert payload["problems"] and payload["sentence"] == "rooms should be nice"
-        assert list((drafts / "ir").iterdir()) == []
+        assert _filed(drafts) == []
 
     def test_a_draft_may_not_shadow_a_reviewed_control(self, app):
         status, payload = self.post(app, "/api/compose/accept",
