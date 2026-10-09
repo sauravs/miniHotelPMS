@@ -1,0 +1,1855 @@
+{
+  "control_id": "duplicate_channel_reservation",
+  "control_name": "Duplicate Channel Reservation",
+  "natural_language": "Two active reservations must not share the same channel confirmation number.",
+  "tenant_id": "demo",
+  "provider": "demopms",
+  "evidence": {
+    "label": "demo2026",
+    "synthetic": true
+  },
+  "as_of": "2026-07-08",
+  "created_at": "2026-07-08T00:00:00+03:00",
+  "calls": 1,
+  "run_id": "7682f58b49194b12",
+  "blocked": null,
+  "coverage": {
+    "evaluated": 4,
+    "total": 40,
+    "concluded": true,
+    "headline": "Concluded about 4 of 40 record(s); the rest were excluded or could not be answered.",
+    "reasons": [
+      {
+        "reason": "this control does not apply here: reservation.channel_confirmation_id is not applicable, which does not satisfy `exists`",
+        "records": 16
+      },
+      {
+        "reason": "this control does not apply here: reservation.status is cancelled, which does not satisfy `not equals 'cancelled'`",
+        "records": 10
+      },
+      {
+        "reason": "whether this control applies could not be established: reservation.status is unknown ('HOLD' is not in this property's status map, and a status we cannot name must not decide whether a control applies",
+        "records": 6
+      },
+      {
+        "reason": "whether this control applies could not be established: reservation.status is unknown ('PROV4' is not in this property's status map, and a status we cannot name must not decide whether a control applie",
+        "records": 4
+      }
+    ]
+  },
+  "freshness": {
+    "stale": false,
+    "headline": "This evidence was captured 62 days AFTER the instant this run asks about, so it may describe a later state than the question."
+  },
+  "readiness": [
+    {
+      "provider": "demopms",
+      "available": 4,
+      "total": 4,
+      "executable": true,
+      "headline": "demopms: 4 of 4 fields available",
+      "sources": [
+        {
+          "name": "pms",
+          "available": 4,
+          "total": 4,
+          "missing": []
+        }
+      ],
+      "unresolvable": [],
+      "tenant_supplied": []
+    },
+    {
+      "provider": "minihotel",
+      "available": 4,
+      "total": 4,
+      "executable": true,
+      "headline": "minihotel: 4 of 4 fields available",
+      "sources": [
+        {
+          "name": "pms",
+          "available": 4,
+          "total": 4,
+          "missing": []
+        }
+      ],
+      "unresolvable": [],
+      "tenant_supplied": []
+    }
+  ],
+  "verdicts": [
+    {
+      "record_id": "007004258",
+      "outcome": "UNKNOWN",
+      "means": "The evidence needed to decide this was not available, so it is not a pass and not a failure. The gaps are named in the table below.",
+      "reason": "whether this control applies could not be established: reservation.status is unknown ('PROV4' is not in this property's status map, and a status we cannot name must not decide whether a control applies (A5))",
+      "evidence": [
+        {
+          "field": "reservation.status",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "'PROV4' is not in this property's status map, and a status we cannot name must not decide whether a control applies (A5)",
+          "risk": "A5",
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.channel_confirmation_id",
+          "known": true,
+          "value": "testyuval001",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.id",
+          "known": true,
+          "value": "007004258",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.channel",
+          "known": true,
+          "value": "Test",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        }
+      ]
+    },
+    {
+      "record_id": "007004259",
+      "outcome": "PASS",
+      "means": "The rule holds for this record.",
+      "reason": "007004259 is the only reservation with reservation.channel_confirmation_id testyuval002",
+      "evidence": [
+        {
+          "field": "reservation.channel_confirmation_id",
+          "known": true,
+          "value": "testyuval002",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.id",
+          "known": true,
+          "value": "007004259",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.status",
+          "known": true,
+          "value": "checked_in",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.channel",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        }
+      ]
+    },
+    {
+      "record_id": "007004300",
+      "outcome": "UNKNOWN",
+      "means": "The evidence needed to decide this was not available, so it is not a pass and not a failure. The gaps are named in the table below.",
+      "reason": "whether this control applies could not be established: reservation.status is unknown ('PROV4' is not in this property's status map, and a status we cannot name must not decide whether a control applies (A5))",
+      "evidence": [
+        {
+          "field": "reservation.status",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "'PROV4' is not in this property's status map, and a status we cannot name must not decide whether a control applies (A5)",
+          "risk": "A5",
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.channel_confirmation_id",
+          "known": true,
+          "value": "CCP-2A-1782512672565",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.id",
+          "known": true,
+          "value": "007004300",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.channel",
+          "known": true,
+          "value": "Web",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        }
+      ]
+    },
+    {
+      "record_id": "007004305",
+      "outcome": "UNKNOWN",
+      "means": "The evidence needed to decide this was not available, so it is not a pass and not a failure. The gaps are named in the table below.",
+      "reason": "whether this control applies could not be established: reservation.status is unknown ('HOLD' is not in this property's status map, and a status we cannot name must not decide whether a control applies (A5))",
+      "evidence": [
+        {
+          "field": "reservation.status",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "'HOLD' is not in this property's status map, and a status we cannot name must not decide whether a control applies (A5)",
+          "risk": "A5",
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.channel_confirmation_id",
+          "known": true,
+          "value": "378164845",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.id",
+          "known": true,
+          "value": "007004305",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.channel",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        }
+      ]
+    },
+    {
+      "record_id": "007004306",
+      "outcome": "UNKNOWN",
+      "means": "The evidence needed to decide this was not available, so it is not a pass and not a failure. The gaps are named in the table below.",
+      "reason": "whether this control applies could not be established: reservation.status is unknown ('HOLD' is not in this property's status map, and a status we cannot name must not decide whether a control applies (A5))",
+      "evidence": [
+        {
+          "field": "reservation.status",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "'HOLD' is not in this property's status map, and a status we cannot name must not decide whether a control applies (A5)",
+          "risk": "A5",
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.channel_confirmation_id",
+          "known": true,
+          "value": "969175841",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.id",
+          "known": true,
+          "value": "007004306",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.channel",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        }
+      ]
+    },
+    {
+      "record_id": "007004307",
+      "outcome": "UNKNOWN",
+      "means": "The evidence needed to decide this was not available, so it is not a pass and not a failure. The gaps are named in the table below.",
+      "reason": "whether this control applies could not be established: reservation.status is unknown ('HOLD' is not in this property's status map, and a status we cannot name must not decide whether a control applies (A5))",
+      "evidence": [
+        {
+          "field": "reservation.status",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "'HOLD' is not in this property's status map, and a status we cannot name must not decide whether a control applies (A5)",
+          "risk": "A5",
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.channel_confirmation_id",
+          "known": true,
+          "value": "141859352",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.id",
+          "known": true,
+          "value": "007004307",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.channel",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        }
+      ]
+    },
+    {
+      "record_id": "007004308",
+      "outcome": "UNKNOWN",
+      "means": "The evidence needed to decide this was not available, so it is not a pass and not a failure. The gaps are named in the table below.",
+      "reason": "whether this control applies could not be established: reservation.status is unknown ('HOLD' is not in this property's status map, and a status we cannot name must not decide whether a control applies (A5))",
+      "evidence": [
+        {
+          "field": "reservation.status",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "'HOLD' is not in this property's status map, and a status we cannot name must not decide whether a control applies (A5)",
+          "risk": "A5",
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.channel_confirmation_id",
+          "known": true,
+          "value": "964353101",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.id",
+          "known": true,
+          "value": "007004308",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.channel",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        }
+      ]
+    },
+    {
+      "record_id": "007004309",
+      "outcome": "EXCLUDED",
+      "means": "The control does not apply to this record, so it has not been checked. This is not a pass.",
+      "reason": "this control does not apply here: reservation.status is cancelled, which does not satisfy `not equals 'cancelled'`",
+      "evidence": [
+        {
+          "field": "reservation.status",
+          "known": true,
+          "value": "cancelled",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.channel_confirmation_id",
+          "known": true,
+          "value": "not applicable",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.id",
+          "known": true,
+          "value": "007004309",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.channel",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        }
+      ]
+    },
+    {
+      "record_id": "007004310",
+      "outcome": "UNKNOWN",
+      "means": "The evidence needed to decide this was not available, so it is not a pass and not a failure. The gaps are named in the table below.",
+      "reason": "whether this control applies could not be established: reservation.status is unknown ('HOLD' is not in this property's status map, and a status we cannot name must not decide whether a control applies (A5))",
+      "evidence": [
+        {
+          "field": "reservation.status",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "'HOLD' is not in this property's status map, and a status we cannot name must not decide whether a control applies (A5)",
+          "risk": "A5",
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.channel_confirmation_id",
+          "known": true,
+          "value": "711788539",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.id",
+          "known": true,
+          "value": "007004310",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.channel",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        }
+      ]
+    },
+    {
+      "record_id": "007004311",
+      "outcome": "UNKNOWN",
+      "means": "The evidence needed to decide this was not available, so it is not a pass and not a failure. The gaps are named in the table below.",
+      "reason": "whether this control applies could not be established: reservation.status is unknown ('HOLD' is not in this property's status map, and a status we cannot name must not decide whether a control applies (A5))",
+      "evidence": [
+        {
+          "field": "reservation.status",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "'HOLD' is not in this property's status map, and a status we cannot name must not decide whether a control applies (A5)",
+          "risk": "A5",
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.channel_confirmation_id",
+          "known": true,
+          "value": "515925240",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.id",
+          "known": true,
+          "value": "007004311",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.channel",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        }
+      ]
+    },
+    {
+      "record_id": "007004312",
+      "outcome": "PASS",
+      "means": "The rule holds for this record.",
+      "reason": "007004312 is the only reservation with reservation.channel_confirmation_id 408088102",
+      "evidence": [
+        {
+          "field": "reservation.channel_confirmation_id",
+          "known": true,
+          "value": "408088102",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.id",
+          "known": true,
+          "value": "007004312",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.status",
+          "known": true,
+          "value": "checked_in",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.channel",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        }
+      ]
+    },
+    {
+      "record_id": "007004313",
+      "outcome": "PASS",
+      "means": "The rule holds for this record.",
+      "reason": "007004313 is the only reservation with reservation.channel_confirmation_id 530733138",
+      "evidence": [
+        {
+          "field": "reservation.channel_confirmation_id",
+          "known": true,
+          "value": "530733138",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.id",
+          "known": true,
+          "value": "007004313",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.status",
+          "known": true,
+          "value": "checked_in",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.channel",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        }
+      ]
+    },
+    {
+      "record_id": "007004321",
+      "outcome": "EXCLUDED",
+      "means": "The control does not apply to this record, so it has not been checked. This is not a pass.",
+      "reason": "this control does not apply here: reservation.channel_confirmation_id is not applicable, which does not satisfy `exists`",
+      "evidence": [
+        {
+          "field": "reservation.channel_confirmation_id",
+          "known": true,
+          "value": "not applicable",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.status",
+          "known": true,
+          "value": "confirmed",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.id",
+          "known": true,
+          "value": "007004321",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.channel",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        }
+      ]
+    },
+    {
+      "record_id": "007004327",
+      "outcome": "EXCLUDED",
+      "means": "The control does not apply to this record, so it has not been checked. This is not a pass.",
+      "reason": "this control does not apply here: reservation.status is cancelled, which does not satisfy `not equals 'cancelled'`",
+      "evidence": [
+        {
+          "field": "reservation.status",
+          "known": true,
+          "value": "cancelled",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.channel_confirmation_id",
+          "known": true,
+          "value": "test123",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.id",
+          "known": true,
+          "value": "007004327",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.channel",
+          "known": true,
+          "value": "Web",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        }
+      ]
+    },
+    {
+      "record_id": "007004329",
+      "outcome": "UNKNOWN",
+      "means": "The evidence needed to decide this was not available, so it is not a pass and not a failure. The gaps are named in the table below.",
+      "reason": "whether this control applies could not be established: reservation.status is unknown ('PROV4' is not in this property's status map, and a status we cannot name must not decide whether a control applies (A5))",
+      "evidence": [
+        {
+          "field": "reservation.status",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "'PROV4' is not in this property's status map, and a status we cannot name must not decide whether a control applies (A5)",
+          "risk": "A5",
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.channel_confirmation_id",
+          "known": true,
+          "value": "OVF001",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.id",
+          "known": true,
+          "value": "007004329",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.channel",
+          "known": true,
+          "value": "Web",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        }
+      ]
+    },
+    {
+      "record_id": "007004333",
+      "outcome": "EXCLUDED",
+      "means": "The control does not apply to this record, so it has not been checked. This is not a pass.",
+      "reason": "this control does not apply here: reservation.status is cancelled, which does not satisfy `not equals 'cancelled'`",
+      "evidence": [
+        {
+          "field": "reservation.status",
+          "known": true,
+          "value": "cancelled",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.channel_confirmation_id",
+          "known": true,
+          "value": "not applicable",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.id",
+          "known": true,
+          "value": "007004333",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.channel",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        }
+      ]
+    },
+    {
+      "record_id": "007004334",
+      "outcome": "EXCLUDED",
+      "means": "The control does not apply to this record, so it has not been checked. This is not a pass.",
+      "reason": "this control does not apply here: reservation.status is cancelled, which does not satisfy `not equals 'cancelled'`",
+      "evidence": [
+        {
+          "field": "reservation.status",
+          "known": true,
+          "value": "cancelled",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.channel_confirmation_id",
+          "known": true,
+          "value": "TEST-1783274258398",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.id",
+          "known": true,
+          "value": "007004334",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.channel",
+          "known": true,
+          "value": "Nightel",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        }
+      ]
+    },
+    {
+      "record_id": "007004335",
+      "outcome": "EXCLUDED",
+      "means": "The control does not apply to this record, so it has not been checked. This is not a pass.",
+      "reason": "this control does not apply here: reservation.status is cancelled, which does not satisfy `not equals 'cancelled'`",
+      "evidence": [
+        {
+          "field": "reservation.status",
+          "known": true,
+          "value": "cancelled",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.channel_confirmation_id",
+          "known": true,
+          "value": "TEST-1783274334289",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.id",
+          "known": true,
+          "value": "007004335",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.channel",
+          "known": true,
+          "value": "Nightel",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        }
+      ]
+    },
+    {
+      "record_id": "007004336",
+      "outcome": "UNKNOWN",
+      "means": "The evidence needed to decide this was not available, so it is not a pass and not a failure. The gaps are named in the table below.",
+      "reason": "whether this control applies could not be established: reservation.status is unknown ('PROV4' is not in this property's status map, and a status we cannot name must not decide whether a control applies (A5))",
+      "evidence": [
+        {
+          "field": "reservation.status",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "'PROV4' is not in this property's status map, and a status we cannot name must not decide whether a control applies (A5)",
+          "risk": "A5",
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.channel_confirmation_id",
+          "known": true,
+          "value": "CCP1783275808296",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.id",
+          "known": true,
+          "value": "007004336",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.channel",
+          "known": true,
+          "value": "Web",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        }
+      ]
+    },
+    {
+      "record_id": "007004337",
+      "outcome": "EXCLUDED",
+      "means": "The control does not apply to this record, so it has not been checked. This is not a pass.",
+      "reason": "this control does not apply here: reservation.status is cancelled, which does not satisfy `not equals 'cancelled'`",
+      "evidence": [
+        {
+          "field": "reservation.status",
+          "known": true,
+          "value": "cancelled",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.channel_confirmation_id",
+          "known": true,
+          "value": "H3_B10145",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.id",
+          "known": true,
+          "value": "007004337",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.channel",
+          "known": true,
+          "value": "KIOSK",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        }
+      ]
+    },
+    {
+      "record_id": "007004338",
+      "outcome": "EXCLUDED",
+      "means": "The control does not apply to this record, so it has not been checked. This is not a pass.",
+      "reason": "this control does not apply here: reservation.channel_confirmation_id is not applicable, which does not satisfy `exists`",
+      "evidence": [
+        {
+          "field": "reservation.channel_confirmation_id",
+          "known": true,
+          "value": "not applicable",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.status",
+          "known": true,
+          "value": "checked_in",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.id",
+          "known": true,
+          "value": "007004338",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.channel",
+          "known": true,
+          "value": "web",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        }
+      ]
+    },
+    {
+      "record_id": "007004339",
+      "outcome": "EXCLUDED",
+      "means": "The control does not apply to this record, so it has not been checked. This is not a pass.",
+      "reason": "this control does not apply here: reservation.status is cancelled, which does not satisfy `not equals 'cancelled'`",
+      "evidence": [
+        {
+          "field": "reservation.status",
+          "known": true,
+          "value": "cancelled",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.channel_confirmation_id",
+          "known": true,
+          "value": "not applicable",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.id",
+          "known": true,
+          "value": "007004339",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.channel",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        }
+      ]
+    },
+    {
+      "record_id": "007004340",
+      "outcome": "EXCLUDED",
+      "means": "The control does not apply to this record, so it has not been checked. This is not a pass.",
+      "reason": "this control does not apply here: reservation.channel_confirmation_id is not applicable, which does not satisfy `exists`",
+      "evidence": [
+        {
+          "field": "reservation.channel_confirmation_id",
+          "known": true,
+          "value": "not applicable",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.status",
+          "known": true,
+          "value": "checked_in",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.id",
+          "known": true,
+          "value": "007004340",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.channel",
+          "known": true,
+          "value": "001",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        }
+      ]
+    },
+    {
+      "record_id": "007004341",
+      "outcome": "EXCLUDED",
+      "means": "The control does not apply to this record, so it has not been checked. This is not a pass.",
+      "reason": "this control does not apply here: reservation.status is cancelled, which does not satisfy `not equals 'cancelled'`",
+      "evidence": [
+        {
+          "field": "reservation.status",
+          "known": true,
+          "value": "cancelled",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.channel_confirmation_id",
+          "known": true,
+          "value": "not applicable",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.id",
+          "known": true,
+          "value": "007004341",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.channel",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        }
+      ]
+    },
+    {
+      "record_id": "007004342",
+      "outcome": "EXCLUDED",
+      "means": "The control does not apply to this record, so it has not been checked. This is not a pass.",
+      "reason": "this control does not apply here: reservation.channel_confirmation_id is not applicable, which does not satisfy `exists`",
+      "evidence": [
+        {
+          "field": "reservation.channel_confirmation_id",
+          "known": true,
+          "value": "not applicable",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.status",
+          "known": true,
+          "value": "checked_in",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.id",
+          "known": true,
+          "value": "007004342",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.channel",
+          "known": true,
+          "value": "Booking",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        }
+      ]
+    },
+    {
+      "record_id": "007004343",
+      "outcome": "EXCLUDED",
+      "means": "The control does not apply to this record, so it has not been checked. This is not a pass.",
+      "reason": "this control does not apply here: reservation.channel_confirmation_id is not applicable, which does not satisfy `exists`",
+      "evidence": [
+        {
+          "field": "reservation.channel_confirmation_id",
+          "known": true,
+          "value": "not applicable",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.status",
+          "known": true,
+          "value": "checked_in",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.id",
+          "known": true,
+          "value": "007004343",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.channel",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        }
+      ]
+    },
+    {
+      "record_id": "007004344",
+      "outcome": "EXCLUDED",
+      "means": "The control does not apply to this record, so it has not been checked. This is not a pass.",
+      "reason": "this control does not apply here: reservation.channel_confirmation_id is not applicable, which does not satisfy `exists`",
+      "evidence": [
+        {
+          "field": "reservation.channel_confirmation_id",
+          "known": true,
+          "value": "not applicable",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.status",
+          "known": true,
+          "value": "checked_in",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.id",
+          "known": true,
+          "value": "007004344",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.channel",
+          "known": true,
+          "value": "Booking",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        }
+      ]
+    },
+    {
+      "record_id": "007004345",
+      "outcome": "EXCLUDED",
+      "means": "The control does not apply to this record, so it has not been checked. This is not a pass.",
+      "reason": "this control does not apply here: reservation.channel_confirmation_id is not applicable, which does not satisfy `exists`",
+      "evidence": [
+        {
+          "field": "reservation.channel_confirmation_id",
+          "known": true,
+          "value": "not applicable",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.status",
+          "known": true,
+          "value": "checked_in",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.id",
+          "known": true,
+          "value": "007004345",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.channel",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        }
+      ]
+    },
+    {
+      "record_id": "007004346",
+      "outcome": "EXCLUDED",
+      "means": "The control does not apply to this record, so it has not been checked. This is not a pass.",
+      "reason": "this control does not apply here: reservation.channel_confirmation_id is not applicable, which does not satisfy `exists`",
+      "evidence": [
+        {
+          "field": "reservation.channel_confirmation_id",
+          "known": true,
+          "value": "not applicable",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.status",
+          "known": true,
+          "value": "checked_in",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.id",
+          "known": true,
+          "value": "007004346",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.channel",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        }
+      ]
+    },
+    {
+      "record_id": "007004347",
+      "outcome": "EXCLUDED",
+      "means": "The control does not apply to this record, so it has not been checked. This is not a pass.",
+      "reason": "this control does not apply here: reservation.channel_confirmation_id is not applicable, which does not satisfy `exists`",
+      "evidence": [
+        {
+          "field": "reservation.channel_confirmation_id",
+          "known": true,
+          "value": "not applicable",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.status",
+          "known": true,
+          "value": "checked_in",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.id",
+          "known": true,
+          "value": "007004347",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.channel",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        }
+      ]
+    },
+    {
+      "record_id": "007004348",
+      "outcome": "EXCLUDED",
+      "means": "The control does not apply to this record, so it has not been checked. This is not a pass.",
+      "reason": "this control does not apply here: reservation.channel_confirmation_id is not applicable, which does not satisfy `exists`",
+      "evidence": [
+        {
+          "field": "reservation.channel_confirmation_id",
+          "known": true,
+          "value": "not applicable",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.status",
+          "known": true,
+          "value": "checked_out",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.id",
+          "known": true,
+          "value": "007004348",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.channel",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        }
+      ]
+    },
+    {
+      "record_id": "007004349",
+      "outcome": "EXCLUDED",
+      "means": "The control does not apply to this record, so it has not been checked. This is not a pass.",
+      "reason": "this control does not apply here: reservation.channel_confirmation_id is not applicable, which does not satisfy `exists`",
+      "evidence": [
+        {
+          "field": "reservation.channel_confirmation_id",
+          "known": true,
+          "value": "not applicable",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.status",
+          "known": true,
+          "value": "checked_in",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.id",
+          "known": true,
+          "value": "007004349",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.channel",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        }
+      ]
+    },
+    {
+      "record_id": "007004350",
+      "outcome": "EXCLUDED",
+      "means": "The control does not apply to this record, so it has not been checked. This is not a pass.",
+      "reason": "this control does not apply here: reservation.status is cancelled, which does not satisfy `not equals 'cancelled'`",
+      "evidence": [
+        {
+          "field": "reservation.status",
+          "known": true,
+          "value": "cancelled",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.channel_confirmation_id",
+          "known": true,
+          "value": "not applicable",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.id",
+          "known": true,
+          "value": "007004350",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.channel",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        }
+      ]
+    },
+    {
+      "record_id": "007004351",
+      "outcome": "EXCLUDED",
+      "means": "The control does not apply to this record, so it has not been checked. This is not a pass.",
+      "reason": "this control does not apply here: reservation.channel_confirmation_id is not applicable, which does not satisfy `exists`",
+      "evidence": [
+        {
+          "field": "reservation.channel_confirmation_id",
+          "known": true,
+          "value": "not applicable",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.status",
+          "known": true,
+          "value": "checked_out",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.id",
+          "known": true,
+          "value": "007004351",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.channel",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        }
+      ]
+    },
+    {
+      "record_id": "007004352",
+      "outcome": "EXCLUDED",
+      "means": "The control does not apply to this record, so it has not been checked. This is not a pass.",
+      "reason": "this control does not apply here: reservation.channel_confirmation_id is not applicable, which does not satisfy `exists`",
+      "evidence": [
+        {
+          "field": "reservation.channel_confirmation_id",
+          "known": true,
+          "value": "not applicable",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.status",
+          "known": true,
+          "value": "checked_in",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.id",
+          "known": true,
+          "value": "007004352",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.channel",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        }
+      ]
+    },
+    {
+      "record_id": "007004353",
+      "outcome": "EXCLUDED",
+      "means": "The control does not apply to this record, so it has not been checked. This is not a pass.",
+      "reason": "this control does not apply here: reservation.channel_confirmation_id is not applicable, which does not satisfy `exists`",
+      "evidence": [
+        {
+          "field": "reservation.channel_confirmation_id",
+          "known": true,
+          "value": "not applicable",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.status",
+          "known": true,
+          "value": "checked_in",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.id",
+          "known": true,
+          "value": "007004353",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.channel",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        }
+      ]
+    },
+    {
+      "record_id": "007004354",
+      "outcome": "EXCLUDED",
+      "means": "The control does not apply to this record, so it has not been checked. This is not a pass.",
+      "reason": "this control does not apply here: reservation.channel_confirmation_id is not applicable, which does not satisfy `exists`",
+      "evidence": [
+        {
+          "field": "reservation.channel_confirmation_id",
+          "known": true,
+          "value": "not applicable",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.status",
+          "known": true,
+          "value": "checked_out",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.id",
+          "known": true,
+          "value": "007004354",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.channel",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        }
+      ]
+    },
+    {
+      "record_id": "007004355",
+      "outcome": "EXCLUDED",
+      "means": "The control does not apply to this record, so it has not been checked. This is not a pass.",
+      "reason": "this control does not apply here: reservation.channel_confirmation_id is not applicable, which does not satisfy `exists`",
+      "evidence": [
+        {
+          "field": "reservation.channel_confirmation_id",
+          "known": true,
+          "value": "not applicable",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.status",
+          "known": true,
+          "value": "checked_in",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.id",
+          "known": true,
+          "value": "007004355",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.channel",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        }
+      ]
+    },
+    {
+      "record_id": "007004356",
+      "outcome": "EXCLUDED",
+      "means": "The control does not apply to this record, so it has not been checked. This is not a pass.",
+      "reason": "this control does not apply here: reservation.status is cancelled, which does not satisfy `not equals 'cancelled'`",
+      "evidence": [
+        {
+          "field": "reservation.status",
+          "known": true,
+          "value": "cancelled",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.channel_confirmation_id",
+          "known": true,
+          "value": "not applicable",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.id",
+          "known": true,
+          "value": "007004356",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.channel",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        }
+      ]
+    },
+    {
+      "record_id": "007004357",
+      "outcome": "PASS",
+      "means": "The rule holds for this record.",
+      "reason": "007004357 is the only reservation with reservation.channel_confirmation_id H3_B10146",
+      "evidence": [
+        {
+          "field": "reservation.channel_confirmation_id",
+          "known": true,
+          "value": "H3_B10146",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.id",
+          "known": true,
+          "value": "007004357",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.status",
+          "known": true,
+          "value": "checked_in",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.channel",
+          "known": true,
+          "value": "KIOSK",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/bookings"
+        }
+      ]
+    }
+  ],
+  "counts": {
+    "PASS": 4,
+    "FAIL": 0,
+    "UNKNOWN": 10,
+    "EXCLUDED": 26,
+    "total": 40
+  },
+  "execution": {
+    "mode": "event",
+    "declared_mode": "event",
+    "fell_back": false,
+    "headline": "Waiting for reservation.created. This provider publishes reservation.created, so the control runs when the hotel's data actually changes."
+  }
+}

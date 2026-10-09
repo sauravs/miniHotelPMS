@@ -1,0 +1,70 @@
+{
+  "control_id": "required_reservation_fields",
+  "control_name": "Required Reservation Fields",
+  "natural_language": "Every reservation on a given rate must record the guest's email, phone and identification number.",
+  "tenant_id": "sandbox",
+  "provider": "minihotel",
+  "evidence": {
+    "label": "sandbox2024",
+    "synthetic": false
+  },
+  "as_of": "2024-09-01",
+  "created_at": "2024-09-01T00:00:00+03:00",
+  "calls": 1,
+  "run_id": "fc7dec7b0a0c714b",
+  "blocked": "This control needs evidence this body of responses does not hold: this capture cannot answer that question: ArrivalDate was captured for 2024-08-01..2024-08-31 and the run asks for 2024-09-01..2024-11-30. An empty population here would look exactly like 'no violations found', and a population from the WRONG window would look like an answer, so it is refused instead",
+  "coverage": {
+    "evaluated": 0,
+    "total": 0,
+    "concluded": false,
+    "headline": "This control's population was empty - there was nothing to check.",
+    "reasons": []
+  },
+  "freshness": {
+    "stale": false,
+    "headline": "This evidence was captured 730 days AFTER the instant this run asks about, so it may describe a later state than the question."
+  },
+  "readiness": [
+    {
+      "provider": "demopms",
+      "available": 5,
+      "total": 5,
+      "executable": true,
+      "headline": "demopms: 5 of 5 fields available",
+      "sources": [
+        {
+          "name": "pms",
+          "available": 5,
+          "total": 5,
+          "missing": []
+        }
+      ],
+      "unresolvable": [],
+      "tenant_supplied": []
+    },
+    {
+      "provider": "minihotel",
+      "available": 5,
+      "total": 5,
+      "executable": true,
+      "headline": "minihotel: 5 of 5 fields available",
+      "sources": [
+        {
+          "name": "pms",
+          "available": 5,
+          "total": 5,
+          "missing": []
+        }
+      ],
+      "unresolvable": [],
+      "tenant_supplied": []
+    }
+  ],
+  "verdicts": [],
+  "execution": {
+    "mode": "event",
+    "declared_mode": "event",
+    "fell_back": false,
+    "headline": "Waiting for reservation.created, reservation.updated. This provider publishes reservation.created, reservation.updated, so the control runs when the hotel's data actually changes."
+  }
+}

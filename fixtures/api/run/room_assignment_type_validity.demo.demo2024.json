@@ -1,0 +1,70 @@
+{
+  "control_id": "room_assignment_type_validity",
+  "control_name": "Room Assignment Validity - Room Exists and Type Is Allowed",
+  "natural_language": "A reservation may only be assigned to a room that exists and whose type is one the hotel has defined, and the reservation's room type must match the room's actual type.",
+  "tenant_id": "demo",
+  "provider": "demopms",
+  "evidence": {
+    "label": "demo2024",
+    "synthetic": true
+  },
+  "as_of": "2024-09-01",
+  "created_at": "2024-09-01T00:00:00+03:00",
+  "calls": 1,
+  "run_id": "6f3b5deee1beeff1",
+  "blocked": "This control needs evidence this body of responses does not hold: this capture cannot answer that question: arrival was captured for 2024-08-01..2024-08-31 and the run asks for 2024-09-01..2024-11-30. An empty population here would look exactly like 'no violations found', and a population from the WRONG window would look like an answer, so it is refused instead",
+  "coverage": {
+    "evaluated": 0,
+    "total": 0,
+    "concluded": false,
+    "headline": "This control's population was empty - there was nothing to check.",
+    "reasons": []
+  },
+  "freshness": {
+    "stale": false,
+    "headline": "This evidence was captured 730 days AFTER the instant this run asks about, so it may describe a later state than the question."
+  },
+  "readiness": [
+    {
+      "provider": "demopms",
+      "available": 6,
+      "total": 6,
+      "executable": true,
+      "headline": "demopms: 6 of 6 fields available",
+      "sources": [
+        {
+          "name": "pms",
+          "available": 6,
+          "total": 6,
+          "missing": []
+        }
+      ],
+      "unresolvable": [],
+      "tenant_supplied": []
+    },
+    {
+      "provider": "minihotel",
+      "available": 6,
+      "total": 6,
+      "executable": true,
+      "headline": "minihotel: 6 of 6 fields available",
+      "sources": [
+        {
+          "name": "pms",
+          "available": 6,
+          "total": 6,
+          "missing": []
+        }
+      ],
+      "unresolvable": [],
+      "tenant_supplied": []
+    }
+  ],
+  "verdicts": [],
+  "execution": {
+    "mode": "event",
+    "declared_mode": "event",
+    "fell_back": false,
+    "headline": "Waiting for reservation.created, reservation.updated. This provider publishes reservation.created, reservation.updated, so the control runs when the hotel's data actually changes."
+  }
+}

@@ -1,0 +1,2323 @@
+{
+  "control_id": "ooo_room_protection",
+  "control_name": "Out-of-Service Room Protection",
+  "natural_language": "A room with an active out-of-service period must not have an arriving reservation.",
+  "tenant_id": "demo",
+  "provider": "demopms",
+  "evidence": {
+    "label": "demo2026",
+    "synthetic": true
+  },
+  "as_of": "2026-07-08",
+  "created_at": "2026-07-08T00:00:00+03:00",
+  "calls": 2,
+  "run_id": "838b32f05820b6c0",
+  "blocked": null,
+  "coverage": {
+    "evaluated": 0,
+    "total": 28,
+    "concluded": false,
+    "headline": "This control reached no conclusion about any of its 28 record(s). It has not found the property compliant; it has not looked.",
+    "reasons": [
+      {
+        "reason": "this control does not apply here: room.closed_from is False, which does not satisfy `exists`",
+        "records": 28
+      }
+    ]
+  },
+  "freshness": {
+    "stale": false,
+    "headline": "This evidence was captured 62 days AFTER the instant this run asks about, so it may describe a later state than the question."
+  },
+  "readiness": [
+    {
+      "provider": "demopms",
+      "available": 8,
+      "total": 8,
+      "executable": true,
+      "headline": "demopms: 8 of 8 fields available",
+      "sources": [
+        {
+          "name": "pms",
+          "available": 8,
+          "total": 8,
+          "missing": []
+        }
+      ],
+      "unresolvable": [],
+      "tenant_supplied": []
+    },
+    {
+      "provider": "minihotel",
+      "available": 8,
+      "total": 8,
+      "executable": true,
+      "headline": "minihotel: 8 of 8 fields available",
+      "sources": [
+        {
+          "name": "pms",
+          "available": 8,
+          "total": 8,
+          "missing": []
+        }
+      ],
+      "unresolvable": [],
+      "tenant_supplied": []
+    }
+  ],
+  "verdicts": [
+    {
+      "record_id": "01",
+      "outcome": "EXCLUDED",
+      "means": "The control does not apply to this record, so it has not been checked. This is not a pass.",
+      "reason": "this control does not apply here: room.closed_from is False, which does not satisfy `exists`",
+      "evidence": [
+        {
+          "field": "room.closed_from",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/rooms"
+        },
+        {
+          "field": "room.closed_to",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/rooms"
+        },
+        {
+          "field": "reservation.arrival_date",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "stay.room_number",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.status",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "occupancy.reservation_id",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "no occupancy in this property matches 01 - the join is reported rather than guessed, because pairing the wrong records would put wrong evidence behind a right-looking verdict",
+          "risk": null,
+          "source": "pms:demopms/occupancy"
+        },
+        {
+          "field": "room.number",
+          "known": true,
+          "value": "01",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/rooms"
+        },
+        {
+          "field": "occupancy.room_number",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "no occupancy in this property matches 01 - the join is reported rather than guessed, because pairing the wrong records would put wrong evidence behind a right-looking verdict",
+          "risk": null,
+          "source": "pms:demopms/occupancy"
+        }
+      ]
+    },
+    {
+      "record_id": "101",
+      "outcome": "EXCLUDED",
+      "means": "The control does not apply to this record, so it has not been checked. This is not a pass.",
+      "reason": "this control does not apply here: room.closed_from is False, which does not satisfy `exists`",
+      "evidence": [
+        {
+          "field": "room.closed_from",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/rooms"
+        },
+        {
+          "field": "room.closed_to",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/rooms"
+        },
+        {
+          "field": "reservation.arrival_date",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "stay.room_number",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.status",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "occupancy.reservation_id",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "no occupancy in this property matches 101 - the join is reported rather than guessed, because pairing the wrong records would put wrong evidence behind a right-looking verdict",
+          "risk": null,
+          "source": "pms:demopms/occupancy"
+        },
+        {
+          "field": "room.number",
+          "known": true,
+          "value": "101",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/rooms"
+        },
+        {
+          "field": "occupancy.room_number",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "no occupancy in this property matches 101 - the join is reported rather than guessed, because pairing the wrong records would put wrong evidence behind a right-looking verdict",
+          "risk": null,
+          "source": "pms:demopms/occupancy"
+        }
+      ]
+    },
+    {
+      "record_id": "302",
+      "outcome": "EXCLUDED",
+      "means": "The control does not apply to this record, so it has not been checked. This is not a pass.",
+      "reason": "this control does not apply here: room.closed_from is False, which does not satisfy `exists`",
+      "evidence": [
+        {
+          "field": "room.closed_from",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/rooms"
+        },
+        {
+          "field": "room.closed_to",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/rooms"
+        },
+        {
+          "field": "reservation.arrival_date",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "stay.room_number",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.status",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "occupancy.reservation_id",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "no occupancy in this property matches 302 - the join is reported rather than guessed, because pairing the wrong records would put wrong evidence behind a right-looking verdict",
+          "risk": null,
+          "source": "pms:demopms/occupancy"
+        },
+        {
+          "field": "room.number",
+          "known": true,
+          "value": "302",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/rooms"
+        },
+        {
+          "field": "occupancy.room_number",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "no occupancy in this property matches 302 - the join is reported rather than guessed, because pairing the wrong records would put wrong evidence behind a right-looking verdict",
+          "risk": null,
+          "source": "pms:demopms/occupancy"
+        }
+      ]
+    },
+    {
+      "record_id": "606",
+      "outcome": "EXCLUDED",
+      "means": "The control does not apply to this record, so it has not been checked. This is not a pass.",
+      "reason": "this control does not apply here: room.closed_from is False, which does not satisfy `exists`",
+      "evidence": [
+        {
+          "field": "room.closed_from",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/rooms"
+        },
+        {
+          "field": "room.closed_to",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/rooms"
+        },
+        {
+          "field": "reservation.arrival_date",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "stay.room_number",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.status",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "occupancy.reservation_id",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "no occupancy in this property matches 606 - the join is reported rather than guessed, because pairing the wrong records would put wrong evidence behind a right-looking verdict",
+          "risk": null,
+          "source": "pms:demopms/occupancy"
+        },
+        {
+          "field": "room.number",
+          "known": true,
+          "value": "606",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/rooms"
+        },
+        {
+          "field": "occupancy.room_number",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "no occupancy in this property matches 606 - the join is reported rather than guessed, because pairing the wrong records would put wrong evidence behind a right-looking verdict",
+          "risk": null,
+          "source": "pms:demopms/occupancy"
+        }
+      ]
+    },
+    {
+      "record_id": "701",
+      "outcome": "EXCLUDED",
+      "means": "The control does not apply to this record, so it has not been checked. This is not a pass.",
+      "reason": "this control does not apply here: room.closed_from is False, which does not satisfy `exists`",
+      "evidence": [
+        {
+          "field": "room.closed_from",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/rooms"
+        },
+        {
+          "field": "room.closed_to",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/rooms"
+        },
+        {
+          "field": "reservation.arrival_date",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "stay.room_number",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.status",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "occupancy.reservation_id",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "no occupancy in this property matches 701 - the join is reported rather than guessed, because pairing the wrong records would put wrong evidence behind a right-looking verdict",
+          "risk": null,
+          "source": "pms:demopms/occupancy"
+        },
+        {
+          "field": "room.number",
+          "known": true,
+          "value": "701",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/rooms"
+        },
+        {
+          "field": "occupancy.room_number",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "no occupancy in this property matches 701 - the join is reported rather than guessed, because pairing the wrong records would put wrong evidence behind a right-looking verdict",
+          "risk": null,
+          "source": "pms:demopms/occupancy"
+        }
+      ]
+    },
+    {
+      "record_id": "02",
+      "outcome": "EXCLUDED",
+      "means": "The control does not apply to this record, so it has not been checked. This is not a pass.",
+      "reason": "this control does not apply here: room.closed_from is False, which does not satisfy `exists`",
+      "evidence": [
+        {
+          "field": "room.closed_from",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/rooms"
+        },
+        {
+          "field": "room.closed_to",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/rooms"
+        },
+        {
+          "field": "reservation.arrival_date",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "stay.room_number",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.status",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "occupancy.reservation_id",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "no occupancy in this property matches 02 - the join is reported rather than guessed, because pairing the wrong records would put wrong evidence behind a right-looking verdict",
+          "risk": null,
+          "source": "pms:demopms/occupancy"
+        },
+        {
+          "field": "room.number",
+          "known": true,
+          "value": "02",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/rooms"
+        },
+        {
+          "field": "occupancy.room_number",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "no occupancy in this property matches 02 - the join is reported rather than guessed, because pairing the wrong records would put wrong evidence behind a right-looking verdict",
+          "risk": null,
+          "source": "pms:demopms/occupancy"
+        }
+      ]
+    },
+    {
+      "record_id": "103",
+      "outcome": "EXCLUDED",
+      "means": "The control does not apply to this record, so it has not been checked. This is not a pass.",
+      "reason": "this control does not apply here: room.closed_from is False, which does not satisfy `exists`",
+      "evidence": [
+        {
+          "field": "room.closed_from",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/rooms"
+        },
+        {
+          "field": "room.closed_to",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/rooms"
+        },
+        {
+          "field": "reservation.arrival_date",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "stay.room_number",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.status",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "occupancy.reservation_id",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "no occupancy in this property matches 103 - the join is reported rather than guessed, because pairing the wrong records would put wrong evidence behind a right-looking verdict",
+          "risk": null,
+          "source": "pms:demopms/occupancy"
+        },
+        {
+          "field": "room.number",
+          "known": true,
+          "value": "103",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/rooms"
+        },
+        {
+          "field": "occupancy.room_number",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "no occupancy in this property matches 103 - the join is reported rather than guessed, because pairing the wrong records would put wrong evidence behind a right-looking verdict",
+          "risk": null,
+          "source": "pms:demopms/occupancy"
+        }
+      ]
+    },
+    {
+      "record_id": "303",
+      "outcome": "EXCLUDED",
+      "means": "The control does not apply to this record, so it has not been checked. This is not a pass.",
+      "reason": "this control does not apply here: room.closed_from is False, which does not satisfy `exists`",
+      "evidence": [
+        {
+          "field": "room.closed_from",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/rooms"
+        },
+        {
+          "field": "room.closed_to",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/rooms"
+        },
+        {
+          "field": "reservation.arrival_date",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "stay.room_number",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.status",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "occupancy.reservation_id",
+          "known": true,
+          "value": "007003204",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/occupancy"
+        },
+        {
+          "field": "room.number",
+          "known": true,
+          "value": "303",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/rooms"
+        },
+        {
+          "field": "occupancy.room_number",
+          "known": true,
+          "value": "303",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/occupancy"
+        }
+      ]
+    },
+    {
+      "record_id": "901",
+      "outcome": "EXCLUDED",
+      "means": "The control does not apply to this record, so it has not been checked. This is not a pass.",
+      "reason": "this control does not apply here: room.closed_from is False, which does not satisfy `exists`",
+      "evidence": [
+        {
+          "field": "room.closed_from",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/rooms"
+        },
+        {
+          "field": "room.closed_to",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/rooms"
+        },
+        {
+          "field": "reservation.arrival_date",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "stay.room_number",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.status",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "occupancy.reservation_id",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "no occupancy in this property matches 901 - the join is reported rather than guessed, because pairing the wrong records would put wrong evidence behind a right-looking verdict",
+          "risk": null,
+          "source": "pms:demopms/occupancy"
+        },
+        {
+          "field": "room.number",
+          "known": true,
+          "value": "901",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/rooms"
+        },
+        {
+          "field": "occupancy.room_number",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "no occupancy in this property matches 901 - the join is reported rather than guessed, because pairing the wrong records would put wrong evidence behind a right-looking verdict",
+          "risk": null,
+          "source": "pms:demopms/occupancy"
+        }
+      ]
+    },
+    {
+      "record_id": "Nemanja",
+      "outcome": "EXCLUDED",
+      "means": "The control does not apply to this record, so it has not been checked. This is not a pass.",
+      "reason": "this control does not apply here: room.closed_from is False, which does not satisfy `exists`",
+      "evidence": [
+        {
+          "field": "room.closed_from",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/rooms"
+        },
+        {
+          "field": "room.closed_to",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/rooms"
+        },
+        {
+          "field": "reservation.arrival_date",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "stay.room_number",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.status",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "occupancy.reservation_id",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "no occupancy in this property matches Nemanja - the join is reported rather than guessed, because pairing the wrong records would put wrong evidence behind a right-looking verdict",
+          "risk": null,
+          "source": "pms:demopms/occupancy"
+        },
+        {
+          "field": "room.number",
+          "known": true,
+          "value": "Nemanja",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/rooms"
+        },
+        {
+          "field": "occupancy.room_number",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "no occupancy in this property matches Nemanja - the join is reported rather than guessed, because pairing the wrong records would put wrong evidence behind a right-looking verdict",
+          "risk": null,
+          "source": "pms:demopms/occupancy"
+        }
+      ]
+    },
+    {
+      "record_id": "9900",
+      "outcome": "EXCLUDED",
+      "means": "The control does not apply to this record, so it has not been checked. This is not a pass.",
+      "reason": "this control does not apply here: room.closed_from is False, which does not satisfy `exists`",
+      "evidence": [
+        {
+          "field": "room.closed_from",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/rooms"
+        },
+        {
+          "field": "room.closed_to",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/rooms"
+        },
+        {
+          "field": "reservation.arrival_date",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "stay.room_number",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.status",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "occupancy.reservation_id",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "no occupancy in this property matches 9900 - the join is reported rather than guessed, because pairing the wrong records would put wrong evidence behind a right-looking verdict",
+          "risk": null,
+          "source": "pms:demopms/occupancy"
+        },
+        {
+          "field": "room.number",
+          "known": true,
+          "value": "9900",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/rooms"
+        },
+        {
+          "field": "occupancy.room_number",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "no occupancy in this property matches 9900 - the join is reported rather than guessed, because pairing the wrong records would put wrong evidence behind a right-looking verdict",
+          "risk": null,
+          "source": "pms:demopms/occupancy"
+        }
+      ]
+    },
+    {
+      "record_id": "104",
+      "outcome": "EXCLUDED",
+      "means": "The control does not apply to this record, so it has not been checked. This is not a pass.",
+      "reason": "this control does not apply here: room.closed_from is False, which does not satisfy `exists`",
+      "evidence": [
+        {
+          "field": "room.closed_from",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/rooms"
+        },
+        {
+          "field": "room.closed_to",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/rooms"
+        },
+        {
+          "field": "reservation.arrival_date",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "stay.room_number",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.status",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "occupancy.reservation_id",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "no occupancy in this property matches 104 - the join is reported rather than guessed, because pairing the wrong records would put wrong evidence behind a right-looking verdict",
+          "risk": null,
+          "source": "pms:demopms/occupancy"
+        },
+        {
+          "field": "room.number",
+          "known": true,
+          "value": "104",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/rooms"
+        },
+        {
+          "field": "occupancy.room_number",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "no occupancy in this property matches 104 - the join is reported rather than guessed, because pairing the wrong records would put wrong evidence behind a right-looking verdict",
+          "risk": null,
+          "source": "pms:demopms/occupancy"
+        }
+      ]
+    },
+    {
+      "record_id": "304",
+      "outcome": "EXCLUDED",
+      "means": "The control does not apply to this record, so it has not been checked. This is not a pass.",
+      "reason": "this control does not apply here: room.closed_from is False, which does not satisfy `exists`",
+      "evidence": [
+        {
+          "field": "room.closed_from",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/rooms"
+        },
+        {
+          "field": "room.closed_to",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/rooms"
+        },
+        {
+          "field": "reservation.arrival_date",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "stay.room_number",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.status",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "occupancy.reservation_id",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "no occupancy in this property matches 304 - the join is reported rather than guessed, because pairing the wrong records would put wrong evidence behind a right-looking verdict",
+          "risk": null,
+          "source": "pms:demopms/occupancy"
+        },
+        {
+          "field": "room.number",
+          "known": true,
+          "value": "304",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/rooms"
+        },
+        {
+          "field": "occupancy.room_number",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "no occupancy in this property matches 304 - the join is reported rather than guessed, because pairing the wrong records would put wrong evidence behind a right-looking verdict",
+          "risk": null,
+          "source": "pms:demopms/occupancy"
+        }
+      ]
+    },
+    {
+      "record_id": "902",
+      "outcome": "EXCLUDED",
+      "means": "The control does not apply to this record, so it has not been checked. This is not a pass.",
+      "reason": "this control does not apply here: room.closed_from is False, which does not satisfy `exists`",
+      "evidence": [
+        {
+          "field": "room.closed_from",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/rooms"
+        },
+        {
+          "field": "room.closed_to",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/rooms"
+        },
+        {
+          "field": "reservation.arrival_date",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "stay.room_number",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.status",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "occupancy.reservation_id",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "no occupancy in this property matches 902 - the join is reported rather than guessed, because pairing the wrong records would put wrong evidence behind a right-looking verdict",
+          "risk": null,
+          "source": "pms:demopms/occupancy"
+        },
+        {
+          "field": "room.number",
+          "known": true,
+          "value": "902",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/rooms"
+        },
+        {
+          "field": "occupancy.room_number",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "no occupancy in this property matches 902 - the join is reported rather than guessed, because pairing the wrong records would put wrong evidence behind a right-looking verdict",
+          "risk": null,
+          "source": "pms:demopms/occupancy"
+        }
+      ]
+    },
+    {
+      "record_id": "9901",
+      "outcome": "EXCLUDED",
+      "means": "The control does not apply to this record, so it has not been checked. This is not a pass.",
+      "reason": "this control does not apply here: room.closed_from is False, which does not satisfy `exists`",
+      "evidence": [
+        {
+          "field": "room.closed_from",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/rooms"
+        },
+        {
+          "field": "room.closed_to",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/rooms"
+        },
+        {
+          "field": "reservation.arrival_date",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "stay.room_number",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.status",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "occupancy.reservation_id",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "no occupancy in this property matches 9901 - the join is reported rather than guessed, because pairing the wrong records would put wrong evidence behind a right-looking verdict",
+          "risk": null,
+          "source": "pms:demopms/occupancy"
+        },
+        {
+          "field": "room.number",
+          "known": true,
+          "value": "9901",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/rooms"
+        },
+        {
+          "field": "occupancy.room_number",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "no occupancy in this property matches 9901 - the join is reported rather than guessed, because pairing the wrong records would put wrong evidence behind a right-looking verdict",
+          "risk": null,
+          "source": "pms:demopms/occupancy"
+        }
+      ]
+    },
+    {
+      "record_id": "102",
+      "outcome": "EXCLUDED",
+      "means": "The control does not apply to this record, so it has not been checked. This is not a pass.",
+      "reason": "this control does not apply here: room.closed_from is False, which does not satisfy `exists`",
+      "evidence": [
+        {
+          "field": "room.closed_from",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/rooms"
+        },
+        {
+          "field": "room.closed_to",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/rooms"
+        },
+        {
+          "field": "reservation.arrival_date",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "stay.room_number",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.status",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "occupancy.reservation_id",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "no occupancy in this property matches 102 - the join is reported rather than guessed, because pairing the wrong records would put wrong evidence behind a right-looking verdict",
+          "risk": null,
+          "source": "pms:demopms/occupancy"
+        },
+        {
+          "field": "room.number",
+          "known": true,
+          "value": "102",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/rooms"
+        },
+        {
+          "field": "occupancy.room_number",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "no occupancy in this property matches 102 - the join is reported rather than guessed, because pairing the wrong records would put wrong evidence behind a right-looking verdict",
+          "risk": null,
+          "source": "pms:demopms/occupancy"
+        }
+      ]
+    },
+    {
+      "record_id": "401",
+      "outcome": "EXCLUDED",
+      "means": "The control does not apply to this record, so it has not been checked. This is not a pass.",
+      "reason": "this control does not apply here: room.closed_from is False, which does not satisfy `exists`",
+      "evidence": [
+        {
+          "field": "room.closed_from",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/rooms"
+        },
+        {
+          "field": "room.closed_to",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/rooms"
+        },
+        {
+          "field": "reservation.arrival_date",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "stay.room_number",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.status",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "occupancy.reservation_id",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "no occupancy in this property matches 401 - the join is reported rather than guessed, because pairing the wrong records would put wrong evidence behind a right-looking verdict",
+          "risk": null,
+          "source": "pms:demopms/occupancy"
+        },
+        {
+          "field": "room.number",
+          "known": true,
+          "value": "401",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/rooms"
+        },
+        {
+          "field": "occupancy.room_number",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "no occupancy in this property matches 401 - the join is reported rather than guessed, because pairing the wrong records would put wrong evidence behind a right-looking verdict",
+          "risk": null,
+          "source": "pms:demopms/occupancy"
+        }
+      ]
+    },
+    {
+      "record_id": "903",
+      "outcome": "EXCLUDED",
+      "means": "The control does not apply to this record, so it has not been checked. This is not a pass.",
+      "reason": "this control does not apply here: room.closed_from is False, which does not satisfy `exists`",
+      "evidence": [
+        {
+          "field": "room.closed_from",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/rooms"
+        },
+        {
+          "field": "room.closed_to",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/rooms"
+        },
+        {
+          "field": "reservation.arrival_date",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "stay.room_number",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.status",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "occupancy.reservation_id",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "no occupancy in this property matches 903 - the join is reported rather than guessed, because pairing the wrong records would put wrong evidence behind a right-looking verdict",
+          "risk": null,
+          "source": "pms:demopms/occupancy"
+        },
+        {
+          "field": "room.number",
+          "known": true,
+          "value": "903",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/rooms"
+        },
+        {
+          "field": "occupancy.room_number",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "no occupancy in this property matches 903 - the join is reported rather than guessed, because pairing the wrong records would put wrong evidence behind a right-looking verdict",
+          "risk": null,
+          "source": "pms:demopms/occupancy"
+        }
+      ]
+    },
+    {
+      "record_id": "9902",
+      "outcome": "EXCLUDED",
+      "means": "The control does not apply to this record, so it has not been checked. This is not a pass.",
+      "reason": "this control does not apply here: room.closed_from is False, which does not satisfy `exists`",
+      "evidence": [
+        {
+          "field": "room.closed_from",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/rooms"
+        },
+        {
+          "field": "room.closed_to",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/rooms"
+        },
+        {
+          "field": "reservation.arrival_date",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "stay.room_number",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.status",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "occupancy.reservation_id",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "no occupancy in this property matches 9902 - the join is reported rather than guessed, because pairing the wrong records would put wrong evidence behind a right-looking verdict",
+          "risk": null,
+          "source": "pms:demopms/occupancy"
+        },
+        {
+          "field": "room.number",
+          "known": true,
+          "value": "9902",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/rooms"
+        },
+        {
+          "field": "occupancy.room_number",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "no occupancy in this property matches 9902 - the join is reported rather than guessed, because pairing the wrong records would put wrong evidence behind a right-looking verdict",
+          "risk": null,
+          "source": "pms:demopms/occupancy"
+        }
+      ]
+    },
+    {
+      "record_id": "904",
+      "outcome": "EXCLUDED",
+      "means": "The control does not apply to this record, so it has not been checked. This is not a pass.",
+      "reason": "this control does not apply here: room.closed_from is False, which does not satisfy `exists`",
+      "evidence": [
+        {
+          "field": "room.closed_from",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/rooms"
+        },
+        {
+          "field": "room.closed_to",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/rooms"
+        },
+        {
+          "field": "reservation.arrival_date",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "stay.room_number",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.status",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "occupancy.reservation_id",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "no occupancy in this property matches 904 - the join is reported rather than guessed, because pairing the wrong records would put wrong evidence behind a right-looking verdict",
+          "risk": null,
+          "source": "pms:demopms/occupancy"
+        },
+        {
+          "field": "room.number",
+          "known": true,
+          "value": "904",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/rooms"
+        },
+        {
+          "field": "occupancy.room_number",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "no occupancy in this property matches 904 - the join is reported rather than guessed, because pairing the wrong records would put wrong evidence behind a right-looking verdict",
+          "risk": null,
+          "source": "pms:demopms/occupancy"
+        }
+      ]
+    },
+    {
+      "record_id": "9903",
+      "outcome": "EXCLUDED",
+      "means": "The control does not apply to this record, so it has not been checked. This is not a pass.",
+      "reason": "this control does not apply here: room.closed_from is False, which does not satisfy `exists`",
+      "evidence": [
+        {
+          "field": "room.closed_from",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/rooms"
+        },
+        {
+          "field": "room.closed_to",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/rooms"
+        },
+        {
+          "field": "reservation.arrival_date",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "stay.room_number",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.status",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "occupancy.reservation_id",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "no occupancy in this property matches 9903 - the join is reported rather than guessed, because pairing the wrong records would put wrong evidence behind a right-looking verdict",
+          "risk": null,
+          "source": "pms:demopms/occupancy"
+        },
+        {
+          "field": "room.number",
+          "known": true,
+          "value": "9903",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/rooms"
+        },
+        {
+          "field": "occupancy.room_number",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "no occupancy in this property matches 9903 - the join is reported rather than guessed, because pairing the wrong records would put wrong evidence behind a right-looking verdict",
+          "risk": null,
+          "source": "pms:demopms/occupancy"
+        }
+      ]
+    },
+    {
+      "record_id": "501",
+      "outcome": "EXCLUDED",
+      "means": "The control does not apply to this record, so it has not been checked. This is not a pass.",
+      "reason": "this control does not apply here: room.closed_from is False, which does not satisfy `exists`",
+      "evidence": [
+        {
+          "field": "room.closed_from",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/rooms"
+        },
+        {
+          "field": "room.closed_to",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/rooms"
+        },
+        {
+          "field": "reservation.arrival_date",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "stay.room_number",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.status",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "occupancy.reservation_id",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "no occupancy in this property matches 501 - the join is reported rather than guessed, because pairing the wrong records would put wrong evidence behind a right-looking verdict",
+          "risk": null,
+          "source": "pms:demopms/occupancy"
+        },
+        {
+          "field": "room.number",
+          "known": true,
+          "value": "501",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/rooms"
+        },
+        {
+          "field": "occupancy.room_number",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "no occupancy in this property matches 501 - the join is reported rather than guessed, because pairing the wrong records would put wrong evidence behind a right-looking verdict",
+          "risk": null,
+          "source": "pms:demopms/occupancy"
+        }
+      ]
+    },
+    {
+      "record_id": "9904",
+      "outcome": "EXCLUDED",
+      "means": "The control does not apply to this record, so it has not been checked. This is not a pass.",
+      "reason": "this control does not apply here: room.closed_from is False, which does not satisfy `exists`",
+      "evidence": [
+        {
+          "field": "room.closed_from",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/rooms"
+        },
+        {
+          "field": "room.closed_to",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/rooms"
+        },
+        {
+          "field": "reservation.arrival_date",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "stay.room_number",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.status",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "occupancy.reservation_id",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "no occupancy in this property matches 9904 - the join is reported rather than guessed, because pairing the wrong records would put wrong evidence behind a right-looking verdict",
+          "risk": null,
+          "source": "pms:demopms/occupancy"
+        },
+        {
+          "field": "room.number",
+          "known": true,
+          "value": "9904",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/rooms"
+        },
+        {
+          "field": "occupancy.room_number",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "no occupancy in this property matches 9904 - the join is reported rather than guessed, because pairing the wrong records would put wrong evidence behind a right-looking verdict",
+          "risk": null,
+          "source": "pms:demopms/occupancy"
+        }
+      ]
+    },
+    {
+      "record_id": "605",
+      "outcome": "EXCLUDED",
+      "means": "The control does not apply to this record, so it has not been checked. This is not a pass.",
+      "reason": "this control does not apply here: room.closed_from is False, which does not satisfy `exists`",
+      "evidence": [
+        {
+          "field": "room.closed_from",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/rooms"
+        },
+        {
+          "field": "room.closed_to",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/rooms"
+        },
+        {
+          "field": "reservation.arrival_date",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "stay.room_number",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.status",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "occupancy.reservation_id",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "no occupancy in this property matches 605 - the join is reported rather than guessed, because pairing the wrong records would put wrong evidence behind a right-looking verdict",
+          "risk": null,
+          "source": "pms:demopms/occupancy"
+        },
+        {
+          "field": "room.number",
+          "known": true,
+          "value": "605",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/rooms"
+        },
+        {
+          "field": "occupancy.room_number",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "no occupancy in this property matches 605 - the join is reported rather than guessed, because pairing the wrong records would put wrong evidence behind a right-looking verdict",
+          "risk": null,
+          "source": "pms:demopms/occupancy"
+        }
+      ]
+    },
+    {
+      "record_id": "9905",
+      "outcome": "EXCLUDED",
+      "means": "The control does not apply to this record, so it has not been checked. This is not a pass.",
+      "reason": "this control does not apply here: room.closed_from is False, which does not satisfy `exists`",
+      "evidence": [
+        {
+          "field": "room.closed_from",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/rooms"
+        },
+        {
+          "field": "room.closed_to",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/rooms"
+        },
+        {
+          "field": "reservation.arrival_date",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "stay.room_number",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.status",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "occupancy.reservation_id",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "no occupancy in this property matches 9905 - the join is reported rather than guessed, because pairing the wrong records would put wrong evidence behind a right-looking verdict",
+          "risk": null,
+          "source": "pms:demopms/occupancy"
+        },
+        {
+          "field": "room.number",
+          "known": true,
+          "value": "9905",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/rooms"
+        },
+        {
+          "field": "occupancy.room_number",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "no occupancy in this property matches 9905 - the join is reported rather than guessed, because pairing the wrong records would put wrong evidence behind a right-looking verdict",
+          "risk": null,
+          "source": "pms:demopms/occupancy"
+        }
+      ]
+    },
+    {
+      "record_id": "301",
+      "outcome": "EXCLUDED",
+      "means": "The control does not apply to this record, so it has not been checked. This is not a pass.",
+      "reason": "this control does not apply here: room.closed_from is False, which does not satisfy `exists`",
+      "evidence": [
+        {
+          "field": "room.closed_from",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/rooms"
+        },
+        {
+          "field": "room.closed_to",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/rooms"
+        },
+        {
+          "field": "reservation.arrival_date",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "stay.room_number",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.status",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "occupancy.reservation_id",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "no occupancy in this property matches 301 - the join is reported rather than guessed, because pairing the wrong records would put wrong evidence behind a right-looking verdict",
+          "risk": null,
+          "source": "pms:demopms/occupancy"
+        },
+        {
+          "field": "room.number",
+          "known": true,
+          "value": "301",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/rooms"
+        },
+        {
+          "field": "occupancy.room_number",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "no occupancy in this property matches 301 - the join is reported rather than guessed, because pairing the wrong records would put wrong evidence behind a right-looking verdict",
+          "risk": null,
+          "source": "pms:demopms/occupancy"
+        }
+      ]
+    },
+    {
+      "record_id": "808",
+      "outcome": "EXCLUDED",
+      "means": "The control does not apply to this record, so it has not been checked. This is not a pass.",
+      "reason": "this control does not apply here: room.closed_from is False, which does not satisfy `exists`",
+      "evidence": [
+        {
+          "field": "room.closed_from",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/rooms"
+        },
+        {
+          "field": "room.closed_to",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/rooms"
+        },
+        {
+          "field": "reservation.arrival_date",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "stay.room_number",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.status",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "occupancy.reservation_id",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "no occupancy in this property matches 808 - the join is reported rather than guessed, because pairing the wrong records would put wrong evidence behind a right-looking verdict",
+          "risk": null,
+          "source": "pms:demopms/occupancy"
+        },
+        {
+          "field": "room.number",
+          "known": true,
+          "value": "808",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/rooms"
+        },
+        {
+          "field": "occupancy.room_number",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "no occupancy in this property matches 808 - the join is reported rather than guessed, because pairing the wrong records would put wrong evidence behind a right-looking verdict",
+          "risk": null,
+          "source": "pms:demopms/occupancy"
+        }
+      ]
+    },
+    {
+      "record_id": "809",
+      "outcome": "EXCLUDED",
+      "means": "The control does not apply to this record, so it has not been checked. This is not a pass.",
+      "reason": "this control does not apply here: room.closed_from is False, which does not satisfy `exists`",
+      "evidence": [
+        {
+          "field": "room.closed_from",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/rooms"
+        },
+        {
+          "field": "room.closed_to",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/rooms"
+        },
+        {
+          "field": "reservation.arrival_date",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "stay.room_number",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "reservation.status",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:demopms/bookings"
+        },
+        {
+          "field": "occupancy.reservation_id",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "no occupancy in this property matches 809 - the join is reported rather than guessed, because pairing the wrong records would put wrong evidence behind a right-looking verdict",
+          "risk": null,
+          "source": "pms:demopms/occupancy"
+        },
+        {
+          "field": "room.number",
+          "known": true,
+          "value": "809",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:demopms/rooms"
+        },
+        {
+          "field": "occupancy.room_number",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "no occupancy in this property matches 809 - the join is reported rather than guessed, because pairing the wrong records would put wrong evidence behind a right-looking verdict",
+          "risk": null,
+          "source": "pms:demopms/occupancy"
+        }
+      ]
+    }
+  ],
+  "counts": {
+    "PASS": 0,
+    "FAIL": 0,
+    "UNKNOWN": 0,
+    "EXCLUDED": 28,
+    "total": 28
+  },
+  "execution": {
+    "mode": "periodic",
+    "declared_mode": "periodic",
+    "fell_back": false,
+    "headline": "Runs periodic, due now. It is re-checked every 6 hours, because the state it watches can change with no event at all."
+  }
+}

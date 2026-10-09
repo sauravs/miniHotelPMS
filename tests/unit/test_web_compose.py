@@ -423,3 +423,38 @@ class TestSliceFourteenTheComposeWindowExplainsItself:
         assert status == 303
         assert headers["Location"].startswith("/run/my_draft")
         assert app.handle("/compose").body.count("http-equiv") == 0
+
+
+# ---------------------------------------------------------------------------------------
+class TestSlice15DraftsAsData:
+    """`/api/drafts`: the composed controls, each flagged unreviewed, for a second client.
+
+    The flag travels WITH the draft, never inferred by the client from which list it came in -
+    runnable and unreviewed travel together, or the criterion-1 figure stops meaning anything."""
+
+    def test_with_no_drafts_directory_the_absence_is_stated(self):
+        """Not a 404 and not a bare empty list. "Nothing filed" and "nowhere to file" are two
+        different answers, and an empty list would say the first when the truth is the second."""
+        status, _ct, body = App().handle("/api/drafts")
+        assert status == 200
+        assert json.loads(body) == {"wired": False, "drafts": []}
+
+    def test_a_wired_directory_with_nothing_filed_is_an_empty_list(self, app):
+        assert json.loads(app.handle("/api/drafts").body) == {"wired": True, "drafts": []}
+
+    def test_a_filed_draft_is_listed_and_flagged_unreviewed(self, app):
+        app.handle_post("/compose/accept", EMAIL_RULE)
+        payload = json.loads(app.handle("/api/drafts").body)
+        (draft,) = payload["drafts"]
+        assert draft["control_id"] == "my_draft"
+        assert draft["name"] == "My Draft"
+        assert draft["reviewed"] is False
+        assert draft["natural_language"]
+        assert {r["provider"] for r in draft["readiness"]}
+
+    def test_a_draft_never_joins_the_reviewed_controls(self, app):
+        """The criterion-1 figure counts reviewed controls only. A draft that appeared in
+        `/api/controls` would be counted by any client that charts that list."""
+        app.handle_post("/compose/accept", EMAIL_RULE)
+        listed = [c["control_id"] for c in json.loads(app.handle("/api/controls").body)["controls"]]
+        assert "my_draft" not in listed

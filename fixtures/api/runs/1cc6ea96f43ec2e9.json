@@ -1,0 +1,29 @@
+{
+  "control_id": "rate_room_category_consistency",
+  "control_name": "Rate / Room-Category Consistency",
+  "natural_language": "A reservation using a given rate may only be sold in the room categories that rate permits.",
+  "tenant_id": "sandbox",
+  "provider": "minihotel",
+  "evidence": {
+    "label": "sandbox2024",
+    "synthetic": false
+  },
+  "as_of": "2024-09-01",
+  "created_at": "2024-09-01T00:00:00+03:00",
+  "calls": 1,
+  "run_id": "1cc6ea96f43ec2e9",
+  "blocked": "This control needs evidence this body of responses does not hold: this capture cannot answer that question: ArrivalDate was captured for 2024-08-01..2024-08-31 and the run asks for 2024-09-01..2024-11-30. An empty population here would look exactly like 'no violations found', and a population from the WRONG window would look like an answer, so it is refused instead",
+  "coverage": {
+    "evaluated": 0,
+    "total": 0,
+    "concluded": false,
+    "headline": "This control's population was empty - there was nothing to check.",
+    "reasons": []
+  },
+  "freshness": {
+    "stale": false,
+    "headline": "This evidence was captured 730 days AFTER the instant this run asks about, so it may describe a later state than the question."
+  },
+  "readiness": [],
+  "verdicts": []
+}

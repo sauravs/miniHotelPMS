@@ -842,3 +842,183 @@ def _tile_border_colour(stylesheet: str, outcome: str) -> str:
     match = re.search(r"border-left:\s*[\d.]+\w*\s+\w+\s+(#[0-9a-fA-F]+)",
                       _tile_rule(stylesheet, outcome))
     return match.group(1) if match else ""
+
+
+# ---------------------------------------------------------------------------------------
+# Slice 15: the read-only JSON a second client needs. The React UI cannot build its index or its
+# history page from the three routes that existed, so these four are the only Python the slice
+# adds. Every one is a GET, a pure function of the path, and costs no provider call.
+def _json(app, path):
+    status, content_type, body = app.handle(path)
+    assert content_type.startswith("application/json"), (path, body[:200])
+    return status, json.loads(body)
+
+
+def _no_run_may_happen(monkeypatch):
+    """Make any attempt to execute a control fail loudly. Re-reading the spec is free; running
+    a control spends provider calls, one per reservation for a folio (R1)."""
+    import hotelcontrols.web.app as module
+
+    def refuse(*_args, **_kwargs):
+        raise AssertionError("a read-only route executed a control")
+    monkeypatch.setattr(module, "run", refuse)
+
+
+class TestSlice15TheControlsListIsOneRequest:
+    """Criterion 10 for a second client: readiness per control per provider, in ONE request.
+
+    One request rather than eleven because the server is serial (trap 6): eleven parallel
+    readiness fetches from a browser are served one at a time, and the fix for that is never
+    a threaded server - the store is a single-thread connection."""
+
+    def test_every_reviewed_control_is_listed_with_what_the_index_shows(self):
+        from hotelcontrols.spec import available, load
+        status, payload = _json(App(), "/api/controls")
+        assert status == 200
+        assert [c["control_id"] for c in payload["controls"]] == list(available())
+        for entry in payload["controls"]:
+            ir = load(entry["control_id"])
+            assert entry["name"] == ir.name
+            assert entry["natural_language"] == ir.natural_language
+            assert entry["entity"] == ir["entity"]
+            assert entry["reviewed"] is True
+
+    def test_readiness_is_the_same_object_the_readiness_route_serves(self):
+        """One serialiser per object. A second hand-rolled shape for readiness is how two
+        surfaces drift apart, and the drift would show up as a ratio that disagrees."""
+        app = App()
+        _status, payload = _json(app, "/api/controls")
+        for entry in payload["controls"]:
+            _s, single = _json(app, "/api/readiness/%s" % entry["control_id"])
+            assert entry["readiness"] == single["providers"]
+
+    def test_readiness_names_every_provider(self):
+        from hotelcontrols.providers.registry import names
+        _status, payload = _json(App(), "/api/controls")
+        for entry in payload["controls"]:
+            assert {r["provider"] for r in entry["readiness"]} == set(names())
+
+    def test_it_costs_no_provider_call_and_writes_no_run(self, monkeypatch):
+        """Brief §6: answerable from the spec alone. Asserted three ways - the function that
+        executes a control refuses, the call counter does not move, and the history is empty."""
+        _no_run_may_happen(monkeypatch)
+        app = App()
+        status, _payload = _json(app, "/api/controls")
+        assert status == 200
+        assert app.provider_calls == 0
+        assert app.store.history() == []
+
+
+class TestSlice15ThePropertiesListPowersTheEvidencePicker:
+
+    def test_every_property_names_its_provider_and_its_captures(self):
+        from hotelcontrols.spec import available_tenants
+        app = App()
+        status, payload = _json(app, "/api/properties")
+        assert status == 200
+        assert [p["id"] for p in payload["properties"]] == list(available_tenants())
+        for entry in payload["properties"]:
+            assert entry["name"]
+            assert entry["provider"]
+            assert entry["captures"] == list(app.captures_for(entry["id"]))
+            assert entry["default_capture"] in entry["captures"]
+
+    def test_it_says_which_property_and_evidence_a_run_uses_when_none_is_asked_for(self):
+        """The HTML index states the selection it used rather than guessing silently. A client
+        that guessed its own default could ask a different question than the page it mirrors."""
+        app = App()
+        _status, payload = _json(app, "/api/properties")
+        assert (payload["default"]["property"], payload["default"]["evidence"]) == \
+            app._selection({})
+
+    def test_it_costs_no_provider_call(self, monkeypatch):
+        _no_run_may_happen(monkeypatch)
+        app = App()
+        assert _json(app, "/api/properties")[0] == 200
+        assert app.provider_calls == 0 and app.store.history() == []
+
+
+class TestSlice15HistoryAsData:
+    """The rows `/history/<id>` renders, as JSON - with the two gates a chart needs."""
+
+    def test_an_unknown_control_is_the_same_404_the_page_gives(self):
+        app = App()
+        page_status = app.handle("/history/no_such_control").status
+        status, payload = _json(app, "/api/history/no_such_control")
+        assert status == page_status == 404
+        assert "error" in payload
+
+    def test_a_control_never_run_has_an_empty_history_not_a_refusal(self):
+        status, payload = _json(App(), "/api/history/checkout_money_owed")
+        assert status == 200
+        assert payload == {"control_id": "checkout_money_owed", "runs": []}
+
+    def test_a_run_appears_with_its_evidence_and_counts(self):
+        app = App()
+        live = json.loads(app.handle(
+            "/api/run/checkout_money_owed?property=sandbox&evidence=sandbox2026").body)
+        _status, payload = _json(app, "/api/history/checkout_money_owed")
+        (row,) = payload["runs"]
+        assert row["run_id"] == live["run_id"]
+        assert row["evidence_label"] == "sandbox2026"
+        assert row["provider"] == live["provider"]
+        assert row["as_of"] == live["as_of"]
+        assert row["calls"] == live["calls"]
+        assert row["counts"] == live["counts"]
+        assert row["concluded"] is live["coverage"]["concluded"] is True
+
+    def test_a_run_that_concluded_nothing_is_flagged_even_though_it_has_counts(self):
+        """Trap 1, pinned on the history route as well. `ooo_room_protection` excludes all 28
+        rooms: its counts are four numbers, one of them a zero under FAIL, and a client that
+        renders counts whenever they exist reproduces finding F5. `concluded` is the gate."""
+        app = App()
+        app.handle("/api/run/ooo_room_protection?property=sandbox&evidence=sandbox2026")
+        (row,) = _json(app, "/api/history/ooo_room_protection")[1]["runs"]
+        assert row["concluded"] is False
+        assert row["counts"]["EXCLUDED"] == row["counts"]["total"] == 28
+
+    def test_a_blocked_run_carries_its_reason_and_no_counts(self):
+        """The same rule `run_json` keeps: zeroes in a payload get charted by somebody, and a
+        chart of a run that never happened is a chart of nothing (F5)."""
+        app = App()
+        app.handle("/api/run/resource_occupancy_consistency?property=sandbox"
+                   "&evidence=sandbox2026")
+        (row,) = _json(app, "/api/history/resource_occupancy_consistency")[1]["runs"]
+        assert row["blocked"]
+        assert "counts" not in row
+        assert row["concluded"] is False
+
+    def test_it_is_newest_first_like_the_page(self):
+        app = App()
+        for capture in ("sandbox2024", "sandbox2026"):
+            app.handle("/api/run/checkout_money_owed?property=sandbox&evidence=%s" % capture)
+        rows = _json(app, "/api/history/checkout_money_owed")[1]["runs"]
+        stamps = [row["created_at"] for row in rows]
+        assert stamps == sorted(stamps, reverse=True)
+        assert len(rows) == 2
+
+    def test_reading_history_costs_no_provider_call(self):
+        """R1: the history exists so that "what did it say?" is never answered by re-running."""
+        app = App()
+        app.handle("/api/run/checkout_money_owed?property=sandbox&evidence=sandbox2026")
+        before = app.provider_calls
+        _json(app, "/api/history/checkout_money_owed")
+        assert app.provider_calls == before
+
+
+class TestSlice15TheNewRoutesAreReadOnly:
+
+    @pytest.mark.parametrize("path", ["/api/controls", "/api/properties",
+                                      "/api/history/checkout_money_owed", "/api/drafts"])
+    def test_none_of_them_accepts_a_post(self, path):
+        """`handle(path)` stays a pure function of the path, and writes go through
+        `handle_post` - which has exactly two routes, both compose. Nothing new writes."""
+        status, content_type, _body = App().handle_post(path, "")
+        assert status == 405
+        assert content_type.startswith("application/json")
+
+    @pytest.mark.parametrize("path", ["/api/controls", "/api/properties",
+                                      "/api/history/checkout_money_owed", "/api/drafts"])
+    def test_the_same_path_twice_gives_the_same_answer(self, path):
+        app = App()
+        assert app.handle(path) == app.handle(path)

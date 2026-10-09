@@ -1,0 +1,39 @@
+{
+  "control_id": "room_capacity_compliance",
+  "providers": [
+    {
+      "provider": "demopms",
+      "available": 10,
+      "total": 10,
+      "executable": true,
+      "headline": "demopms: 10 of 10 fields available",
+      "sources": [
+        {
+          "name": "pms",
+          "available": 10,
+          "total": 10,
+          "missing": []
+        }
+      ],
+      "unresolvable": [],
+      "tenant_supplied": []
+    },
+    {
+      "provider": "minihotel",
+      "available": 10,
+      "total": 10,
+      "executable": true,
+      "headline": "minihotel: 10 of 10 fields available",
+      "sources": [
+        {
+          "name": "pms",
+          "available": 10,
+          "total": 10,
+          "missing": []
+        }
+      ],
+      "unresolvable": [],
+      "tenant_supplied": []
+    }
+  ]
+}

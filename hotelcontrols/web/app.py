@@ -41,9 +41,9 @@ from dataclasses import replace
 from typing import NamedTuple
 
 from ..compiler import Turn, compile_sentence, deployment_of, normalise
-from ..kernel import FixedClock
+from ..kernel import FixedClock, Outcome
 from ..providers import registry as providers
-from ..runner import next_evaluation, readiness, run
+from ..runner import Coverage, next_evaluation, readiness, run
 from ..spec import (ControlIR, Registry, SpecError, TenantConfig, available, available_tenants,
                     load, provider_map)
 from ..store import RunStore
@@ -182,6 +182,15 @@ class App:
                 parts[2], self._readiness(self._ir(parts[2]))))
         if parts == ["compose"]:
             return self._compose_page(query)
+        # Slice 15: what a second client needs to build the index and history pages.
+        if parts == ["api", "controls"]:
+            return self._controls_json()
+        if parts == ["api", "properties"]:
+            return self._properties_json()
+        if len(parts) == 3 and parts[:2] == ["api", "history"]:
+            return self._history_json(parts[2])
+        if parts == ["api", "drafts"]:
+            return self._drafts_json()
 
         raise _Refused(404, "There is nothing at /%s. The controls are listed at /."
                        % "/".join(parts))
@@ -386,6 +395,89 @@ class App:
         return Response(200, HTML, render.history_page(
             control_id, self.store.history(control_id)))
 
+    # ------------------------------------------------------------------ JSON for a second client
+    # Slice 15 adds a React UI as a SECOND client of this API, and these four routes are what it
+    # could not build from the three that existed. All read-only, all answerable without running
+    # a control, and all built from the serialisers `render.py` already has - one shape per
+    # object, because two shapes for the same readiness report is how two surfaces drift apart.
+    def _controls_json(self) -> Response:
+        """Every reviewed control and its readiness per provider, in ONE request.
+
+        One rather than eleven because the server is serial, and must stay so until the store
+        is thread-safe: eleven parallel readiness fetches would be served one at a time.
+        """
+        return Response(200, JSON, json.dumps(
+            {"controls": [self._control_json(ir, reviewed=True)
+                          for ir in map(self._ir, self._controls())]}, indent=2))
+
+    def _drafts_json(self) -> Response:
+        """The composed controls, each flagged unreviewed IN the object, not by its list.
+
+        With no drafts directory the absence is stated: "nothing filed" and "nowhere to file"
+        are different answers, and a bare empty list would give the first for the second.
+        """
+        return Response(200, JSON, json.dumps(
+            {"wired": self.draft_dir is not None,
+             "drafts": [self._control_json(ir, reviewed=False) for ir in self._draft_irs()]},
+            indent=2))
+
+    def _control_json(self, ir: ControlIR, reviewed: bool) -> dict:
+        return {"control_id": ir.control_id, "name": ir.name,
+                "natural_language": ir.natural_language, "entity": ir["entity"],
+                "reviewed": reviewed,
+                "readiness": [render._readiness_json(r) for r in self._readiness(ir)]}
+
+    def _properties_json(self) -> Response:
+        """Each property, its provider and the evidence it can be replayed against.
+
+        `default` is the selection a request naming nothing would use, stated rather than left
+        for the client to guess: a client that picked its own default could ask a different
+        question than the page it mirrors. Nothing here builds an adapter - a package's list of
+        captures is metadata, not a call.
+        """
+        properties = []
+        for name in available_tenants(self.spec_dir) if self.spec_dir else available_tenants():
+            tenant = self._tenant(name)
+            package = providers.load(tenant.provider)
+            properties.append({"id": name, "name": tenant.name, "provider": tenant.provider,
+                               "captures": list(package.captures),
+                               "default_capture": package.default_capture})
+        tenant_id, capture = self._selection({})
+        return Response(200, JSON, json.dumps(
+            {"properties": properties, "default": {"property": tenant_id, "evidence": capture}},
+            indent=2))
+
+    def _history_json(self, control_id: str) -> Response:
+        """The rows `/history/<id>` renders, as data, with the two gates a chart needs.
+
+        THE SAME RULES `run_json` KEEPS, because a history row is a run seen from further away.
+        A blocked run carries its reason and NO counts. A run that concluded nothing keeps its
+        counts - `ooo_room_protection`'s 28 exclusions are true - but says `concluded: false`
+        beside them, so a client has a gate that is not "are there numbers?" (trap 1, F5).
+        `concluded` comes from the engine's own `Coverage`, never re-derived here.
+
+        Newest first, as the page is, with ties broken by `run_id`. Ties are the norm, not an
+        edge: both properties' 2026 captures describe the same instant, and SQLite promises no
+        order among equal sort keys - so without the second key this payload's bytes would
+        depend on the SQLite build, and its golden copy in `fixtures/api/` could not be rebuilt.
+        """
+        self._ir(control_id)          # the same 404 the page gives, for the same reason
+        rows = sorted(self.store.history(control_id),
+                      key=lambda row: (row["created_at"], row["run_id"]), reverse=True)
+        runs = []
+        for row in rows:
+            counts = {outcome.value: row[_HISTORY_COLUMN[outcome]] or 0 for outcome in Outcome}
+            counts["total"] = row["total"] or 0
+            evaluated = sum(counts[outcome.value] for outcome in Outcome if outcome.is_answer)
+            entry = {key: row[key] for key in ("run_id", "created_at", "provider",
+                                               "evidence_label", "as_of", "calls", "blocked")}
+            entry["concluded"] = Coverage(evaluated=evaluated, total=counts["total"]).concluded
+            if not row["blocked"]:
+                entry["counts"] = counts
+            runs.append(entry)
+        return Response(200, JSON, json.dumps({"control_id": control_id, "runs": runs},
+                                              indent=2))
+
     # ------------------------------------------------------------------ doing the work
     def _execute(self, control_id: str, query: dict):
         """Run one control over one body of evidence, and keep the result."""
@@ -497,6 +589,11 @@ class App:
     def captures_for(self, tenant_id: str) -> tuple[str, ...]:
         """Every body of evidence this property's provider can be replayed against."""
         return providers.load(self._tenant(tenant_id).provider).captures
+
+
+# Which column of a `RunStore.history` summary row counts which outcome.
+_HISTORY_COLUMN = {Outcome.PASS: "passes", Outcome.FAIL: "fails",
+                   Outcome.UNKNOWN: "unknowns", Outcome.EXCLUDED: "excluded"}
 
 
 def _slug(value: str) -> str:

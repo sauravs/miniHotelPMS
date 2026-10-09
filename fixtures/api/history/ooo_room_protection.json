@@ -1,0 +1,73 @@
+{
+  "control_id": "ooo_room_protection",
+  "runs": [
+    {
+      "run_id": "f150b88be31a62c7",
+      "created_at": "2026-07-08T00:00:00+03:00",
+      "provider": "minihotel",
+      "evidence_label": "sandbox2026",
+      "as_of": "2026-07-08",
+      "calls": 2,
+      "blocked": null,
+      "concluded": false,
+      "counts": {
+        "PASS": 0,
+        "FAIL": 0,
+        "UNKNOWN": 0,
+        "EXCLUDED": 28,
+        "total": 28
+      }
+    },
+    {
+      "run_id": "838b32f05820b6c0",
+      "created_at": "2026-07-08T00:00:00+03:00",
+      "provider": "demopms",
+      "evidence_label": "demo2026",
+      "as_of": "2026-07-08",
+      "calls": 2,
+      "blocked": null,
+      "concluded": false,
+      "counts": {
+        "PASS": 0,
+        "FAIL": 0,
+        "UNKNOWN": 0,
+        "EXCLUDED": 28,
+        "total": 28
+      }
+    },
+    {
+      "run_id": "b92123bf3b9c654b",
+      "created_at": "2024-09-01T00:00:00+03:00",
+      "provider": "minihotel",
+      "evidence_label": "sandbox2024",
+      "as_of": "2024-09-01",
+      "calls": 2,
+      "blocked": null,
+      "concluded": false,
+      "counts": {
+        "PASS": 0,
+        "FAIL": 0,
+        "UNKNOWN": 0,
+        "EXCLUDED": 28,
+        "total": 28
+      }
+    },
+    {
+      "run_id": "5dbda5e62069da3a",
+      "created_at": "2024-09-01T00:00:00+03:00",
+      "provider": "demopms",
+      "evidence_label": "demo2024",
+      "as_of": "2024-09-01",
+      "calls": 2,
+      "blocked": null,
+      "concluded": false,
+      "counts": {
+        "PASS": 0,
+        "FAIL": 0,
+        "UNKNOWN": 0,
+        "EXCLUDED": 28,
+        "total": 28
+      }
+    }
+  ]
+}

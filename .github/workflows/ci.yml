@@ -19,6 +19,11 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          # Full history, so the slice-15 guard can diff against origin/main. With the
+          # default depth of 1 there is no merge base, and the guard fails loudly rather
+          # than standing down (tests/unit/test_slice15_engine_untouched.py).
+          fetch-depth: 0
 
       - uses: actions/setup-python@v5
         with:

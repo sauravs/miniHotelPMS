@@ -1,0 +1,39 @@
+{
+  "control_id": "inactive_room_future_stay",
+  "providers": [
+    {
+      "provider": "demopms",
+      "available": 5,
+      "total": 5,
+      "executable": true,
+      "headline": "demopms: 5 of 5 fields available",
+      "sources": [
+        {
+          "name": "pms",
+          "available": 5,
+          "total": 5,
+          "missing": []
+        }
+      ],
+      "unresolvable": [],
+      "tenant_supplied": []
+    },
+    {
+      "provider": "minihotel",
+      "available": 5,
+      "total": 5,
+      "executable": true,
+      "headline": "minihotel: 5 of 5 fields available",
+      "sources": [
+        {
+          "name": "pms",
+          "available": 5,
+          "total": 5,
+          "missing": []
+        }
+      ],
+      "unresolvable": [],
+      "tenant_supplied": []
+    }
+  ]
+}
