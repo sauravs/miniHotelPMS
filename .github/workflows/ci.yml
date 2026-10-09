@@ -55,3 +55,41 @@ jobs:
           else
             echo "spec validator arrives in slice 1 - skipping"
           fi
+
+  # The React UI (slice 15). A SEPARATE job with no `needs:` in either direction, and not one of
+  # the two checks `main` requires: a broken npm, a registry outage or a browser download must
+  # never block an engine fix. The rules that matter most about ui/ - no parsing money, no PMS
+  # identifier, no injected HTML, one module that makes requests, exact pins - are ALSO checked
+  # by the required Python suite (tests/unit/test_ui_hygiene.py), so they cannot be skipped.
+  ui:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ui
+    env:
+      NEXT_TELEMETRY_DISABLED: "1"
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: ui/package-lock.json
+
+      - name: Install, exactly as locked
+        run: npm ci --no-audit --no-fund
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Component tests and the parity harness, from the golden payloads
+        run: npm test
+
+      - name: Build
+        run: npm run build
+
+      - name: Real-browser tests (computed styles, keyboard, axe)
+        run: |
+          npx playwright install --with-deps chromium
+          npm run e2e

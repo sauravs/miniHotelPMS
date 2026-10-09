@@ -1046,7 +1046,7 @@ class TestSlice15HistoryAsData:
 
 class TestSlice15TheNewRoutesAreReadOnly:
 
-    @pytest.mark.parametrize("path", ["/api/controls", "/api/properties",
+    @pytest.mark.parametrize("path", ["/api/controls", "/api/properties", "/api/outcomes",
                                       "/api/history/checkout_money_owed", "/api/drafts"])
     def test_none_of_them_accepts_a_post(self, path):
         """`handle(path)` stays a pure function of the path, and writes go through
@@ -1055,8 +1055,37 @@ class TestSlice15TheNewRoutesAreReadOnly:
         assert status == 405
         assert content_type.startswith("application/json")
 
-    @pytest.mark.parametrize("path", ["/api/controls", "/api/properties",
+    @pytest.mark.parametrize("path", ["/api/controls", "/api/properties", "/api/outcomes",
                                       "/api/history/checkout_money_owed", "/api/drafts"])
     def test_the_same_path_twice_gives_the_same_answer(self, path):
         app = App()
         assert app.handle(path) == app.handle(path)
+
+
+class TestSlice15OutcomeWordingHasOneSource:
+    """Criterion 2's third signal, served rather than restated. The run payload carries each
+    verdict's `means` but not its badge, and a second client that typed "VIOLATION" and "NO
+    ANSWER" into its own source would hold a copy of `WORDING` free to drift from the first."""
+
+    def test_every_outcome_has_its_badge_meaning_and_group_sentence_from_render(self):
+        status, payload = _json(App(), "/api/outcomes")
+        assert status == 200
+        by_outcome = {o["outcome"]: o for o in payload["outcomes"]}
+        assert set(by_outcome) == {o.value for o in Outcome}
+        for outcome in Outcome:
+            entry = by_outcome[outcome.value]
+            assert (entry["badge"], entry["means"]) == render.WORDING[outcome]
+            assert entry["group_meaning"] == render.GROUP_MEANING[outcome]
+            assert entry["open"] is (outcome in render.OPEN_GROUPS)
+
+    def test_the_two_orders_are_the_pages_orders(self):
+        """Tiles read as a scoreboard (concluded first); groups read as a work queue (what to
+        act on first). Two different orders, both owned by `render.py`."""
+        payload = _json(App(), "/api/outcomes")[1]
+        assert [o["outcome"] for o in payload["outcomes"]] == [o.value for o in render.TILE_ORDER]
+        assert payload["group_order"] == [o.value for o in render.GROUP_ORDER]
+
+    def test_no_two_outcomes_share_a_badge_or_a_meaning(self):
+        """The wording half of criterion 2, on the data a client will render from."""
+        outcomes = _json(App(), "/api/outcomes")[1]["outcomes"]
+        assert len({o["badge"] for o in outcomes}) == len({o["means"] for o in outcomes}) == 4
