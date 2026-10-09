@@ -180,6 +180,12 @@ class ActionRecord:
     cleared_by_run: str | None = None
     cleared_at: datetime | None = None
     cleared_as_of: str | None = None
+    # The sent marker (slice 19): when the task was emailed and on which channel, or - when it
+    # could not be - why not. One email per record per channel, because the marker is HERE,
+    # on the record slice 18's natural key already deduplicates. None, None, None: never sent.
+    notified_at: datetime | None = None
+    notified_via: str | None = None
+    notify_note: str | None = None
 
     @property
     def is_pending(self) -> bool:

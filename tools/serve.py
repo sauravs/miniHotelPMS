@@ -9,6 +9,8 @@ THE DEMO, WITH THE COMPOSE FRONT END WIRED.
 
     ... --store PATH                      keep the run history and the findings queue in a file
                                           (default: in memory, and the queue page says so)
+    ... --notify smtp                     email each new task once to its audience (slice 19).
+                                          Off by default, and behind HOTELCONTROLS_NOTIFY=1
 
 WHY THIS FILE EXISTS AT ALL, RATHER THAN A FLAG ON THE SERVER
 --------------------------------------------------------------
@@ -37,7 +39,7 @@ from hotelcontrols.store import RunStore
 from hotelcontrols.web.app import App
 from hotelcontrols.web.server import HOST, PORT, SERVER, Handler
 
-from . import proposers
+from . import notifiers, proposers
 
 DRAFT_DIR = pathlib.Path(__file__).resolve().parents[1] / "spec" / "drafts"
 
@@ -50,19 +52,24 @@ def say(message: str) -> None:
 
 
 def build_app(backend: str, draft_dir: pathlib.Path = DRAFT_DIR,
-              store: str | None = None) -> App:
+              store: str | None = None, notify: str = notifiers.DEFAULT,
+              public_url: str | None = None) -> App:
     """The demo app, with a proposer if one was asked for, and a file store if one was.
 
     `store` is slice 18's opt-in `--store PATH`: without it the history and the findings queue
     are in memory, as they always were, and the queue page says they are lost on restart.
+    `notify` is slice 19's: "off" unless asked, and a live backend still refuses to send until
+    HOTELCONTROLS_NOTIFY=1 is set and no test runner is loaded.
     """
     proposer = proposers.build(backend)
     if proposer is not None:
         # Made here rather than on first write: a chat window that accepts a sentence and then
         # cannot file it has wasted the only expensive step in the flow.
         (draft_dir / "ir").mkdir(parents=True, exist_ok=True)
+    extra = {"public_url": public_url} if public_url else {}
     return App(proposer=proposer, draft_dir=draft_dir if proposer is not None else None,
-               store=RunStore(store) if store else None)
+               store=RunStore(store) if store else None, notifier=notifiers.build(notify),
+               **extra)
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -75,15 +82,21 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--store", metavar="PATH", default=None,
                         help="keep the run history and the findings queue in this SQLite file "
                              "(default: in memory, lost on restart)")
+    parser.add_argument("--notify", default=notifiers.DEFAULT, choices=notifiers.NAMES,
+                        help="email each new task to its audience (default: %(default)s)")
+    parser.add_argument("--public-url", default=None,
+                        help="where an email's link points (default: http://HOST:PORT)")
     arguments = parser.parse_args(argv)
 
     try:
-        app = build_app(arguments.llm, store=arguments.store)
+        app = build_app(arguments.llm, store=arguments.store, notify=arguments.notify,
+                        public_url=arguments.public_url
+                        or "http://%s:%d" % (arguments.host, arguments.port))
     except RuntimeError as exc:
         # A missing package or an unreachable host is a setup problem with a known fix, and the
         # backend itself already explains it. Printed and exited rather than raised, because a
         # traceback here says nothing a reader can act on.
-        print("Could not start the %s backend:\n\n%s" % (arguments.llm, exc), file=sys.stderr)
+        print("Could not start: %s" % exc, file=sys.stderr)
         return 2
 
     Handler.app = app
@@ -99,6 +112,13 @@ def main(argv: list[str] | None = None) -> int:
             say("  ...but %s is not set, so it will refuse. Prefix the command "
                 "with %s=1." % (proposers.ENABLE, proposers.ENABLE))
         say("  Drafts are filed in spec/drafts/ and are NOT counted as shipped controls.")
+    if app.notifier is None:
+        say("Email is OFF. Restart with --notify smtp to email each new task to its audience.")
+    else:
+        say("Email is wired (%s): each new task is emailed once to its audience." % app.notifier.name)
+        if not notifiers.is_enabled():
+            say("  ...but %s is not set, so it will refuse, and each task will say so."
+                % notifiers.ENABLE)
 
     server = SERVER((arguments.host, arguments.port), Handler)
     try:

@@ -38,6 +38,13 @@ run and then asks `actions.findings_from` what it raises, and the store keeps on
 natural key. Only a reviewed control raises one - a draft's `action` block is borrowed from the
 control whose population it borrowed, so its severity and audience were never decided by
 anybody. The POSTs that move a task write our own store and nothing else.
+
+AND, WHEN SOMEBODY WIRES ONE, EMAILS IT (slice 19)
+---------------------------------------------------
+A `Notifier` is injected - by `tools/serve.py`, never looked up - and `_execute` hands it the
+tasks the run just failed, each emailed once. With none wired, which is the default and what
+`python3 -m hotelcontrols.web.server` builds, nothing is sent and every payload is exactly what
+it was before this slice.
 """
 from __future__ import annotations
 
@@ -48,7 +55,7 @@ import uuid
 from dataclasses import replace
 from typing import NamedTuple
 
-from ..actions import OPERATOR, TransitionRefused, findings_from
+from ..actions import OPERATOR, TransitionRefused, dispatch, findings_from
 from ..compiler import Turn, compile_sentence, deployment_of, normalise
 from ..kernel import FixedClock, Outcome, PropertyClock
 from ..providers import registry as providers
@@ -59,6 +66,10 @@ from ..store import RunStore
 from . import render
 
 HTML = "text/html; charset=utf-8"
+
+# Where an email's link points when nobody says otherwise: this engine's own default address.
+# Not a secret, so it has a default - the same reasoning as the React UI's engine address.
+PUBLIC_URL = "http://127.0.0.1:8765"
 JSON = "application/json; charset=utf-8"
 CSS = "text/css; charset=utf-8"
 
@@ -89,7 +100,8 @@ class App:
     history - and, when a proposer is wired, the compose conversations."""
 
     def __init__(self, spec_dir=None, store: RunStore | None = None,
-                 proposer=None, draft_dir=None, clock=None) -> None:
+                 proposer=None, draft_dir=None, clock=None, notifier=None,
+                 public_url: str = PUBLIC_URL) -> None:
         self.spec_dir = spec_dir
         self.store = store if store is not None else RunStore(":memory:")
         # THE CLOCK A PERSON'S MOVES ARE STAMPED WITH (slice 18). A run's instants come from
@@ -97,6 +109,11 @@ class App:
         # Injected so a test can pin it. None means each property's own clock, read through
         # the kernel - `kernel/clock.py` stays the only module that reads a wall clock.
         self.clock = clock
+        # EMAIL IS OFF UNLESS SOMEBODY HANDS IN A NOTIFIER (slice 19) - the same safety property
+        # as the proposer below. The engine never goes looking for one, and the only backend
+        # that can reach a mail server lives in `tools/notifiers/`, behind two locks.
+        self.notifier = notifier
+        self.public_url = public_url
         self.registry = Registry.load(spec_dir) if spec_dir else Registry.load()
         # Every provider call this app has spent, so a test can assert that re-reading a stored
         # run costs none of them (R1). It is also the number a demo operator should watch.
@@ -644,7 +661,8 @@ class App:
         tenant_id = self._selection(query)[0]
         return Response(200, HTML, render.queue_page(
             tenant_id, self._property_ids(), self.store.actions(tenant_id=tenant_id),
-            self._queue_controls(tenant_id), self.store.persistent))
+            self._queue_controls(tenant_id), self.store.persistent,
+            email=self._notifier_name()))
 
     def _queue_json(self, query: dict) -> Response:
         """One property's queue as data: its tasks, and each control's latest conclusion.
@@ -655,14 +673,20 @@ class App:
         """
         tenant_id = self._selection(query)[0]
         records = self.store.actions(tenant_id=tenant_id)
-        return Response(200, JSON, json.dumps({
+        wired = self.notifier is not None
+        payload = {
             "property": tenant_id,
             "persistent": self.store.persistent,
             "persistence": render.persistence_sentence(self.store.persistent),
             "pending": sum(1 for r in records if r.is_pending),
-            "records": [render.action_json(r) for r in records],
+            "records": [render.action_json(r, delivery=wired) for r in records],
             "controls": self._queue_controls(tenant_id),
-        }, indent=2))
+        }
+        # Slice 19, present ONLY when a notifier is wired. Unwired is today's demo exactly, so
+        # every golden in fixtures/api/ stays byte-identical - this slice may not touch them.
+        if wired:
+            payload["email"] = {"wired": True, "via": self._notifier_name()}
+        return Response(200, JSON, json.dumps(payload, indent=2))
 
     def _action_json(self, action_id: str, query: dict) -> Response:
         """One task, for the selected property. Another property's task is the same 404 as a
@@ -670,11 +694,13 @@ class App:
         record = self.store.action(action_id, tenant_id=self._selection(query)[0])
         if record is None:
             raise _Refused(404, _no_such_action(action_id))
-        return Response(200, JSON, json.dumps(render.action_json(record), indent=2))
+        return Response(200, JSON, json.dumps(
+            render.action_json(record, delivery=self.notifier is not None), indent=2))
 
     def _move_json(self, action_id: str, form: dict) -> Response:
         _tenant_id, moved = self._move(action_id, form)
-        return Response(200, JSON, json.dumps(render.action_json(moved), indent=2))
+        return Response(200, JSON, json.dumps(
+            render.action_json(moved, delivery=self.notifier is not None), indent=2))
 
     def _move_page(self, action_id: str, form: dict) -> Response:
         """The page's two buttons. A 303 back to the queue, so a reload re-reads the queue
@@ -735,6 +761,12 @@ class App:
         clock = self.clock or PropertyClock(self._tenant(tenant_id).timezone)
         return clock.now()
 
+    def _notifier_name(self) -> str:
+        """The wired notifier's name, or "" when email is not wired."""
+        if self.notifier is None:
+            return ""
+        return str(getattr(self.notifier, "name", type(self.notifier).__name__))
+
     def _property_ids(self) -> tuple[str, ...]:
         return tuple(available_tenants(self.spec_dir) if self.spec_dir else available_tenants())
 
@@ -763,7 +795,13 @@ class App:
         # a reviewed control, and only once per natural key however often this is re-run. A
         # draft raises none: its `action` block was borrowed along with its population.
         if control_id in self._controls():
-            self.store.record_findings(findings_from(saved, ir))
+            findings = findings_from(saved, ir)
+            self.store.record_findings(findings)
+            # Slice 19: each task this run failed, emailed once. Scoped to THIS run's FAILs, so a
+            # run that concluded nothing or was blocked sends nothing, by construction.
+            if self.notifier is not None:
+                dispatch(saved, findings, self.store, self.notifier,
+                         public_url=self.public_url, at=self._now(tenant_id))
         return saved, ir, tenant
 
     def _plan(self, ir: ControlIR, tenant: TenantConfig, as_of: str) -> object:

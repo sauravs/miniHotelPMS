@@ -34,6 +34,8 @@ cd ui && npm ci && npm run build && npm start   # this UI, :3000
   `/api/actions/<id>`, which write the engine's own store and never a PMS, then send the reader
   back to the queue. An empty queue is rendered as *not an all-clear*, beside each control's
   latest conclusion. An in-memory engine says the queue is lost on restart, in its own words.
+  When the engine has a notifier wired (slice 19), each task says whether it was emailed, and
+  why not when it was not. With none wired the page says nobody is emailed.
 - **One source of wording.** Badges and meanings come from `/api/outcomes`, which serves the
   engine's `WORDING`. They are never typed here. The queue's status words come from the engine
   too (`label` on each control).

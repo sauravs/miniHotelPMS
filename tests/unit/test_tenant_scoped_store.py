@@ -223,6 +223,13 @@ class TestEveryStatementOnATenantTableIsScoped:
         (record,) = store.actions(tenant_id="demo")
         store.action(record.action_id, tenant_id="demo")
         store.action(record.action_id, tenant_id="sandbox")
+        # Slice 19's sent marker: a claim, a refused claim from another property, a note, and
+        # a release.
+        store.note_notification(record.action_id, tenant_id="demo", note="no route")
+        store.claim_notification(record.action_id, tenant_id="sandbox", channel="email",
+                                 at=later)
+        store.claim_notification(record.action_id, tenant_id="demo", channel="email", at=later)
+        store.release_notification(record.action_id, tenant_id="demo", note="refused")
         store.transition(record.action_id, DONE, tenant_id="sandbox", at=later, actor="o")
         store.transition(record.action_id, DONE, tenant_id="demo", at=later, actor="o")
         with pytest.raises(TransitionRefused):

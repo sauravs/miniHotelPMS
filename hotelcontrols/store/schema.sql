@@ -107,6 +107,13 @@ CREATE TABLE IF NOT EXISTS actions (
     cleared_by_run   TEXT,
     cleared_at       TEXT,
     cleared_as_of    TEXT,
+    -- Slice 19: the sent marker. CLAIMED before a send by a guarded UPDATE, released with the
+    -- reason if the send fails, so a task is emailed once per channel however often dispatch
+    -- runs. `notify_note` says why a task is unsent ("no route configured for audience
+    -- finance"). A store made by slice 18 gains these through `_migrate`, nullable: never sent.
+    notified_at      TEXT,
+    notified_via     TEXT,
+    notify_note      TEXT,
     UNIQUE (tenant_id, control_id, policy_version, record_id)
 );
 
