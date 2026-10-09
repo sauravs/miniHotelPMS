@@ -297,3 +297,49 @@ class TestRefusals:
             bundle({"folio.balance_due": Value.known(Money.parse("812.5", "ILS"))}))
         assert result.reason == (
             "folio.balance_due is 812.5 ILS, which does not satisfy `lte 0`")
+
+
+class TestMembershipAgainstSomethingThatIsNotACollection:
+    """`in` over a bare string iterated its CHARACTERS, and answered a confident False.
+
+    `tuple("RACK")` is `('R','A','C','K')`, so `"RACK" in tuple("RACK")` is False - the rule
+    reported that a value is absent from a collection that is exactly that value. On screen it
+    read `rate_plan.code is RACK, which does not satisfy 'in the property's nominated rate
+    codes'`, a sentence contradicting itself.
+
+    This is the "never widen a verdict" rule in its other direction: not an UNKNOWN becoming a
+    PASS, but a gap in the SPEC becoming a definite answer. A collection this engine cannot
+    recognise is a reason to say so, never to answer about its characters.
+    """
+
+    @pytest.mark.parametrize("operator", ["in", "not_in"])
+    @pytest.mark.parametrize("collection", ["RACK", 5, True, {"RACK": 1}])
+    def test_a_non_collection_operand_is_cannot_tell_and_never_a_verdict(
+            self, operator, collection):
+        b = bundle({"rate_plan.code": Value.known("RACK")})
+        result = evaluate_predicate(
+            {"field": "rate_plan.code", "operator": operator, "value": collection}, b)
+        assert result.holds is None, result.reason
+        assert result.reason
+
+    @pytest.mark.parametrize("operator", ["in", "not_in"])
+    def test_a_tenant_setting_supplied_as_a_string_is_cannot_tell(self, operator):
+        """The live route. `required_reservation_fields` scopes itself with
+        `stay.rate_code in tenant_setting nominated_rate_codes`, and a hotel with exactly one
+        nominated code may reasonably write `"RACK"` instead of `["RACK"]`. Every reservation
+        then fell out of scope, and the control reported a clean run over zero records."""
+        b = bundle({"stay.rate_code": Value.known("RACK")})
+        result = evaluate_predicate(
+            {"field": "stay.rate_code", "operator": operator,
+             "tenant_setting": "nominated_rate_codes"},
+            b, settings={"nominated_rate_codes": "RACK"})
+        assert result.holds is None, result.reason
+
+    @pytest.mark.parametrize("operator,expected", [("in", True), ("not_in", False)])
+    def test_a_real_collection_still_answers(self, operator, expected):
+        """The guard must not cost the working case - lists, tuples and sets all answer."""
+        b = bundle({"rate_plan.code": Value.known("RACK")})
+        for collection in (["RACK"], ("RACK",), {"RACK"}):
+            result = evaluate_predicate(
+                {"field": "rate_plan.code", "operator": operator, "value": collection}, b)
+            assert result.holds is expected, result.reason

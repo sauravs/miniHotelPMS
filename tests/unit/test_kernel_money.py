@@ -117,3 +117,28 @@ class TestStructuralEquality:
     def test_repr_reads_as_evidence(self):
         """This string ends up in an audit trail next to an accusation."""
         assert repr(Money.parse("-490.75", "ILS")) == "-490.75 ILS"
+
+
+class TestNonFiniteAmounts:
+    """A money value that is not a finite number is not evidence.
+
+    `Decimal` accepts "NaN", "sNaN" and "Infinity" from a string, so a provider writing any of
+    them produced a Money that claimed to be KNOWN. What followed was worse than a crash: the
+    ordering operators raise `InvalidOperation` (uncaught, so a 500), while `equals` answers a
+    definite False, which reads on screen as a violation established about an amount that was
+    never a number. Both directions are refused here instead - a non-finite amount is the same
+    kind of nothing as a missing one, and this type's whole job is to refuse to guess.
+    """
+
+    @pytest.mark.parametrize("raw", ["NaN", "nan", "sNaN", "Infinity", "-Infinity",
+                                     "inf", "-inf"])
+    def test_a_non_finite_amount_is_refused_at_parse(self, raw):
+        with pytest.raises(MoneyParseError):
+            Money.parse(raw, "ILS")
+
+    @pytest.mark.parametrize("raw", ["NaN", "Infinity", "-Infinity"])
+    def test_a_non_finite_amount_is_refused_in_the_constructor_too(self, raw):
+        """`parse` is not the only door: `zero_is_unknown` builds `Money(number, unit)`
+        directly from a Decimal it parsed itself, so the guard belongs on the type."""
+        with pytest.raises((MoneyParseError, ValueError)):
+            Money(Decimal(raw), "ILS")

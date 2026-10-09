@@ -177,3 +177,29 @@ class TestRegistry:
         for name, function in t.TRANSFORMS.items():
             result = function("0")
             assert isinstance(result, Value), name
+
+
+class TestNonFiniteNumbers:
+    """A transform must answer "I cannot tell", never raise and never invent.
+
+    `Decimal` parses "NaN" and "Infinity" happily, and neither transform noticed. `to_money`
+    handed up a KNOWN `NaN ILS`; `zero_is_unknown` got as far as `int(Decimal("NaN"))` and
+    raised `ValueError` out of the provider layer, because its `try` wrapped only the Decimal
+    construction and not the integer conversion after it.
+    """
+
+    @pytest.mark.parametrize("raw", ["NaN", "Infinity", "-Infinity", "sNaN"])
+    def test_to_money_refuses_a_non_finite_amount(self, raw):
+        """R9's premise is that an amount is comparable. NaN is not comparable to anything -
+        the ordering operators raise on it and `equals` answers a confident False."""
+        value = t.to_money(raw, "ILS")
+        assert value.is_known is False
+        assert value.reason
+
+    @pytest.mark.parametrize("raw", ["NaN", "Infinity", "-Infinity", "sNaN"])
+    def test_zero_is_unknown_refuses_a_non_finite_number_rather_than_raising(self, raw):
+        """R12's transform must return a Value for every input it is given. This one escaped
+        as an uncaught ValueError, which surfaces as a 500 rather than as a named gap."""
+        value = t.zero_is_unknown(raw, "count")
+        assert value.is_known is False
+        assert value.reason

@@ -515,7 +515,26 @@ class _Parser:
 
         predicate: dict[str, Any] = {"field": field, "operator": operator}
         if kind == "one":
-            predicate.update(self._operand(field))
+            operand = self._operand(field)
+            # `one of` needs a COLLECTION, and there is no inline-list syntax in this grammar
+            # by design - `_operand` has a single scalar slot. All three shipped uses name a
+            # collection rather than a literal:
+            #
+            #     stay.room_type one of rate_plan.permitted_room_types    (a field)
+            #     stay.rate_code one of setting nominated_rate_codes      (a setting)
+            #     room.type      one of room_type.code                    (a reference set)
+            #
+            # So `one of "checked_out"` was never an expressible rule. It compiled anyway, and
+            # then evaluated `"checked_out" in tuple("checked_out")` - False, scope matched
+            # nothing, every record EXCLUDED. Criterion 9 says an unsupported sentence is
+            # refused BY NAME, so it is refused here instead of answered wrongly later.
+            if operator in ("in", "not_in") and "value" in operand:
+                raise _ParseError(
+                    "'one of' compares %s against a COLLECTION, and %r is a single value. "
+                    "Name a canonical field holding the set, or 'setting <name>' for a list "
+                    "the hotel supplies - this grammar has no inline list."
+                    % (field, operand["value"]))
+            predicate.update(operand)
         elif kind == "interval":
             start = self._field()
             self.expect("to", "to close the interval this record is measured against")
