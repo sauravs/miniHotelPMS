@@ -17,7 +17,7 @@ things follow from that, and each is the reason for a choice below:
   - THEY ARE THE RESPONSE BODY, VERBATIM, plus one trailing newline. Each file is what `handle`
     returned for the path its own location names; nothing is reformatted, sorted or pruned.
   - THE REACT SUITE NEVER TRIGGERS A RUN. `GET /api/run/` spends provider calls and writes the
-    store (trap 4 in the brief). Reading a file does neither.
+    store (trap 4 in the slice-15 brief, now in git history at 2ab809d). Reading a file does neither.
 
 WHAT IS WRITTEN - the path mirrors the route
 --------------------------------------------

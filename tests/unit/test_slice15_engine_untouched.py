@@ -3,7 +3,8 @@
 Slice 15's invariant: the React UI is an ADDITION, and the engine does not move.
 
 The owner's stated priority for this slice is "nothing may break, no core logic may break", and
-the brief turns that into one mechanical claim: no file the engine IS may change on a slice-15
+the slice-15 brief (`git show 2ab809d:docs/slice-15-react-ui-brief.md`) turns that into one
+mechanical claim: no file the engine IS may change on a slice-15
 branch. A Next.js UI is a second client of a JSON API that already exists. If building it ever
 seems to need a change to the kernel, the evaluator or the store, the slice has been
 misunderstood - and the honest cause is nearly always a field missing from the JSON, which is a
