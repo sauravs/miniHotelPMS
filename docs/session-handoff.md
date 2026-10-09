@@ -5,12 +5,13 @@ session, exactly as written.** The longer block after it is the STATE block the 
 session to read. Do not paste that one. Everything either references is in the repository;
 nothing depends on the previous conversation.
 
-**Last updated:** 2026-10-09, in the third v3 implementation session, on `main` at `e13da7b`.
+**Last updated:** 2026-10-10, in the fourth v3 implementation session, on `main` at `6d9c9ef`.
 The v2 build is complete, slices 0–15. **v3 is slices 16–24, APPROVED by the owner (PR #50).
 Merged: fix #48 (#52), slice 16 (#53), fix #54 (#55), slice 17 (#56), fix #57 (#58), slice 18
 findings queue (#61), slice 19 email (#62), slice 20 operational log (#63), slice 21 typed
-parameters (#65). Only #22 (slice 24's) is open. Next: slice 22, whose OWNER CHECKPOINT is open:
-the decision table is drafted on `slice/22-late-checkout` and awaits approval.** Start every
+parameters (#65), slice 22 LATE_CHECKOUT (#68). Only #22 (slice 24's) is open. Next: slice 23,
+the evidence refresh - but the owner asked to be told when each slice ends and to say go before
+the next one opens, so WAIT for that go-ahead, and then for approval of EACH call.** Start every
 session from `docs/v3-implementation-brief.md` §1.
 
 **The bounded probe of the live sandbox is now v3 slice 23** (decision D16): planned, printed, and
@@ -22,8 +23,7 @@ running it, and never as a standing permission.
 
 ## The starting prompt — paste exactly this
 
-Fill in the `MY DECISIONS` line first if the owner has answered slice 22's three open points;
-left blank, the session shows the decision table and waits for a yes before any code.
+Fill in the `GO-AHEAD` line first. Left blank, the session reports the baseline and waits.
 
 ```
 Continue building miniHotelPMS v3. Working directory: /Users/sauravs/Desktop/Work/miniHotelPMS
@@ -32,58 +32,33 @@ Read docs/v3-implementation-brief.md and follow it, starting with its §1 start-
 Then read docs/session-handoff.md (the STATE block) and the docs/plan-v3.md status table.
 
 Where things stand: fix #48 (#52), slices 16 (#53), 17 (#56), 18 (#61), 19 (#62), 20 (#63),
-21 typed parameters with "not decided" (#65), doc fixes #55 and #58, and the handoff (#66) are
-merged. main is at 38565b4 or a docs-only commit after it. Baseline on main: 2588 passed /
-3 skipped (on a slice/22-* branch the v3 scope guard runs, so expect 2589 / 2), 1092 spec
-checks, 135 API goldens identical, 11 DemoPMS files identical, spec lock current
-(tools.lock_spec --check), 97% coverage.
-React: 185 Vitest, 22 Playwright. Open issues: #22 only.
+21 (#65), 22 LATE_CHECKOUT (#68), doc fixes #55 and #58, and the handoffs are merged. main is
+at 6d9c9ef or a docs-only commit after it. Baseline on main: 2791 passed / 3 skipped (on a
+slice/23-* branch the v3 scope guard runs, so expect one more pass and one fewer skip), 1092
+spec checks, 135 API goldens identical, 11 DemoPMS files identical, spec lock current
+(tools.lock_spec --check), 97% coverage. React: 185 Vitest, 22 Playwright. Open issues: #22.
+`git branch --no-merged main` must list nothing locally.
 
-ONE LOCAL BRANCH IS EXPECTED IN `git branch --no-merged main`: slice/22-late-checkout (09baf99,
-pushed). It holds only the DRAFT decision table spec/guest/late_checkout.json and no code.
-Rebase it on main before building on it.
+WORKING AGREEMENT (owner, 2026-10-10): after each slice ends end to end - PR, CI green,
+squash-merge, docs - REPORT to me and WAIT for my go-ahead before opening the next slice.
 
-NEXT: SLICE 22, LATE_CHECKOUT (branch slice/22-late-checkout). Its owner checkpoint is the
-decision table: 10 ordered rules, first match wins, each decision naming its rule. It has
-three open points:
-  (1) a request after maximum_time: DENIED (recommended, stated policy) or STAFF_REVIEW
-      (D2 §30, never declines on time)?
-  (2) departing on another day, or not checked in: STAFF_REVIEW (recommended)?
-  (3) tasks: APPROVED low, APPROVED_WITH_FEE medium, STAFF_REVIEW medium, all to
-      front_office_manager; DENIED raises none (recommended)?
-MY DECISIONS: (1) ____  (2) ____  (3) ____
-If that line is blank, show me the table and the three points, then WAIT - no code before my
-yes. Once decided: set the file's "status" to approved, and record my answers in it. Then build
-slice 22 exactly as plan-v3 §5 says, with the exit test from V9/V10:
-- 15:00 -> APPROVED_WITH_FEE 25.00 USD as Money.
-- Both sides of both thresholds: 14:00, 14:01, 16:00, 16:01.
-- D2 §1's policy as a second, test-only property.
-- An OK4 reservation or an undecided parameter gives STAFF_REVIEW naming why.
-- The sandbox gives STAFF_REVIEW to everything.
-- The same decision through both providers.
-- A double submission gives one decision and one action.
-- An AST guard proves no model is reachable from hotelcontrols/guest/.
-- Blanking any single evidence field or parameter gives STAFF_REVIEW naming it.
+GO-AHEAD FOR SLICE 23: ____
+If that line is blank, run the baseline, report it, and wait.
 
-Slice 22 constraints:
-- Tenant values live in a new guest_services.LATE_CHECKOUT block of each tenant file.
-- Type them with slice 21's ParameterSchema.from_dict(template["parameters"]).typed(...).
-- Check parameter ordering in hotelcontrols/guest/.
-- The fee is repeated Money.plus; the kernel is unchanged.
-- MUST NOT change: hotelcontrols/spec/, spec/parameters.json, kernel/, providers/, evidence/,
-  evaluator/ (reuse by import), runner/, compiler/, spec/ir/.
-- fixtures/api/: new files only.
-
-THEN SLICE 23, the evidence refresh (owner approves EACH call at the time).
+SLICE 23, THE EVIDENCE REFRESH (branch slice/23-evidence-refresh). Owner approves EACH call at
+the time; if I don't, skip the slice - nothing depends on it.
 - Print each request with tools.probe --plan: getRooms, getRoomTypes, RoomStatusInquiry, and
-  one reservation call WITH room prices (#49).
-- Make NO call without my yes to that call. If I don't approve, skip the slice; nothing
-  depends on it.
-- Scrub before staging. Add a new capture label and never edit an old file.
-- hotelcontrols/ is not changed at all.
-- Re-measure criterion 1 per capture, never rounded.
+  one reservation call WITH room prices (#49). Show me each one and ask.
+- Make NO call without my yes to that specific call. --run refuses anyway without
+  HOTELCONTROLS_LIVE=1 and the four HOTELCONTROLS_MINIHOTEL_* credentials (no defaults).
+- Scrub before staging (tools.scrub_fixtures). Add a NEW capture label; never edit an old file.
+- hotelcontrols/ is not changed at all. May change: fixtures/minihotel/ (new files + index.json),
+  fixtures/demopms/ (new files + index.json, via tools/transcode_demopms.py), fixtures/api/
+  (new files only), spec/providers/ (verified_against dates).
+- Re-measure criterion 1 per capture, never rounded, and never moved by a draft or an invented
+  hotel setting.
 
-THEN SLICE 24, host auth plus per-property credentials (#22).
+THEN SLICE 24, host auth plus per-property credentials (#22) - after my go-ahead.
 - Brief check with me first: is the ui/ development login acceptable as a labelled stand-in?
 - HMAC-SHA256 signed tenant context, verified with hmac.compare_digest, expiry checked through
   the injected clock. The secret comes from the environment with no default.
@@ -95,23 +70,24 @@ Guards every slice must respect:
 - tests/unit/test_v3_slice_scope.py fails a branch that touches anything outside that slice's
   "May change" line. If it fails, STOP and ask me; never widen the table.
 - tests/integration/test_v1_no_answer_changed.py: a declared verdict change goes in its
-  DECLARED dict, in the PR that made it. Slices 22-24 foresee none.
-- Editing a rule makes a new version: bump "version", then python3 -m tools.lock_spec.
+  DECLARED dict, in the PR that made it. Slices 23-24 foresee none.
+- Editing a rule makes a new version: bump "version", then python3 -m tools.lock_spec. The
+  LATE_CHECKOUT table's digest is pinned the same way in tests/unit/test_guest_template.py.
 - Store reads are keyword-only on tenant_id; every SQL on a tenant table carries
-  tenant_id = ?. The new decisions table is covered automatically.
+  tenant_id = ?.
 
 Still open for me (do not decide them yourself):
 - Should drafts stay out of the findings queue? (Slice 18 decided they do.)
 - Should tools.serve attach the operational log in a later slice?
+- Slice 22: should guest tasks be emailed like violations? Should the guest routes get golden
+  payloads and a React view? (Both need tools/dump_api_fixtures.py or tools/serve.py, which
+  slice 22 could not change.)
 FLAGGED: the comment at hotelcontrols/evaluator/predicates.py:138-139 still says the "has not
 supplied" branch means "never declared"; since slice 21 it also means "not decided". evaluator/
 is a must-not in every remaining slice, so fix it through the bug workflow if at all: a GitHub
 issue first, then fix/NN-..., then a PR "Fixes #NN".
 
-Working agreement: one slice per PR. After CI is green on test (3.11) and test (3.13),
-squash-merge, report to me, then open the next slice. Ask me at the brief's checkpoints
-(22 decision table, 23 per call, 24 brief check). Before ending the session, update
-docs/session-handoff.md and the plan-v3 status table.
+Before ending the session, update docs/session-handoff.md and the plan-v3 status table.
 ```
 
 ## The STATE block — read by the session, not pasted
@@ -122,9 +98,8 @@ Continue building miniHotelPMS. Working directory: /Users/sauravs/Desktop/Work/m
 FIRST, before reading anything: run `git status` and `git branch --no-merged main`. Anything
 listed is work that never reached main - push it and open a PR, or delete it on purpose, but do
 not leave it. Two branches sat unpushed for three weeks before anyone looked (one held the fix
-that became issue #44), and no CI can see a branch that was never pushed. ONE EXCEPTION IS
-EXPECTED: slice/22-late-checkout, pushed, holding only the draft decision table that awaits
-the owner's approval (below). Rebase it on main before building on it.
+that became issue #44), and no CI can see a branch that was never pushed. None is expected:
+slice 22's branch was squash-merged as #68 and deleted.
 
 Read these first, in order: CLAUDE.md, docs/plan-v3.md, docs/plan.md, docs/prd.md,
 docs/architecture.md, docs/open-questions.md, docs/old-codebase-improve.md. They are the
@@ -133,26 +108,29 @@ docs/plan-v3.md is authoritative for what is next (slices 16-24).
 
 STATE: v2 IS COMPLETE (slices 0-15) AND v3 IS UNDER CONSTRUCTION (docs/plan-v3.md). Merged:
 fix #48 (#52), slice 16 (#53), fix #54 (#55), slice 17 (#56), fix #57 (#58), slice 18 (#61),
-slice 19 (#62), slice 20 (#63), slice 21 (#65). Baseline on main at e13da7b: 2588 passed /
-3 skipped (the v3 scope guard skips off a slice branch; on slice/22-* expect 2589 / 2), 1092 spec
-checks, 135 API goldens identical to a rebuild, 11 DemoPMS files identical, spec lock current,
-97% coverage. The React UI has 185 Vitest and 22 Playwright tests.
+slice 19 (#62), slice 20 (#63), slice 21 (#65), slice 22 (#68). Baseline on main at 6d9c9ef:
+2791 passed / 3 skipped (the v3 scope guard skips off a slice branch; on slice/23-* expect one
+more pass, one fewer skip), 1092 spec checks, 135 API goldens identical to a rebuild, 11 DemoPMS
+files identical, spec lock current, 97% coverage. The React UI has 185 Vitest and 22 Playwright
+tests.
 
-SLICE 22 STARTS WITH AN OWNER CHECKPOINT - NO CODE BEFORE A YES. The LATE_CHECKOUT decision
-table is drafted as spec/guest/late_checkout.json on branch slice/22-late-checkout (09baf99,
-pushed, no code). Ten ordered rules, first match wins, every decision naming its rule: gaps
-first (any missing evidence or undecided parameter -> STAFF_REVIEW naming all of them, which is
-V10); cancelled / checked out / stay ended -> DENIED (established); departing another day or
-not checked in -> STAFF_REVIEW; <= free_until -> APPROVED; > maximum_time -> DENIED (stated
-policy); > approval_required_after -> STAFF_REVIEW showing the fee; otherwise APPROVED_WITH_FEE.
-UNAVAILABLE is unreachable in v3 (availability is BLOCKED, G12a), and the table says so. THREE
-OPEN POINTS AWAIT THE OWNER: (1) after maximum_time, DENIED or STAFF_REVIEW (D2 §30 never
-declines on time); (2) departing another day / not checked in -> STAFF_REVIEW; (3) the tasks'
-severity and audience. When approved: mark the file's "status" approved, then build slice 22
-exactly as plan-v3 §5 says. Tenant values go in a new guest_services.LATE_CHECKOUT block of the
-tenant file, typed with slice 21's ParameterSchema.from_dict(template["parameters"]) - slice 22
-may NOT change spec/parameters.json or hotelcontrols/spec/, and TenantConfig ignores unknown
-top-level keys.
+THE OWNER'S WORKING AGREEMENT (2026-10-10): report after each slice ends end to end, and WAIT
+for a go-ahead before opening the next one.
+
+SLICE 22 BUILT GUEST SERVICES (#68). spec/guest/late_checkout.json is the APPROVED decision
+table (the owner accepted the implementer's recommendation on all five points; two fixed the
+draft: only checked_in reaches the time rules, and checked in after the departure date is
+STAFF_REVIEW). 11 ordered rules, gaps first. hotelcontrols/guest/ is pure and refuses a table
+that is not approved or whose rules differ from guest.RULES; the template digest is pinned to
+its version in tests/unit/test_guest_template.py. The request is a reservation id + HH:MM (slice
+21's reader); the policy is a guest_services.LATE_CHECKOUT block per tenant, typed by slice 21's
+ParameterSchema - null on sandbox and demo, so they answer STAFF_REVIEW to everything. Evidence
+is evidence.gather, unchanged, over a one-call departures window (yesterday..tomorrow). A
+`decisions` table, tenant-scoped; one decision and one task per double submission (identity
+includes received_on, the property's day); DENIED raises none. Guest tasks live in `actions`
+with kind guest_request, and /queue and /api/actions list violations only. Routes: POST
+/api/guest/requests, GET /api/guest/decisions[/<id>], /guest. NOT DONE, FLAGGED: no goldens and
+no React guest view (tools/dump_api_fixtures.py was outside the slice), guest tasks not emailed.
 
 SLICE 21 MADE "NOT DECIDED" A STATE. spec/parameters.json types every tenant setting
 (text_list, text_list_map, money, time_of_day, choice; required stated; NO defaults) and
@@ -201,13 +179,12 @@ policy_version + policy_digest; a run stored before slice 16 reads "version not 
 
 v3 IS APPROVED (PR #50). START FROM docs/v3-implementation-brief.md. DONE: fix #48, slices 16
 versioning, 17 tenant-scoped store, 18 findings queue, 19 email (two locks), 20 operational log,
-21 typed hotel parameters with "not decided". REMAINING, IN ORDER: 22 LATE_CHECKOUT
-(structured, advisory, no model; the decision table is DRAFTED and awaits the owner's
-approval before any code), 23 evidence refresh (owner approves EACH call at the time; skipped if
-not), 24 authentication at the host (HMAC-signed context) + credentials per property (#22; brief
-check that the ui/ development login is acceptable as a labelled stand-in). Each slice
-in plan-v3.md states what it may and must not change, its test gate and its exit test. The first
-commit of slice 16 adds tests/unit/test_v3_slice_scope.py, the generalised slice-15 guard.
+21 typed hotel parameters with "not decided", 22 LATE_CHECKOUT (structured, advisory, no model).
+REMAINING, IN ORDER, EACH AFTER THE OWNER'S GO-AHEAD: 23 evidence refresh (owner approves EACH
+call at the time; skipped if not), 24 authentication at the host (HMAC-signed context) +
+credentials per property (#22; brief check that the ui/ development login is acceptable as a
+labelled stand-in). Each slice in plan-v3.md states what it may and must not change, its test
+gate and its exit test.
 
 SLICE 15 ADDED A SECOND SCREEN, AND THE ENGINE DID NOT MOVE. ui/ is a Next.js + React +
 TypeScript CLIENT of the engine's JSON API (decision D11). The engine's own server-rendered
@@ -299,8 +276,9 @@ Keep working the same way:
     fixtures/demopms/ is GENERATED - change tools/transcode_demopms.py and rebuild.
   - Do not call the MiniHotel sandbox without asking me first, each time (decision D3).
 
-Work autonomously through the remaining slices, reporting after each merge. Ask me at the
-brief's checkpoints (slices 21, 22, 23 per call, 24) and when a decision is genuinely mine.
+Work through the remaining slices, reporting after each merge and WAITING for my go-ahead
+before opening the next. Ask me at the brief's checkpoints (slice 23 per call, slice 24's brief
+check) and when a decision is genuinely mine.
 Before ending the session, update docs/session-handoff.md and the plan-v3 status table.
 ```
 
@@ -319,6 +297,21 @@ split into `checkout_money_owed` and `checkout_unrefunded_credit`; **D9 — the 
 seam exercised against a stub, not a wired model**; **D10 — a model may draft a *sentence*, never a
 rule**; and **D11 — a second, React surface, as an addition rather than a rewrite**, with compose
 as its one owner-approved write path.
+
+### What slice 22 built, in one paragraph
+
+**Guest services, `LATE_CHECKOUT` (#68).** The decision table was approved before any code, and
+`hotelcontrols/guest/template.py` refuses one that is not approved or whose rule ids, order or
+decisions differ from `guest.RULES`. `decide(request, policy, evidence, today)` is pure. LC1 collects
+every gap and answers `STAFF_REVIEW` naming all of them, so no later rule can run on a guess.
+`look_up` hands the template's per-provider population to `evidence.gather` unchanged (one call,
+departures yesterday..tomorrow). Every lookup failure is a gap: not found, window not captured,
+budget spent, duplicate ids, no query. The fee is repeated `Money.plus`. `store.save_decision`
+writes the decision and its task in one transaction, the task through slice 18's natural-key
+insert. Real evidence used by the tests (sandbox2026, as of 2026-07-08): `007004343` checked in
+and departing today, `007004334` cancelled, `007004348` checked out, `007004338` departing
+tomorrow, `007004258` `OK4`. Seen failing: a planted unscoped `SELECT` on `decisions` (3 tests
+red), and a planted model two imports away from `guest/`.
 
 ### What slice 21 built, in one paragraph
 
