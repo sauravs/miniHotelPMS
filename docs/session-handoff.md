@@ -4,8 +4,8 @@ Paste the block below into a fresh session to resume. Everything it references i
 repository; nothing depends on the previous conversation.
 
 **Last updated:** 2026-10-09, after **v3 was planned** (`docs/plan-v3.md`, branch `docs/v3-plan`).
-The v2 build is complete, slices 0–15. **v3 is slices 16–24, planned and awaiting the owner's
-approval. Nothing of v3 is built.** The first thing to open, once approved, is fix #48 and then
+The v2 build is complete, slices 0–15. **v3 is slices 16–24, APPROVED by the owner
+(PR #50). Nothing of v3 is built yet.** Start from `docs/v3-implementation-brief.md`: fix #48, then
 slice 16.
 
 **The bounded probe of the live sandbox is now v3 slice 23** (decision D16): planned, printed, and
@@ -33,7 +33,7 @@ STATE: v2 IS COMPLETE (slices 0-15, latest code PR #45) AND v3 IS PLANNED, NOT B
 1080 spec checks, 120 API goldens identical, 11 DemoPMS files identical, 96% coverage. CI green
 on Python 3.11 and 3.13. The React UI adds 154 Vitest and 19 Playwright tests in its own CI job.
 
-v3 ORDER, ONCE THE OWNER APPROVES THE PLAN: fix #48 (the card on file is a placeholder on every
+v3 IS APPROVED (PR #50). START FROM docs/v3-implementation-brief.md. ORDER: fix #48 (the card on file is a placeholder on every
 capture - make it UNKNOWN), then slices 16 versioning, 17 tenant-scoped store, 18 findings queue,
 19 email (two locks), 20 operational log, 21 typed hotel parameters with "not decided",
 22 LATE_CHECKOUT (structured, advisory, no model), 23 evidence refresh (owner approves each call),
@@ -290,7 +290,7 @@ public, which was defensible and made the habit dangerous.
 
 | Before | Decision |
 | --- | --- |
-| **now** | **Approve or amend `docs/plan-v3.md`** and merge the `docs/v3-plan` PR. Nothing of v3 starts before that |
+| ~~now~~ | ~~Approve `docs/plan-v3.md`~~ — **approved and merged 2026-10-09, PR #50** |
 | v3 slice 21 | Confirm the one declared verdict change: the sandbox's nominated rate codes become `null` (*not decided*) instead of `[]` (*decided: none*) |
 | v3 slice 22 | Approve the `LATE_CHECKOUT` decision table (a spec file) before any code |
 | v3 slice 23 | **Approval of each probe call at the time** — `getRooms`, `getRoomTypes`, `RoomStatusInquiry` (1.2), plus one reservation call with room prices (#49). D3, R8 |

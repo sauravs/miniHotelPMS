@@ -9,7 +9,8 @@ Written 2026-10-09 on `docs/v3-plan`, from `main` at `7f384c4`. Input: `docs/sta
 `main` by a grep or a run** (§2). Owner decisions taken during planning are D12–D16 in
 `docs/open-questions.md`.
 
-**Status: PLAN, awaiting the owner's approval. No slice branch exists, and no code has been written.**
+**Status: APPROVED by the project owner on 2026-10-09 (PR #50).** Implementation starts from
+`docs/v3-implementation-brief.md`: fix #48 first, then slice 16.
 
 ---
 
