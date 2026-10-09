@@ -22,7 +22,8 @@ that adding a PMS is a new adapter plus a mapping file, not a change to any rule
 | v1 demo: control 6, four silos, 152 tests | **Done** — and measured: only 1 of its 10 controls ever answers |
 | v1 review, 20 findings | **Done** — `docs/old-codebase-improve.md` |
 | v2 documents | **Done** — prd, context, architecture, plan, open questions |
-| v2 code | **All 12 slices merged**, plus slice 13 (compose). 1610 tests, 96% coverage, 1080 spec checks, CI green. 11 of 12 criteria met; criterion 1 is recorded as **not met** with its arithmetic in `docs/plan.md` |
+| v2 code | **All 12 slices merged**, plus slice 13 (compose) and slice 14 (UI/UX pass). 1940 tests, 96% coverage, 1080 spec checks, CI green. 11 of 12 criteria met; criterion 1 is recorded as **not met** with its arithmetic in `docs/plan.md` |
+| Slice 15: React UI | **Done** — `ui/`, a Next.js client of the JSON API. The engine is unchanged and both surfaces ship. 152 Vitest and 19 Playwright tests; criteria 2, 3, 8 and 10 re-proven. See `ui/README.md` |
 
 ## Documents, in reading order
 
@@ -90,6 +91,11 @@ UNKNOWN. That is the honest cost of not guessing.
   CI and never imported by `hotelcontrols/`. **`anthropic` is an optional extra used by exactly one
   file under `tools/`** (`requirements-llm.txt`) and is never importable from the engine — two AST
   tests enforce that.
+- **`ui/` is a client, not part of the engine.** It holds three runtime packages (`next`, `react`,
+  `react-dom`), pinned exactly with the lockfile committed. Nothing in `hotelcontrols/` imports
+  it, and the engine ships with `ui/` deleted. Its most important rules are enforced by the
+  required Python suite (`tests/unit/test_ui_hygiene.py`, `test_canonical_boundary.py`), not only
+  by its own CI job.
 - **TDD, with gates.** Failing test first, written **from the specification** rather than from the
   code you intend to write. A slice's unit *and* integration tests must pass, and CI must be green,
   before the next slice opens. See `docs/plan.md`.

@@ -784,7 +784,8 @@ from the criterion-1 figure above**. Promotion is a deliberate `git mv` into `sp
 
 ## Slice 15 · A React UI, added without touching the engine
 
-Brief: `docs/slice-15-react-ui-brief.md`. The owner signed off on two surfaces (`prd.md` §6). The
+Brief: deleted when the slice closed; read it with
+`git show 2ab809d:docs/slice-15-react-ui-brief.md`. The owner signed off on two surfaces (`prd.md` §6). The
 engine stays the audit surface, and `ui/` becomes a second client of the JSON API. A test fails
 any `slice/15-*` branch that changes an engine file other than `web/app.py`.
 
@@ -795,4 +796,27 @@ any `slice/15-*` branch that changes an engine file other than `web/app.py`.
 | #37 | `ui/` scaffold and the run page. `/api/outcomes`, parity harness, Playwright, CSP, `ui` CI job | **Merged** |
 | #38 | Index: readiness per provider (criterion 10), the evidence picker, drafts kept apart | **Merged** |
 | #39 | History, with `headline` on `/api/history` rows; our own 404 and error pages, which the CSP needed | **Merged** |
-| 5/5 | Compose as JSON (the slice's one write path, owner-approved), the React compose window, the stylesheet served at run time | Open |
+| #40 | Compose as JSON (the slice's one write path, owner-approved), the React compose window, the stylesheet served at run time | **Merged** |
+
+**Slice 15 is closed.** Every item in the brief's definition of done is met:
+
+- Python: 1940 tests passing, up from 1662. 1080 spec checks. Coverage 96%.
+- No engine package changed on any slice-15 branch, enforced by
+  `tests/unit/test_slice15_engine_untouched.py`. The one engine fix, #35, went through its own
+  `fix/` branch.
+- Criteria 2, 3, 8 and 10 are re-proven in the React suite (152 Vitest tests and 19 Playwright
+  tests), including real-browser computed border styles.
+- A parity harness runs over all 88 run goldens. 120 golden payloads rebuild byte-identical.
+- The required Python suite polices `ui/` for PMS identifiers, parsed money, injected HTML,
+  `title=` help, inline styles, build-time engine addresses and loose pins.
+- Axe is clean on every page state.
+- The engine's CSP is byte-identical, and the UI has a real nonce CSP.
+
+Found along the way and fixed, each with a guard:
+
+- #35: counts shown for a run that concluded nothing.
+- The root `runs/` ignore rule silently dropped two directories.
+- Next's default 404 and error pages broke the CSP.
+- A prerendered 404 carried no nonce.
+- A build-time stylesheet rewrite pinned the engine's address.
+

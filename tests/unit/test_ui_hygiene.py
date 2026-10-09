@@ -5,7 +5,8 @@ Slice 15: what the React UI must never do, checked by the REQUIRED Python suite.
 `ui/` has its own suite, in its own CI job, deliberately not required - a broken `npm` must
 never block an engine fix. These rules are too important to live only there, so they are
 checked here, over the UI's source, by the suite that does block a merge. Each one is a trap from
-`docs/slice-15-react-ui-brief.md` that would otherwise fail silently: the page would look fine.
+the slice-15 brief that would otherwise fail silently: the page would look fine. The brief was
+deleted when the slice closed; read it with `git show 2ab809d:docs/slice-15-react-ui-brief.md`.
 
     trap 2   money is a string carrying its currency. Parsing it keeps the number and drops the
              currency, and a bare amount invites arithmetic across currencies with no rate (R9).
