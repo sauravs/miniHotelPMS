@@ -163,6 +163,14 @@ Each is a test, an observable behaviour, or a number. None is a matter of opinio
 | 11 | **The ENGINE runs offline with no runtime dependencies beyond the standard library**, and no test can reach the network or a model | CI runs with networking asserted unused. The PMS transport and the compose proposers are both opt-in via environment only, both live behind two locks, and neither is importable from `hotelcontrols/` — asserted over the AST |
 | 12 | **Every slice is green in CI before the next opens** | GitHub Actions required on every PR |
 
+**Criteria 2, 3, 8 and 10 hold on both surfaces.** They are about what a reader sees, and the
+engine's tests prove them only for the engine's own pages. Since slice 15 the React UI re-proves
+each one in its own suite: the wording is checked with all styling stripped, the four border styles
+are measured in a real browser, `-490.75 ILS` is asserted with its currency and its provenance, a
+run that concluded nothing renders no tiles, and readiness names what to connect. Criterion 5's grep
+walks `ui/` too. Criterion 11 is about the **engine** and is unchanged: `ui/` is outside it, and the
+engine still ships and runs with `ui/` deleted.
+
 ### Anti-criteria — things that would mean we failed even if everything above passes
 
 - A verdict of PASS produced from evidence that was not actually established.

@@ -19,22 +19,27 @@ Composing a control from prose — the chat window, and why the model drafts a *
 a rule — is [01-project-overview.md §10](01-project-overview.md). The decision behind it is **D10**
 in [`docs/open-questions.md`](../open-questions.md).
 
+There are **two screens** over the same engine: the engine's own server-rendered pages, and a React
+UI under `ui/` that is a client of its JSON API. Why there are two, and what the second one is not
+allowed to do, is [01-project-overview.md §9](01-project-overview.md#9-two-screens-over-one-engine--the-react-ui).
+
 If you have five minutes and not an hour, read §1 and §2 of
 [01-project-overview.md](01-project-overview.md) and the first diagram in
 [03-code-architecture.md](03-code-architecture.md).
 
 ## What is true as of this writing
 
-Measured, not quoted — every number below was produced by running the code on 2026-09-10.
+Measured, not quoted. Every number below was produced by running the code, last on 2026-10-09.
 
 | | |
 | --- | --- |
-| Tests | **1610 passing**, offline, in ~9 seconds |
+| Tests | **1956 passing**, offline, in ~13 seconds. The React UI adds 154 component and 19 real-browser tests of its own |
 | Spec validation | **1,080 checks passing** (`python3 -m tools.validate_spec`) |
-| Runtime dependencies | **Zero.** Python standard library only — the optional compose backend lives outside the engine |
+| Runtime dependencies | **Zero in the engine.** Python standard library only. The optional compose backend and the React UI both live outside it |
 | Controls shipped | **11**, as data files in `spec/ir/` — plus any composed into `spec/drafts/` |
 | Providers | **2** — MiniHotel (XML, real captures) and DemoPMS (JSON, generated) |
 | Success criteria met | **11 of 12.** The twelfth is recorded as *not met* with its arithmetic |
+| Screens | **2.** The engine's own pages (no JavaScript) and the React UI in `ui/`, both over one JSON API |
 
 ## The one-sentence version
 
@@ -48,12 +53,13 @@ Measured, not quoted — every number below was produced by running the code on 
 ```
 CLAUDE.md                    ← 2-minute orientation for a coding session
 README.md                    ← the pitch
+ui/README.md                 ← the React UI: how it is built and tested, and every dependency justified
 docs/
   project-explainer/         ← YOU ARE HERE. Business → code, for a newcomer
   prd.md                     ← the contract: what we build, 12 falsifiable criteria
   context.md                 ← the history: how we got here, every decision + why
   architecture.md            ← the design: 8 layers, interfaces, what each hides
-  plan.md                    ← the build log: 13 slices, test gates, honest scorecard
+  plan.md                    ← the build log: 15 slices, test gates, honest scorecard
   open-questions.md          ← what we know we don't know
   old-codebase-improve.md    ← the v1 post-mortem: 12 keeps, 20 fixes
   QA.md                      ← running transcript with the project owner

@@ -19,6 +19,8 @@ design see `architecture.md`; for the build order see `plan.md`. For what v1 tau
 | 2026-09-08 | **v1 reviewed and measured.** Ran all 10 controls × 3 evidence sets: only 1 of 10 answers. v2 commissioned |
 | 2026-09-09 → 09-15 | v2 built: twelve slices, twelve green pipelines. 11 of 12 criteria met, criterion 1 recorded as not met with its arithmetic |
 | 2026-09-16 | **Slice 13 — the compose front end.** Prose → restricted sentence → the same grammar and the same validator. Decision D10 |
+| 2026-10-09 | **Slice 14 — the server-rendered surface explains itself.** Every page gets a visible explanation bar, verdicts grouped as a work queue, and an outcome glossary built from the engine's one source of wording |
+| 2026-10-09 | **Slice 15 — a React UI, added without touching the engine.** The owner signs off on two surfaces (decision D11). `ui/` is a Next.js client of the JSON API; a test fails any slice-15 branch that changes an engine file. It found and fixed issue #35 on the engine's own history page along the way |
 
 ## The two source documents
 
@@ -107,6 +109,7 @@ recorded here as decided.
 | --- | --- | --- | --- |
 | 2026-09-09 | **D9** — wire the model adapter now? | **No. Build the seam, exercise it against a stub** | A stub tests the §17 gate harder than a real model does: it emits exactly the proposals that exercise it, where a real model mostly emits plausible IR. Full reasoning in `open-questions.md` |
 | 2026-09-16 | **D10** — both authoring paths, with a chat window, **free to run** | **Yes — and the model produces a SENTENCE, not IR** | The intermediate is readable and editable; nothing new decides what a rule means; and a free 7B model run locally can rewrite a sentence into a template where it cannot reliably emit a valid six-key IR. Supersedes D9's "never a runtime component" clause only — D9's substance, *no verdict depends on a model call*, is kept verbatim |
+| 2026-10-09 | **D11** — a second, React surface? | **Yes, as an addition and not a rewrite.** Two surfaces over one JSON API; the server-rendered one stays | The project owner reads React more fluently than Python, and the engine will be patched into a JavaScript/Next.js product. The engine's own pages stay because they are the offline, printable, zero-dependency audit surface. Full record in `open-questions.md` |
 
 ## Scope decisions inherited from the project owner
 
@@ -130,6 +133,23 @@ question. None of the following moved:
 - **The criterion-1 figure is untouched.** Composed rules are drafts in `spec/drafts/` and are
   excluded from it by construction.
 - **The default demo is unchanged.** `python3 -m hotelcontrols.web.server` wires no proposer.
+
+## What slice 15 did not change
+
+A second screen in a different language invites the question of what it cost the engine. Nothing,
+by construction:
+
+- **No engine file changed to make room for it.** On every `slice/15-*` branch a test compared the
+  tree against `main` and failed if anything in `hotelcontrols/` but `web/app.py` changed, or
+  anything in `spec/` or the captured fixtures. `web/app.py` gained read-only JSON routes, and one
+  write path for compose that files drafts and never touches a PMS.
+- **The engine is still standard-library only.** `ui/` sits outside `hotelcontrols/`, exactly as
+  `tools/proposers/` does. Criterion 11 is unchanged, and the engine runs with `ui/` deleted.
+- **The engine's own pages are unchanged and still ship.** Their Content-Security-Policy is
+  byte-identical. The React UI has its own, nonce-based policy.
+- **The verdicts are the engine's.** The UI renders them and never computes one. Money is shown
+  exactly as the engine wrote it, provenance is displayed and never parsed, and the outcome words
+  come from the engine (`/api/outcomes`) rather than being typed a second time.
 
 ## What carries over from v1 unchanged
 

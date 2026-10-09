@@ -16,6 +16,10 @@ changed what [1.5](#15-is-unstructured-free-text-an-evidence-source), [1.7](#17-
 [1.9](#19-should-this-ever-touch-a-production-pms-and-whose-credentials-would-those-be) are worth.
 Full report: `docs/stayops-gap-analysis.md`.
 
+**Updated 2026-10-09** for slice 15: decision [D11](#d11--2026-10-09-slice-15-a-second-surface-in-react)
+(a second, React surface) and three deliberate engineering gaps it made visible. No open question
+changed.
+
 ---
 
 ## The two that are worth the most
@@ -56,7 +60,7 @@ matters as much as the answer, and because reversing one of these is cheap now a
 | | Question | Decision |
 | --- | --- | --- |
 | D1 | How far should v2 reach? | **All 10 dry-run controls genuinely executable** (11 IRs after the control-6 split). v1 measured 1 of 10 answering |
-| D2 | Keep "zero dependencies"? | **Stdlib-only runtime; `pytest` + coverage as dev dependencies.** The demo keeps its no-install property |
+| D2 | Keep "zero dependencies"? | **Stdlib-only runtime; `pytest` + coverage as dev dependencies.** The demo keeps its no-install property. Still true of the engine since D11: the React UI's three runtime packages live in `ui/`, outside it |
 | D3 | May we call the live sandbox? | **Yes, with per-call approval.** A specific bounded plan is proposed and approved before each probe (R8) |
 | D4 | A second provider? | **Yes — a fictional `DemoPMS` speaking JSON**, offline. Mews when credentials exist |
 | D5 | Build the NL compiler? | **Yes — deterministic grammar core, LLM adapter behind the same validation gate.** Never LLM → executable (§17) |
@@ -157,6 +161,43 @@ it. Promotion is a deliberate `git mv` plus `tools.validate_spec`.
 **What is still not built:** no model is wired *by default* (the default backend is one you run
 yourself), and the compose front end is off unless `tools/serve.py` starts it. `python3 -m
 hotelcontrols.web.server` behaves exactly as it always has.
+
+### D11 — 2026-10-09, slice 15. **A second surface, in React.**
+
+**Asked for:** a React/Next.js UI. Two reasons, neither of them "React is better". The project owner
+reads React more fluently than Python, and the engine will be patched into a JavaScript/Next.js
+product. **Governing constraint, in the owner's words: "nothing may break; no core logic may
+break."**
+
+**Decision: an addition, not a rewrite.** `ui/` is a second *client* of the JSON API that already
+existed. The server-rendered surface stays, working. It is the offline, printable, zero-dependency
+audit surface, and retiring it would be a separate, later decision made on evidence. `prd.md` §6
+now describes two surfaces, with the owner's sign-off.
+
+**How "nothing may break" was made mechanical rather than promised:**
+
+- On every `slice/15-*` branch a test failed if any engine file changed except `web/app.py`. The
+  guard was seen failing on a planted kernel edit before it was relied on.
+- The UI is tested from the engine's own answers (`fixtures/api/`, generated and byte-checked), so
+  its suite needs no engine process and can never trigger a run.
+- The UI re-proves criteria 2, 3, 8 and 10 on its own screen, including the four computed border
+  styles in a real browser.
+- The rules that matter most about `ui/` are enforced by the **required** Python suite: no parsed
+  money, no PMS identifier, no injected HTML, one module that makes requests, exact pins.
+
+**Three follow-on decisions, each put to the owner or taken against a written rule:**
+
+1. **Compose writes, as JSON (option a, owner-approved).** Every other slice-15 route is read-only.
+   Compose files drafts, so it needed `POST /api/compose` and `POST /api/compose/accept`. They share
+   one core with the HTML window so the two cannot drift, write only `spec/drafts/` and the run
+   store, and never touch a PMS. The alternatives were to link out to the engine's own window, or
+   to defer compose.
+2. **The plan line ("when this runs next", F7) comes from a new route, not a changed one.** A plan
+   is a fact about the spec, like readiness. `GET /api/plan/<id>?property=&as_of=` serves it beside
+   a stored run, so every existing route and golden stayed byte-identical.
+3. **A run is a POST.** `GET /api/run/` spends provider calls and writes a row, and a React page
+   can re-fire a GET for reasons nobody chose: a double render, a refetch on focus, a prefetch. The
+   UI runs a control only from a button, then reads the stored run back for free.
 
 ---
 
@@ -455,8 +496,10 @@ Not questions — decisions, recorded so they can be reversed knowingly.
 | --- | --- | --- |
 | **No scheduler daemon** | `next_evaluation` computes the plan; nothing executes it on a timer | The decision is the hard part and is testable. A loop around it is a day's work whenever it is wanted |
 | **No webhook ingestion** | IRs declare their events; nothing subscribes | Requires a public endpoint, auth and replay protection — a different project |
-| **No authentication** | Local demo, single operator | Out of scope by `architecture.md` |
-| **`Value.source` carries a provider name** (`pms:minihotel/GetReservationBalance`) | Flows above the canonical boundary as data | An auditor must know which system and which call produced a number. **No PMS field path ever crosses.** The one deliberate exception to criterion 5, inherited from v1 and still correct |
+| **No authentication** | Local demo, single operator. That includes the compose write routes on both surfaces | Out of scope by `architecture.md` |
+| **The engine's web server is serial** | One request at a time. The React index asks for all eleven controls' readiness in one request (`/api/controls`) rather than eleven | The run store is a single-thread SQLite connection. A threaded server answered its first page with a `ProgrammingError` while the whole suite was green. The store must become thread-safe first, and that is core logic |
+| **The React UI's CI job is not required** | `npm` failures show as a red `ui` check but never block a merge | A registry outage or a browser download must never block an engine fix. The UI's most important rules are duplicated into the required Python suite for exactly this reason |
+| **`Value.source` carries a provider name** (`pms:minihotel/GetReservationBalance`) | Flows above the canonical boundary as data, and onto both screens | An auditor must know which system and which call produced a number. **No PMS field path ever crosses.** The one deliberate exception to criterion 5, inherited from v1 and still correct. The React UI displays it whole and never splits or branches on it; a required test fails if a vendor name appears anywhere in `ui/` |
 | **Fixtures are pseudonymised** | Names, emails, phones and remarks replaced with stable fakes | Third-party personal data in a public repository is a legal question, not a style one. Structure, formats and every quirk are preserved exactly |
 | **Free-text remarks unmapped** | Nothing reads them | Question 1.5 |
 | **No FX source** | Cross-currency comparison raises; controls compare against literal zero | R9. Inventing a rate would be the single most damaging thing this engine could do to a finance team |

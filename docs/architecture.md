@@ -9,11 +9,12 @@
 ## 1. The shape
 
 ```
-                    ┌───────────────────────────────────────────────────┐
-                    │  Browser · one page per control, evidence inline  │
-                    └───────────────────────▲───────────────────────────┘
-                                            │
-   ┌────────────────────────────────────────┴────────────────────────────────────────┐
+     ┌──────────────────────────────────┐        ┌──────────────────────────────────────┐
+     │ Browser · the engine's own pages │        │ Browser · ui/  (Next.js + React)     │
+     │ server-rendered, no JavaScript   │        │ OUTSIDE the engine. Reads JSON only  │
+     └────────────────▲─────────────────┘        └───────────────────▲──────────────────┘
+                      │ HTML                                         │ JSON, via ui/'s server
+   ┌──────────────────┴──────────────────────────────────────────────┴───────────────┐
    │ L7 · WEB            handle(path) -> (status, content_type, body)                 │
    │ routing · server-side rendering · JSON API · no framework, no JavaScript in it   │
    └────────────────────────────────────────▲────────────────────────────────────────┘
@@ -408,12 +409,17 @@ spec/             canonical_fields.json · ir_schema.json · ir/*.json
                   tenants/*.json
 fixtures/         minihotel/  (pseudonymised captures + request fingerprints)
                   demopms/    (fictional, by construction)
+                  api/        (the JSON API's own answers - GENERATED, the React UI's contract)
 tests/            unit/ · integration/ · e2e/ · contract/
 docs/             every markdown document
 tools/            validate_spec.py · scrub_fixtures.py · transcode_demopms.py · probe.py
                   serve.py                # the demo WITH the compose front end wired
                   proposers/  base.py · local.py · anthropic_api.py · stub.py
                               # every model client. OUTSIDE the engine, injected in.
+                  dump_api_fixtures.py    # writes fixtures/api/ from the live API
+ui/               Next.js + React + TypeScript. A CLIENT of the JSON API, never imported by
+                  the engine. app/ · components/ · lib/api.ts (the only module that calls the
+                  engine) · proxy.ts (nonce CSP) · test/ (Vitest) · e2e/ (Playwright)
 ```
 
 `spec/` is **data the engine reads at runtime**. Nothing in `hotelcontrols/` knows what control 6 is:
@@ -454,6 +460,25 @@ raises. A stub exercises the validator harder than a real model would, because a
 emits plausible sentences. No test reaches a model; both live backends refuse to arm while a test
 runner is loaded, and the test that sets their environment variable is refused anyway.
 
+**The second surface is tested from the engine's own answers.** `tools/dump_api_fixtures.py` writes
+the JSON API's response for every control × property × capture, plus history, readiness and the
+compose window's states, to `fixtures/api/`. The engine's suite asserts the rebuild is
+byte-identical, and pins the shapes the UI depends on: above all, that a run which concluded nothing
+still carries `counts`, so `coverage.concluded` has to be the gate. The UI's own suite renders from
+those files, with no engine process and no socket, and it can never trigger a run. It has three
+layers:
+
+| Layer | Question | Runs against |
+| --- | --- | --- |
+| **Components** (Vitest) | Do criteria 2, 3, 8 and 10 hold on this screen too? Is the wording different with all styling stripped? | Golden payloads, in jsdom |
+| **Parity** (Vitest) | Is any record dropped, duplicated or mis-grouped? Is every evidence row verbatim? Are there tiles if and only if the run concluded? | All 88 run payloads, live and stored |
+| **Real browser** (Playwright) | Are the four computed border styles four different values? Is every disclosure reachable by keyboard? Does axe pass? | Components rendered to HTML and loaded with `setContent`. No server |
+
+The UI's CI job is separate and not required, so a broken npm can never block an engine fix. The
+rules that matter most about `ui/` are therefore checked by the **required** Python suite as well:
+no parsed money, no PMS identifier, no injected HTML, one module that makes requests, and exact
+pins (`test_ui_hygiene.py`, `test_canonical_boundary.py`).
+
 Every test names the IR clause or the risk id it protects. `PYTHONDONTWRITEBYTECODE=1` in CI —
 v1 recorded a real incident where a stale `.pyc` made the suite silently run old code and report a
 green that meant nothing.
@@ -473,7 +498,7 @@ Each is recoverable later without reworking what is built now.
   must return a value only with the exact quotation it relied on, and UNKNOWN whenever the text is
   ambiguous.
 - **A rule-editing UI.** Sentences arrive through the compiler; IRs arrive as files. The slice-13
-  compose window is a chat box over `normalise`, not an editor: it files **drafts** into
+  compose window (on both surfaces since slice 15) is a chat box over `normalise`, not an editor: it files **drafts** into
   `spec/drafts/`, and promoting one into `spec/ir/` is a deliberate manual step.
 - **A model anywhere near a verdict.** D10 puts one in front of the *compiler*. The evidence layer
   and the evaluator never learn it exists.

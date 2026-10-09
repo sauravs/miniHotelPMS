@@ -34,8 +34,9 @@ turns a limitation into a product path: *"connect your housekeeping system to en
 
 ## Status
 
-**All twelve slices are built and merged, plus a thirteenth.** 1610 tests, 96% coverage, 1080 spec
-checks, offline, green on Python 3.11 and 3.13. **Eleven of the twelve success criteria are met**; the twelfth is
+**All twelve slices are built and merged, plus three more:** compose (13), a UI/UX pass (14), and a
+React UI (15). The engine has 1956 tests, 96% coverage and 1080 spec checks, runs offline, and is
+green on Python 3.11 and 3.13. **Eleven of the twelve success criteria are met**; the twelfth is
 recorded as *not met* with its arithmetic, which is the point of writing them down.
 
 The claim the architecture rests on is checked rather than asserted: **the same rule, over the same
@@ -49,6 +50,29 @@ a defect in the engine — no room in this property has ever had an out-of-servi
 spaces — and three of them would move on one sentence from the hotel or the vendor. The full
 assessment is in [`docs/plan.md`](docs/plan.md). v1 met all seven of its own criteria while nine of
 its ten controls answered nothing at all, and that is the mistake this number exists to avoid.
+
+## Two screens over one engine
+
+Every answer can be read on two surfaces. Both are clients of the same JSON API, and both show a
+verdict with the fields that produced it.
+
+| | The audit surface | The product surface |
+| --- | --- | --- |
+| Where | Served by the engine itself, `http://127.0.0.1:8765/` | `ui/`, a Next.js + TypeScript app, `http://127.0.0.1:3000/` |
+| Built with | Server-rendered HTML, **no JavaScript**, standard library only | React 19. Three runtime packages, pinned exactly |
+| Why it exists | Offline, printable, zero-dependency: what an auditor can trust | Converges with the larger JavaScript product this will be patched into |
+
+The React UI is an **addition, not a rewrite**. No engine file changed to make room for it, and a
+test enforced that on every slice-15 branch. Delete `ui/` and the engine still ships, audits and
+demos. Because the engine's tests say nothing about a second client, the UI's own suite re-proves
+the criteria that matter on screen:
+- UNKNOWN is told apart from FAIL by hue, border **and** wording;
+- every value appears with its unit;
+- a run that concluded nothing shows no counts;
+- readiness is reported per provider.
+
+The rules that matter most about `ui/` are also checked by the engine's **required** suite: money is
+never parsed, no PMS name appears, no HTML is injected, and one module makes every request.
 
 ## Two ways a control gets in
 
@@ -70,9 +94,10 @@ client exists inside the engine.
 Try it:
 
 ```bash
-python3 -m pytest -q                          # 1610 tests, offline, no dependencies
+python3 -m pytest -q                          # 1956 tests, offline, no dependencies
 python3 -m hotelcontrols.web.server           # the demo at http://127.0.0.1:8765/
 python3 -m tools.probe --plan                 # what a live probe would ask. Makes no calls
+cd ui && npm ci && npm run build && npm start # the React UI at http://127.0.0.1:3000/
 
 HOTELCONTROLS_COMPOSE=1 python3 -m tools.serve --llm stub    # + /compose, no model needed
 HOTELCONTROLS_COMPOSE=1 python3 -m tools.serve --llm local   # + /compose, backed by Ollama
@@ -92,12 +117,13 @@ Start with **[`docs/plan.md`](docs/plan.md)** for where the build is, or
 | [`CLAUDE.md`](CLAUDE.md) | Orientation, conventions, and the seven facts that will bite you |
 | [`docs/prd.md`](docs/prd.md) | What we are building and the twelve criteria that decide whether we did |
 | [`docs/architecture.md`](docs/architecture.md) | Eight layers, their interfaces, what each hides |
-| [`docs/plan.md`](docs/plan.md) | Twelve TDD slices with test gates |
+| [`docs/plan.md`](docs/plan.md) | Every TDD slice with its test gates, slices 1 to 15 |
 | [`docs/context.md`](docs/context.md) | How we got here, and every decision with its reason |
 | [`docs/old-codebase-improve.md`](docs/old-codebase-improve.md) | The v1 review |
 | [`docs/open-questions.md`](docs/open-questions.md) | Everything we know we do not know |
 | [`docs/QA.md`](docs/QA.md) | Running Q&A transcript |
 | [`docs/project-explainer/`](docs/project-explainer/) | Business case → code, for a newcomer: overview, file map, architecture diagrams, and one record traced end to end |
+| [`ui/README.md`](ui/README.md) | The React UI: how it is built, how it is tested, and why each dependency is there |
 
 ## Running it
 
@@ -118,6 +144,19 @@ PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -m pytest -q    # the suite, fully of
 python3 -m tools.validate_spec                             # spec and fixture validation
 python3 -m tools.transcode_demopms --check                 # the demo fixtures are up to date
 ```
+
+The **React UI** is optional and separate. It needs Node 22.22.2 or later, and talks to whichever
+engine `HOTELCONTROLS_API_URL` names (default `http://127.0.0.1:8765`):
+
+```bash
+cd ui && npm ci                       # exactly the locked versions
+npm test                              # component tests + the parity harness, from golden payloads
+npx playwright install chromium && npm run e2e   # computed styles, keyboard, accessibility
+npm run build && npm start            # the UI at http://127.0.0.1:3000/, engine running first
+```
+
+Its tests never start the engine. They render from `fixtures/api/`, the JSON API's responses
+generated by `python3 -m tools.dump_api_fixtures` and checked byte-for-byte by the engine's suite.
 
 `PYTHONDONTWRITEBYTECODE=1` is a correctness gate, not hygiene: an edit that changes neither a
 file's size nor its mtime-second leaves a stale `.pyc` valid, so the suite runs the old code and
@@ -142,5 +181,10 @@ captured are still missing, the statuses nobody can name are still unnameable, a
 no configured capacity are still unconfigured. A demo hotel that knew more than the real one would
 make the two-provider test pass by being a different hotel. Runs over it report
 `evidence_is_synthetic`, because a run over records this repository produced must say so.
+
+`fixtures/api/` holds the JSON API's answers for the full matrix: every control, property and
+capture, plus history, readiness and the compose window's states. They are **generated, never
+edited**. They are the contract the React UI is built against, so a change that alters a payload
+shows up as a failing rebuild here rather than as a broken screen later.
 
 Nothing in this repository is invented to reach a nicer answer, and no credentials are stored here.
