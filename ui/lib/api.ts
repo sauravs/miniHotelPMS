@@ -42,6 +42,8 @@ const id = encodeURIComponent;
 export const getControls = () => read<{ controls: ControlEntry[] }>("/api/controls");
 export const getProperties = () => read<Properties>("/api/properties");
 export const getOutcomes = () => read<Outcomes>("/api/outcomes");
+/** Composed drafts, each flagged unreviewed. `wired: false` when the engine files none. */
+export const getDrafts = () => read<{ wired: boolean; drafts: ControlEntry[] }>("/api/drafts");
 export const getReadiness = (controlId: string) =>
   read<{ control_id: string; providers: ReadinessReport[] }>(`/api/readiness/${id(controlId)}`);
 /** A past run, re-read from the store. Zero provider calls by construction (R1). */
