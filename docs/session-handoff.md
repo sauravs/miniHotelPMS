@@ -3,12 +3,13 @@
 Paste the block below into a fresh session to resume. Everything it references is in the
 repository; nothing depends on the previous conversation.
 
-**Last updated:** 2026-10-09, at the end of the second v3 implementation session, on `main` at
-`137dc21`. The v2 build is complete, slices 0–15. **v3 is slices 16–24, APPROVED by the owner
-(PR #50). Merged: fix #48 (#52), slice 16 (#53), fix #54 (#55), slice 17 (#56), fix #57 (#58),
-slice 18 findings queue (#61), slice 19 email (#62), slice 20 operational log (#63). Issue #59
-is closed by #61. Only #22 (slice 24's) is open. Next: slice 21, which starts with an OWNER
-CHECKPOINT.** Start every session from `docs/v3-implementation-brief.md` §1.
+**Last updated:** 2026-10-09, in the third v3 implementation session, on `main` at `e13da7b`.
+The v2 build is complete, slices 0–15. **v3 is slices 16–24, APPROVED by the owner (PR #50).
+Merged: fix #48 (#52), slice 16 (#53), fix #54 (#55), slice 17 (#56), fix #57 (#58), slice 18
+findings queue (#61), slice 19 email (#62), slice 20 operational log (#63), slice 21 typed
+parameters (#65). Only #22 (slice 24's) is open. Next: slice 22, whose OWNER CHECKPOINT is open:
+the decision table is drafted on `slice/22-late-checkout` and awaits approval.** Start every
+session from `docs/v3-implementation-brief.md` §1.
 
 **The bounded probe of the live sandbox is now v3 slice 23** (decision D16): planned, printed, and
 still gated on the owner's approval of each call *at the time*. Read
@@ -23,7 +24,9 @@ Continue building miniHotelPMS. Working directory: /Users/sauravs/Desktop/Work/m
 FIRST, before reading anything: run `git status` and `git branch --no-merged main`. Anything
 listed is work that never reached main - push it and open a PR, or delete it on purpose, but do
 not leave it. Two branches sat unpushed for three weeks before anyone looked (one held the fix
-that became issue #44), and no CI can see a branch that was never pushed.
+that became issue #44), and no CI can see a branch that was never pushed. ONE EXCEPTION IS
+EXPECTED: slice/22-late-checkout, pushed, holding only the draft decision table that awaits
+the owner's approval (below). Rebase it on main before building on it.
 
 Read these first, in order: CLAUDE.md, docs/plan-v3.md, docs/plan.md, docs/prd.md,
 docs/architecture.md, docs/open-questions.md, docs/old-codebase-improve.md. They are the
@@ -32,18 +35,40 @@ docs/plan-v3.md is authoritative for what is next (slices 16-24).
 
 STATE: v2 IS COMPLETE (slices 0-15) AND v3 IS UNDER CONSTRUCTION (docs/plan-v3.md). Merged:
 fix #48 (#52), slice 16 (#53), fix #54 (#55), slice 17 (#56), fix #57 (#58), slice 18 (#61),
-slice 19 (#62), slice 20 (#63). Baseline on main at 137dc21: 2499 passed / 3 skipped (the v3
-scope guard skips off a slice branch; on slice/21-* expect 2500 / 2), 1091 spec checks, 135 API
-goldens identical to a rebuild, 11 DemoPMS files identical, spec lock current, 97% coverage.
-The React UI has 185 Vitest and 22 Playwright tests.
+slice 19 (#62), slice 20 (#63), slice 21 (#65). Baseline on main at e13da7b: 2588 passed /
+3 skipped (the v3 scope guard skips off a slice branch; on slice/22-* expect 2589 / 2), 1092 spec
+checks, 135 API goldens identical to a rebuild, 11 DemoPMS files identical, spec lock current,
+97% coverage. The React UI has 185 Vitest and 22 Playwright tests.
 
-SLICE 21 STARTS WITH AN OWNER CHECKPOINT - NO CODE BEFORE A YES. The sandbox's
-nominated_rate_codes goes from [] ("decided: none") to null ("not decided"), because nobody can
-decide a vendor test property's rate codes (plan-v3 §3.2, #49). Dry-run that change (in memory or
-a scratch spec dir, never committed) and SHOW THE OWNER its effect on required_reservation_fields:
-counts, reason strings, golden diff. Get a yes before any code. Then build slice 21 as plan-v3 §5
-says. Its may-change line includes fixtures/api/ (declared, owner-confirmed) and spec/tenants/;
-evaluator/ is a must-not ("has not supplied" path, no evaluator change).
+SLICE 22 STARTS WITH AN OWNER CHECKPOINT - NO CODE BEFORE A YES. The LATE_CHECKOUT decision
+table is drafted as spec/guest/late_checkout.json on branch slice/22-late-checkout (09baf99,
+pushed, no code). Ten ordered rules, first match wins, every decision naming its rule: gaps
+first (any missing evidence or undecided parameter -> STAFF_REVIEW naming all of them, which is
+V10); cancelled / checked out / stay ended -> DENIED (established); departing another day or
+not checked in -> STAFF_REVIEW; <= free_until -> APPROVED; > maximum_time -> DENIED (stated
+policy); > approval_required_after -> STAFF_REVIEW showing the fee; otherwise APPROVED_WITH_FEE.
+UNAVAILABLE is unreachable in v3 (availability is BLOCKED, G12a), and the table says so. THREE
+OPEN POINTS AWAIT THE OWNER: (1) after maximum_time, DENIED or STAFF_REVIEW (D2 §30 never
+declines on time); (2) departing another day / not checked in -> STAFF_REVIEW; (3) the tasks'
+severity and audience. When approved: mark the file's "status" approved, then build slice 22
+exactly as plan-v3 §5 says. Tenant values go in a new guest_services.LATE_CHECKOUT block of the
+tenant file, typed with slice 21's ParameterSchema.from_dict(template["parameters"]) - slice 22
+may NOT change spec/parameters.json or hotelcontrols/spec/, and TenantConfig ignores unknown
+top-level keys.
+
+SLICE 21 MADE "NOT DECIDED" A STATE. spec/parameters.json types every tenant setting
+(text_list, text_list_map, money, time_of_day, choice; required stated; NO defaults) and
+TenantConfig.load refuses a wrong type, unit or currency by name. null = not decided: declared
+(has_setting) but kept OUT of tenant.settings, which is what runner/run.py hands the evaluator,
+so the evaluator's existing "has not supplied X" branch answers UNKNOWN naming it - no
+evaluator change. The sandbox and demo state nominated_rate_codes and
+rate_plan_permitted_room_types as null. The owner delegated that call to the implementer
+("you decide as an expert"), who decided yes after showing the dry run: no count or outcome
+moved; 24 reasons per 2026 capture now name the parameter (4 goldens, in DECLARED, pinned
+against 7f384c4 by tests/integration/test_typed_parameters.py). Tenants state the currencies
+their records show (EUR, ILS, USD), observed, not decided. FLAGGED, NOT FIXED: the comment at
+hotelcontrols/evaluator/predicates.py:138-139 still says that branch means "never declared"; it
+now also means "not decided". evaluator/ was a must-not for slice 21.
 
 THE FINDINGS QUEUE EXISTS (slices 18-20). A FAIL of a REVIEWED control raises one task in the
 `actions` table, keyed (property, control, policy version, record); UNKNOWN/EXCLUDED, a blocked
@@ -77,10 +102,10 @@ python3 -m tools.lock_spec. validate_spec fails an edit without a bump; every ru
 policy_version + policy_digest; a run stored before slice 16 reads "version not recorded".
 
 v3 IS APPROVED (PR #50). START FROM docs/v3-implementation-brief.md. DONE: fix #48, slices 16
-versioning, 17 tenant-scoped store, 18 findings queue, 19 email (two locks), 20 operational log.
-REMAINING, IN ORDER: 21 typed hotel parameters with "not decided" (owner checkpoint first),
-22 LATE_CHECKOUT (structured, advisory, no model; the decision table is a spec file the owner
-approves before any code), 23 evidence refresh (owner approves EACH call at the time; skipped if
+versioning, 17 tenant-scoped store, 18 findings queue, 19 email (two locks), 20 operational log,
+21 typed hotel parameters with "not decided". REMAINING, IN ORDER: 22 LATE_CHECKOUT
+(structured, advisory, no model; the decision table is DRAFTED and awaits the owner's
+approval before any code), 23 evidence refresh (owner approves EACH call at the time; skipped if
 not), 24 authentication at the host (HMAC-signed context) + credentials per property (#22; brief
 check that the ui/ development login is acceptable as a labelled stand-in). Each slice
 in plan-v3.md states what it may and must not change, its test gate and its exit test. The first
@@ -196,6 +221,19 @@ split into `checkout_money_owed` and `checkout_unrefunded_credit`; **D9 — the 
 seam exercised against a stub, not a wired model**; **D10 — a model may draft a *sentence*, never a
 rule**; and **D11 — a second, React surface, as an addition rather than a rewrite**, with compose
 as its one owner-approved write path.
+
+### What slice 21 built, in one paragraph
+
+**Typed parameters, with "not decided" (#65).** `hotelcontrols/spec/parameters.py` and
+`spec/parameters.json`: five types (`text_list`, `text_list_map`, `money`, `time_of_day`,
+`choice`), `required` stated per parameter, and **no defaults** (a `default` key is refused).
+`TenantConfig.load` types every setting and refuses each wrong value by name, all at once. `null`
+is the only spelling of *not decided*. `TenantConfig.__post_init__` moves it into `undecided` and
+out of `settings`, so the evaluator's existing "has not supplied" branch answers. That is why there
+was no evaluator change, and a test pins the one runner line the mechanism depends on. The money,
+time and choice types exist for slice 22, which declares its parameters in this vocabulary from
+`spec/guest/` and may not change this layer. The declared change moved no count. Seen failing:
+a planted `TenantConfig` keeping `None` in `settings` turned 16 tests red.
 
 ### What slices 18, 19 and 20 built, in three paragraphs
 
@@ -363,10 +401,10 @@ public, which was defensible and made the habit dangerous.
 | Before | Decision |
 | --- | --- |
 | ~~now~~ | ~~Approve `docs/plan-v3.md`~~ — **approved and merged 2026-10-09, PR #50** |
-| v3 slice 21 — **next** | Confirm the one declared verdict change: the sandbox's nominated rate codes become `null` (*not decided*) instead of `[]` (*decided: none*). Show the dry run first |
+| ~~v3 slice 21~~ | ~~Confirm the declared change~~ — **held 2026-10-09**: dry run shown; the owner delegated the call to the implementer, who decided yes (`nominated_rate_codes` and `rate_plan_permitted_room_types` → `null` on sandbox and demo). Merged in #65 |
 | any time | Confirm or overrule slice 18's call that **drafts raise no tasks** (a draft's severity and audience are borrowed from its template) |
 | any time | Whether the compose launcher (`tools.serve`) should attach the operational log too (`--log`), in a later slice whose scope allows `tools/serve.py` |
-| v3 slice 22 | Approve the `LATE_CHECKOUT` decision table (a spec file) before any code |
+| v3 slice 22 — **next, open** | Approve the `LATE_CHECKOUT` decision table, drafted as `spec/guest/late_checkout.json` on `slice/22-late-checkout`. Three open points: after `maximum_time` → `DENIED` or `STAFF_REVIEW`; another day / not checked in → `STAFF_REVIEW`; task severity and audience |
 | v3 slice 23 | **Approval of each probe call at the time** — `getRooms`, `getRoomTypes`, `RoomStatusInquiry` (1.2), plus one reservation call with room prices (#49). D3, R8 |
 | any time | Ask MiniHotel what `<CreditCard Number="****" ExpirationDate="202101"/>` means (question 2.8, #48). It is the only thing that can unblock G4 |
 | ~~any time~~ | ~~**The cheapest open win:** nominated rate codes for control 15 (1.4).~~ **Corrected (#49):** a list alone changes nothing, because `stay.rate_code` is absent from every capture. It needs slice 23's capture **and** a real property's list |
@@ -385,6 +423,13 @@ control's latest run concluded; the only FAIL in all captured evidence is 007004
 **"Email is not wired here".** Correct by default. Only `tools.serve --notify smtp` wires a notifier,
 and it still refuses until `HOTELCONTROLS_NOTIFY=1` is set outside a test process. In JSON, `email`
 and each task's `delivery` exist only when a notifier is wired - absent is not "not sent".
+
+**`required_reservation_fields` says the property "has not supplied 'nominated_rate_codes'", although
+the rate code is missing too.** Correct since slice 21. Both are true; the evaluator checks the
+hotel's setting before the record's rate code, and the missing rate code (#49) still shows on every
+record's evidence row. Do not "fix" it by supplying a list for the sandbox: it would invent a
+hotel's policy and move no count. `validate_spec` lists the undecided parameters per property, as a
+note, not a failure.
 
 **`tools.serve` prints no JSON log lines.** Known and flagged: slice 20 could not change
 `tools/serve.py`. `python3 -m hotelcontrols.web.server` writes them to stderr (`--log`).
