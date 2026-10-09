@@ -173,3 +173,13 @@ describe("the ask form preselects what the index chose", () => {
     expect(textOf(container)).toContain("draft · unreviewed");
   });
 });
+
+describe("the not-found page", () => {
+  it("states the absence, offers the way back, and carries no inline style our CSP would refuse", async () => {
+    const { default: NotFound } = await import("@/app/not-found");
+    const { container } = render(<NotFound />);
+    expect(textOf(container)).toContain("There is nothing here.");
+    expect(container.querySelector('a[href="/"]')).not.toBeNull();
+    expect(container.querySelectorAll("[style]")).toHaveLength(0);
+  });
+});

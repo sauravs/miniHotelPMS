@@ -793,6 +793,6 @@ any `slice/15-*` branch that changes an engine file other than `web/app.py`.
 | #34 | Engine guard, four read-only routes, golden payloads in `fixtures/api/` | **Merged** |
 | #36 | Fix #35: history page showed counts for a run that concluded nothing (found building #34) | **Merged** |
 | #37 | `ui/` scaffold and the run page. `/api/outcomes`, parity harness, Playwright, CSP, `ui` CI job | **Merged** |
-| 3/5 | Index: readiness per provider (criterion 10), the evidence picker, drafts kept apart | Open |
-| 4/5 | History | — |
+| #38 | Index: readiness per provider (criterion 10), the evidence picker, drafts kept apart | **Merged** |
+| 4/5 | History, with `headline` on `/api/history` rows; our own 404 and error pages, which the CSP needed | Open |
 | 5/5 | Compose | — |

@@ -10,6 +10,7 @@
       "calls": 3,
       "blocked": null,
       "concluded": true,
+      "headline": "Concluded about 27 of 111 record(s); the rest were excluded or could not be answered.",
       "counts": {
         "PASS": 27,
         "FAIL": 0,
@@ -27,6 +28,7 @@
       "calls": 3,
       "blocked": null,
       "concluded": true,
+      "headline": "Concluded about 27 of 111 record(s); the rest were excluded or could not be answered.",
       "counts": {
         "PASS": 27,
         "FAIL": 0,
@@ -43,7 +45,8 @@
       "as_of": "2024-09-01",
       "calls": 1,
       "blocked": "This control needs evidence this body of responses does not hold: this capture cannot answer that question: arrival was captured for 2024-08-01..2024-08-31 and the run asks for 2024-09-01..2024-11-30. An empty population here would look exactly like 'no violations found', and a population from the WRONG window would look like an answer, so it is refused instead",
-      "concluded": false
+      "concluded": false,
+      "headline": null
     },
     {
       "run_id": "41db7746abbb3b14",
@@ -53,7 +56,8 @@
       "as_of": "2024-09-01",
       "calls": 1,
       "blocked": "This control needs evidence this body of responses does not hold: this capture cannot answer that question: ArrivalDate was captured for 2024-08-01..2024-08-31 and the run asks for 2024-09-01..2024-11-30. An empty population here would look exactly like 'no violations found', and a population from the WRONG window would look like an answer, so it is refused instead",
-      "concluded": false
+      "concluded": false,
+      "headline": null
     }
   ]
 }

@@ -10,7 +10,7 @@
  * The browser never talks to the engine: these run in Server Components and one Server Action,
  * so there is no CORS to configure and the engine's Content-Security-Policy is untouched.
  */
-import type { ControlEntry, Outcomes, Properties, ReadinessReport, RunPayload } from "./types";
+import type { ControlEntry, History, Outcomes, Properties, ReadinessReport, RunPayload } from "./types";
 
 /** Where the engine listens. Not a secret, so it has a default: the engine's own default port. */
 const ENGINE = process.env.HOTELCONTROLS_API_URL ?? "http://127.0.0.1:8765";
@@ -46,6 +46,8 @@ export const getOutcomes = () => read<Outcomes>("/api/outcomes");
 export const getDrafts = () => read<{ wired: boolean; drafts: ControlEntry[] }>("/api/drafts");
 export const getReadiness = (controlId: string) =>
   read<{ control_id: string; providers: ReadinessReport[] }>(`/api/readiness/${id(controlId)}`);
+/** One control's past runs, newest first. Read from the store; no provider call. */
+export const getHistory = (controlId: string) => read<History>(`/api/history/${id(controlId)}`);
 /** A past run, re-read from the store. Zero provider calls by construction (R1). */
 export const getStoredRun = (runId: string) => read<RunPayload>(`/api/runs/${id(runId)}`);
 

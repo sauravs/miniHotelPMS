@@ -10,6 +10,7 @@
       "calls": 3,
       "blocked": null,
       "concluded": true,
+      "headline": "Concluded about every record in the population.",
       "counts": {
         "PASS": 1,
         "FAIL": 1,
@@ -27,6 +28,7 @@
       "calls": 3,
       "blocked": null,
       "concluded": true,
+      "headline": "Concluded about every record in the population.",
       "counts": {
         "PASS": 1,
         "FAIL": 1,
@@ -44,6 +46,7 @@
       "calls": 1,
       "blocked": null,
       "concluded": false,
+      "headline": "This control's population was empty - there was nothing to check.",
       "counts": {
         "PASS": 0,
         "FAIL": 0,
@@ -61,6 +64,7 @@
       "calls": 1,
       "blocked": null,
       "concluded": false,
+      "headline": "This control's population was empty - there was nothing to check.",
       "counts": {
         "PASS": 0,
         "FAIL": 0,

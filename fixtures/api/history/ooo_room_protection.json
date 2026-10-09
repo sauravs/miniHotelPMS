@@ -10,6 +10,7 @@
       "calls": 2,
       "blocked": null,
       "concluded": false,
+      "headline": "This control reached no conclusion about any of its 28 record(s). It has not found the property compliant; it has not looked.",
       "counts": {
         "PASS": 0,
         "FAIL": 0,
@@ -27,6 +28,7 @@
       "calls": 2,
       "blocked": null,
       "concluded": false,
+      "headline": "This control reached no conclusion about any of its 28 record(s). It has not found the property compliant; it has not looked.",
       "counts": {
         "PASS": 0,
         "FAIL": 0,
@@ -44,6 +46,7 @@
       "calls": 2,
       "blocked": null,
       "concluded": false,
+      "headline": "This control reached no conclusion about any of its 28 record(s). It has not found the property compliant; it has not looked.",
       "counts": {
         "PASS": 0,
         "FAIL": 0,
@@ -61,6 +64,7 @@
       "calls": 2,
       "blocked": null,
       "concluded": false,
+      "headline": "This control reached no conclusion about any of its 28 record(s). It has not found the property compliant; it has not looked.",
       "counts": {
         "PASS": 0,
         "FAIL": 0,

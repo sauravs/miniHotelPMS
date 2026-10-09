@@ -11,6 +11,11 @@ import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { Shell } from "@/components/Shell";
 
+// EVERY page renders per request, including the ones Next would otherwise prerender (its 404).
+// A nonce is per request, and a page built ahead of time carries none: the prerendered 404 had
+// every script refused by the CSP and never hydrated. Found by driving /nowhere live.
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "Hotel control engine",
 };
