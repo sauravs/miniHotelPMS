@@ -26,7 +26,7 @@ BASELINE = "7f384c4"
 ANSWER_KEYS = ("verdicts", "counts", "coverage")
 
 # golden path under fixtures/api/ -> the PR that declared its answer changed, and why.
-_SLICE_21 = ("slice 21: nominated_rate_codes [] -> null (not decided), plan-v3 §3.2, #49. No "
+_SLICE_21 = ("PR #65, slice 21: nominated_rate_codes [] -> null (not decided), plan-v3 §3.2, #49. No "
              "count or outcome moved; 24 reasons now name the undecided parameter instead of the "
              "absent rate code. Pinned exactly by tests/integration/test_typed_parameters.py")
 DECLARED: dict[str, str] = {
