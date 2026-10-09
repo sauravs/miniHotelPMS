@@ -253,9 +253,9 @@ def index_page(entries: Iterable[tuple], properties: Iterable[tuple],
         for report in reports:
             short = "" if report.is_executable else " short"
             cards.append('<p class="readiness%s">%s</p>' % (short, _e(report.headline)))
-        cards.append('<p class="meta"><a href="/history/%s">history</a> &middot; '
+        cards.append('<p class="meta"><a href="/history/%s?property=%s">history</a> &middot; '
                      '<a href="/api/readiness/%s">readiness JSON</a></p></div>'
-                     % (_e(ir.control_id), _e(ir.control_id)))
+                     % (_e(ir.control_id), _e(tenant_id), _e(ir.control_id)))
 
     # Drafts last and visibly separated. They are runnable and unreviewed, and mixing them in
     # with the eleven would blur exactly the line docs/plan.md's criterion-1 figure depends on.
@@ -606,8 +606,11 @@ def policy_groups(rows: Iterable[dict]) -> list[tuple[tuple, list[dict]]]:
     return list(groups.items())
 
 
-def history_page(control_id: str, rows: Iterable[dict]) -> str:
-    """Past runs of one control, newest first.
+def history_page(control_id: str, rows: Iterable[dict], tenant_id: str | None = None) -> str:
+    """One property's past runs of one control, newest first.
+
+    Every link carries `?property=` (slice 17): a stored run is read FOR a property, and a link
+    without one would ask for the default property's copy and get a 404.
 
     Re-read from SQLite, so looking at what a control said last week costs nothing. That is not
     a convenience: a folio takes one call per reservation and there is no bulk journal endpoint
@@ -616,20 +619,22 @@ def history_page(control_id: str, rows: Iterable[dict]) -> str:
     rows = list(rows)
     if not rows:
         body = ('<div class="card"><p>This control has not been run in this session yet.</p>'
-                '<p class="meta"><a href="/run/%s">Run it</a></p></div>' % _e(control_id))
+                '<p class="meta"><a href="/run/%s%s">Run it</a></p></div>'
+                % (_e(control_id), "?property=%s" % _e(tenant_id) if tenant_id else ""))
         # The same explanation bar as the populated page. An empty history is the FIRST page
         # some readers will see, and it is the one where "why does this exist?" needs an answer.
         return page("History", control_id, body, explainer=_history_explainer())
 
+    property_query = "?property=%s" % _e(tenant_id) if tenant_id else ""
     groups = []
     for (version, digest), members in policy_groups(rows):
         cells = ['<tbody><tr class="policy"><th colspan="6" scope="rowgroup">%s</th></tr>'
                  % policy_html(version, digest)]
         for row in members:
             cells.append(
-                '<tr data-created="%s"><td class="mono"><a href="/api/runs/%s">%s</a></td>'
+                '<tr data-created="%s"><td class="mono"><a href="/api/runs/%s%s">%s</a></td>'
                 "<td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>"
-                % (_e(row["created_at"]), _e(row["run_id"]), _e(row["run_id"]),
+                % (_e(row["created_at"]), _e(row["run_id"]), property_query, _e(row["run_id"]),
                    _e(row["created_at"]), _e(row.get("evidence_label")), _e(row["as_of"]),
                    _e(row["calls"]), _history_outcome(row)))
         groups.append("".join(cells) + "</tbody>")
@@ -642,7 +647,8 @@ def history_page(control_id: str, rows: Iterable[dict]) -> str:
             '<th scope="col">calls</th><th scope="col">outcome</th></tr></thead>%s</table></div>'
             '<p class="meta">Re-reading any of these costs no provider call (R1).</p></div>'
             % "".join(groups))
-    return page("History", control_id, body, explainer=_history_explainer())
+    return page("History", "%s · %s" % (control_id, tenant_id) if tenant_id else control_id,
+                body, explainer=_history_explainer())
 
 
 def _history_outcome(row: dict) -> str:

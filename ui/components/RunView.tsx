@@ -55,7 +55,9 @@ export function RunView({
         ))}
         <p className="meta">
           Run <code>{run.run_id}</code> ·{" "}
-          <a href={`/history/${encodeURIComponent(run.control_id)}`}>every run of this control</a>
+          <a href={`/history/${encodeURIComponent(run.control_id)}?property=${encodeURIComponent(run.tenant_id)}`}>
+            every run of this control
+          </a>
         </p>
       </div>
 

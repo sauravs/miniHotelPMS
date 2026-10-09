@@ -74,19 +74,28 @@ export async function getStylesheet(): Promise<string> {
 export const getControls = () => read<{ controls: ControlEntry[] }>("/api/controls");
 export const getProperties = () => read<Properties>("/api/properties");
 export const getOutcomes = () => read<Outcomes>("/api/outcomes");
-/** Composed drafts, each flagged unreviewed. `wired: false` when the engine files none. */
-export const getDrafts = () => read<{ wired: boolean; drafts: ControlEntry[] }>("/api/drafts");
-export const getReadiness = (controlId: string) =>
-  read<{ control_id: string; providers: ReadinessReport[] }>(`/api/readiness/${id(controlId)}`);
-/** One control's past runs, newest first. Read from the store; no provider call. */
-export const getHistory = (controlId: string) => read<History>(`/api/history/${id(controlId)}`);
+/**
+ * Since slice 17 the engine reads drafts, history and stored runs FOR a property, so each of
+ * these names one. Another property's run is a 404, exactly like a run that never existed.
+ */
+/** One property's composed drafts, each flagged unreviewed. `wired: false` when none are filed. */
+export const getDrafts = (property: string) =>
+  read<{ wired: boolean; drafts: ControlEntry[] }>(`/api/drafts?property=${id(property)}`);
+export const getReadiness = (controlId: string, property: string) =>
+  read<{ control_id: string; providers: ReadinessReport[] }>(
+    `/api/readiness/${id(controlId)}?property=${id(property)}`,
+  );
+/** One property's past runs of a control, newest first. Read from the store; no provider call. */
+export const getHistory = (controlId: string, property: string) =>
+  read<History>(`/api/history/${id(controlId)}?property=${id(property)}`);
 /** When a control runs next on a property's provider, as of an instant (F7). From the spec alone. */
 export const getPlan = (controlId: string, property: string, asOf: string) =>
   read<{ control_id: string; property: string; as_of: string; mode: string; declared_mode: string; fell_back: boolean; headline: string }>(
     `/api/plan/${id(controlId)}?property=${id(property)}&as_of=${id(asOf)}`,
   );
-/** A past run, re-read from the store. Zero provider calls by construction (R1). */
-export const getStoredRun = (runId: string) => read<RunPayload>(`/api/runs/${id(runId)}`);
+/** A past run, re-read from the store for its property. Zero provider calls by construction (R1). */
+export const getStoredRun = (runId: string, property: string) =>
+  read<RunPayload>(`/api/runs/${id(runId)}?property=${id(property)}`);
 
 // ---------------------------------------------------------------- COSTS PROVIDER CALLS
 /**

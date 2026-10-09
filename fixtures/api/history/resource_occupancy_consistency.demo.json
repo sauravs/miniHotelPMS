@@ -1,0 +1,32 @@
+{
+  "control_id": "resource_occupancy_consistency",
+  "property": "demo",
+  "runs": [
+    {
+      "run_id": "0a830c58a1da210a",
+      "created_at": "2026-07-08T00:00:00+03:00",
+      "provider": "demopms",
+      "evidence_label": "demo2026",
+      "as_of": "2026-07-08",
+      "calls": 1,
+      "policy_version": 2,
+      "policy_digest": "sha256:b0303fab7cafd23b8ad0bdd62fe78032f83c60754c0653d907d09025c4c2afe6",
+      "blocked": "This control needs evidence this body of responses does not hold: this capture cannot answer that question: window was captured for 2024-08-14..2024-08-21 and the run asks for 2026-07-08..2026-07-15. An empty population here would look exactly like 'no violations found', and a population from the WRONG window would look like an answer, so it is refused instead",
+      "concluded": false,
+      "headline": null
+    },
+    {
+      "run_id": "43ae5581515848fb",
+      "created_at": "2024-09-01T00:00:00+03:00",
+      "provider": "demopms",
+      "evidence_label": "demo2024",
+      "as_of": "2024-09-01",
+      "calls": 1,
+      "policy_version": 2,
+      "policy_digest": "sha256:b0303fab7cafd23b8ad0bdd62fe78032f83c60754c0653d907d09025c4c2afe6",
+      "blocked": "This control needs evidence this body of responses does not hold: this capture cannot answer that question: window was captured for 2024-08-14..2024-08-21 and the run asks for 2024-09-01..2024-09-08. An empty population here would look exactly like 'no violations found', and a population from the WRONG window would look like an answer, so it is refused instead",
+      "concluded": false,
+      "headline": null
+    }
+  ]
+}

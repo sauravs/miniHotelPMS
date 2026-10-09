@@ -26,7 +26,12 @@ WHAT IS WRITTEN - the path mirrors the route
     readiness/<control>.json                              one per control
     run/<control>.<property>.<evidence>.json              the FULL matrix, live
     runs/<run_id>.json                                    every one of those, re-read from store
-    history/<control>.json                                after the whole matrix has run
+    history/<control>.<property>.json                     after the whole matrix has run
+
+Since slice 17 a stored run and a history are read FOR a property, so `runs/` is fetched with
+the property each run belongs to (the body is the same), and history is one file per control
+per property - a history golden that listed two hotels' runs together was exactly the read the
+slice exists to make impossible.
     compose/*.json                                        off, wired, and three kinds of turn
 
 `run/` and `runs/` are both complete so that every `run_id` a history row names resolves to a
@@ -80,12 +85,14 @@ def build() -> dict[str, str]:
                 payload = take("/api/run/%s?property=%s&evidence=%s"
                                % (control_id, tenant_id, capture),
                                "run/%s.%s.%s.json" % (control_id, tenant_id, capture))
-                run_ids.append(payload["run_id"])
+                run_ids.append((payload["run_id"], tenant_id))
 
-    for run_id in run_ids:
-        take("/api/runs/%s" % run_id, "runs/%s.json" % run_id)
+    for run_id, tenant_id in run_ids:
+        take("/api/runs/%s?property=%s" % (run_id, tenant_id), "runs/%s.json" % run_id)
     for control_id in controls:
-        take("/api/history/%s" % control_id, "history/%s.json" % control_id)
+        for tenant_id in available_tenants():
+            take("/api/history/%s?property=%s" % (control_id, tenant_id),
+                 "history/%s.%s.json" % (control_id, tenant_id))
 
     built.update(_compose())
     return built

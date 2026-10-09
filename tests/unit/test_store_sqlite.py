@@ -69,7 +69,7 @@ class TestRoundTrip:
                           Value.known(Money(Decimal("-490.75"), "ILS"),
                                       source="pms:minihotel/GetReservationBalance"))],
             control_id="checkout_unrefunded_credit", record_id="007004348")])
-        restored = store.load(store.save(original))
+        restored = store.load(store.save(original), tenant_id="sandbox")
 
         assert restored.control_id == original.control_id
         assert restored.natural_language == original.natural_language
@@ -87,7 +87,7 @@ class TestRoundTrip:
                           Value.known(Money(Decimal("-490.75"), "ILS"),
                                       source="pms:minihotel/GetReservationBalance"))],
             record_id="007004348")])
-        line = store.load(store.save(original)).verdicts[0].evidence[0]
+        line = store.load(store.save(original), tenant_id="sandbox").verdicts[0].evidence[0]
         assert line.field == "folio.balance_due"
         assert line.value.payload == Money(Decimal("-490.75"), "ILS")
         assert line.value.unit == "ILS"
@@ -102,26 +102,27 @@ class TestRoundTrip:
                           Value.unknown("the response could not be fetched", risk="R1",
                                         source="pms:minihotel/GetReservationBalance"))],
             record_id="007004365")])
-        line = store.load(store.save(original)).verdicts[0].evidence[0]
+        line = store.load(store.save(original), tenant_id="sandbox").verdicts[0].evidence[0]
         assert line.value.is_known is False
         assert line.value.reason == "the response could not be fetched"
         assert line.value.risk == "R1"
 
     def test_a_blocked_run_round_trips_with_its_reason_and_no_verdicts(self, store):
-        restored = store.load(store.save(a_run(blocked="the call budget stopped this run")))
+        restored = store.load(store.save(a_run(blocked="the call budget stopped this run")),
+                              tenant_id="sandbox")
         assert restored.is_blocked
         assert restored.blocked == "the call budget stopped this run"
         assert restored.verdicts == ()
 
     def test_an_unknown_run_id_returns_none_rather_than_raising(self, store):
-        assert store.load("no-such-run") is None
+        assert store.load("no-such-run", tenant_id="sandbox") is None
 
 
 class TestHistory:
     def test_runs_are_listed_newest_first(self, store):
         for day in (1, 3, 2):
             store.save(a_run(created_at=datetime(2026, 9, day, 12, 0)))
-        dates = [row["created_at"] for row in store.history()]
+        dates = [row["created_at"] for row in store.history(tenant_id="sandbox")]
         assert dates == sorted(dates, reverse=True)
 
     def test_runs_made_at_the_same_instant_list_in_one_order_whichever_was_saved_first(self):
@@ -137,21 +138,21 @@ class TestHistory:
             with RunStore() as fresh:
                 for run in sequence:
                     fresh.save(run)
-                orders.append([row["run_id"] for row in fresh.history()])
+                orders.append([row["run_id"] for row in fresh.history(tenant_id="sandbox")])
         assert orders[0] == orders[1] == orders[2]
         assert orders[0] == sorted(orders[0], reverse=True), "ties break by run_id, descending"
 
     def test_history_can_be_narrowed_to_one_control(self, store):
         store.save(a_run("checkout_money_owed", created_at=datetime(2026, 9, 1)))
         store.save(a_run("checkout_unrefunded_credit", created_at=datetime(2026, 9, 2)))
-        rows = store.history("checkout_money_owed")
+        rows = store.history("checkout_money_owed", tenant_id="sandbox")
         assert len(rows) == 1 and rows[0]["control_id"] == "checkout_money_owed"
 
     def test_history_carries_the_counts_so_a_trend_needs_no_second_query(self, store):
         store.save(a_run(verdicts=[
             Verdict(Outcome.PASS, "r", [EvidenceLine("f", Value.known("v"))]),
             Verdict(Outcome.FAIL, "r", [EvidenceLine("f", Value.known("v"))])]))
-        row = store.history()[0]
+        row = store.history(tenant_id="sandbox")[0]
         assert (row["passes"], row["fails"], row["total"]) == (1, 1, 2)
 
     def test_re_reading_a_run_spends_no_provider_calls(self, store):
@@ -159,7 +160,7 @@ class TestHistory:
         would cost one call per reservation all over again."""
         run_id = store.save(a_run(verdicts=[
             Verdict(Outcome.PASS, "r", [EvidenceLine("f", Value.known("v"))])]))
-        restored = store.load(run_id)
+        restored = store.load(run_id, tenant_id="sandbox")
         assert restored.calls == 3, "the stored call count is a record, not a new cost"
 
 
@@ -177,14 +178,14 @@ class TestSchema:
         with RunStore(path) as store:
             run_id = store.save(a_run())
         with RunStore(path) as store:
-            assert store.load(run_id) is not None
+            assert store.load(run_id, tenant_id="sandbox") is not None
 
     def test_saving_the_same_run_twice_replaces_rather_than_duplicates(self, store):
         run = a_run(verdicts=[Verdict(Outcome.PASS, "r",
                                       [EvidenceLine("f", Value.known("v"))])])
         first, second = store.save(run), store.save(run)
         assert first == second
-        assert len(store.history()) == 1
+        assert len(store.history(tenant_id="sandbox")) == 1
 
 
 class TestFreshnessSurvivesTheRoundTrip:
@@ -198,7 +199,7 @@ class TestFreshnessSurvivesTheRoundTrip:
     def test_when_the_evidence_was_obtained_comes_back_unchanged(self, store):
         observed = datetime(2026, 9, 8, 0, 0, 0)
         run_id = store.save(a_run(observed_at=observed, maximum_age="30m"))
-        loaded = store.load(run_id)
+        loaded = store.load(run_id, tenant_id="sandbox")
         assert loaded.observed_at == observed
         assert loaded.maximum_age == "30m"
 
@@ -208,7 +209,7 @@ class TestFreshnessSurvivesTheRoundTrip:
         run_id = store.save(a_run(observed_at=datetime(2026, 9, 8, 3, 0, 0),
                                   created_at=datetime(2026, 9, 8, 12, 0, 0),
                                   maximum_age="30m"))
-        freshness = store.load(run_id).freshness
+        freshness = store.load(run_id, tenant_id="sandbox").freshness
         assert freshness.is_stale is True
         assert "out of date" in freshness.headline
 
@@ -216,13 +217,13 @@ class TestFreshnessSurvivesTheRoundTrip:
         run_id = store.save(a_run(observed_at=datetime(2026, 9, 8, 11, 45, 0),
                                   created_at=datetime(2026, 9, 8, 12, 0, 0),
                                   maximum_age="30m"))
-        assert store.load(run_id).freshness.is_stale is False
+        assert store.load(run_id, tenant_id="sandbox").freshness.is_stale is False
 
     def test_a_run_that_never_knew_when_its_evidence_came_from_reads_back_stale(self, store):
         """Including runs stored before these columns existed. An unknown age is not a fresh
         age, and a null column must not read as "it was fine"."""
         run_id = store.save(a_run(observed_at=None))
-        freshness = store.load(run_id).freshness
+        freshness = store.load(run_id, tenant_id="sandbox").freshness
         assert freshness.is_stale is True and freshness.is_known is False
 
     def test_a_database_written_before_these_columns_existed_still_opens(self, tmp_path):
@@ -245,7 +246,7 @@ class TestFreshnessSurvivesTheRoundTrip:
         legacy.close()
 
         with RunStore(path) as store:
-            loaded = store.load("old")
+            loaded = store.load("old", tenant_id="sandbox")
             assert loaded is not None
             assert loaded.observed_at is None
             assert loaded.freshness.is_stale is True, (

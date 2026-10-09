@@ -271,7 +271,7 @@ Run = { control, as_of, provider, evidence_origin, is_synthetic, calls,
 readiness(control_id, provider)          -> Readiness   # fields resolvable / total, per source
 next_evaluation(ir, provider_events, clock, last_run_at, event_at) -> Plan
 freshness_of(maximum_age, observed_at, now)                        -> Freshness
-store.save(run) / store.load(run_id) / store.history(control_id)
+store.save(run) / store.load(run_id, *, tenant_id) / store.history(control_id, *, tenant_id)
 ```
 
 Hides: orchestrating four layers · labelling which body of evidence a run used and whether it is
@@ -293,6 +293,14 @@ unchanged (plan-v3 §6.6). The same question at the same instant keeps one ident
 whose clock is fixed at the capture's instant, re-running after a version bump replaces that row.
 The replacement carries the new rule's verdicts and the new rule's version together.
 
+**Every read names its property** (slice 17, G5's data half). `tenant_id` is keyword-only with no
+default, so a call without one is a `TypeError` where it is written, never a query that returns
+every hotel's runs. Another property's run reads as `None`, exactly like a run that never existed,
+and the web layer answers both with the same 404 word for word. A run id cannot be probed for
+existence. `verdicts` and `evidence` carry no property of their own and are scoped through their
+run. A save is an upsert whose update half fires only for the same property, so a run carrying
+another property's id is refused rather than replacing that property's verdicts.
+
 **Scheduling is a pure function.** `next_evaluation` reads the IR's `execution`, asks the provider
 what events it publishes, and returns a `Plan`: a subscription, a due time, or `unschedulable`. A
 daemon is out of scope; the decision is not, and it is fully testable with an injected clock.
@@ -313,13 +321,13 @@ stale run still shows every verdict, because staleness qualifies an answer rathe
 GET  /?property=&evidence=            the controls the spec defines, with readiness
 GET  /run/<control_id>?property=&evidence=&as_of=   run it and render every verdict
 GET  /api/run/<control_id>            the same run as JSON
-GET  /api/runs/<run_id>               a stored run, re-read without a provider call
-GET  /history/<control_id>            past runs, newest first, grouped by the rule that judged them
+GET  /api/runs/<run_id>?property=     a stored run, re-read without a provider call - for ITS property
+GET  /history/<control_id>?property=  one property's past runs, newest first, grouped by rule
 GET  /api/readiness/<control_id>      per-provider field availability
 GET  /api/controls                    every reviewed control with its readiness, in one request
 GET  /api/properties                  each property, its provider, its captures, and the default
-GET  /api/history/<control_id>        past runs as JSON, with `concluded` beside the counts
-GET  /api/drafts                      composed drafts flagged unreviewed, or "not wired"
+GET  /api/history/<control_id>?property=   one property's past runs as JSON, naming the property
+GET  /api/drafts?property=            one property's composed drafts, flagged unreviewed
 GET  /api/outcomes                    the four answers' badges and meanings, served once
 GET  /api/plan/<control_id>?property=&as_of=   when it runs next (F7), for a stored run
 GET  /api/compose                     whether compose is wired, and a conversation's transcript
@@ -364,6 +372,12 @@ client:
   purpose, and re-reads it from `/api/runs/<run_id>`.
 - **`policy_version` and `policy_digest` are null on a run stored before slice 16.** That means
   *version not recorded*. A client never fills it in with the current version.
+- **A stored run, a history and the drafts are read for a property** (slice 17). A link to
+  `/api/runs/<id>` carries `?property=`. Without it the engine selects its default property, and
+  another property's run is a 404. Until slice 24 `?property=` is a *selection*, not an
+  identity. What slice 17 guarantees is that the selection is honoured all the way down.
+- **Drafts are per property**: filed under `<drafts>/<property>/ir/`, listed and run only for that
+  property. Reviewed controls in `spec/ir/` stay one shared library by design.
 
 UNKNOWN is distinguished from FAIL by **hue, border style and wording** — three signals, so the
 distinction survives a monochrome screen or a colour-blind reader.
@@ -506,6 +520,12 @@ The UI's CI job is separate and not required, so a broken npm can never block an
 rules that matter most about `ui/` are therefore checked by the **required** Python suite as well:
 no parsed money, no PMS identifier, no injected HTML, one module that makes requests, and exact
 pins (`test_ui_hygiene.py`, `test_canonical_boundary.py`).
+
+**v3 adds a structural tenant guard** (slice 17). `tests/unit/test_tenant_scoped_store.py` reads
+every SQL literal in `store/`, and every statement SQLite executes through each public method. It
+fails one that reads, updates or deletes a tenant-owned table without a bound `tenant_id = ?`
+after its `WHERE`. The tables come from `schema.sql`, so a table v3 adds later is covered the day
+it is created. It was seen failing on a planted unscoped `SELECT` before it was relied on.
 
 **v3 adds two guards that run on every push.** `tests/unit/test_v3_slice_scope.py` holds each v3
 slice's *may change* line from `docs/plan-v3.md` §5 as an allow-list. It fails a `slice/16-*` …

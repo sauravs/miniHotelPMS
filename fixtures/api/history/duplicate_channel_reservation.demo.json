@@ -1,0 +1,46 @@
+{
+  "control_id": "duplicate_channel_reservation",
+  "property": "demo",
+  "runs": [
+    {
+      "run_id": "7682f58b49194b12",
+      "created_at": "2026-07-08T00:00:00+03:00",
+      "provider": "demopms",
+      "evidence_label": "demo2026",
+      "as_of": "2026-07-08",
+      "calls": 1,
+      "policy_version": 2,
+      "policy_digest": "sha256:9939e1ea13c49ceb82cd2c51da9631176aaba6eb458cd7074e3d5679059e3e9b",
+      "blocked": null,
+      "concluded": true,
+      "headline": "Concluded about 4 of 40 record(s); the rest were excluded or could not be answered.",
+      "counts": {
+        "PASS": 4,
+        "FAIL": 0,
+        "UNKNOWN": 10,
+        "EXCLUDED": 26,
+        "total": 40
+      }
+    },
+    {
+      "run_id": "c6184f1a690effe3",
+      "created_at": "2024-09-01T00:00:00+03:00",
+      "provider": "demopms",
+      "evidence_label": "demo2024",
+      "as_of": "2024-09-01",
+      "calls": 1,
+      "policy_version": 2,
+      "policy_digest": "sha256:9939e1ea13c49ceb82cd2c51da9631176aaba6eb458cd7074e3d5679059e3e9b",
+      "blocked": null,
+      "concluded": false,
+      "headline": "This control reached no conclusion about any of its 7 record(s). It has not found the property compliant; it has not looked.",
+      "counts": {
+        "PASS": 0,
+        "FAIL": 0,
+        "UNKNOWN": 1,
+        "EXCLUDED": 6,
+        "total": 7
+      }
+    }
+  ]
+}

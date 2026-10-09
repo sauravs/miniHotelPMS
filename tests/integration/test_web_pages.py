@@ -191,11 +191,11 @@ class TestHistoryAndStoredRuns:
     def test_a_run_is_saved_and_appears_in_its_history(self, app):
         app.handle("/run/checkout_money_owed?property=sandbox&evidence=sandbox2026")
         app.handle("/run/checkout_money_owed?property=sandbox&evidence=sandbox2024")
-        body = app.handle("/history/checkout_money_owed").body
+        body = app.handle("/history/checkout_money_owed?property=sandbox").body
         assert "sandbox2026" in body and "sandbox2024" in body
 
     def test_history_is_newest_first(self, app):
-        body = app.handle("/history/checkout_money_owed").body
+        body = app.handle("/history/checkout_money_owed?property=sandbox").body
         stamps = re.findall(r'data-created="([^"]+)"', body)
         assert stamps == sorted(stamps, reverse=True), stamps
 
@@ -206,7 +206,7 @@ class TestHistoryAndStoredRuns:
             "/api/run/checkout_money_owed?property=sandbox&evidence=sandbox2026").body)
         run_id = live["run_id"]
         before = app.provider_calls
-        stored = json.loads(app.handle("/api/runs/%s" % run_id).body)
+        stored = json.loads(app.handle("/api/runs/%s?property=sandbox" % run_id).body)
         assert app.provider_calls == before, "re-reading a stored run made a provider call"
         assert stored["run_id"] == run_id
         assert [v["outcome"] for v in stored["verdicts"]] == \
@@ -215,7 +215,7 @@ class TestHistoryAndStoredRuns:
     def test_a_stored_run_keeps_its_evidence_including_units_and_reasons(self, app):
         run_id = json.loads(app.handle(
             "/api/run/checkout_money_owed?property=sandbox&evidence=sandbox2026").body)["run_id"]
-        stored = json.loads(app.handle("/api/runs/%s" % run_id).body)
+        stored = json.loads(app.handle("/api/runs/%s?property=sandbox" % run_id).body)
         lines = [line for verdict in stored["verdicts"] for line in verdict["evidence"]]
         assert any(line["value"].endswith(" ILS") for line in lines), \
             "a stored amount without its currency is a receipt with the number missing (R9)"
@@ -444,15 +444,20 @@ class TestSlice15TheSecondClientsRoutesOnTheFullMatrix:
         JSON, and no other. Order among equal timestamps is the JSON's own, by run id."""
         for tenant_id, capture in evidence_sets(app):
             app.handle("/api/run/%s?property=%s&evidence=%s" % (control_id, tenant_id, capture))
-        status, _ct, body = app.handle("/api/history/%s" % control_id)
-        assert status == 200
-        rows = json.loads(body)["runs"]
-        page = app.handle("/history/%s" % control_id).body
-        assert {row["run_id"] for row in rows} == set(re.findall(r'href="/api/runs/([^"]+)"',
-                                                                 page))
-        for row in rows:
-            assert ("counts" in row) is (not row["blocked"])
-            assert isinstance(row["concluded"], bool)
+        # Per property since slice 17: each property's page links exactly its own JSON rows,
+        # each with the property it is read for.
+        for tenant_id in sorted({tenant for tenant, _capture in evidence_sets(app)}):
+            status, _ct, body = app.handle("/api/history/%s?property=%s"
+                                           % (control_id, tenant_id))
+            assert status == 200
+            rows = json.loads(body)["runs"]
+            assert rows, tenant_id
+            page = app.handle("/history/%s?property=%s" % (control_id, tenant_id)).body
+            assert {row["run_id"] for row in rows} == set(re.findall(
+                r'href="/api/runs/([^"?]+)\?property=%s"' % tenant_id, page))
+            for row in rows:
+                assert ("counts" in row) is (not row["blocked"])
+                assert isinstance(row["concluded"], bool)
 
     def test_none_of_them_spends_a_provider_call(self, app):
         before = app.provider_calls

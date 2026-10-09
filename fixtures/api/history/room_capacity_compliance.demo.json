@@ -1,5 +1,6 @@
 {
   "control_id": "room_capacity_compliance",
+  "property": "demo",
   "runs": [
     {
       "run_id": "f42793aadc7fd90a",
@@ -20,39 +21,6 @@
         "EXCLUDED": 71,
         "total": 111
       }
-    },
-    {
-      "run_id": "0e6b91d1d03e9c8e",
-      "created_at": "2026-07-08T00:00:00+03:00",
-      "provider": "minihotel",
-      "evidence_label": "sandbox2026",
-      "as_of": "2026-07-08",
-      "calls": 2,
-      "policy_version": 2,
-      "policy_digest": "sha256:cd0ae3ea6109ad40b1fd18b25c40b027de1b8582bcd2c8a7bf0a7e114dc97d48",
-      "blocked": null,
-      "concluded": false,
-      "headline": "This control reached no conclusion about any of its 111 record(s). It has not found the property compliant; it has not looked.",
-      "counts": {
-        "PASS": 0,
-        "FAIL": 0,
-        "UNKNOWN": 40,
-        "EXCLUDED": 71,
-        "total": 111
-      }
-    },
-    {
-      "run_id": "e174e7c3db79c811",
-      "created_at": "2024-09-01T00:00:00+03:00",
-      "provider": "minihotel",
-      "evidence_label": "sandbox2024",
-      "as_of": "2024-09-01",
-      "calls": 1,
-      "policy_version": 2,
-      "policy_digest": "sha256:cd0ae3ea6109ad40b1fd18b25c40b027de1b8582bcd2c8a7bf0a7e114dc97d48",
-      "blocked": "This control needs evidence this body of responses does not hold: this capture cannot answer that question: ArrivalDate was captured for 2024-08-01..2024-08-31 and the run asks for 2024-09-01..2024-11-30. An empty population here would look exactly like 'no violations found', and a population from the WRONG window would look like an answer, so it is refused instead",
-      "concluded": false,
-      "headline": null
     },
     {
       "run_id": "b9671a39092a696d",

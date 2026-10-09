@@ -24,7 +24,7 @@ that adding a PMS is a new adapter plus a mapping file, not a change to any rule
 | v2 documents | **Done** — prd, context, architecture, plan, open questions |
 | v2 code | **All 12 slices merged**, plus slice 13 (compose) and slice 14 (UI/UX pass). 1940 tests at slice 14 (1996 today), 96% coverage, 1080 spec checks, CI green. 11 of 12 criteria met; criterion 1 is recorded as **not met** with its arithmetic in `docs/plan.md` |
 | Slice 15: React UI | **Done** — `ui/`, a Next.js client of the JSON API. The engine is unchanged and both surfaces ship. 152 Vitest and 19 Playwright tests; criteria 2, 3, 8 and 10 re-proven. See `ui/README.md` |
-| v3 plan | **Approved 2026-10-09 (PR #50)** — `docs/plan-v3.md`; start from `docs/v3-implementation-brief.md`. Slices 16–24, decisions D12–D16, criteria V1–V12. Baseline on `7f384c4`: **1996 passed / 2 skipped, 1080 spec checks, 120 goldens and 11 DemoPMS files identical, 96% coverage**. **Progress: fix #48 merged (#52); slice 16 (policy versioning) built.** Track the live state in the `docs/plan-v3.md` status table |
+| v3 plan | **Approved 2026-10-09 (PR #50)** — `docs/plan-v3.md`; start from `docs/v3-implementation-brief.md`. Slices 16–24, decisions D12–D16, criteria V1–V12. Baseline on `7f384c4`: **1996 passed / 2 skipped, 1080 spec checks, 120 goldens and 11 DemoPMS files identical, 96% coverage**. **Progress: fix #48 (#52), slice 16 policy versioning (#53), fix #54 (#55) merged; slice 17 (tenant-scoped store) built.** Track the live state in the `docs/plan-v3.md` status table |
 
 ## Documents, in reading order
 

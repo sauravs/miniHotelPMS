@@ -13,18 +13,20 @@ export default async function Index({
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  const [query, { controls }, properties, { drafts }, compose] = await Promise.all([
+  const [query, { controls }, properties, compose] = await Promise.all([
     searchParams,
     getControls(),
     getProperties(),
-    getDrafts(),
     getComposeState(),
   ]);
+  const selection = selectionFrom(query, properties);
+  // Drafts are per property since slice 17: the selected property's, and nobody else's.
+  const { drafts } = await getDrafts(selection.property);
   return (
     <IndexView
       controls={controls}
       properties={properties}
-      selection={selectionFrom(query, properties)}
+      selection={selection}
       drafts={drafts}
       compose={compose.wired ? compose.proposer : null}
     />

@@ -3,10 +3,11 @@
 Paste the block below into a fresh session to resume. Everything it references is in the
 repository; nothing depends on the previous conversation.
 
-**Last updated:** 2026-10-09, after **v3 slice 16 (policy versioning)** was built on
-`slice/16-policy-versioning`. The v2 build is complete, slices 0–15. **v3 is slices 16–24, APPROVED
-by the owner (PR #50). Fix #48 merged (PR #52); slice 16 is the open PR or just merged. Check the
-`docs/plan-v3.md` status table, then continue with slice 17.** Start every session from
+**Last updated:** 2026-10-09, after **v3 slice 17 (tenant-scoped store)** was built on
+`slice/17-tenant-scoped-store`. The v2 build is complete, slices 0–15. **v3 is slices 16–24,
+APPROVED by the owner (PR #50). Merged: fix #48 (#52), slice 16 (#53), fix #54 (#55). Slice 17 is
+the open PR or just merged. Check the `docs/plan-v3.md` status table, then continue with slice
+18.** Start every session from
 `docs/v3-implementation-brief.md` §1.
 
 **The bounded probe of the live sandbox is now v3 slice 23** (decision D16): planned, printed, and
@@ -29,10 +30,17 @@ docs/architecture.md, docs/open-questions.md, docs/old-codebase-improve.md. They
 specification and the execution trackers. docs/plan.md is the v2 build log (slices 0-15);
 docs/plan-v3.md is authoritative for what is next (slices 16-24).
 
-STATE: v2 IS COMPLETE (slices 0-15) AND v3 IS UNDER CONSTRUCTION (docs/plan-v3.md). Fix #48
-merged (PR #52). Slice 16 built: 2280 passed / 2 skipped, 1091 spec checks (the lock adds one per
-control), 120 API goldens identical to a rebuild, 11 DemoPMS files identical, 96% coverage. The
-React UI has 160 Vitest and 19 Playwright tests. The plan-v3 status table holds the latest numbers;
+STATE: v2 IS COMPLETE (slices 0-15) AND v3 IS UNDER CONSTRUCTION (docs/plan-v3.md). Merged:
+fix #48 (#52), slice 16 (#53), fix #54 (#55). Slice 17 built: 2321 passed / 2 skipped on its
+branch (on main the v3 scope guard skips: one fewer pass, one more skip), 1091 spec checks, 131
+API goldens identical to a rebuild (history is one file per control per property), 11 DemoPMS
+files identical, 96% coverage. The React UI has 173 Vitest and 19 Playwright tests.
+
+SINCE SLICE 17 EVERY STORE READ NAMES ITS PROPERTY: RunStore.load(run_id, *, tenant_id) and
+RunStore.history(control_id, *, tenant_id). Links to /api/runs/<id> and /history/<id> carry
+?property=. Drafts live in <drafts>/<property>/ir/. tests/unit/test_tenant_scoped_store.py fails
+any SQL in store/ that touches a table in schema.sql without `tenant_id = ?` after its WHERE -
+new tables (actions, decisions) are covered automatically. The plan-v3 status table holds the latest numbers;
 a number that differs from it is a reason to stop and find out why.
 
 TWO GUARDS RUN ON EVERY PUSH SINCE SLICE 16. tests/unit/test_v3_slice_scope.py fails a
