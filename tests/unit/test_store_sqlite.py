@@ -124,6 +124,23 @@ class TestHistory:
         dates = [row["created_at"] for row in store.history()]
         assert dates == sorted(dates, reverse=True)
 
+    def test_runs_made_at_the_same_instant_list_in_one_order_whichever_was_saved_first(self):
+        """Issue #35. Ties are the norm, not an edge: both properties' 2026 captures describe
+        the same instant, so every control's history has them. SQLite promises no order among
+        equal sort keys, so without a second key the page's row order is the SQLite build's."""
+        from dataclasses import replace
+        same = datetime(2026, 7, 8)
+        runs = [replace(a_run(created_at=same), tenant_id=t, evidence_label=t + "2026")
+                for t in ("sandbox", "demo", "third")]
+        orders = []
+        for sequence in (runs, runs[::-1], runs[1:] + runs[:1]):
+            with RunStore() as fresh:
+                for run in sequence:
+                    fresh.save(run)
+                orders.append([row["run_id"] for row in fresh.history()])
+        assert orders[0] == orders[1] == orders[2]
+        assert orders[0] == sorted(orders[0], reverse=True), "ties break by run_id, descending"
+
     def test_history_can_be_narrowed_to_one_control(self, store):
         store.save(a_run("checkout_money_owed", created_at=datetime(2026, 9, 1)))
         store.save(a_run("checkout_unrefunded_credit", created_at=datetime(2026, 9, 2)))

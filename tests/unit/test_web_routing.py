@@ -864,6 +864,44 @@ def _no_run_may_happen(monkeypatch):
     monkeypatch.setattr(module, "run", refuse)
 
 
+class TestIssue35HistoryKeepsCriterion8:
+    """The history row is a run seen from further away, and keeps the run page's rules: counts
+    only for a run that concluded something, a sentence instead for one that did not."""
+
+    @staticmethod
+    def row(passes=0, fails=0, unknowns=0, excluded=0, blocked=None):
+        return {"run_id": "abc", "created_at": "2026-07-08T00:00:00+03:00",
+                "evidence_label": "sandbox2026", "as_of": "2026-07-08", "calls": 2,
+                "blocked": blocked, "passes": passes, "fails": fails, "unknowns": unknowns,
+                "excluded": excluded, "total": passes + fails + unknowns + excluded}
+
+    def _cell(self, row):
+        return text_of(render.history_page("ooo_room_protection", [row])).lower()
+
+    def test_all_excluded_is_no_conclusion_not_four_counts(self):
+        text = self._cell(self.row(excluded=28))
+        assert "reached no conclusion" in text and "28 record" in text
+        assert "0 violation" not in text and "0 pass" not in text
+
+    def test_all_unknown_is_no_conclusion_too(self):
+        """UNKNOWN is not an answer either: thirteen gaps are not thirteen passes."""
+        text = self._cell(self.row(unknowns=13))
+        assert "reached no conclusion" in text and "0 violation" not in text
+
+    def test_an_empty_population_says_there_was_nothing_to_check(self):
+        text = self._cell(self.row())
+        assert "nothing to check" in text and "0 violation" not in text
+
+    def test_a_blocked_run_still_says_blocked(self):
+        text = self._cell(self.row(blocked="no such window"))
+        assert "blocked" in text and "0 violation" not in text
+
+    def test_a_run_with_one_answer_shows_all_four_counts(self):
+        """One PASS among exclusions is a conclusion; the counts, EXCLUDED included, are true."""
+        text = self._cell(self.row(passes=1, excluded=27))
+        assert "1 pass" in text and "0 violation" in text and "27 not applicable" in text
+
+
 class TestSlice15TheControlsListIsOneRequest:
     """Criterion 10 for a second client: readiness per control per provider, in ONE request.
 

@@ -148,6 +148,22 @@ class TestCriterion8OnRealRuns:
         assert 'class="tiles"' in body
 
 
+    def test_the_history_of_a_run_that_concluded_nothing_shows_no_counts(self, app):
+        """Issue #35. The run page got criterion 8 right and the history page listed the same
+        run as "0 pass - 0 violation - 0 no answer - 28 not applicable": four counts, a zero
+        under VIOLATION, for a control that never looked. The two pages must agree."""
+        app.handle("/run/ooo_room_protection?property=sandbox&evidence=sandbox2026")
+        text = text_of(app.handle("/history/ooo_room_protection").body).lower()
+        assert "reached no conclusion" in text
+        assert "violation" not in text.replace("violations", "")
+        assert "0 pass" not in text
+
+    def test_the_history_of_a_run_that_did_conclude_still_shows_its_counts(self, app):
+        app.handle("/run/checkout_money_owed?property=sandbox&evidence=sandbox2026")
+        text = text_of(app.handle("/history/checkout_money_owed").body)
+        assert re.search(r"\d+ pass .{1,12} \d+ violation", text), text[-400:]
+
+
 class TestCriterion3OnRealRuns:
 
     def test_a_real_verdict_lists_its_fields_with_units_and_provenance(self, app):

@@ -40,7 +40,7 @@ import pathlib
 from typing import Any, Iterable
 
 from ..kernel import Outcome, Verdict
-from ..runner import Run
+from ..runner import Coverage, Run
 
 ASSETS = pathlib.Path(__file__).resolve().parent / "assets"
 STYLESHEET = (ASSETS / "style.css").read_text(encoding="utf-8")
@@ -587,17 +587,12 @@ def history_page(control_id: str, rows: Iterable[dict]) -> str:
 
     cells = []
     for row in rows:
-        summary = ("blocked" if row["blocked"] else
-                   "%s pass &middot; %s violation &middot; %s no answer &middot; "
-                   "%s not applicable"
-                   % (row["passes"] or 0, row["fails"] or 0, row["unknowns"] or 0,
-                      row["excluded"] or 0))
         cells.append(
             '<tr data-created="%s"><td class="mono"><a href="/api/runs/%s">%s</a></td>'
             "<td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>"
             % (_e(row["created_at"]), _e(row["run_id"]), _e(row["run_id"]),
                _e(row["created_at"]), _e(row.get("evidence_label")), _e(row["as_of"]),
-               _e(row["calls"]), summary))
+               _e(row["calls"]), _history_outcome(row)))
 
     body = ('<div class="card"><div class="scroller"><table class="listing">'
             "<caption>Every run of this control in this session, newest first</caption>"
@@ -607,6 +602,31 @@ def history_page(control_id: str, rows: Iterable[dict]) -> str:
             '<p class="meta">Re-reading any of these costs no provider call (R1).</p></div>'
             % "".join(cells))
     return page("History", control_id, body, explainer=_history_explainer())
+
+
+def _history_outcome(row: dict) -> str:
+    """One history row's outcome cell, under the run page's rules (criterion 8, issue #35).
+
+    This cell used to gate on `blocked` alone, so a run that concluded nothing was listed as
+    "0 pass - 0 violation - 0 no answer - 28 not applicable" on the very page an auditor reads
+    as the summary - finding F5, one click away from the run page that had it right. Counts
+    are shown only for a run that concluded something; otherwise the coverage headline is, and
+    it comes from the engine's own `Coverage`, so the two pages cannot word it differently.
+    """
+    if row["blocked"]:
+        return "blocked"
+    evaluated = sum(row[_HISTORY_COLUMN[outcome]] or 0
+                    for outcome in Outcome if outcome.is_answer)
+    coverage = Coverage(evaluated=evaluated, total=row["total"] or 0)
+    if not coverage.concluded:
+        return _e(coverage.headline)
+    return ("%s pass &middot; %s violation &middot; %s no answer &middot; %s not applicable"
+            % tuple(row[_HISTORY_COLUMN[outcome]] or 0 for outcome in TILE_ORDER))
+
+
+# Which column of a `RunStore.history` summary row counts which outcome.
+_HISTORY_COLUMN = {Outcome.PASS: "passes", Outcome.FAIL: "fails",
+                   Outcome.UNKNOWN: "unknowns", Outcome.EXCLUDED: "excluded"}
 
 
 def _history_explainer() -> str:
