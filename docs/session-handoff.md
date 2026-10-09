@@ -3,11 +3,10 @@
 Paste the block below into a fresh session to resume. Everything it references is in the
 repository; nothing depends on the previous conversation.
 
-**Last updated:** 2026-10-09, after **v3 slice 17 (tenant-scoped store)** was built on
-`slice/17-tenant-scoped-store`. The v2 build is complete, slices 0–15. **v3 is slices 16–24,
-APPROVED by the owner (PR #50). Merged: fix #48 (#52), slice 16 (#53), fix #54 (#55). Slice 17 is
-the open PR or just merged. Check the `docs/plan-v3.md` status table, then continue with slice
-18.** Start every session from
+**Last updated:** 2026-10-09, at the end of the first v3 implementation session, on `main` at
+`3041496`. The v2 build is complete, slices 0–15. **v3 is slices 16–24, APPROVED by the owner
+(PR #50). Merged: fix #48 (#52), slice 16 (#53), fix #54 (#55), slice 17 (#56), fix #57 (#58).
+Nothing is open but issues #59 (read it before slice 18) and #22 (slice 24's). Next: slice 18.** Start every session from
 `docs/v3-implementation-brief.md` §1.
 
 **The bounded probe of the live sandbox is now v3 slice 23** (decision D16): planned, printed, and
@@ -31,10 +30,19 @@ specification and the execution trackers. docs/plan.md is the v2 build log (slic
 docs/plan-v3.md is authoritative for what is next (slices 16-24).
 
 STATE: v2 IS COMPLETE (slices 0-15) AND v3 IS UNDER CONSTRUCTION (docs/plan-v3.md). Merged:
-fix #48 (#52), slice 16 (#53), fix #54 (#55). Slice 17 built: 2321 passed / 2 skipped on its
-branch (on main the v3 scope guard skips: one fewer pass, one more skip), 1091 spec checks, 131
-API goldens identical to a rebuild (history is one file per control per property), 11 DemoPMS
-files identical, 96% coverage. The React UI has 173 Vitest and 19 Playwright tests.
+fix #48 (#52), slice 16 (#53), fix #54 (#55), slice 17 (#56), fix #57 (#58). Baseline on main at
+3041496: 2321 passed / 3 skipped (the v3 scope guard skips off a slice branch; on slice/18-* expect
+2322 / 2), 1091 spec checks, 131 API goldens identical to a rebuild (history is one file per
+control per property), 11 DemoPMS files identical, spec lock current, 96% coverage. The React UI
+has 173 Vitest and 19 Playwright tests.
+
+SLICE 18 HAS A PLAN FINDING - READ ISSUE #59 FIRST. Its exit test 1 names checkout_money_owed, which
+has NO FAIL on any capture (0 FAIL at every instant 2026-07-01..31, empty in 2024), so as written
+it passes with zero records. The only FAIL in all captured evidence is checkout_unrefunded_credit
+on 007004348 (-490.75 ILS; IR action: medium / finance). Prove the mapping on that real FAIL, state
+money-owed's 0 FAIL -> 0 records as a fact, prove money-owed's high/finance mapping on a CONSTRUCTED
+run labelled as such, and add a correction note to plan-v3's slice-18 exit test in that PR. Never
+edit a fixture or invent a FAIL.
 
 SINCE SLICE 17 EVERY STORE READ NAMES ITS PROPERTY: RunStore.load(run_id, *, tenant_id) and
 RunStore.history(control_id, *, tenant_id). Links to /api/runs/<id> and /history/<id> carry
