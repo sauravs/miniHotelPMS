@@ -375,3 +375,51 @@ class TestAnEmptySpecDirectoryHasNothingToBorrow:
         app = App(spec_dir=spec, proposer=StubProposer(), draft_dir=drafts)
         app.handle_post("/compose/accept", EMAIL_RULE)
         assert list((drafts / "ir").iterdir()) == []
+
+
+class TestSliceFourteenTheComposeWindowExplainsItself:
+    """The UI/UX pass, on the one page where a reader is being asked to type something.
+
+    Three things on this screen are not guessable: that the SENTENCE is what compiles rather
+    than the prose, that "Records to check" borrows another control's bounded population
+    because a sentence may not name an endpoint (criterion 5), and that a filed draft is
+    runnable but unreviewed and is not counted in the criterion-1 figure.
+    """
+
+    def test_the_page_carries_an_explanation_bar(self, app):
+        markup = app.handle("/compose").body
+        assert 'class="explainer"' in markup
+        assert "how to read this page" in text_of(markup).lower()
+
+    def test_it_explains_that_the_sentence_is_what_compiles(self, app):
+        text = text_of(app.handle("/compose").body).lower()
+        assert "what runs is the sentence" in text
+
+    def test_it_explains_what_a_draft_is(self, app):
+        text = text_of(app.handle("/compose").body).lower()
+        assert "runnable but unreviewed" in text
+
+    def test_the_switched_off_page_explains_itself_too(self):
+        """An absence is stated everywhere else in this system; it must be stated legibly."""
+        markup = App().handle("/compose").body
+        assert 'class="explainer"' in markup
+        assert "how to read this page" in text_of(markup).lower()
+
+    def test_no_help_is_hidden_in_a_title_attribute(self, app):
+        for markup in (app.handle("/compose").body, App().handle("/compose").body):
+            assert not re.search(r"\stitle=", markup)
+
+    def test_the_compose_page_is_a_well_formed_document(self, app):
+        for markup in (app.handle("/compose").body, App().handle("/compose").body):
+            assert markup.lower().startswith("<!doctype html>")
+            assert '<html lang="en">' in markup
+            assert markup.rstrip().endswith("</html>")
+
+    def test_the_redirect_body_is_still_the_only_place_a_meta_refresh_appears(self, app):
+        """`server._location` reads the location back out of the META REFRESH, and the slice-14
+        scaffold change adds markup to `<head>`. If a second meta refresh ever appeared, the
+        compose flow would redirect somewhere nobody asked for."""
+        status, headers, _payload = server.respond(app, "/compose/accept", EMAIL_RULE)
+        assert status == 303
+        assert headers["Location"].startswith("/run/my_draft")
+        assert app.handle("/compose").body.count("http-equiv") == 0

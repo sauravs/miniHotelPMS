@@ -377,7 +377,15 @@ class TestTheServerDecidesNothing:
         assert status == 200
         assert headers["Content-Type"].startswith("text/html")
         assert int(headers["Content-Length"]) == len(payload)
-        assert payload.decode("utf-8").startswith("<meta charset")
+        # CHANGED DELIBERATELY IN SLICE 14. This asserted the body STARTED with
+        # `<meta charset`, which it did because the page had no `<!doctype html>` and no
+        # `<html>` element at all - so every browser rendered the demo in quirks mode and
+        # every screen reader had to guess its language. What the assertion was protecting is
+        # that the charset is declared before a browser can start guessing the encoding, and
+        # that is still true: it is the first thing inside `<head>`. See
+        # `TestThePageIsAWellFormedDocument`, which pins both halves.
+        assert payload.decode("utf-8").startswith('<!doctype html><html lang="en"><head>'
+                                                  '<meta charset="utf-8">')
 
     def test_a_page_with_non_ascii_evidence_is_length_counted_in_bytes(self):
         """The captures hold Hebrew free text and pseudonymised names with accents. A
@@ -432,7 +440,10 @@ class TestTheServerDecidesNothing:
         handler.do_GET()
         assert written == [200]
         assert dict(headers)["Content-Type"].startswith("text/html")
-        assert handler.wfile.getvalue().startswith(b"<meta charset")
+        # Changed deliberately in slice 14, for the same reason and with the same guarantee as
+        # the assertion in `test_a_response_is_bytes_with_its_length_and_type` above: whatever
+        # `respond` returned is what goes out, and what it returns is now a whole document.
+        assert handler.wfile.getvalue().startswith(b"<!doctype html>")
 
     def test_the_access_log_never_records_a_query_string(self, capsys):
         """A log line is the easiest place for data to leak out of a system that was careful
@@ -479,3 +490,355 @@ class TestTheServerDecidesNothing:
         thread.start()
         thread.join()
         assert answers[0].status == 200, answers[0].body[:300]
+
+
+# ---------------------------------------------------------------------------------------
+class TestThePageIsAWellFormedDocument:
+    """Slice 14. The scaffold, which until now started at `<meta charset>`.
+
+    Not a cosmetic point. With no `<!doctype html>` a browser renders in quirks mode, and with
+    no `lang` a screen reader has nothing to pick a voice from - so the page that exists to
+    make a verdict believable was being read in the wrong accent and laid out under 1990s box
+    rules. Both are one line to fix and neither costs a byte of JavaScript.
+
+    `tests/unit/test_web_routing.py` used to assert the body STARTED with `<meta charset`, in
+    two places. Both are updated deliberately in the same commit: the charset declaration is
+    still the first thing inside `<head>`, which is the part that mattered.
+    """
+
+    def test_it_declares_a_doctype_so_a_browser_is_not_in_quirks_mode(self):
+        assert handle("/").body.lower().startswith("<!doctype html>")
+
+    def test_it_declares_its_language_so_assistive_technology_can_read_it(self):
+        assert '<html lang="en">' in handle("/").body
+
+    def test_the_charset_is_still_the_first_thing_in_the_head(self):
+        """Still first, and it has to be: a charset declared after the first 1024 bytes is a
+        charset a browser has already guessed past, and these captures hold Hebrew free text."""
+        head = re.search(r"<head>(.*?)</head>", handle("/").body, re.S).group(1)
+        assert head.lstrip().startswith('<meta charset="utf-8">')
+
+    def test_the_content_lives_in_a_body_element(self):
+        body = handle("/").body
+        assert "<body>" in body and body.rstrip().endswith("</html>")
+
+    def test_every_page_is_the_same_document_shape(self):
+        """The shell is one function, so this holds for a refusal as much as for a run."""
+        for path in ("/", "/nowhere", "/history/checkout_money_owed",
+                     "/run/checkout_money_owed?property=sandbox&evidence=sandbox2026"):
+            markup = handle(path).body
+            assert markup.lower().startswith("<!doctype html>"), path
+            assert '<html lang="en">' in markup, path
+            assert "<body>" in markup and "</body>" in markup, path
+
+    def test_there_is_still_exactly_one_stylesheet_and_no_other_resource(self):
+        """Criterion 11 for the page: `default-src 'none'` forbids a webfont as surely as it
+        forbids a CDN, so a scaffold change must not smuggle one in."""
+        markup = handle("/").body
+        assert markup.count("<link") == 1
+        assert markup.count('href="/style.css"') == 1
+        assert "http://" not in markup and "https://" not in markup
+
+
+# ---------------------------------------------------------------------------------------
+class TestThePageExplainsItself:
+    """Slice 14. A first-time reader must be able to learn what a component MEANS on screen.
+
+    The vocabulary this product rests on is not guessable: EXCLUDED is not PASS, UNKNOWN is not
+    FAIL, "4 of 5 fields" is a readiness ratio, `as_of` defaults to the instant the EVIDENCE
+    describes rather than to today. A page that assumes the reader knows all four has told them
+    nothing, which is criterion 2's failure mode wearing a different hat.
+
+    THE MECHANISM IS `<details><summary>`, AND THAT IS A REQUIREMENT RATHER THAN A PREFERENCE.
+    `title="..."` would put the explanation INSIDE a tag, where `text_of` strips it and where a
+    touch user can never reach it. Visible, keyboard-reachable, strip-surviving help, or none.
+    """
+
+    PAGES = ("/", "/history/checkout_money_owed",
+             "/run/checkout_money_owed?property=sandbox&evidence=sandbox2026",
+             "/run/ooo_room_protection?property=sandbox&evidence=sandbox2026")
+
+    def test_no_help_is_hidden_in_a_title_attribute(self):
+        """The constraint, asserted rather than trusted. A `title=` tooltip does not survive
+        `text_of`, does not exist on a touch screen, and is read inconsistently by screen
+        readers - so it is the one tooltip mechanism this project may not use."""
+        for path in self.PAGES:
+            assert not re.search(r"\stitle=", handle(path).body), path
+
+    def test_every_page_carries_an_explanation_bar(self):
+        for path in self.PAGES:
+            markup = handle(path).body
+            assert 'class="explainer"' in markup, path
+            assert "<summary>" in markup, path
+
+    def test_the_explanation_survives_having_every_tag_stripped(self):
+        """Help that only exists while CSS and JavaScript are working is help for the demo,
+        not for the reader."""
+        for path in self.PAGES:
+            assert "how to read this page" in text_of(handle(path).body).lower(), path
+
+    def test_the_run_page_explains_all_four_outcomes_in_one_place(self):
+        """The four words on screen are PASS, VIOLATION, NO ANSWER and NOT APPLICABLE, and the
+        two that a reader will get wrong are the last two. So the page says, in prose, that one
+        is not a failure and the other is not a pass."""
+        text = text_of(handle("/run/inactive_room_future_stay"
+                              "?property=sandbox&evidence=sandbox2026").body).lower()
+        assert "what the four answers mean" in text
+        for badge in ("pass", "violation", "no answer", "not applicable"):
+            assert badge in text, badge
+        assert "not a pass and not a failure" in text
+        assert "has not been checked" in text
+
+    def test_the_run_page_explains_the_date_it_asked_about(self):
+        """`as_of` defaults to the instant the EVIDENCE describes, not to today - which is the
+        single most surprising thing about this demo and was nowhere on the page."""
+        text = text_of(handle("/run/checkout_money_owed"
+                              "?property=sandbox&evidence=sandbox2026").body).lower()
+        assert "asked as of" in text
+        assert "?as_of=" in text
+
+    def test_the_run_page_explains_what_a_provider_call_costs(self):
+        """R1 and criterion 4, in a sentence: the number beside "provider call(s)" is the
+        reason every control declares a bounded population."""
+        text = text_of(handle("/run/checkout_money_owed"
+                              "?property=sandbox&evidence=sandbox2026").body).lower()
+        assert "one call per record" in text
+
+    def test_the_run_page_explains_the_three_evidence_columns(self):
+        """Criterion 3's columns are `field`, `value` and `from`, and "from" is the one nobody
+        guesses: it is the call the value came from, which is what makes the trail auditable."""
+        text = text_of(handle("/run/checkout_money_owed"
+                              "?property=sandbox&evidence=sandbox2026").body).lower()
+        assert "which call produced it" in text
+
+    def test_a_run_with_no_tiles_explains_why_there_are_none(self):
+        """Criterion 8 is the most easily mistaken-for-a-bug thing on the screen. A reader who
+        thinks the tiles failed to render learns nothing; a reader told that four zeroes would
+        have read as a clean bill of health learns the product's whole argument."""
+        text = text_of(handle("/run/ooo_room_protection"
+                              "?property=sandbox&evidence=sandbox2026").body).lower()
+        assert 'class="tiles"' not in handle("/run/ooo_room_protection"
+                                            "?property=sandbox&evidence=sandbox2026").body
+        assert "no counts are shown" in text
+
+    def test_a_blocked_run_is_not_told_it_concluded_nothing(self):
+        """Two different absences, and they must not share one sentence. A run that CONCLUDED
+        NOTHING looked at records and could not decide about any of them. A BLOCKED run never
+        got the evidence to look at all. Telling a reader the second one "concluded nothing"
+        describes a run that did not happen, and the distinction between "we looked and could
+        not tell" and "we could not look" is the same distinction as UNKNOWN against FAIL."""
+        blocked = text_of(render.run_page(a_run(blocked="this capture never held that window"),
+                                          plan=None, readiness=(), links={})).lower()
+        nothing = text_of(render.run_page(
+            a_run([a_verdict(Outcome.EXCLUDED, record_id="a")]),
+            plan=None, readiness=(), links={})).lower()
+        assert "no counts are shown" in blocked and "no counts are shown" in nothing
+        assert "never ran" in blocked
+        assert "never ran" not in nothing
+
+    def test_the_run_explainer_points_at_the_glossary_rather_than_repeating_it(self):
+        """The four answers are defined once, beside the badges, where a puzzled reader is
+        looking. Two copies of a glossary is two things to keep in step, and criterion 2's
+        wording signal has exactly one source - `WORDING`."""
+        page = handle("/run/checkout_money_owed"
+                      "?property=sandbox&evidence=sandbox2026").body
+        folded = re.search(r'<div class="folded">(.*?)</div>', page, re.S).group(1)
+        assert "What the four answers mean" in text_of(page)
+        assert "not a pass and not a failure" not in text_of(folded), \
+            "the glossary is the one place the four answers are defined"
+
+    def test_the_index_explains_the_readiness_ratio(self):
+        """Criterion 10's number, in words. "5 of 5 fields available" is meaningless until
+        somebody says what a field is and what to do when one is missing."""
+        text = text_of(handle("/").body).lower()
+        assert "fields the rule needs" in text
+        assert "connect a source" in text
+
+    def test_the_index_explains_what_a_body_of_evidence_is(self):
+        """A "body of evidence" is this project's own term for a frozen set of real API
+        responses. Nobody arrives knowing it, and the whole page is organised around it."""
+        text = text_of(handle("/").body).lower()
+        assert "frozen set of real responses" in text
+
+
+# ---------------------------------------------------------------------------------------
+class TestVerdictsAreGroupedByWhatTheyAskOfTheReader:
+    """Slice 14, and it came from running the demo rather than from reading it.
+
+    `/run/inactive_room_future_stay` renders 111 verdict blocks in population order, 71 of them
+    NOT APPLICABLE because the reservation was cancelled. The one thing a reader came for - is
+    anything wrong? - is somewhere in the middle of eighty screens of "this does not apply".
+
+    So the verdicts are grouped by outcome and the groups are ordered by what they ask of the
+    reader: VIOLATION first, then NO ANSWER (the product path), then PASS, then NOT APPLICABLE.
+    The first two are OPEN, because they are the queue. The last two are `<details>` a click
+    away - present in the markup, counted on the page, never hidden from a text scrape.
+    """
+
+    def test_the_groups_are_ordered_by_what_they_ask_of_the_reader(self):
+        run = a_run([a_verdict(Outcome.EXCLUDED, record_id="x"),
+                     a_verdict(Outcome.PASS, record_id="p"),
+                     a_verdict(Outcome.UNKNOWN, record_id="u"),
+                     a_verdict(Outcome.FAIL, record_id="f")])
+        page = render.run_page(run, plan=None, readiness=(), links={})
+        order = [m for m in re.findall(r'id="verdicts-(\w+)"', page)]
+        assert order == ["FAIL", "UNKNOWN", "PASS", "EXCLUDED"], order
+
+    def test_a_violation_is_open_without_a_click(self):
+        """A queue nobody can see is not a queue."""
+        page = render.run_page(a_run([a_verdict(Outcome.FAIL)]), plan=None, readiness=(),
+                               links={})
+        group = re.search(r'<details[^>]*id="verdicts-FAIL"[^>]*>', page)
+        assert group and "open" in group.group(0), group
+
+    def test_an_unknown_is_open_too_because_it_is_the_product_path(self):
+        page = render.run_page(a_run([a_verdict(Outcome.UNKNOWN)]), plan=None, readiness=(),
+                               links={})
+        group = re.search(r'<details[^>]*id="verdicts-UNKNOWN"[^>]*>', page)
+        assert group and "open" in group.group(0), group
+
+    def test_the_records_a_control_did_not_apply_to_are_one_click_away_not_gone(self):
+        run = a_run([a_verdict(Outcome.FAIL, record_id="f"),
+                     a_verdict(Outcome.EXCLUDED, record_id="007003917")])
+        page = render.run_page(run, plan=None, readiness=(), links={})
+        group = re.search(r'<details[^>]*id="verdicts-EXCLUDED"[^>]*>', page)
+        assert group and "open" not in group.group(0), group
+        assert "007003917" in page, "a collapsed group is still in the markup"
+        assert "NOT APPLICABLE" in text_of(page)
+
+    def test_every_group_names_its_count_and_what_it_means(self):
+        run = a_run([a_verdict(Outcome.EXCLUDED, record_id="a"),
+                     a_verdict(Outcome.EXCLUDED, record_id="b")])
+        text = text_of(render.run_page(run, plan=None, readiness=(), links={}))
+        assert "2 records" in text
+        assert "has not been checked" in text.lower()
+
+    def test_an_outcome_with_no_records_gets_no_group(self):
+        """An empty "0 violations" section is the tile-row failure in another costume."""
+        page = render.run_page(a_run([a_verdict(Outcome.PASS)]), plan=None, readiness=(),
+                               links={})
+        assert 'id="verdicts-FAIL"' not in page
+        assert 'id="verdicts-PASS"' in page
+
+    def test_every_verdict_is_still_on_the_page_exactly_once(self):
+        """Grouping must not drop or duplicate a record. 111 verdicts in, 111 out."""
+        verdicts = [a_verdict(Outcome.EXCLUDED, record_id="x%d" % i) for i in range(7)]
+        verdicts += [a_verdict(Outcome.PASS, record_id="p%d" % i) for i in range(5)]
+        verdicts += [a_verdict(Outcome.UNKNOWN, record_id="u%d" % i) for i in range(3)]
+        page = render.run_page(a_run(verdicts), plan=None, readiness=(), links={})
+        assert page.count('<article class="verdict') == 15
+        for verdict in verdicts:
+            assert page.count(">%s<" % verdict.record_id) == 1, verdict.record_id
+
+    def test_within_a_group_the_population_order_is_kept(self):
+        """The order the evidence came in is itself evidence. Grouping regroups; it never
+        sorts."""
+        run = a_run([a_verdict(Outcome.PASS, record_id="third"),
+                     a_verdict(Outcome.PASS, record_id="first"),
+                     a_verdict(Outcome.PASS, record_id="second")])
+        page = render.run_page(run, plan=None, readiness=(), links={})
+        assert re.findall(r'class="record">([^<]+)<', page) == ["third", "first", "second"]
+
+    def test_a_count_tile_links_to_the_records_it_counts(self):
+        """The tile row stops being a scoreboard and becomes the table of contents for a page
+        that can be a hundred records long. A pure fragment link - no JavaScript."""
+        run = a_run([a_verdict(Outcome.FAIL, record_id="f"),
+                     a_verdict(Outcome.PASS, record_id="p")])
+        page = render.run_page(run, plan=None, readiness=(), links={})
+        assert 'href="#verdicts-FAIL"' in page
+        assert 'href="#verdicts-PASS"' in page
+
+    def test_a_tile_for_an_outcome_with_no_records_is_not_a_link_to_nowhere(self):
+        run = a_run([a_verdict(Outcome.PASS, record_id="p")])
+        page = render.run_page(run, plan=None, readiness=(), links={})
+        assert 'href="#verdicts-FAIL"' not in page
+        assert "0" in page and "VIOLATION" in page, "the zero is still counted and shown"
+
+
+# ---------------------------------------------------------------------------------------
+class TestTheStylesheetCarriesTheSignalsItClaimsTo:
+    """Criterion 2 lives in this file as much as in the markup, so slice 14's beautification
+    has to be asserted rather than eyeballed."""
+
+    def test_the_tile_row_carries_the_same_two_signals_as_a_verdict(self):
+        """The tiles are the first thing a reader looks at and they used to be four identical
+        grey boxes, so the distinction the whole product rests on was absent from the one
+        component everybody reads. Same rule as a verdict block: own hue, own border style."""
+        styles = {name: _tile_border_style(STYLESHEET, name) for name in ("FAIL", "UNKNOWN")}
+        hues = {name: _tile_border_colour(STYLESHEET, name) for name in ("FAIL", "UNKNOWN")}
+        assert all(styles.values()) and all(hues.values()), (styles, hues)
+        assert styles["FAIL"] != styles["UNKNOWN"], styles
+        assert hues["FAIL"] != hues["UNKNOWN"], hues
+
+    def test_all_four_outcomes_have_a_styled_tile(self):
+        for outcome in Outcome:
+            assert _tile_border_style(STYLESHEET, outcome.value), outcome
+
+    def test_the_four_verdict_border_styles_are_still_four_different_styles(self):
+        """The existing tests only compare FAIL against UNKNOWN. A "harmonise the borders"
+        beautification would pass those two and still destroy the distinction for the other
+        pair, so the whole set is pinned here."""
+        styles = {o.value: _border_style(STYLESHEET, o.value) for o in Outcome}
+        assert len(set(styles.values())) == 4, styles
+
+    def test_a_short_readiness_line_is_actually_coloured(self):
+        """A real bug, found by reading the stylesheet against the markup. `render` emits
+        `class="readiness short"` and the stylesheet said `.readiness .short` - a DESCENDANT
+        selector, so the amber that marks a control the PMS cannot answer has never once been
+        applied. Criterion 10's warning colour was silently off.
+
+        Asserted over the RULES and not the file: this stylesheet carries long comments by
+        design, and a comment that names the broken selector in order to explain it is the
+        opposite of a regression."""
+        rules = _rules_only(STYLESHEET)
+        assert ".readiness.short" in rules
+        assert ".readiness .short" not in rules
+        assert render.run_page(a_run([]), plan=None, readiness=(), links={})
+
+    def test_keyboard_focus_is_visible(self):
+        """Everything added in this slice - the explanation bars, the verdict groups, the tile
+        links - is operated by keyboard. A focus ring the browser default would have drawn and
+        a custom one that forgets to are not the same page."""
+        assert ":focus-visible" in STYLESHEET
+
+    def test_the_explanation_affordance_is_styled_as_something_clickable(self):
+        assert "summary" in STYLESHEET
+        assert "cursor: pointer" in STYLESHEET
+
+    def test_a_wide_table_scrolls_in_its_own_box_rather_than_the_page(self):
+        """The evidence table holds an UNKNOWN's whole reason sentence, which is long. A page
+        that scrolls sideways puts the verdict badge off screen, so the table gets its own
+        scroll box and the page body never scrolls horizontally."""
+        assert re.search(r"\.scroller\s*\{[^}]*overflow-x:\s*auto", STYLESHEET), \
+            "the evidence table needs its own horizontal scroll container"
+        assert '<div class="scroller">' in render.verdict_block(a_verdict(Outcome.FAIL))
+
+    def test_the_page_still_prints(self):
+        """Criterion 2 names a printout explicitly as one of the readers the border styles are
+        for, so the stylesheet has to have an opinion about paper."""
+        assert "@media print" in STYLESHEET
+
+
+def _rules_only(stylesheet: str) -> str:
+    """The stylesheet with its comments removed, for assertions about SELECTORS.
+
+    This file is heavily commented on purpose - it is where a success criterion is written
+    down - so a test that greps the raw text cannot tell a rule from the prose explaining it.
+    """
+    return re.sub(r"/\*.*?\*/", "", stylesheet, flags=re.S)
+
+
+def _tile_rule(stylesheet: str, outcome: str) -> str:
+    match = re.search(r"\.tiles li\.%s\s*\{([^}]*)\}" % outcome, _rules_only(stylesheet))
+    return match.group(1) if match else ""
+
+
+def _tile_border_style(stylesheet: str, outcome: str) -> str:
+    match = re.search(r"border-left:\s*[\d.]+\w*\s+(\w+)", _tile_rule(stylesheet, outcome))
+    return match.group(1) if match else ""
+
+
+def _tile_border_colour(stylesheet: str, outcome: str) -> str:
+    match = re.search(r"border-left:\s*[\d.]+\w*\s+\w+\s+(#[0-9a-fA-F]+)",
+                      _tile_rule(stylesheet, outcome))
+    return match.group(1) if match else ""
