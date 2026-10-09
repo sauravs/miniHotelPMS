@@ -796,6 +796,7 @@ any `slice/15-*` branch that changes an engine file other than `web/app.py`.
 | #37 | `ui/` scaffold and the run page. `/api/outcomes`, parity harness, Playwright, CSP, `ui` CI job | **Merged** |
 | #38 | Index: readiness per provider (criterion 10), the evidence picker, drafts kept apart | **Merged** |
 | #39 | History, with `headline` on `/api/history` rows; our own 404 and error pages, which the CSP needed | **Merged** |
+| follow-up | `/api/plan`: the F7 "when it runs next" line on a stored run. A new read-only route, so every existing route and golden is unchanged | Open |
 | #40 | Compose as JSON (the slice's one write path, owner-approved), the React compose window, the stylesheet served at run time | **Merged** |
 
 **Slice 15 is closed.** Every item in the brief's definition of done is met:

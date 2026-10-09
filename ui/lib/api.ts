@@ -80,6 +80,11 @@ export const getReadiness = (controlId: string) =>
   read<{ control_id: string; providers: ReadinessReport[] }>(`/api/readiness/${id(controlId)}`);
 /** One control's past runs, newest first. Read from the store; no provider call. */
 export const getHistory = (controlId: string) => read<History>(`/api/history/${id(controlId)}`);
+/** When a control runs next on a property's provider, as of an instant (F7). From the spec alone. */
+export const getPlan = (controlId: string, property: string, asOf: string) =>
+  read<{ control_id: string; property: string; as_of: string; mode: string; declared_mode: string; fell_back: boolean; headline: string }>(
+    `/api/plan/${id(controlId)}?property=${id(property)}&as_of=${id(asOf)}`,
+  );
 /** A past run, re-read from the store. Zero provider calls by construction (R1). */
 export const getStoredRun = (runId: string) => read<RunPayload>(`/api/runs/${id(runId)}`);
 

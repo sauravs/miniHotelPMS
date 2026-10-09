@@ -296,6 +296,7 @@ GET  /api/properties                  each property, its provider, its captures,
 GET  /api/history/<control_id>        past runs as JSON, with `concluded` beside the counts
 GET  /api/drafts                      composed drafts flagged unreviewed, or "not wired"
 GET  /api/outcomes                    the four answers' badges and meanings, served once
+GET  /api/plan/<control_id>?property=&as_of=   when it runs next (F7), for a stored run
 GET  /api/compose                     whether compose is wired, and a conversation's transcript
 POST /api/compose                     one turn, as JSON - the same core as POST /compose
 POST /api/compose/accept              file a draft (201) or say why not (422); does not run it

@@ -19,12 +19,16 @@ export function RunView({
   run,
   outcomes,
   readiness = run.readiness,
+  plan,
 }: {
   run: RunPayload;
   outcomes: Outcomes;
   readiness?: ReadinessReport[];
+  /** When this control runs next (F7). A stored run carries none, so it is served beside it. */
+  plan?: { headline: string } | null;
 }) {
   const wording = byOutcome(outcomes);
+  const execution = run.execution ?? plan ?? null;
   return (
     <>
       <div className="card">
@@ -39,7 +43,7 @@ export function RunView({
           · {run.calls} provider call(s)
         </p>
         <p className={`meta ${run.freshness.stale ? "stale" : ""}`}>{run.freshness.headline}</p>
-        {run.execution ? <p className="meta">{run.execution.headline}</p> : null}
+        {execution ? <p className="meta">{execution.headline}</p> : null}
         {readiness.map((report) => (
           <p key={report.provider} className={`readiness${report.executable ? "" : " short"}`}>
             {report.headline}

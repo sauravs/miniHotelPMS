@@ -460,3 +460,15 @@ class TestSlice15TheSecondClientsRoutesOnTheFullMatrix:
                 "/api/history/%s" % control_id for control_id in CONTROLS]:
             assert app.handle(path).status == 200, path
         assert app.provider_calls == before
+
+
+@pytest.mark.parametrize("control_id", CONTROLS)
+def test_slice15_the_plan_route_agrees_with_every_live_run(control_id, app):
+    """F7's line on a stored run must say exactly what it said on the live one, for every
+    control, property and capture."""
+    for tenant_id, capture in evidence_sets(app):
+        live = json.loads(app.handle("/api/run/%s?property=%s&evidence=%s"
+                                     % (control_id, tenant_id, capture)).body)
+        plan = json.loads(app.handle("/api/plan/%s?property=%s&as_of=%s"
+                                     % (control_id, tenant_id, live["as_of"])).body)
+        assert {k: plan[k] for k in live["execution"]} == live["execution"], (tenant_id, capture)
