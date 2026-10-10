@@ -401,8 +401,8 @@
         "field": "occupancy.room_number",
         "type": "string",
         "nullable": false,
-        "absent_means": "false",
-        "description": "Room in the occupancy map",
+        "absent_means": "unknown",
+        "description": "Room in the occupancy map. Controls GROUP by it, so an empty one is an evidence gap, never a value: as 'false' every unassigned segment shared one room called False, failing against each other or passing alone (issue #75)",
         "resolvable": true
       },
       {
