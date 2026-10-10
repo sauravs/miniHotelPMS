@@ -5,89 +5,107 @@ session, exactly as written.** The longer block after it is the STATE block the 
 session to read. Do not paste that one. Everything either references is in the repository;
 nothing depends on the previous conversation.
 
-**Last updated:** 2026-10-10, in the fourth v3 implementation session, on `main` at `6d9c9ef`.
+**Last updated:** 2026-10-10, in the fifth v3 implementation session, on `main` at `9d4fb51`.
 The v2 build is complete, slices 0–15. **v3 is slices 16–24, APPROVED by the owner (PR #50).
-Merged: fix #48 (#52), slice 16 (#53), fix #54 (#55), slice 17 (#56), fix #57 (#58), slice 18
-findings queue (#61), slice 19 email (#62), slice 20 operational log (#63), slice 21 typed
-parameters (#65), slice 22 LATE_CHECKOUT (#68). Only #22 (slice 24's) is open. Next: slice 23,
-the evidence refresh - but the owner asked to be told when each slice ends and to say go before
-the next one opens, so WAIT for that go-ahead, and then for approval of EACH call.** Start every
-session from `docs/v3-implementation-brief.md` §1.
+Merged: fix #48 (#52), slices 16–22 (#53, #56, #61, #62, #63, #65, #68), slice 23 the evidence
+refresh (#77) with the three fixes it needed first (#72, #74, #76), and doc fixes #55, #58.
+Open: #22 (slice 24 closes it) and #71 (the owner decides when). Next and last: slice 24, host
+authentication and per-property credentials - after the owner's go-ahead, and after the brief
+check on the `ui/` development login.** Start every session from
+`docs/v3-implementation-brief.md` §1.
 
-**The bounded probe of the live sandbox is now v3 slice 23** (decision D16): planned, printed, and
-still gated on the owner's approval of each call *at the time*. Read
-[The probe that is waiting approval](#the-probe-that-is-waiting-approval--the-first-todo) before
-running it, and never as a standing permission.
+**The live probe is done** (slice 23, 2026-10-10): four calls, each approved at the time. Its
+runbook, for the next refresh, is [The probe](#the-probe--done-2026-10-10-v3-slice-23-kept-as-the-runbook-for-the-next-one).
+Slice 24 makes no live call.
 
 ---
 
 ## The starting prompt — paste exactly this
 
-Fill in the `GO-AHEAD` line first. Left blank, the session reports the baseline and waits.
+Fill in the two blank lines first: the `GO-AHEAD` and the `BRIEF CHECK`. A blank line makes the
+session report the baseline and ask, rather than guess.
 
 ```
-Continue building miniHotelPMS v3. Working directory: /Users/sauravs/Desktop/Work/miniHotelPMS
+Continue building miniHotelPMS v3: SLICE 24 ONLY - the last v3 slice.
+Working directory: /Users/sauravs/Desktop/Work/miniHotelPMS
 
-Read docs/v3-implementation-brief.md and follow it, starting with its §1 start-up procedure.
-Then read docs/session-handoff.md (the STATE block) and the docs/plan-v3.md status table.
+Read docs/v3-implementation-brief.md and follow its §1 start-up procedure. Then read
+docs/session-handoff.md (the STATE block), the docs/plan-v3.md status table (it holds the
+LATEST baseline) and plan-v3 §5 "Slice 24". Any number that differs from the status table is a
+reason to stop and find out why.
 
-Where things stand: fix #48 (#52), slices 16 (#53), 17 (#56), 18 (#61), 19 (#62), 20 (#63),
-21 (#65), 22 LATE_CHECKOUT (#68), doc fixes #55 and #58, and the handoffs are merged. main is
-at 6d9c9ef or a docs-only commit after it. Baseline on main: 2791 passed / 3 skipped (on a
-slice/23-* branch the v3 scope guard runs, so expect one more pass and one fewer skip), 1092
-spec checks, 135 API goldens identical, 11 DemoPMS files identical, spec lock current
-(tools.lock_spec --check), 97% coverage. React: 185 Vitest, 22 Playwright. Open issues: #22.
+Where things stand: slices 16-23 are merged - 23, the evidence refresh, is #77, after fixes
+#70 (#72), #73 (#74) and #75 (#76). main is at 9d4fb51 or a docs-only commit after it.
+Baseline on main: 2850 passed / 3 skipped (on a slice/24-* branch the v3 scope guard runs, so
+expect one more pass and one fewer skip), 1092 spec checks, 135 API goldens identical, 15
+DemoPMS files identical, spec lock current, 97% coverage. React: 185 Vitest, 22 Playwright.
+Open issues: #22 (this slice closes it) and #71 (mine to schedule - do not fix it here).
 `git branch --no-merged main` must list nothing locally.
 
-WORKING AGREEMENT (owner, 2026-10-10): after each slice ends end to end - PR, CI green,
-squash-merge, docs - REPORT to me and WAIT for my go-ahead before opening the next slice.
+WORKING AGREEMENT (owner, 2026-10-10): when the slice ends end to end - PR, CI green on
+test (3.11) and test (3.13), squash-merge, docs - REPORT to me and STOP.
 
-GO-AHEAD FOR SLICE 23: ____
-If that line is blank, run the baseline, report it, and wait.
+GO-AHEAD FOR SLICE 24: ____
+BRIEF CHECK - the ui/ development login is: ____ (acceptable as a labelled stand-in / not
+acceptable because ...)
+If either line is blank, run the baseline, report it, and ask me before any code.
 
-SLICE 23, THE EVIDENCE REFRESH (branch slice/23-evidence-refresh). Owner approves EACH call at
-the time; if I don't, skip the slice - nothing depends on it.
-- Print each request with tools.probe --plan: getRooms, getRoomTypes, RoomStatusInquiry, and
-  one reservation call WITH room prices (#49). Show me each one and ask.
-- Make NO call without my yes to that specific call. --run refuses anyway without
-  HOTELCONTROLS_LIVE=1 and the four HOTELCONTROLS_MINIHOTEL_* credentials (no defaults).
-- Scrub before staging (tools.scrub_fixtures). Add a NEW capture label; never edit an old file.
-- hotelcontrols/ is not changed at all. May change: fixtures/minihotel/ (new files + index.json),
-  fixtures/demopms/ (new files + index.json, via tools/transcode_demopms.py), fixtures/api/
-  (new files only), spec/providers/ (verified_against dates).
-- Re-measure criterion 1 per capture, never rounded, and never moved by a draft or an invented
-  hotel setting.
+SLICE 24, branch slice/24-host-auth. Build exactly as plan-v3 §5 says (D14: the host
+authenticates, the engine verifies):
+- A short-lived tenant context signed with HMAC-SHA256, verified with hmac.compare_digest,
+  expiry checked through the injected clock (kernel/clock.py stays the only wall-clock reader).
+  The secret comes from the environment with no default; its presence switches auth mode on,
+  and the engine refuses to start in auth mode with no secret.
+- With auth ON, ?property= and a POST's property field no longer select a property - the
+  verified context does. Every route: runs, history, the queue, actions, drafts, and slice 22's
+  POST /api/guest/requests, /api/guest/decisions[/<id>] and /guest. Unsigned, wrongly signed
+  and expired contexts are each refused.
+- With auth OFF: today's single-operator demo exactly - all 135 goldens byte-identical.
+- #22, failing test first: two properties on the same PMS resolve distinct credentials.
+  Credentials.from_environment(provider, property) -> HOTELCONTROLS_<PROPERTY>_<PROVIDER>_*,
+  with NO fallback to the provider-only names (a fallback would hand one property another's
+  account, which is #22 itself). tools/probe.py passes the property it already has.
+  TELL ME in the report: my .env must rename HOTELCONTROLS_MINIHOTEL_* to
+  HOTELCONTROLS_SANDBOX_MINIHOTEL_* before the next live call.
+- ui/ signs with node:crypto - no new runtime package (the exact-pins test stays unedited). Its
+  user store is a development stand-in, labelled as one.
 
-THEN SLICE 24, host auth plus per-property credentials (#22) - after my go-ahead.
-- Brief check with me first: is the ui/ development login acceptable as a labelled stand-in?
-- HMAC-SHA256 signed tenant context, verified with hmac.compare_digest, expiry checked through
-  the injected clock. The secret comes from the environment with no default.
-- Credentials.from_environment(provider, property).
-- Auth off -> all goldens byte-identical. ui/ signs with node:crypto, so no new package.
-- The PR that closes v3 deletes docs/v3-implementation-brief.md.
+May change: hotelcontrols/web/ (a new auth.py), hotelcontrols/providers/transport/http.py (the
+credential key only), tools/probe.py, ui/, docs. Must not: kernel/, spec/, evidence/,
+evaluator/, runner/, store/, compiler/, the adapters - and hotelcontrols/guest/ and actions/ are
+not on the line either. If auth seems to need any of them, STOP and ask me.
 
-Guards every slice must respect:
-- tests/unit/test_v3_slice_scope.py fails a branch that touches anything outside that slice's
-  "May change" line. If it fails, STOP and ask me; never widen the table.
-- tests/integration/test_v1_no_answer_changed.py: a declared verdict change goes in its
-  DECLARED dict, in the PR that made it. Slices 23-24 foresee none.
-- Editing a rule makes a new version: bump "version", then python3 -m tools.lock_spec. The
-  LATE_CHECKOUT table's digest is pinned the same way in tests/unit/test_guest_template.py.
-- Store reads are keyword-only on tenant_id; every SQL on a tenant table carries
-  tenant_id = ?.
+Exit tests (D3 §80, against the API, not the UI): with auth on, A's signed context cannot read
+B's runs, actions, decisions or drafts through any JSON route; the three bad contexts are
+refused; the engine will not start in auth mode without a secret; two properties on one PMS
+hold distinct credentials; auth off -> all 135 goldens identical.
+
+THIS PR CLOSES v3: delete docs/v3-implementation-brief.md; mark V1-V12 in plan-v3 §7, each
+with where it is proven; update the plan-v3 status table, CLAUDE.md's status row and
+docs/session-handoff.md (a v3-complete state, and what is still open for me).
+
+Guards: tests/unit/test_v3_slice_scope.py (if it fails, STOP and ask me; never widen the row);
+tests/integration/test_v1_no_answer_changed.py (no declared change foreseen); store reads are
+keyword-only on tenant_id. A defect found outside the slice gets a GitHub issue first, then
+fix/NN-..., then a PR "Fixes #NN" - never a fix inside the slice.
 
 Still open for me (do not decide them yourself):
+- #71: when to fix replay comparing windows only by name. It changes existing answers (a
+  declared V1 change) and likely lowers criterion 1.
+- Should the demo offer the refresh capture (sandbox2026refresh)? That edits the engine's
+  capture lists and existing goldens - slice 23's option B, which I did not choose.
 - Should drafts stay out of the findings queue? (Slice 18 decided they do.)
-- Should tools.serve attach the operational log in a later slice?
-- Slice 22: should guest tasks be emailed like violations? Should the guest routes get golden
-  payloads and a React view? (Both need tools/dump_api_fixtures.py or tools/serve.py, which
-  slice 22 could not change.)
-FLAGGED: the comment at hotelcontrols/evaluator/predicates.py:138-139 still says the "has not
-supplied" branch means "never declared"; since slice 21 it also means "not decided". evaluator/
-is a must-not in every remaining slice, so fix it through the bug workflow if at all: a GitHub
-issue first, then fix/NN-..., then a PR "Fixes #NN".
+- Should tools.serve attach the operational log?
+- Should guest tasks be emailed like violations, and should the guest routes get golden
+  payloads and a React view?
+- The 16 other non-boolean fields declared absent_means "false" (listed in #75): review them.
+FLAGGED, through the bug workflow if at all (both files are must-nots here):
+- hotelcontrols/evaluator/predicates.py:138-139: the "has not supplied" comment means "not
+  decided" too since slice 21.
+- hotelcontrols/providers/minihotel/fixtures.py:5 says fixtures/minihotel/ holds "fourteen"
+  responses; slice 23 made it eighteen.
 
-Before ending the session, update docs/session-handoff.md and the plan-v3 status table.
+When done, REPORT TO ME AND STOP.
 ```
 
 ## The STATE block — read by the session, not pasted
