@@ -111,7 +111,10 @@ FILTERS = {
     "ReservationNumber": "booking_ref",
 }
 
-CAPTURES = {"sandbox2024": "demo2024", "sandbox2026": "demo2026"}
+CAPTURES = {"sandbox2024": "demo2024", "sandbox2026": "demo2026",
+            # v3 slice 23's evidence refresh, four calls made 2026-10-10. Transcoded like the
+            # others; the engine's own capture lists do not offer it in the demo.
+            "sandbox2026refresh": "demo2026refresh"}
 
 # Source fixture -> the file it becomes. Explicit, because a derived name would change silently
 # the day somebody renames a capture, and these names appear in the provider map's `probe`.
@@ -126,6 +129,10 @@ FILES = {
     "5_balance_007004348.xml": "ledger_007004348.json",
     "5_balance_007004351.xml": "ledger_007004351.json",
     "5_balance_007004354.xml": "ledger_007004354.json",
+    "11_getRooms_2026-10.xml": "rooms_2026-10.json",
+    "12_getRoomTypes_2026-10.xml": "room-types_2026-10.json",
+    "13_RoomStatus_2026-07.xml": "occupancy_2026-07.json",
+    "14_departures_2026-07_prices.xml": "bookings_2026-07_prices.json",
 }
 
 MONTHS = ("Jan", "Feb", "Mar", "Apr", "May", "Jun",
@@ -289,7 +296,12 @@ class Transcoder:
         if transform == "json_bool":
             return _bool(canonical, text)
         if transform == "clean_soiled":
-            return _translate({"C": "CLEAN", "D": "SOILED"}, text.upper(), "housekeeping status")
+            # R and A first appeared in slice 23's refresh capture (rooms 02 and 102) and are
+            # documented nowhere, so the source resolves them UNKNOWN. They are written through
+            # UNCHANGED - a code this format does not define either - so the demo hotel keeps
+            # the same gap rather than gaining a meaning. Decided by the owner, 2026-10-10.
+            return _translate({"C": "CLEAN", "D": "SOILED", "R": "R", "A": "A"}, text.upper(),
+                              "housekeeping status")
         if transform == "charge_payment":
             return _translate({"1": "CHARGE", "2": "PAYMENT"}, text, "posting direction")
         # `casefold`, `presence_bool` and the untransformed fields all carry the text through.

@@ -16,6 +16,13 @@
       "captured_at": "2026-09-08",
       "as_of": "2026-07-08",
       "note": "Seven authorised calls, made after the demo was finished, which found that the sandbox had MOVED ON to 2026 data and held seven checked-out reservations. Three folios were captured and the rest deliberately were not: one call per reservation is the cost this control is built around (R1), on someone else's server (R8). The reservations whose folio is missing resolve to UNKNOWN, which is the correct answer."
+    },
+    "sandbox2026refresh": {
+      "label": "the evidence refresh",
+      "captured_at": "2026-10-10",
+      "as_of": "2026-07-08",
+      "calls": 4,
+      "note": "v3 slice 23. Four read-only calls, each approved by the project owner at the time it was made (D3, D16), sent once each by tools.probe (#70) and scrubbed before staging (#73). The room master, the room-type master and a 7-day occupancy window settle open question 1.2; the sandbox2026 reservation window asked again WITH room prices brings the rate codes no earlier capture had (#49). Every response here was observed on 2026-10-10 and none is borrowed from an older capture - so no folio is in it, and the checkout controls find their reservations and resolve UNKNOWN for want of one, saying so."
     }
   },
 
@@ -131,6 +138,38 @@
       "captures": ["sandbox2026"],
       "captured_at": "2026-09-08",
       "note": ""
+    },
+    {
+      "file": "11_getRooms_2026-10.xml",
+      "endpoint": "getRooms",
+      "request": {},
+      "captures": ["sandbox2026refresh"],
+      "captured_at": "2026-10-10",
+      "note": "Open question 1.2, re-asked. The same 28 rooms, types and integration flags as 2_getRooms_all.xml: adult capacity still unknown on 23 (21 report 0, rooms 808/809 have no adult entry - R12), still no closed-date window on any room (2.4), rooms 9900/9901/9902 still typed Double (R11). Only housekeeping status moved, with two codes no capture had shown before (R on room 02, A on room 102), which resolve UNKNOWN. The room array now declares the xsd/xsi namespaces."
+    },
+    {
+      "file": "12_getRoomTypes_2026-10.xml",
+      "endpoint": "getRoomTypes",
+      "request": {},
+      "captures": ["sandbox2026refresh"],
+      "captured_at": "2026-10-10",
+      "note": "Open question 1.2, re-asked. The same nine codes as 1_getRoomTypes.xml, so Double - the type of rooms 9900/9901/9902 - is still not defined (R11). Only SNG's description changed, from a test string to 'Single Room'."
+    },
+    {
+      "file": "13_RoomStatus_2026-07.xml",
+      "endpoint": "RoomStatusInquiry",
+      "request": { "DateRange": { "from": "2026-07-08", "to": "2026-07-15" } },
+      "captures": ["sandbox2026refresh"],
+      "captured_at": "2026-10-10",
+      "note": "The first occupancy capture of the 2026 data: 35 segments for 21 reservations across 17 rooms, over the 7-day window resource_occupancy_consistency asks on 2026-07-08 (R8). The 2024 one (4_RoomStatus.xml) holds two segments of August 2024, which is why that control was blocked on every evidence set (issue #9). Same response shape as 2024."
+    },
+    {
+      "file": "14_departures_2026-07_prices.xml",
+      "endpoint": "GetReservationKey",
+      "request": { "DepartureDate": { "From": "2026-07-01", "To": "2026-08-09" }, "IncludeRoomPrices": true },
+      "captures": ["sandbox2026refresh"],
+      "captured_at": "2026-10-10",
+      "note": "9_departures_2026-07.xml's question asked again verbatim, plus IncludeRoomPrices (#49). 139 reservations: the same 138 and one more cancellation. Room prices add one thing - a per-stay Total carrying rateCode, on 136 stays (Tourist-BB 122, Tourist-RO 4, empty 10) - so each booking now has two Total elements, its own and its stay's."
     }
   ]
 }

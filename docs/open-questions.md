@@ -44,11 +44,10 @@ in any code that could be written this week, and only the project owner can supp
 Neither is a gap in the engine. Both are facts about a property and a vendor that the engine has
 correctly refused to guess at — which is the whole design working, and also the reason it is stuck.
 
-A third, one step behind them and **already planned, printed and waiting**: approval for the three
-read-only calls in [1.2](#12-are-the-2024-era-room-findings-still-true). `python3 -m tools.probe
---plan` prints the exact request bodies with placeholders where the credentials go, so there is
-something concrete to approve rather than an intention. It is the first TODO a fresh session
-should raise — see `docs/session-handoff.md`.
+A third, the evidence refresh in [1.2](#12-are-the-2024-era-room-findings-still-true), is
+**done** (v3 slice 23, 2026-10-10): three of its four findings are still true and the fourth was not
+re-checked. It added 2026 occupancy and rate codes; criterion 1 on the new capture is reported
+beside the old figure in `docs/plan.md`.
 
 **And since 2026-10-02, one of a different kind, which outranks all three for *sequencing* while
 being worth less than either of the two above for *unblocking*.**
@@ -255,11 +254,34 @@ four load-bearing findings now rest on a 2024 snapshot of a system we know has c
   Medium, and the reason control 2 excluded 100% of records in v1
 - Bulk ARI is keyed by price-list code, not rate code (R13) — control 9 is unbuildable
 
-**Today.** v2 builds against the 2024 capture for these, marked as *unverified since the system
-changed* — which is a different status from *verified*, and a different status again from *wrong*.
+**Answered 2026-10-10, by v3 slice 23 — capture `sandbox2026refresh`.** Four read-only calls,
+each approved by the owner at the time it was made (D3, D16), each sent once, scrubbed before
+staging. Each finding's verdict, naming the capture that gave it:
 
-**Status: the probe is planned, printed, and waiting on one word.** Slice 11 built the transport
-and `tools/probe.py`, so there is now a concrete artefact to approve rather than an intention:
+| finding | verdict on 2026-10-10 | evidence |
+| --- | --- | --- |
+| 23 of 28 rooms have no configured adult capacity (R12) | **Still true.** The same 23 rooms: 21 report `0`, and 808/809 carry no adult entry at all | `11_getRooms_2026-10.xml` |
+| Rooms `9900`/`9901`/`9902` carry a type `getRoomTypes` does not define (R11) | **Still true.** Still `Double`; the room-type master still holds the same nine codes, none of them `Double` | `11_getRooms_2026-10.xml`, `12_getRoomTypes_2026-10.xml` |
+| All 28 rooms return an empty closed-date window | **Still true.** None is set, so `ooo_room_protection` and `room_assignment_active_room` still apply to no record (2.4) | `11_getRooms_2026-10.xml` |
+| Bulk ARI is keyed by price-list code, not rate code (R13) | **Not re-checked.** No Bulk ARI call was in the approved probe, and the request that produced the 2024 response was never recorded, so `tools/probe.py` cannot form one. It stays *unverified since 2024* | — |
+
+**What did change**, none of it moving a verdict:
+
+- **Room housekeeping status moved on 12 rooms**, and two codes appeared that no capture had shown,
+  `R` (room 02) and `A` (room 102). Documented nowhere, they resolve UNKNOWN, and no control reads
+  the field. The DemoPMS transcode writes them through unchanged, so both providers keep the gap.
+- `SNG`'s description changed from a test string to `Single Room`.
+- **2026 occupancy exists for the first time**: 35 segments for 21 reservations over 2026-07-08..07-15
+  (`13_RoomStatus_2026-07.xml`). On this capture `resource_occupancy_consistency` concludes —
+  31 PASS, 4 UNKNOWN — where it was blocked on every evidence set before (issue #9). It also showed
+  two checked-in reservations with **no room assigned**, which the engine had grouped into a room
+  called `False` and FAILed against each other: **issue #75, fixed (#76)**.
+- **Rate codes are present** (#49): the 2026 reservation window asked again with room prices
+  (`14_departures_2026-07_prices.xml`) carries `stay.rate_code` on 126 of 136 stays. Control 15
+  still answers nothing, because the sandbox's nominated codes are *not decided* (1.4).
+
+**How it was run**, for the next refresh. Print each call, get a yes to that call, then send it
+with the same arguments plus `--run --yes` (#70: one call, sent once, no retry):
 
 ```bash
 python3 -m tools.probe --plan --property sandbox --control room_assignment_type_validity --endpoint getRooms
@@ -268,19 +290,9 @@ python3 -m tools.probe --plan --property sandbox --control resource_occupancy_co
 python3 -m tools.probe --plan --property sandbox --reask 9_departures_2026-07.xml --with IncludeRoomPrices
 ```
 
-`--plan` makes **no calls at all** and prints the endpoint, the resolved window, the cost against
-this property's budget, and the **exact request body** with `<user>` and `<password>` where the
-credentials go. Each command prints **one** call: `getRooms`, `getRoomTypes`, `RoomStatusInquiry`
-over a deliberately small 7-day window (R8), and v3 slice 23's fourth, the 2026 reservation
-window asked again with room prices (#49). `--run --yes` with the same arguments sends exactly
-the call printed, once (#70). The first version of these commands named whole controls, and
-`--run` would have sent each control's reservation query instead of the room calls.
-
-Three read-only calls settle four load-bearing findings and cost nothing but permission. What is
-missing is the owner's yes to *this specific probe* (D3) and the four `HOTELCONTROLS_MINIHOTEL_*`
-credentials, which have no defaults and never will (F15). The full runbook — what to do with the
-responses, and why `tools/scrub_fixtures.py` runs before anything is committed — is in
-`docs/session-handoff.md`, "The probe that is waiting approval".
+Then `tools.scrub_fixtures` over each raw response into a new file (#73 made it scrub the
+occupancy response's guest names too), a new capture label in `fixtures/minihotel/index.json`
+with its date and call count, and `tools.transcode_demopms`. Never an existing file.
 
 ### 1.3 Is the cancel-and-recreate pair a duplicate, or the expected pattern?
 

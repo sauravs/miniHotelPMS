@@ -1,0 +1,82 @@
+<AvailRaters>
+<Hotel id="sandbox" Name_h="Sandbox Hotel MiniHotel" Name_e="Sandbox Hotel MiniHotel" />
+<DateRange from="2026-07-08" to="2026-07-15" />
+<Rooms>
+<Room Number="01" Rmtype="DBL" />
+<Room Number="02" Rmtype="DBL" />
+<Room Number="101" Rmtype="DBL" />
+<Room Number="102" Rmtype="DBL" />
+<Room Number="103" Rmtype="Twin" />
+<Room Number="104" Rmtype="Twin" />
+<Room Number="301" Rmtype="Twin" />
+<Room Number="302" Rmtype="DBL" />
+<Room Number="303" Rmtype="DBL" />
+<Room Number="304" Rmtype="DBL" />
+<Room Number="401" Rmtype="Executive" />
+<Room Number="501" Rmtype="SNG" />
+<Room Number="605" Rmtype="DBL" />
+<Room Number="606" Rmtype="APT_SEA" />
+<Room Number="701" Rmtype="2BEDAPT" />
+<Room Number="808" Rmtype="DBL" />
+<Room Number="809" Rmtype="SNG" />
+<Room Number="901" Rmtype="2BEDAPT" />
+<Room Number="902" Rmtype="TRP" />
+<Room Number="903" Rmtype="2BEDAPT" />
+<Room Number="904" Rmtype="2BEDAPT" />
+<Room Number="9900" Rmtype="Double" />
+<Room Number="9901" Rmtype="Double" />
+<Room Number="9902" Rmtype="Double" />
+<Room Number="9903" Rmtype="Suite" />
+<Room Number="9904" Rmtype="Suite" />
+<Room Number="9905" Rmtype="Suite" />
+<Room Number="Nemanja" Rmtype="TRP" />
+ </Rooms>
+<RoomsTypes>
+<RoomType Code="2BEDAPT" Description="Two bedroom apartment" />
+<RoomType Code="APT_SEA" Description="Apartment Sea View" />
+<RoomType Code="DBL" Description="Double room" />
+<RoomType Code="Executive" Description="Executive Room" />
+<RoomType Code="SNG" Description="Single Room" />
+<RoomType Code="Suite" Description="Suite" />
+<RoomType Code="TEST-DOUBLE" Description="TEST HAB DOBLE PERO QUE ACEPTA 3 GG" />
+<RoomType Code="TRP" Description="Triple Room" />
+<RoomType Code="Twin" Description="Twin Room" />
+ </RoomsTypes>
+<Reservations>
+ <Reservation ResNumber="007004338" Namep="Wexler" Namef="Ombra" RoomNumber="102" RoomType="DBL" FromYmd="20260706" ToYmd="20260709" RoomsQty="0001" Status="IN" Board="BB" />
+ <Reservation ResNumber="007004340" Namep="Vargas" Namef="Ombra" RoomNumber="103" RoomType="Twin" FromYmd="20260706" ToYmd="20260707" RoomsQty="0001" Status="IN" Board="BB" />
+ <Reservation ResNumber="007004340" Namep="Vargas" Namef="Ombra" RoomNumber="103" RoomType="Twin" FromYmd="20260707" ToYmd="20260708" RoomsQty="0001" Status="IN" Board="BB" />
+ <Reservation ResNumber="007004340" Namep="Vargas" Namef="Ombra" RoomNumber="103" RoomType="Twin" FromYmd="20260708" ToYmd="20260709" RoomsQty="0001" Status="IN" Board="BB" />
+ <Reservation ResNumber="007004342" Namep="Zavala" Namef="Tova" RoomNumber="606" RoomType="APT_SEA" FromYmd="20260706" ToYmd="20260707" RoomsQty="0001" Status="IN" Board="BB" />
+ <Reservation ResNumber="007004342" Namep="Zavala" Namef="Tova" RoomNumber="606" RoomType="APT_SEA" FromYmd="20260707" ToYmd="20260708" RoomsQty="0001" Status="IN" Board="BB" />
+ <Reservation ResNumber="007004342" Namep="Zavala" Namef="Tova" RoomNumber="606" RoomType="APT_SEA" FromYmd="20260708" ToYmd="20260709" RoomsQty="0001" Status="IN" Board="BB" />
+ <Reservation ResNumber="007004344" Namep="Ferrer" Namef="Rosa" RoomNumber="303" RoomType="DBL" FromYmd="20260708" ToYmd="20260709" RoomsQty="0001" Status="IN" Board="BB" />
+ <Reservation ResNumber="007004354" Namep="Wexler" Namef="Nils" RoomNumber="809" RoomType="SNG" FromYmd="20260708" ToYmd="20260709" RoomsQty="0001" Status="OUT" Board="BB" />
+ <Reservation ResNumber="007004355" Namep="Wexler" Namef="Pavel" RoomNumber="903" RoomType="2BEDAPT" FromYmd="20260708" ToYmd="20260709" RoomsQty="0001" Status="IN" Board="BB" />
+ <Reservation ResNumber="007004357" Namep="Zavala" Namef="Luca" RoomNumber="701" RoomType="2BEDAPT" FromYmd="20260708" ToYmd="20260709" RoomsQty="0001" Status="IN" Board="BB" />
+ <Reservation ResNumber="007004346" Namep="Wexler" Namef="Luca" RoomNumber="101" RoomType="DBL" FromYmd="20260707" ToYmd="20260710" RoomsQty="0001" Status="IN" Board="BB" />
+ <Reservation ResNumber="007004353" Namep="Wexler" Namef="Dmitri" RoomNumber="501" RoomType="SNG" FromYmd="20260708" ToYmd="20260710" RoomsQty="0001" Status="IN" Board="BB" />
+ <Reservation ResNumber="007004365" Namep="Lindqvist" Namef="Uma" RoomNumber="809" RoomType="SNG" FromYmd="20260709" ToYmd="20260710" RoomsQty="0001" Status="OUT" Board="BB" />
+ <Reservation ResNumber="007004366" Namep="Lindqvist" Namef="Sten" RoomNumber="104" RoomType="Twin" FromYmd="20260709" ToYmd="20260710" RoomsQty="0001" Status="IN" Board="BB" />
+ <Reservation ResNumber="007003932" Namep="Quintero" Namef="Quinn" RoomNumber="904" RoomType="2BEDAPT" FromYmd="20260709" ToYmd="20260711" RoomsQty="0001" Status="IN" Board="BB" />
+ <Reservation ResNumber="007004364" Namep="Vargas" Namef="Elena" RoomNumber="808" RoomType="DBL" FromYmd="20260708" ToYmd="20260709" RoomsQty="0001" Status="IN" Board="BB" />
+ <Reservation ResNumber="007004364" Namep="Vargas" Namef="Elena" RoomNumber="808" RoomType="DBL" FromYmd="20260709" ToYmd="20260710" RoomsQty="0001" Status="IN" Board="BB" />
+ <Reservation ResNumber="007004364" Namep="Vargas" Namef="Elena" RoomNumber="808" RoomType="DBL" FromYmd="20260710" ToYmd="20260711" RoomsQty="0001" Status="IN" Board="BB" />
+ <Reservation ResNumber="007004259" Namep="Ximenes" Namef="Janek" RoomNumber="02" RoomType="DBL" FromYmd="20260704" ToYmd="20260712" RoomsQty="0001" Status="IN" Board="CC" />
+ <Reservation ResNumber="007004329" Namep="Petrov" Namef="Hugo" RoomNumber="01" RoomType="DBL" FromYmd="20260710" ToYmd="20260712" RoomsQty="0001" Status="OK4" Board="BB" />
+ <Reservation ResNumber="007004367" Namep="Grimaldi" Namef="Farid" RoomNumber="301" RoomType="Twin" FromYmd="20260710" ToYmd="20260711" RoomsQty="0001" Status="OK" Board="BB" />
+ <Reservation ResNumber="007004367" Namep="Grimaldi" Namef="Farid" RoomNumber="301" RoomType="Twin" FromYmd="20260711" ToYmd="20260712" RoomsQty="0001" Status="OK" Board="BB" />
+ <Reservation ResNumber="007004367" Namep="Grimaldi" Namef="Farid" RoomNumber="301" RoomType="Twin" FromYmd="20260712" ToYmd="20260713" RoomsQty="0001" Status="OK" Board="BB" />
+ <Reservation ResNumber="007004367" Namep="Grimaldi" Namef="Farid" RoomNumber="302" RoomType="DBL" FromYmd="20260710" ToYmd="20260711" RoomsQty="0001" Status="OK" Board="BB" />
+ <Reservation ResNumber="007004367" Namep="Grimaldi" Namef="Farid" RoomNumber="302" RoomType="DBL" FromYmd="20260711" ToYmd="20260712" RoomsQty="0001" Status="OK" Board="BB" />
+ <Reservation ResNumber="007004367" Namep="Grimaldi" Namef="Farid" RoomNumber="303" RoomType="DBL" FromYmd="20260710" ToYmd="20260711" RoomsQty="0001" Status="IN" Board="BB" />
+ <Reservation ResNumber="007004367" Namep="Grimaldi" Namef="Farid" RoomNumber="303" RoomType="DBL" FromYmd="20260711" ToYmd="20260712" RoomsQty="0001" Status="IN" Board="BB" />
+ <Reservation ResNumber="007004367" Namep="Grimaldi" Namef="Farid" RoomNumber="303" RoomType="DBL" FromYmd="20260712" ToYmd="20260713" RoomsQty="0001" Status="IN" Board="BB" />
+ <Reservation ResNumber="007004367" Namep="Grimaldi" Namef="Farid" RoomNumber="303" RoomType="DBL" FromYmd="20260713" ToYmd="20260714" RoomsQty="0001" Status="IN" Board="BB" />
+ <Reservation ResNumber="007004372" Namep="Torres" Namef="Pavel" RoomNumber="104" RoomType="Twin" FromYmd="20260713" ToYmd="20260714" RoomsQty="0001" Status="IN" Board="BB" />
+ <Reservation ResNumber="007004391" Namep="Almeida" Namef="Iris" RoomNumber="02" RoomType="DBL" FromYmd="20260714" ToYmd="20260715" RoomsQty="0001" Status="IN" Board="BB" />
+ <Reservation ResNumber="007004300" Namep="Olsen" Namef="Sten" RoomNumber="01" RoomType="DBL" FromYmd="20260715" ToYmd="20260717" RoomsQty="0001" Status="OK4" Board="BB" />
+ <Reservation ResNumber="007004312" Namep="Moreau" Namef="Pavel" RoomNumber="" RoomType="" FromYmd="20260708" ToYmd="20260713" RoomsQty="0001" Status="IN" Board="HB" />
+ <Reservation ResNumber="007004313" Namep="Moreau" Namef="Pavel" RoomNumber="" RoomType="" FromYmd="20260708" ToYmd="20260713" RoomsQty="0001" Status="IN" Board="HB" />
+ </Reservations>
+</AvailRaters>

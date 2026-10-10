@@ -99,7 +99,7 @@ FIRST, before reading anything: run `git status` and `git branch --no-merged mai
 listed is work that never reached main - push it and open a PR, or delete it on purpose, but do
 not leave it. Two branches sat unpushed for three weeks before anyone looked (one held the fix
 that became issue #44), and no CI can see a branch that was never pushed. None is expected:
-slice 22's branch was squash-merged as #68 and deleted.
+slice 23's branch was squash-merged and deleted, and fixes #72, #74 and #76 before it.
 
 Read these first, in order: CLAUDE.md, docs/plan-v3.md, docs/plan.md, docs/prd.md,
 docs/architecture.md, docs/open-questions.md, docs/old-codebase-improve.md. They are the
@@ -108,11 +108,32 @@ docs/plan-v3.md is authoritative for what is next (slices 16-24).
 
 STATE: v2 IS COMPLETE (slices 0-15) AND v3 IS UNDER CONSTRUCTION (docs/plan-v3.md). Merged:
 fix #48 (#52), slice 16 (#53), fix #54 (#55), slice 17 (#56), fix #57 (#58), slice 18 (#61),
-slice 19 (#62), slice 20 (#63), slice 21 (#65), slice 22 (#68). Baseline on main at 6d9c9ef:
-2791 passed / 3 skipped (the v3 scope guard skips off a slice branch; on slice/23-* expect one
-more pass, one fewer skip), 1092 spec checks, 135 API goldens identical to a rebuild, 11 DemoPMS
-files identical, spec lock current, 97% coverage. The React UI has 185 Vitest and 22 Playwright
-tests.
+slice 19 (#62), slice 20 (#63), slice 21 (#65), slice 22 (#68), fix #70 (#72), fix #73 (#74),
+fix #75 (#76), slice 23 (the evidence refresh). Baseline on main after slice 23: 2850 passed /
+3 skipped (the v3 scope guard skips off a slice branch; on slice/24-* expect one more pass, one
+fewer skip), 1092 spec checks, 135 API goldens identical to a rebuild, 15 DemoPMS files
+identical, spec lock current, 97% coverage. The React UI has 185 Vitest and 22 Playwright tests.
+Open issues: #22 (slice 24 closes it) and #71 (the owner decides when).
+
+SLICE 23 REFRESHED THE EVIDENCE (2026-10-10). Four live calls, EACH approved by the owner at
+the time: getRooms, getRoomTypes, RoomStatusInquiry 2026-07-08..15, and the 2026 reservation
+window re-asked WITH room prices. They are a NEW capture, sandbox2026refresh (index records
+captured_at 2026-10-10 and calls: 4; nothing borrowed from an older capture), transcoded to
+demo2026refresh. The engine's capture lists were a must-not, so the demo does NOT offer it:
+tests/e2e/test_refresh_capture.py builds it directly. Question 1.2: R12 still true (23 of 28),
+R11 still true, no closed-date window still true, Bulk ARI not re-checked. #49: stay.rate_code
+on 126 of 136 stays; control 15 still UNKNOWN because the sandbox's codes are not decided.
+Criterion 1 PER CAPTURE: sandbox2026 5 of 11 (unchanged), sandbox2026refresh 4 of 11 -
+occupancy concludes for the first time, the checkout controls stop at UNKNOWN for want of a
+folio (none was re-taken). Both providers agree on all 11. On the way it found four defects,
+each filed before it was fixed: #70 the probe's --run did not send what --plan printed (fixed,
+#72); #73 the scrubber left the occupancy response's guest names (fixed, #74, re-scrubbing
+4_RoomStatus.xml with the owner's approval); #75 an empty occupancy room number read as a known
+False - a false FAIL, or a PASS on no room (fixed, #76); #71 replay compares windows only by
+name, so an arrival-window question is answered from a departure-window capture unchecked -
+three of criterion 1's concluding controls rest on it. #71 is OPEN: fixing it changes existing
+answers, so it is the owner's call. The owner's .env (git-ignored) holds the sandbox account;
+the auto-mode classifier asks before each live call.
 
 THE OWNER'S WORKING AGREEMENT (2026-10-10): report after each slice ends end to end, and WAIT
 for a go-ahead before opening the next one.
@@ -179,11 +200,10 @@ policy_version + policy_digest; a run stored before slice 16 reads "version not 
 
 v3 IS APPROVED (PR #50). START FROM docs/v3-implementation-brief.md. DONE: fix #48, slices 16
 versioning, 17 tenant-scoped store, 18 findings queue, 19 email (two locks), 20 operational log,
-21 typed hotel parameters with "not decided", 22 LATE_CHECKOUT (structured, advisory, no model).
-REMAINING, IN ORDER, EACH AFTER THE OWNER'S GO-AHEAD: 23 evidence refresh (owner approves EACH
-call at the time; skipped if not), 24 authentication at the host (HMAC-signed context) +
-credentials per property (#22; brief check that the ui/ development login is acceptable as a
-labelled stand-in). Each slice in plan-v3.md states what it may and must not change, its test
+21 typed hotel parameters with "not decided", 22 LATE_CHECKOUT (structured, advisory, no model),
+23 the evidence refresh. REMAINING, AFTER THE OWNER'S GO-AHEAD: 24 authentication at the host
+(HMAC-signed context) + credentials per property (#22; brief check that the ui/ development
+login is acceptable as a labelled stand-in) - the last v3 slice. Each slice in plan-v3.md states what it may and must not change, its test
 gate and its exit test.
 
 SLICE 15 ADDED A SECOND SCREEN, AND THE ENGINE DID NOT MOVE. ui/ is a Next.js + React +
@@ -230,24 +250,11 @@ ELEVEN OF THE TWELVE SUCCESS CRITERIA ARE MET. Criterion 1 is recorded as NOT ME
 controls reach a PASS or a FAIL where the PRD asks for 8 - with each of the six shortfalls
 traced to a fact about the property or the provider in docs/plan.md. DO NOT relax it.
 
-THE PROBE IS v3 SLICE 23, AND IT IS WAITING ON THE OWNER, NOT ON CODE: a bounded three-call
-probe of the live MiniHotel sandbox is planned and printed. Slice 23 adds a fourth call, one
-reservation query WITH ROOM PRICES, because stay.rate_code is absent from every capture (#49).
-Print each one and show it, one at a time:
-
-    python3 -m tools.probe --plan --property sandbox --control room_assignment_type_validity --endpoint getRooms
-    python3 -m tools.probe --plan --property sandbox --control room_assignment_type_validity --endpoint getRoomTypes
-    python3 -m tools.probe --plan --property sandbox --control resource_occupancy_consistency
-    python3 -m tools.probe --plan --property sandbox --reask 9_departures_2026-07.xml --with IncludeRoomPrices
-
-That is getRooms, getRoomTypes and RoomStatusInquiry - the three calls open question 1.2
-asks for - and the 2026 reservation window with room prices. Each prints ONE call, and
---run --yes with the same arguments sends exactly that call, once (#70: the first version
-of these commands would have sent each control's reservation query instead). It refreshes four load-bearing findings that now rest on a 2024 snapshot of a
-system we KNOW has moved on. --plan makes no calls at all. DO NOT run --run without the
-owner saying yes to that specific probe, each time (decision D3). It will refuse anyway
-without HOTELCONTROLS_LIVE=1 and the four HOTELCONTROLS_MINIHOTEL_* credentials, which
-have no defaults. See "The probe that is waiting approval" in docs/session-handoff.md.
+THE PROBE WAS v3 SLICE 23, AND IT IS DONE (2026-10-10). A future refresh follows the same
+runbook - "The probe" in docs/session-handoff.md: print ONE call with tools.probe --plan, get
+the owner's yes to THAT call, send it with the same arguments plus --run --yes (one call, once,
+no retry), scrub into a new file, add a new capture label, transcode. DO NOT run --run without
+the owner saying yes to that specific call, each time (decision D3).
 
 DO NOT BUILD WHAT v3 DISPOSED OF. docs/plan-v3.md section 4 gives every StayOps gap a
 disposition with its reason. Mews is OUT (owner). Writing to a PMS is REJECTED (owner, 1.10).
@@ -281,8 +288,8 @@ Keep working the same way:
   - Do not call the MiniHotel sandbox without asking me first, each time (decision D3).
 
 Work through the remaining slices, reporting after each merge and WAITING for my go-ahead
-before opening the next. Ask me at the brief's checkpoints (slice 23 per call, slice 24's brief
-check) and when a decision is genuinely mine.
+before opening the next. Ask me at the brief's checkpoint (slice 24's brief check) and when a
+decision is genuinely mine.
 Before ending the session, update docs/session-handoff.md and the plan-v3 status table.
 ```
 
@@ -428,11 +435,15 @@ about July 2026 from occupancy segments captured in August 2024, because the fro
 window guard checked three filter names instead of every window. **That is the shape of defect
 this project exists to catch, and the number went down rather than the guard going away.**
 
-### The probe that is waiting approval — the first TODO
+### The probe — done 2026-10-10 (v3 slice 23), kept as the runbook for the next one
 
-**Status: planned, printed, and blocked on the owner.** Not on code, not on a decision anybody
-here can make. Nothing about it is half-built — the plan exists, the transport exists, and the
-only missing inputs are one "yes" and four environment variables.
+**Status: done.** Four calls, each approved by the owner at the time, captured as
+`sandbox2026refresh`; what they found is in `docs/open-questions.md` 1.2. What follows is how it
+was done, for whoever refreshes the evidence next. On this machine the four credentials live in
+a git-ignored `.env` the owner wrote; each call ran as
+`set -a; . ./.env; set +a; HOTELCONTROLS_LIVE=1 SSL_CERT_FILE=/etc/ssl/cert.pem .venv/bin/python -m tools.probe --run --yes <the approved arguments>`.
+`SSL_CERT_FILE` is there because this python.org build ships no CA bundle (v1 hit the same), and
+it keeps certificate checking ON.
 
 **Print it first, always, one call at a time:**
 
@@ -506,8 +517,10 @@ public, which was defensible and made the habit dangerous.
 | ~~v3 slice 21~~ | ~~Confirm the declared change~~ — **held 2026-10-09**: dry run shown; the owner delegated the call to the implementer, who decided yes (`nominated_rate_codes` and `rate_plan_permitted_room_types` → `null` on sandbox and demo). Merged in #65 |
 | any time | Confirm or overrule slice 18's call that **drafts raise no tasks** (a draft's severity and audience are borrowed from its template) |
 | any time | Whether the compose launcher (`tools.serve`) should attach the operational log too (`--log`), in a later slice whose scope allows `tools/serve.py` |
-| v3 slice 22 — **next, open** | Approve the `LATE_CHECKOUT` decision table, drafted as `spec/guest/late_checkout.json` on `slice/22-late-checkout`. Three open points: after `maximum_time` → `DENIED` or `STAFF_REVIEW`; another day / not checked in → `STAFF_REVIEW`; task severity and audience |
-| v3 slice 23 | **Approval of each probe call at the time** — `getRooms`, `getRoomTypes`, `RoomStatusInquiry` (1.2), plus one reservation call with room prices (#49). D3, R8 |
+| ~~v3 slice 22~~ | ~~Approve the `LATE_CHECKOUT` decision table~~ — **approved and merged, #68** |
+| ~~v3 slice 23~~ | ~~Approval of each probe call at the time~~ — **four calls approved one by one, 2026-10-10; merged** |
+| v3 slice 24 — **next** | Brief check: is the `ui/` development login acceptable as a labelled stand-in? Then the go-ahead |
+| any time | Issue #71: when to fix the replay window-name gap. It changes existing answers (a declared V1 change) and likely lowers criterion 1 |
 | any time | Ask MiniHotel what `<CreditCard Number="****" ExpirationDate="202101"/>` means (question 2.8, #48). It is the only thing that can unblock G4 |
 | ~~any time~~ | ~~**The cheapest open win:** nominated rate codes for control 15 (1.4).~~ **Corrected (#49):** a list alone changes nothing, because `stay.rate_code` is absent from every capture. It needs slice 23's capture **and** a real property's list |
 | any time | Ask MiniHotel what `OK4` and `WL` mean (question 2.1). They cover 44 of the 217 reservations ever seen, and they are why the known duplicate pair resolves to UNKNOWN rather than to an answer |
