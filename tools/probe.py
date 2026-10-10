@@ -30,10 +30,25 @@ WHAT `--run` DOES
 Refuses, unless the live transport is armed - which needs `HOTELCONTROLS_LIVE=1`, credentials in
 the environment with no default, and no test runner in the process. That last condition is why
 this file is safe to have written: no test can make this call anything.
+
+Armed, it sends EXACTLY the distinct requests the same arguments print, each once, and nothing
+else (issue #70). The first version sent each control's population call and nothing more, while
+the plan above it printed the references too - so the command written down for open question
+1.2 would have sent a 90-day reservation query nobody approved instead of the two room calls it
+was for. A plan that cannot be sent as printed is refused whole: a per-record call (printed
+with a placeholder record id), or a request the live form refuses.
+
+ONE CALL AT A TIME
+-------------------
+D3 approves calls, and one control's plan can hold three. `--endpoint` narrows a plan to the
+requests to one endpoint, and `--reask FILE` asks again, verbatim, the question recorded beside
+a captured response - which is how a capture is refreshed so that old and new answer the same
+question. `--with` may add one option to a re-asked question, from a list of one (#49).
 """
 from __future__ import annotations
 
 import argparse
+import json
 import sys
 
 from hotelcontrols.evidence.population import build_request
@@ -42,6 +57,7 @@ from hotelcontrols.providers import registry as providers
 from hotelcontrols.providers.base import ProviderError, Request
 from hotelcontrols.providers.transport import (Credentials, LiveSource, MissingCredential,
                                                Recorder, TransportDisabled, assert_armed)
+from hotelcontrols.providers.transport.record import FIXTURE_ROOT
 from hotelcontrols.spec import (SpecError, TenantConfig, available,
                                 available_tenants, load)
 
@@ -51,6 +67,19 @@ PLACEHOLDER = Credentials(user="<user>", password="<password>", hotel="<hotel>",
 
 # A record id, for showing the SHAPE of a per-record call without naming a real guest's booking.
 SAMPLE_RECORD = "<record-id>"
+
+# What `--with` may add to a re-asked question, and why each is allowed. One entry, on purpose.
+# An option can change WHICH records come back as well as what each carries - `Cancellations`
+# would widen a population - so adding a name here is a decision about R1 and R8, not a flag.
+ADDABLE = {
+    "IncludeRoomPrices": "no reservation capture was taken with room prices, so `stay.rate_code` "
+                         "is absent from every one of them and control 15 has never seen a "
+                         "rate code (#49)",
+}
+
+
+class Refused(Exception):
+    """A plan that cannot be made, or cannot be sent as printed. Says which, and what to do."""
 
 
 class Stage:
@@ -71,6 +100,16 @@ class Stage:
     @property
     def calls(self) -> int:
         return len(self.requests)
+
+
+class Section:
+    """One heading in a printed plan - a control, or a re-asked question - and its stages."""
+
+    __slots__ = ("title", "stages")
+
+    def __init__(self, title: str, stages) -> None:
+        self.title = title
+        self.stages = list(stages)
 
 
 def plan_for(control_id: str, tenant: TenantConfig, adapter, clock) -> list[Stage]:
@@ -127,11 +166,83 @@ def _follow_up_requests(ir, adapter) -> list[Request]:
     return list(seen.values())
 
 
-def render(control_id: str, tenant: TenantConfig, adapter, encoder, stages,
-           records: int) -> str:
+def narrow(stages: list[Stage], endpoint: str) -> list[Stage]:
+    """The same stages, keeping only the requests to one endpoint (issue #70).
+
+    The stage survives with its name and its reason, so a narrowed plan still says whether the
+    call it holds is a population, a reference or a per-record call."""
+    kept = [Stage(stage.name, stage.why,
+                  [request for request in stage.requests if request.endpoint == endpoint],
+                  per_record=stage.per_record)
+            for stage in stages]
+    return [stage for stage in kept if stage.requests]
+
+
+def reask(provider: str, filename: str, additions=()) -> list[Stage]:
+    """The question recorded beside a captured response, asked again verbatim.
+
+    Verbatim because a refreshed capture is only comparable with the old one if both answered
+    the same question - the fingerprint is what a replay is checked against (F19c, issue #9).
+    The only change allowed is an option from `ADDABLE`, and never one the recorded question
+    already carries: overwriting a recorded parameter would be a different question wearing
+    the old one's name.
+    """
+    index = json.loads((FIXTURE_ROOT / provider / "index.json").read_text(encoding="utf-8"))
+    entry = next((r for r in index["responses"] if r["file"] == filename), None)
+    if entry is None:
+        raise Refused("No recorded response called %r in fixtures/%s/index.json. Recorded: %s"
+                      % (filename, provider,
+                         ", ".join(r["file"] for r in index["responses"])))
+
+    params = json.loads(json.dumps(entry["request"]))         # a copy the index never sees
+    reasons = []
+    for name in additions:
+        if name not in ADDABLE:
+            raise Refused("--with %s is not allowed. A re-asked question may add only: %s. An "
+                          "option can widen which records come back, so the list is a "
+                          "decision (R1, R8)" % (name, ", ".join(sorted(ADDABLE))))
+        if name in params:
+            raise Refused("%s already asked %s=%r. --with adds an option; it never overwrites "
+                          "what the recorded question asked" % (filename, name, params[name]))
+        params[name] = True
+        reasons.append("plus %s: %s" % (name, ADDABLE[name]))
+
+    why = "the question recorded for %s (captured %s), asked again verbatim" % (
+        filename, entry.get("captured_at", "on a date not recorded"))
+    return [Stage("re-ask", "; ".join([why] + reasons),
+                  [Request(entry["endpoint"], params)])]
+
+
+def sendable(sections: list[Section], encoder) -> list[Request]:
+    """The distinct requests a printed plan names, in printed order - or a refusal (issue #70).
+
+    All or nothing. Sending the part of a plan that can be sent would be sending a different
+    plan from the one approved, which is the defect this function exists to close.
+    """
+    chosen: dict[str, Request] = {}
+    for section in sections:
+        for stage in section.stages:
+            if stage.per_record:
+                raise Refused(
+                    "%s holds a per-record call (%s), printed with a placeholder record id, so "
+                    "it cannot be sent as printed. Narrow the plan with --endpoint to the calls "
+                    "that can" % (section.title.split()[-1],
+                                  ", ".join(r.endpoint for r in stage.requests)))
+            for request in stage.requests:
+                try:
+                    encoder(request, PLACEHOLDER)
+                except ProviderError as refusal:
+                    raise Refused("%s cannot be sent: %s" % (request.endpoint, refusal)) \
+                        from refusal
+                chosen.setdefault(request.key(), request)
+    return list(chosen.values())
+
+
+def render(section: Section, tenant: TenantConfig, encoder, records: int) -> str:
     """The plan, as something that can be pasted into a message and approved."""
+    stages = section.stages
     lines = ["", "=" * 78,
-             "CONTROL   %s" % control_id,
+             section.title,
              "PROPERTY  %s (%s), timezone %s" % (tenant.tenant_id, tenant.provider,
                                                  tenant.timezone),
              "BUDGET    %d call(s) per run; this plan assumes %d record(s) in the population"
@@ -178,30 +289,61 @@ def _encoded(encoder, request: Request) -> list[str]:
 
 
 # --------------------------------------------------------------------------- the command
-def main(argv=None) -> int:
+class Prepared:
+    """Everything one invocation resolved before printing anything: shared by `--plan` and
+    `--run`, so the plan printed and the requests sent cannot come from two computations."""
+
+    __slots__ = ("tenant", "package", "clock", "sections")
+
+    def __init__(self, tenant, package, clock, sections) -> None:
+        self.tenant = tenant
+        self.package = package
+        self.clock = clock
+        self.sections = sections
+
+
+def _parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description="Print what a live probe would ask for. Makes no calls without --run.")
     parser.add_argument("--plan", action="store_true",
                         help="print the plan and make no calls at all (the default)")
     parser.add_argument("--run", action="store_true",
-                        help="actually make the calls. Refuses unless the transport is armed")
+                        help="send exactly the requests the plan prints. Refuses unless armed")
     parser.add_argument("--yes", action="store_true",
                         help="confirm --run. Required, because D3 says each probe is approved")
     parser.add_argument("--property", default=None, help="which property to probe")
     parser.add_argument("--control", action="append", default=None,
                         help="one control id; repeatable. Default: every control")
+    parser.add_argument("--endpoint", default=None,
+                        help="narrow the plan to its requests to this one endpoint")
+    parser.add_argument("--reask", default=None, metavar="FILE",
+                        help="ask again, verbatim, the question recorded for FILE in the "
+                             "provider's fixture index")
+    parser.add_argument("--with", dest="additions", action="append", default=[],
+                        metavar="OPTION", help="add OPTION to a --reask question. Allowed: %s"
+                        % ", ".join(sorted(ADDABLE)))
     parser.add_argument("--as-of", default=None,
                         help="the date to resolve relative windows against (YYYY-MM-DD)")
     parser.add_argument("--records", type=int, default=10,
                         help="assumed population size, for costing the per-record stage")
-    arguments = parser.parse_args(argv)
+    return parser
+
+
+def prepare(argv=None, arguments=None) -> Prepared:
+    """Resolve the property, the clock and the plan. Raises `Refused`, saying why."""
+    arguments = arguments or _parser().parse_args(argv)
 
     tenants = available_tenants()
     property_id = arguments.property or (tenants[0] if tenants else None)
     if property_id not in tenants:
-        print("No property called %r. This deployment has: %s"
-              % (property_id, ", ".join(tenants) or "(none)"))
-        return 2
+        raise Refused("No property called %r. This deployment has: %s"
+                      % (property_id, ", ".join(tenants) or "(none)"))
+    if arguments.reask and arguments.control:
+        raise Refused("REFUSED: --reask and --control are one or the other. A plan made of "
+                      "both would be approved as one thing and be two")
+    if arguments.additions and not arguments.reask:
+        raise Refused("REFUSED: --with adds an option to a recorded question, so it needs "
+                      "--reask FILE")
 
     tenant = TenantConfig.load(property_id)
     package = providers.load(tenant.provider)
@@ -211,33 +353,65 @@ def main(argv=None) -> int:
     clock = (FixedClock.at(arguments.as_of, tenant.timezone) if arguments.as_of
              else FixedClock.at(source.as_of, tenant.timezone))
 
-    control_ids = arguments.control or list(available())
-    unknown = [c for c in control_ids if c not in available()]
-    if unknown:
-        print("No control called %s. Try: %s" % (", ".join(unknown), ", ".join(available())))
+    if arguments.reask:
+        try:
+            stages = reask(tenant.provider, arguments.reask, arguments.additions)
+        except Refused as refusal:
+            raise Refused("REFUSED: %s" % refusal) from refusal
+        sections = [Section("RE-ASK    %s" % arguments.reask, stages)]
+    else:
+        control_ids = arguments.control or list(available())
+        unknown = [c for c in control_ids if c not in available()]
+        if unknown:
+            raise Refused("No control called %s. Try: %s"
+                          % (", ".join(unknown), ", ".join(available())))
+        sections = [Section("CONTROL   %s" % control_id,
+                            plan_for(control_id, tenant, adapter, clock))
+                    for control_id in control_ids]
+
+    if arguments.endpoint:
+        narrowed = [Section(section.title, narrow(section.stages, arguments.endpoint))
+                    for section in sections]
+        for before, after in zip(sections, narrowed):
+            if not after.stages:
+                held = sorted({request.endpoint for stage in before.stages
+                               for request in stage.requests})
+                raise Refused("REFUSED: the plan for %s holds no %s request. It holds: %s"
+                              % (before.title.split()[-1], arguments.endpoint,
+                                 ", ".join(held)))
+        sections = narrowed
+    return Prepared(tenant, package, clock, sections)
+
+
+def main(argv=None) -> int:
+    arguments = _parser().parse_args(argv)
+    try:
+        prepared = prepare(arguments=arguments)
+    except Refused as refusal:
+        print(refusal)
         return 2
 
-    for control_id in control_ids:
-        print(render(control_id, tenant, adapter, package.encoder,
-                     plan_for(control_id, tenant, adapter, clock), arguments.records))
+    for section in prepared.sections:
+        print(render(section, prepared.tenant, prepared.package.encoder, arguments.records))
 
     print("")
-    print("Resolved against %s, the property's own clock." % clock.today().isoformat())
+    print("Resolved against %s, the property's own clock." % prepared.clock.today().isoformat())
     if not arguments.run:
         print("PLAN ONLY. No call was made, and none can be: the live transport is off unless "
               "HOTELCONTROLS_LIVE is set, and it refuses to arm inside a test process at all.")
         return 0
 
-    return _run(arguments, tenant, package, clock)
+    return _run(arguments, prepared)
 
 
-def _run(arguments, tenant, package, clock) -> int:
+def _run(arguments, prepared: Prepared) -> int:
     """Make the calls - if, and only if, everything says yes.
 
-    Three separate refusals, and each says which one it is. A probe that failed with one
-    message for "you did not confirm", "the transport is off" and "there is no password" would
-    send an operator looking in the wrong place two times out of three.
+    Separate refusals, and each says which one it is. A probe that failed with one message for
+    "you did not confirm", "the transport is off", "there is no password" and "this plan cannot
+    be sent as printed" would send an operator looking in the wrong place most of the time.
     """
+    tenant, package = prepared.tenant, prepared.package
     if not arguments.yes:
         print("REFUSED: --run needs --yes. Each probe is approved individually, bounded and "
               "staged (decision D3), and the plan above is the thing being approved.")
@@ -252,42 +426,68 @@ def _run(arguments, tenant, package, clock) -> int:
         print("REFUSED: %s has no live request form. It can be replayed, not probed."
               % tenant.provider)
         return 2
+    try:
+        requests = sendable(prepared.sections, package.encoder)
+    except Refused as refusal:
+        print("REFUSED: %s" % refusal)
+        return 2
 
     # Recording is not optional on a probe. A response fetched from somebody else's server and
     # not written down is a call spent to learn something nobody can check afterwards - and
     # the fingerprint beside it is what stops a later replay answering a window the capture
     # never covered (F19c, issue #9).
-    recorder = Recorder.for_provider(tenant.provider, capture="probe-%s" % clock.today(),
-                                     observed_at=clock.today().isoformat())
-    source = LiveSource(tenant.provider, package.encoder, credentials, clock,
-                        recorder=recorder)
+    recorder = recorder_for(tenant, prepared.clock, PropertyClock(tenant.timezone))
+    # ONE attempt. The transport retries a transient failure, which is right for a run and
+    # wrong here: a retry is a second call to somebody else's server that nobody approved
+    # (D3, R8). A probe that fails says so, and asking again is a new approval.
+    source = LiveSource(tenant.provider, package.encoder, credentials, prepared.clock,
+                        recorder=recorder, attempts=1)
     adapter = package.adapter(tenant, source)
-    print("ARMED. Recording into %s" % recorder.directory)
+    print("ARMED. Sending %d call(s), each once, recording into %s"
+          % (len(requests), recorder.directory))
     print("Run tools/scrub_fixtures.py over it before committing anything: a live response "
           "carries guest names, emails and free-text remarks, and this repository is public "
           "(D6, F15).")
-    return _execute(arguments, adapter, clock)
+    return send(requests, adapter)
 
 
-def _execute(arguments, adapter, clock) -> int:
-    """The calls themselves, bounded by the property's own budget."""
+def recorder_for(tenant: TenantConfig, plan_clock, wall_clock, **kwargs) -> Recorder:
+    """Where a probe's responses are written, dated by when they were OBTAINED.
+
+    Two dates, kept apart (F7). `as_of` is the day the plan's windows were resolved against;
+    `observed_at` is the day the call is made, read from the property's clock rather than the
+    machine's (F11). The first version stamped both with the plan's date, so a call made in
+    October would have been recorded as observed on the July day it asked about.
+    """
+    observed = wall_clock.today().isoformat()
+    return Recorder.for_provider(tenant.provider, capture="probe-%s" % observed,
+                                 observed_at=observed, as_of=plan_clock.today().isoformat(),
+                                 **kwargs)
+
+
+def send(requests: list[Request], adapter) -> int:
+    """The calls themselves: these and only these, each once, within the property's budget."""
     from hotelcontrols.evidence import BudgetExceeded, CallBudget
     from hotelcontrols.evidence.cache import ResponseCache
 
-    budget = CallBudget(min(arguments.records + 5, adapter.tenant.call_budget)
-                        if hasattr(adapter, "tenant") else arguments.records + 5)
-    cache = ResponseCache(adapter.source.fetch, budget)
-    for control_id in arguments.control or list(available()):
-        ir = load(control_id)
+    limit = len(requests)
+    if hasattr(adapter, "tenant"):
+        limit = min(limit, adapter.tenant.call_budget)
+    cache = ResponseCache(adapter.source.fetch, CallBudget(max(limit, 1)))
+    failed = 0
+    for request in requests:
         try:
-            cache.get(build_request(ir, adapter.name, clock))
+            cache.get(request)
         except BudgetExceeded as stop:
             print("STOPPED: %s" % stop)
             return 1
         except ProviderError as gap:
-            print("%s: %s" % (control_id, gap))
-    print("Made %d call(s)." % budget.spent)
-    return 0
+            print("%s: %s" % (request.endpoint, gap))
+            failed += 1
+            continue
+        print("SENT      %s %s" % (request.endpoint, request.params or "(none)"))
+    print("Made %d call(s)." % cache.calls)
+    return 1 if failed else 0
 
 
 if __name__ == "__main__":
