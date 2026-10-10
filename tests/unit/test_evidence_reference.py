@@ -109,6 +109,20 @@ class TestMatching:
         matches, reason = index.match(Value.known("01"))
         assert matches == ["a record"] and reason is None
 
+    @pytest.mark.parametrize("absent", [False, "not applicable"])
+    def test_an_absent_key_matches_nothing_even_where_one_is_indexed_under_it(self, absent):
+        """Issue #86: an unassigned stay (stay.room_number known False) must not find the room
+        indexed under "False" - and the reason names the field it does not have, rather than
+        claiming a definite non-match about a room nobody named."""
+        from hotelcontrols.kernel import NOT_APPLICABLE
+        key = Value.known(NOT_APPLICABLE if absent == "not applicable" else absent)
+        index = ReferenceIndex("room", "lookup", local_field="stay.room_number",
+                               by_key={"False": ["a numberless room"], "01": ["a record"],
+                                       str(NOT_APPLICABLE): ["another"]})
+        matches, reason = index.match(key)
+        assert matches == []
+        assert "has no stay.room_number" in reason
+
     def test_a_collection_returns_every_match_for_one_key(self):
         index = ReferenceIndex("occupancy", "collection", by_key={"303": ["first", "second"]})
         matches, _ = index.match(Value.known("303"))
@@ -136,6 +150,23 @@ class TestBuilding:
             records={"room": ["r1", "r2"]},
             values={("room.number", "r1"): Value.known("01"),
                     ("room.number", "r2"): Value.unknown("no number")})
+        index = build_references(
+            ir_with([{"entity": "room", "kind": "lookup", "local_field": "stay.room_number",
+                      "remote_field": "room.number"}]),
+            adapter, cache_for(adapter))["room"]
+        assert set(index.by_key) == {"01"}
+
+    def test_a_lookup_never_indexes_a_record_under_an_absent_key(self):
+        """Issue #86. A key whose absence the registry answers as known False (or not
+        applicable) is not a key: indexed as "False", every record missing it would share one
+        bucket, and every local record missing ITS key would match that bucket."""
+        from hotelcontrols.kernel import NOT_APPLICABLE
+        adapter = StubAdapter(
+            requests={"room": Request("rooms", {})},
+            records={"room": ["r1", "r2", "r3"]},
+            values={("room.number", "r1"): Value.known("01"),
+                    ("room.number", "r2"): Value.known(False),
+                    ("room.number", "r3"): Value.known(NOT_APPLICABLE)})
         index = build_references(
             ir_with([{"entity": "room", "kind": "lookup", "local_field": "stay.room_number",
                       "remote_field": "room.number"}]),
