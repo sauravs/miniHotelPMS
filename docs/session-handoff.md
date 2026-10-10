@@ -5,13 +5,14 @@ session, exactly as written.** The longer block after it is the STATE block the 
 session to read. Do not paste that one. Everything either references is in the repository;
 nothing depends on the previous conversation.
 
-**Last updated:** 2026-10-11, at the close of v3, on `main` at `e90031e`. **v2 (slices 0–15) and
-v3 (slices 16–24) are both COMPLETE.** v3's last PRs: slice 23 the evidence refresh (#77, after
+**Last updated:** 2026-10-11, after v3's close, on `main` at `c537300`. **The owner's go-ahead
+(2026-10-11): follow-ups 4, 1, 3, 2, 5, in that order, one at a time, reporting after each.**
+**v2 (slices 0–15) and v3 (slices 16–24) are both COMPLETE.** v3's last PRs: slice 23 the evidence refresh (#77, after
 fixes #72, #74, #76), slice 24 host authentication + per-property credentials (#79, closing #22),
 and fix #80 (#81). Criteria V1–V12 are all met (`docs/plan-v3.md` §7 says where each is proven);
 `prd.md` criterion 1 stays NOT MET on every capture. **One issue is open: #71, sequenced, not
 fixed.** There is no planned slice left - what remains is the follow-up list in the prompt below,
-each item waiting on the owner's go-ahead.
+worked in the order the owner gave. An item marked DONE in the prompt has merged.
 
 **The live probe** is a runbook now: [The probe](#the-probe--done-2026-10-10-v3-slice-23-kept-as-the-runbook-for-the-next-one).
 Since slice 24 its credentials are per property: `HOTELCONTROLS_SANDBOX_MINIHOTEL_*`.
@@ -20,8 +21,8 @@ Since slice 24 its credentials are per property: `HOTELCONTROLS_SANDBOX_MINIHOTE
 
 ## The starting prompt — paste exactly this
 
-v3 is complete; this prompt is for the follow-ups. Fill in the `GO-AHEAD` line first - which
-items, in which order. Left blank, the session reports the baseline and asks.
+v3 is complete; this prompt is for the follow-ups. The `GO-AHEAD` line holds the owner's order
+(2026-10-11). Each finished item is marked DONE; the session starts at the first item not marked.
 
 ```
 Continue miniHotelPMS after v3. Working directory: /Users/sauravs/Desktop/Work/miniHotelPMS
@@ -39,7 +40,7 @@ Any number that differs is a reason to stop and find out why. Then read CLAUDE.m
 docs/session-handoff.md (the STATE block), docs/plan-v3.md (status table, §7) and
 docs/open-questions.md.
 
-Where things stand: v2 and v3 are complete; main is at e90031e or a docs-only commit after it.
+Where things stand: v2 and v3 are complete; main is at c537300 or a docs-only commit after it.
 There is no planned slice. Every item below is a bug-workflow fix or a small PR of its own:
 a GitHub issue first (what, reproduction, which gate, severity), then fix/NN-..., a failing
 test, the fix, a PR "Fixes #NN", CI green on test (3.11) and test (3.13), squash-merge.
@@ -48,8 +49,10 @@ WORKING AGREEMENT (owner): after each item ends end to end, REPORT to me and WAI
 go-ahead before the next. Before starting anything new, write the next session's starting
 prompt into docs/session-handoff.md as a docs-only PR.
 
-GO-AHEAD (which items, in which order): ____
-If blank, run the start-up, report it, and ask me.
+GO-AHEAD (which items, in which order): 4, 1, 3, 2, 5 - the owner, 2026-10-11. One at a time:
+start at the first item in that order not marked DONE, finish it end to end, then REPORT and
+WAIT. The go-ahead covers the order, not the live calls: item 1's two calls still need my yes,
+each at the time.
 
 THE FOLLOW-UPS (decided at v3's close, 2026-10-11, by the implementer at my delegation):
 1. #71 - replay compares windows only by name. STEP A FIRST: a covering capture - two live
