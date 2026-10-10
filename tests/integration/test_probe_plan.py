@@ -232,6 +232,9 @@ class TestRunSendsWhatThePlanPrinted:
         # Two controls sharing a reference: `getRooms` is printed twice and sent once.
         ["--control", "room_assignment_type_validity", "--control", "room_capacity_compliance"],
         ["--reask", "9_departures_2026-07.xml", "--with", "IncludeRoomPrices"],
+        # Issue #92: #71's covering-capture call, an option added to a control's own question.
+        ["--control", "room_assignment_type_validity", "--endpoint", "GetReservationKey",
+         "--as-of", "2026-07-08", "--with", "IncludeRoomPrices"],
     ])
     def test_the_distinct_requests_printed_are_exactly_the_requests_sent(self, argv, capsys):
         """D3, issue #70. The thing being approved is the thing that happens: no call missing,
@@ -377,13 +380,6 @@ class TestReaskingARecordedQuestion:
                                          "--with", "IncludeRoomPrices"])
         assert code == 2
 
-    def test_with_needs_a_recorded_question_to_add_to(self, capsys):
-        code, printed = output(capsys, ["--plan", "--property", "sandbox",
-                                        "--control", "required_reservation_fields",
-                                        "--with", "IncludeRoomPrices"])
-        assert code == 2
-        assert "--reask" in printed
-
     def test_reask_and_control_together_are_refused(self, capsys):
         """One or the other. A plan made of both would be approved as one thing and be two."""
         code, _printed = output(capsys, ["--plan", "--property", "sandbox",
@@ -397,3 +393,76 @@ class TestReaskingARecordedQuestion:
                                         "--reask", "99_never_captured.xml"])
         assert code == 2
         assert "9_departures_2026-07.xml" in printed
+
+
+# --------------------------------------------------------------------------- issue #92
+# #71's covering capture needs `ArrivalDate 2026-07-08..2026-10-06` WITH room prices - the
+# question six controls ask, carrying #49's rate codes. No recorded question asks that window,
+# so `--reask` cannot reach it, and `--with` used to be refused without `--reask`: the call
+# could not be printed, so it could not be approved, so it could not be sent (D3).
+
+ARRIVALS = {"ArrivalDate": {"From": "2026-07-08", "To": "2026-10-06"}}
+
+
+class TestAddingAnOptionToAControlsQuestion:
+
+    def test_with_room_prices_adds_that_flag_to_the_population_question_only(self, capsys):
+        code, printed = output(capsys, ["--plan", "--property", "sandbox",
+                                        "--control", "room_assignment_type_validity",
+                                        "--endpoint", "GetReservationKey",
+                                        "--as-of", "2026-07-08", "--with", "IncludeRoomPrices"])
+        assert code == 0
+        assert printed_requests(printed) == [
+            ("GetReservationKey", str(dict(ARRIVALS, IncludeRoomPrices=True)))]
+        assert '<ArrivalDate From="2026-07-08" To="2026-10-06" />' in printed
+        assert "<IncludeRoomPrices>true</IncludeRoomPrices>" in printed
+        assert "TOTAL     1 call(s)" in printed
+
+    def test_the_plan_says_why_the_option_is_there(self, capsys):
+        """An approver reads the reason beside the call, as for a re-asked question."""
+        _code, printed = output(capsys, ["--plan", "--property", "sandbox",
+                                         "--control", "room_assignment_type_validity",
+                                         "--endpoint", "GetReservationKey",
+                                         "--with", "IncludeRoomPrices"])
+        assert "plus IncludeRoomPrices" in printed and "#49" in printed
+
+    def test_with_never_touches_a_reference(self, capsys):
+        """A reference fetches the property's master data; the option is about reservations.
+        Adding it there would be a different call from the one the control makes."""
+        code, printed = output(capsys, ["--plan", "--property", "sandbox",
+                                        "--control", "room_assignment_type_validity",
+                                        "--as-of", "2026-07-08", "--with", "IncludeRoomPrices"])
+        assert code == 0
+        assert printed_requests(printed) == [
+            ("GetReservationKey", str(dict(ARRIVALS, IncludeRoomPrices=True))),
+            ("getRooms", "(none)"), ("getRoomTypes", "(none)")]
+
+    def test_with_on_a_plan_holding_no_population_question_is_refused(self, capsys):
+        code, printed = output(capsys, ["--plan", "--property", "sandbox",
+                                        "--control", "room_assignment_type_validity",
+                                        "--endpoint", "getRooms", "--with", "IncludeRoomPrices"])
+        assert code == 2
+        assert "population" in printed
+
+    def test_with_still_refuses_an_option_that_is_not_on_its_list(self, capsys):
+        """R1, R8: the list is a decision, on a control's question as on a re-asked one."""
+        code, printed = output(capsys, ["--plan", "--property", "sandbox",
+                                        "--control", "required_reservation_fields",
+                                        "--endpoint", "GetReservationKey",
+                                        "--with", "Cancellations"])
+        assert code == 2
+        assert "IncludeRoomPrices" in printed
+
+    def test_with_never_overwrites_what_a_control_already_asks(self):
+        stage = probe.Stage("population", "why", [probe.Request(
+            "GetReservationKey", dict(ARRIVALS, IncludeRoomPrices="false"))])
+        with pytest.raises(probe.Refused, match="never overwrites"):
+            probe.with_options([stage], ["IncludeRoomPrices"], "a control")
+
+    def test_without_with_a_control_plan_is_unchanged(self, capsys):
+        _code, printed = output(capsys, ["--plan", "--property", "sandbox",
+                                         "--control", "room_assignment_type_validity",
+                                         "--endpoint", "GetReservationKey",
+                                         "--as-of", "2026-07-08"])
+        assert printed_requests(printed) == [("GetReservationKey", str(ARRIVALS))]
+        assert "IncludeRoomPrices" not in printed

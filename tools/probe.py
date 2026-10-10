@@ -43,7 +43,11 @@ ONE CALL AT A TIME
 D3 approves calls, and one control's plan can hold three. `--endpoint` narrows a plan to the
 requests to one endpoint, and `--reask FILE` asks again, verbatim, the question recorded beside
 a captured response - which is how a capture is refreshed so that old and new answer the same
-question. `--with` may add one option to a re-asked question, from a list of one (#49).
+question. `--with` may add one option to a re-asked question, from a list of one (#49) - or to
+a control's own POPULATION question (#92), which is how a capture asks a window nobody recorded
+yet: #71's covering capture is six controls' arrival window, with room prices. A reference or a
+per-record call never takes the option; it is a different question from the one the control
+asks of them.
 """
 from __future__ import annotations
 
@@ -195,22 +199,64 @@ def reask(provider: str, filename: str, additions=()) -> list[Stage]:
                          ", ".join(r["file"] for r in index["responses"])))
 
     params = json.loads(json.dumps(entry["request"]))         # a copy the index never sees
-    reasons = []
-    for name in additions:
-        if name not in ADDABLE:
-            raise Refused("--with %s is not allowed. A re-asked question may add only: %s. An "
-                          "option can widen which records come back, so the list is a "
-                          "decision (R1, R8)" % (name, ", ".join(sorted(ADDABLE))))
-        if name in params:
-            raise Refused("%s already asked %s=%r. --with adds an option; it never overwrites "
-                          "what the recorded question asked" % (filename, name, params[name]))
-        params[name] = True
-        reasons.append("plus %s: %s" % (name, ADDABLE[name]))
+    reasons = _add(params, additions, filename)
 
     why = "the question recorded for %s (captured %s), asked again verbatim" % (
         filename, entry.get("captured_at", "on a date not recorded"))
     return [Stage("re-ask", "; ".join([why] + reasons),
                   [Request(entry["endpoint"], params)])]
+
+
+def with_options(stages: list[Stage], additions, title: str) -> list[Stage]:
+    """A control's plan with each `--with` option added to its POPULATION question (#92).
+
+    Only there: the population is the question a control asks about records, and the options
+    on `ADDABLE` qualify that question. A reference asks for the property's master data and a
+    per-record call names one record; adding an option to either would print - and send - a
+    call the control never makes. A plan with no population question to add to is refused,
+    rather than printed as if the option had been applied.
+    """
+    if not additions:
+        return stages
+    if not any(stage.name == "population" for stage in stages):
+        raise Refused("--with adds an option to a control's population question, and the plan "
+                      "for %s holds none. It holds: %s"
+                      % (title, ", ".join(sorted({request.endpoint for stage in stages
+                                                  for request in stage.requests}))))
+    changed = []
+    for stage in stages:
+        if stage.name != "population":
+            changed.append(stage)
+            continue
+        requests, reasons = [], []
+        for request in stage.requests:
+            params = json.loads(json.dumps(request.params or {}))    # never the IR's own dict
+            reasons = _add(params, additions, "the population question of %s" % title)
+            requests.append(Request(request.endpoint, params))
+        changed.append(Stage(stage.name, "; ".join([stage.why] + reasons), requests,
+                             per_record=stage.per_record))
+    return changed
+
+
+def _add(params: dict, additions, question: str) -> list[str]:
+    """Set each option in `additions` on `params`, in place. Returns the reasons to print.
+
+    The one gate for `--with`, wherever it adds: only an option on `ADDABLE`, and never one the
+    question already asks - overwriting a parameter would be a different question wearing the
+    old one's name.
+    """
+    reasons = []
+    for name in additions:
+        if name not in ADDABLE:
+            raise Refused("--with %s is not allowed. A question may add only: %s. An option "
+                          "can widen which records come back, so the list is a decision "
+                          "(R1, R8)" % (name, ", ".join(sorted(ADDABLE))))
+        if name in params:
+            raise Refused("%s already asks %s=%r. --with adds an option; it never overwrites "
+                          "what the question asked" % (question, name, params[name]))
+        params[name] = True
+        reasons.append("plus %s: %s" % (name, ADDABLE[name]))
+    return reasons
 
 
 def sendable(sections: list[Section], encoder) -> list[Request]:
@@ -320,8 +366,9 @@ def _parser() -> argparse.ArgumentParser:
                         help="ask again, verbatim, the question recorded for FILE in the "
                              "provider's fixture index")
     parser.add_argument("--with", dest="additions", action="append", default=[],
-                        metavar="OPTION", help="add OPTION to a --reask question. Allowed: %s"
-                        % ", ".join(sorted(ADDABLE)))
+                        metavar="OPTION", help="add OPTION to a --reask question, or to a "
+                        "control's population question (never a reference or a per-record "
+                        "call). Allowed: %s" % ", ".join(sorted(ADDABLE)))
     parser.add_argument("--as-of", default=None,
                         help="the date to resolve relative windows against (YYYY-MM-DD)")
     parser.add_argument("--records", type=int, default=10,
@@ -341,9 +388,6 @@ def prepare(argv=None, arguments=None) -> Prepared:
     if arguments.reask and arguments.control:
         raise Refused("REFUSED: --reask and --control are one or the other. A plan made of "
                       "both would be approved as one thing and be two")
-    if arguments.additions and not arguments.reask:
-        raise Refused("REFUSED: --with adds an option to a recorded question, so it needs "
-                      "--reask FILE")
 
     tenant = TenantConfig.load(property_id)
     package = providers.load(tenant.provider)
@@ -380,6 +424,16 @@ def prepare(argv=None, arguments=None) -> Prepared:
                               % (before.title.split()[-1], arguments.endpoint,
                                  ", ".join(held)))
         sections = narrowed
+    if arguments.additions and not arguments.reask:
+        # After narrowing, so `--endpoint getRooms --with ...` is refused for holding no
+        # population question rather than printing a reference with an option it never takes.
+        try:
+            sections = [Section(section.title,
+                                with_options(section.stages, arguments.additions,
+                                             section.title.split()[-1]))
+                        for section in sections]
+        except Refused as refusal:
+            raise Refused("REFUSED: %s" % refusal) from refusal
     return Prepared(tenant, package, clock, sections)
 
 
