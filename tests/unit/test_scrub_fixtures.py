@@ -160,3 +160,48 @@ class TestShapePreservation:
     def test_a_name_stays_a_single_word_without_digits(self):
         replaced = scrub_text("Jon", "given_name")
         assert replaced.isalpha() and " " not in replaced
+
+
+# --------------------------------------------------------------------------- issue #73
+# The occupancy response names its guest in a different form from the reservation response:
+# `<Reservation Namef=... Namep=...>` rather than `<Name givenName=... surname=...>`. The first
+# version of the scrubber knew only the second, and the 2024 occupancy capture hid that because
+# its three names were tester strings. The live 2026 week carried 20 real-looking guests.
+
+OCCUPANCY = """<?xml version="1.0" encoding="UTF-8" ?>
+<AvailRaters>
+  <Hotel id="sandbox" Name_e="Demo Hotel" Name_h="" />
+  <DateRange from="2026-07-08" to="2026-07-15" />
+  <Reservations>
+    <Reservation ResNumber="007004348" RoomNumber="101" RoomType="DBL" FromYmd="20260704"
+                 ToYmd="20260708" Status="OUT" Namef="Jon" Namep="Doe" />
+    <Reservation ResNumber="007004351" RoomNumber="102" RoomType="DBL" FromYmd="20260708"
+                 ToYmd="20260710" Status="IN" Namef="" Namep="Roe" />
+  </Reservations>
+</AvailRaters>
+"""
+
+
+class TestTheOccupancyResponseIsScrubbedToo:
+
+    def test_its_guest_names_are_replaced(self):
+        """D6, issue #73: a name is personal data in whichever attribute a response spells it."""
+        out = scrub_xml(OCCUPANCY)
+        assert "Jon" not in out and "Doe" not in out and "Roe" not in out
+
+    def test_one_guest_gets_the_same_pseudonym_as_in_a_booking(self):
+        """The same kinds as `Name@givenName`/`@surname`, so a guest who appears in both the
+        occupancy and the reservation response stays one guest after scrubbing."""
+        segment = parsed(scrub_xml(OCCUPANCY)).find("Reservations/Reservation")
+        booking = parsed(scrub_xml(SAMPLE)).find("Booking/PrimaryGuest/Name")
+        assert segment.get("Namef") == booking.get("givenName")
+        assert segment.get("Namep") == booking.get("surname")
+
+    def test_an_empty_name_stays_empty_and_everything_else_stays_exact(self):
+        """Presence preservation, and the evidence untouched: ids, rooms, dates, statuses."""
+        segments = parsed(scrub_xml(OCCUPANCY)).findall("Reservations/Reservation")
+        assert segments[1].get("Namef") == ""
+        assert [(s.get("ResNumber"), s.get("RoomNumber"), s.get("FromYmd"), s.get("ToYmd"),
+                 s.get("Status")) for s in segments] == [
+            ("007004348", "101", "20260704", "20260708", "OUT"),
+            ("007004351", "102", "20260708", "20260710", "IN")]

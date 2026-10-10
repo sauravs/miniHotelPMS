@@ -43,7 +43,7 @@
 <RoomType Code="Twin" Description="Twin Room" />
  </RoomsTypes>
 <Reservations>
- <Reservation ResNumber="007003204" Namep="multiroom" Namef="splitted dates" RoomNumber="303" RoomType="DBL" FromYmd="20240810" ToYmd="20240811" RoomsQty="0001" Status="OK" Board="HB" />
- <Reservation ResNumber="007003204" Namep="sidecick" Namef="" RoomNumber="303" RoomType="DBL" FromYmd="20240815" ToYmd="20240816" RoomsQty="0001" Status="OK" Board="HB" />
+ <Reservation ResNumber="007003204" Namep="Lindqvist" Namef="Iris" RoomNumber="303" RoomType="DBL" FromYmd="20240810" ToYmd="20240811" RoomsQty="0001" Status="OK" Board="HB" />
+ <Reservation ResNumber="007003204" Namep="Grimaldi" Namef="" RoomNumber="303" RoomType="DBL" FromYmd="20240815" ToYmd="20240816" RoomsQty="0001" Status="OK" Board="HB" />
  </Reservations>
 </AvailRaters>
