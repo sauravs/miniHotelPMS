@@ -34,7 +34,7 @@ from ..spec import TenantConfig
 from .budget import BudgetExceeded, CallBudget
 from .cache import ResponseCache
 from .population import build_request, population
-from .reference import ReferenceIndex, build_references
+from .reference import ReferenceIndex, absent_key, build_references
 
 
 @dataclass(frozen=True, slots=True)
@@ -52,7 +52,8 @@ class Bundle:
     #   known(True)   the key matched a record in this property
     #   known(False)  the key was readable and matched nothing. A definite finding: control 1a
     #                 says a stay assigned to a room the master does not hold is a violation
-    #   unknown(why)  the key was unreadable, or the reference could not be fetched at all
+    #   unknown(why)  the key was unreadable or absent (#86), or the reference could not be
+    #                 fetched at all
     # Kept separately from the resolved fields because "the room is not in the master" and "we
     # could not read the master" must never produce the same verdict.
     joins: dict[str, Value] = field(default_factory=dict)
@@ -202,6 +203,11 @@ def _joins(record, adapter, references) -> dict[str, Value]:
         if not key.is_known:
             joins[entity] = Value.unknown(
                 "the key this record joins on is not established (%s)" % key.reason)
+            continue
+        if absent_key(key):
+            # An unassigned stay is not "assigned to a room the master does not hold" (#86).
+            # The rule's own scope EXCLUDES it where it asks; where it does not, not established.
+            joins[entity] = Value.unknown(index.match(key)[1])
             continue
         # The key is readable and either matches or does not. Both are definite answers.
         joins[entity] = Value.known(bool(index.by_key.get(str(key.payload))))

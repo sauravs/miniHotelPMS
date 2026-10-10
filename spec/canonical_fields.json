@@ -235,8 +235,8 @@
         "field": "room.number",
         "type": "string",
         "nullable": false,
-        "absent_means": "false",
-        "description": "Room number. Not always numeric",
+        "absent_means": "unknown",
+        "description": "Room number. Not always numeric. A room's IDENTITY and the far side of every stay-to-room join, so an empty one is an evidence gap, never a value: as 'false' a room with no number and an unassigned stay met under the key False, and the stay was judged on that room's evidence (issue #86)",
         "resolvable": true
       },
       {

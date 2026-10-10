@@ -19,15 +19,30 @@ answers for all 111 stays, which is the difference between `1 + R + N` and `1 + 
 A JOIN NEVER INVENTS A MATCH. If the key is unknown, or matches nothing, the answer is UNKNOWN
 with that reason - never the first plausible record. Wrong evidence behind a right-looking
 verdict is the worst thing this engine can produce, and it is worse than answering nothing.
+
+AN ABSENCE IS NOT A KEY (issue #86). `absent_means: "false"` makes a missing field a known
+`False` - right for `exists` ("this stay is not yet assigned"), wrong as a key: stringified,
+every absence is the same key "False", so an unassigned stay matched the one room with no number
+and was judged on that room's evidence. An absent key is never indexed and never looked up.
 """
 from __future__ import annotations
 
 from dataclasses import dataclass, field
 from typing import Any
 
-from ..kernel import Value
+from ..kernel import NOT_APPLICABLE, Value
 from ..providers.base import ProviderError
 from .budget import BudgetExceeded
+
+
+def absent_key(key: Value) -> bool:
+    """A key the provider left empty, which the registry let through as a KNOWN answer.
+
+    Both forms: known `False` (`absent_means: "false"`) and not applicable (R7's "no channel").
+    Each is a fact about the record and each is the same for every record missing the field,
+    which is exactly what disqualifies it as a key.
+    """
+    return key.is_known and (key.payload is False or key.payload is NOT_APPLICABLE)
 
 
 @dataclass(frozen=True, slots=True)
@@ -56,6 +71,12 @@ class ReferenceIndex:
             return [], self.unavailable
         if not key.is_known:
             return [], ("the key this record joins on is not established (%s)" % key.reason)
+        if absent_key(key):
+            # Neither a match nor a definite non-match: this record names no key at all. As
+            # "False" it matched every remote record missing ITS key; as a non-match it read
+            # like control 1a's violation about a room nobody named.
+            return [], ("this record has no %s, so it joins to no %s record - an absence is "
+                        "not a key" % (self.local_field or "join key", self.entity))
         found = self.by_key.get(str(key.payload))
         if not found:
             return [], ("no %s in this property matches %s - the join is reported rather than "
@@ -114,7 +135,7 @@ def build_references(ir, adapter, cache) -> dict[str, ReferenceIndex]:
             by_key: dict[str, list[Any]] = {}
             for record in records:
                 key = adapter.resolve(remote_field, record)
-                if key.is_known:
+                if key.is_known and not absent_key(key):
                     by_key.setdefault(str(key.payload), []).append(record)
             indexes[entity] = ReferenceIndex(
                 entity, kind, local_field=reference["local_field"],
