@@ -141,15 +141,26 @@ class Credentials:
     password: str
     hotel: str
     base_url: str
+    # Which environment variables these came from (issue #22), so a refusal can name the exact
+    # four an operator must check. Empty for credentials built in code. Not compared: two
+    # identical accounts are the same account wherever they were read from.
+    variables: str = field(default="", compare=False)
 
     @classmethod
-    def from_environment(cls, provider: str) -> Credentials:
-        """`HOTELCONTROLS_<PROVIDER>_{USER,PASSWORD,HOTEL,BASE_URL}`.
+    def from_environment(cls, provider: str, property_id: str) -> Credentials:
+        """`HOTELCONTROLS_<PROPERTY>_<PROVIDER>_{USER,PASSWORD,HOTEL,BASE_URL}`.
 
-        The provider name arrives as data - from a tenant file, by way of the registry that
-        discovers adapters by import - so no vendor is spelled out in this file.
+        PER PROPERTY since v3 slice 24 (issue #22). Keyed by the provider alone, two hotels on
+        one PMS could share an account or overwrite each other's; every other per-property fact
+        was already keyed by the property. There is NO fallback to the provider-only names: a
+        property without its own account borrowing a shared one is #22 itself, and a fallback
+        is a default, which a credential never has (F15).
+
+        Both names arrive as data - the property from its tenant file, the provider by way of
+        the registry that discovers adapters by import - so no vendor is spelled out here.
         """
-        prefix = "HOTELCONTROLS_%s_" % provider.upper().replace("-", "_")
+        prefix = "HOTELCONTROLS_%s_%s_" % (_environment_word(property_id),
+                                           _environment_word(provider))
         values = {}
         for field_name, suffix in (("user", "USER"), ("password", "PASSWORD"),
                                    ("hotel", "HOTEL"), ("base_url", "BASE_URL")):
@@ -164,7 +175,7 @@ class Credentials:
                     "a missing one fails here rather than becoming a checked-in sandbox "
                     "account (F15). See .env.example." % (prefix + suffix))
             values[field_name] = value.strip()
-        return cls(**values)
+        return cls(**values, variables=prefix)
 
     def __repr__(self) -> str:
         """Everything but the password. Credentials get printed by accident - in a traceback,
@@ -176,6 +187,11 @@ class Credentials:
 
 
 # --------------------------------------------------------------------------- the two locks
+def _environment_word(name: str) -> str:
+    """A property or provider id as it appears in an environment variable's name."""
+    return name.upper().replace("-", "_")
+
+
 def is_enabled() -> bool:
     """Lock 1: the environment variable. False unless it is explicitly truthy."""
     return os.environ.get(ENABLE, "").strip().lower() in TRUTHY
@@ -326,7 +342,10 @@ class LiveSource:
             except Exception as exc:                                     # noqa: BLE001
                 if status_of(exc) in NOT_AUTHORISED:
                     # Loud, immediate, and about this machine rather than about the hotel.
-                    prefix = "HOTELCONTROLS_%s_" % self.provider.upper().replace("-", "_")
+                    # The variables these credentials were read from, per property since #22;
+                    # credentials built in code name the pattern, never a guessed property.
+                    prefix = (self.credentials.variables or "HOTELCONTROLS_<PROPERTY>_%s_"
+                              % _environment_word(self.provider))
                     # Spelled out in full rather than abbreviated: an operator reading this at
                     # three in the morning should be able to copy the name, not assemble it.
                     raise NotAuthorised(

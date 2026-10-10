@@ -409,11 +409,13 @@ Raised by Q4 in `docs/QA.md`. Everything this project has ever seen came from
 
 **Today.** Sandbox only, and that is the right target for verifying a control's logic: nothing about
 whether `folio.balance_due lte 0` holds is better tested against real guests. Pointing the transport
-at another host is configuration rather than code — but only for **one** property. Credentials are
-keyed by provider alone (`HOTELCONTROLS_<PROVIDER>_{USER,PASSWORD,HOTEL,BASE_URL}`,
-`Credentials.from_environment`), and the only caller passes `tenant.provider` and discards
-`tenant.tenant_id` (`tools/probe.py`). Two properties on the same PMS therefore cannot hold distinct
-credentials today; the second would overwrite the first.
+at another host is configuration rather than code, **per property since v3 slice 24 (#22)**:
+`Credentials.from_environment(provider, property)` reads
+`HOTELCONTROLS_<PROPERTY>_<PROVIDER>_{USER,PASSWORD,HOTEL,BASE_URL}` - the sandbox's are
+`HOTELCONTROLS_SANDBOX_MINIHOTEL_*` - and `tools/probe.py` passes the property it plans for. There is
+no fallback to the provider-only names: a property without its own account borrowing a shared one
+would be the very defect #22 described. Before slice 24 the key was the provider alone, so a second
+property on the same PMS could only overwrite the first one's account.
 
 **What the vendor says.** *"Production credentials will be provided upon completion of the staging
 and testing phase"*, and *"before moving to production, it's essential to ensure your IPs are

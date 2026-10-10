@@ -10,6 +10,7 @@
  */
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
+import { Identity } from "@/components/Identity";
 import { Shell } from "@/components/Shell";
 
 // EVERY page renders per request, including the ones Next would otherwise prerender (its 404).
@@ -28,7 +29,11 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <link rel="stylesheet" href="/style.css" />
       </head>
       <body>
-        <Shell>{children}</Shell>
+        <Shell>
+          {/* Who is signed in (slice 24) - nothing at all with authentication off. */}
+          <Identity />
+          {children}
+        </Shell>
       </body>
     </html>
   );

@@ -291,8 +291,10 @@ class TestRunSendsWhatThePlanPrinted:
 
         from hotelcontrols.kernel import FixedClock
         monkeypatch.setattr(probe, "assert_armed", lambda: None)
-        monkeypatch.setattr(probe.Credentials, "from_environment",
-                            classmethod(lambda cls, provider: probe.PLACEHOLDER))
+        asked_for = []
+        monkeypatch.setattr(probe.Credentials, "from_environment", classmethod(
+            lambda cls, provider, property_id: asked_for.append((provider, property_id))
+            or probe.PLACEHOLDER))
         monkeypatch.setattr(probe, "LiveSource", FakeLive)
         monkeypatch.setattr(probe, "PropertyClock",
                             lambda zone: FixedClock.at("2026-10-10T11:00", zone))
@@ -307,6 +309,8 @@ class TestRunSendsWhatThePlanPrinted:
         assert made["recorder"].observed_at == "2026-10-10"
         assert made["recorder"].as_of == "2026-07-08"
         assert made["recorder"].capture == "probe-2026-10-10"
+        # Issue #22: the property the plan was printed for is the one whose account is read.
+        assert asked_for == [("minihotel", "sandbox")]
 
 
 class TestOnePrintedRequestAtATime:

@@ -101,6 +101,7 @@ cd ui && npm ci && npm run build && npm start # the React UI at http://127.0.0.1
 
 HOTELCONTROLS_COMPOSE=1 python3 -m tools.serve --llm stub    # + /compose, no model needed
 HOTELCONTROLS_COMPOSE=1 python3 -m tools.serve --llm local   # + /compose, backed by Ollama
+HOTELCONTROLS_AUTH_SECRET=<32+ chars> python3 -m hotelcontrols.web.server   # signed tenant contexts required (ui/README.md)
 ```
 
 v1 is preserved in `miniHotelLegacy/` — four silos, 152 passing tests, one control working end to

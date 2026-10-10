@@ -24,7 +24,7 @@ that adding a PMS is a new adapter plus a mapping file, not a change to any rule
 | v2 documents | **Done** — prd, context, architecture, plan, open questions |
 | v2 code | **All 12 slices merged**, plus slice 13 (compose) and slice 14 (UI/UX pass). 1940 tests at slice 14 (1996 today), 96% coverage, 1080 spec checks, CI green. 11 of 12 criteria met; criterion 1 is recorded as **not met** with its arithmetic in `docs/plan.md` |
 | Slice 15: React UI | **Done** — `ui/`, a Next.js client of the JSON API. The engine is unchanged and both surfaces ship. 152 Vitest and 19 Playwright tests; criteria 2, 3, 8 and 10 re-proven. See `ui/README.md` |
-| v3 plan | **Approved 2026-10-09 (PR #50)** — `docs/plan-v3.md`; start from `docs/v3-implementation-brief.md`. Slices 16–24, decisions D12–D16, criteria V1–V12. **Progress: fix #48 (#52), slices 16 policy versioning (#53), 17 tenant-scoped store (#56), 18 findings queue (#61), 19 email (#62), 20 operational log (#63), 21 typed parameters with "not decided" (#65), 22 `LATE_CHECKOUT` guest services (#68), 23 the evidence refresh (four owner-approved live calls, 2026-10-10) merged, with fixes #70 probe (#72), #73 scrubber (#74), #75 unassigned room (#76), plus doc fixes #55 and #58. Issue #71 (replay window names) is open for the owner. Baseline after slice 23: on `main`, 2850 passed / 3 skipped, 1092 spec checks, 135 API goldens and 15 DemoPMS files identical to a rebuild, 97% coverage; React 185 Vitest / 22 Playwright. Next: slice 24, host auth and per-property credentials, the last v3 slice — after the owner's go-ahead (they asked to be told when each slice ends, and to say go before the next opens).** Track the live state in the `docs/plan-v3.md` status table |
+| v3 | **COMPLETE 2026-10-11** — `docs/plan-v3.md`, slices 16–24, decisions D12–D16, **criteria V1–V12 all met** (§7 says where each is proven). Merged: fix #48 (#52), slices 16 policy versioning (#53), 17 tenant-scoped store (#56), 18 findings queue (#61), 19 email (#62), 20 operational log (#63), 21 typed parameters (#65), 22 `LATE_CHECKOUT` (#68), 23 evidence refresh (#77, after fixes #72, #74, #76), 24 host auth + per-property credentials (this PR, closing #22). `prd.md` criterion 1 stays **NOT MET** on every capture. **Open for the owner:** #71 (sequenced: a covering capture, then the fix), and the follow-ups in `docs/session-handoff.md`. Baseline: on `main`, 3053 passed / 3 skipped, 1092 spec checks, 135 API goldens and 15 DemoPMS files identical to a rebuild, 97% coverage; React 205 Vitest / 26 Playwright |
 
 ## Documents, in reading order
 
@@ -132,6 +132,10 @@ UNKNOWN. That is the honest cost of not guessing.
 - **Do not trust documentation over a captured response.** Doc review got 4 of 12 risks wrong here.
   If the docs and a fixture disagree, the fixture wins.
 - **Do not edit a fixture to make a test pass.** Fixtures are evidence. Change the code.
+- **Identity comes from a verified signature, never from a URL** (since v3 slice 24). With
+  `HOTELCONTROLS_AUTH_SECRET` set, every request but `/style.css` carries a signed tenant context
+  and `App._authenticate` overwrites `property` before any route runs. Credentials are per
+  property: `HOTELCONTROLS_<PROPERTY>_<PROVIDER>_*`, no fallback (#22).
 - **Never widen a verdict.** If evidence is missing the answer is UNKNOWN. Turning an UNKNOWN into a
   PASS to make a test green, a number look better, or a demo look finished defeats the entire
   product. This rule outranks every other instruction in this file.
@@ -164,6 +168,7 @@ python3 -m tools.validate_spec                     # spec + fixture checks, incl
 python3 -m tools.lock_spec                         # AFTER bumping a rule's version: record it
 python3 -m hotelcontrols.web.server                # the demo, http://127.0.0.1:8765/ (JSON log to stderr)
 python3 -m hotelcontrols.web.server --store runs.db  # ...keeping history and the findings queue
+HOTELCONTROLS_AUTH_SECRET=<32+ chars> python3 -m hotelcontrols.web.server  # signed tenant contexts required
 python3 -m tools.serve --llm off --notify smtp     # email each new task; needs HOTELCONTROLS_NOTIFY=1
 HOTELCONTROLS_COMPOSE=1 python3 -m tools.serve --llm stub    # the demo + /compose, no model needed
 HOTELCONTROLS_COMPOSE=1 python3 -m tools.serve --llm local   # ...backed by Ollama. Free, offline

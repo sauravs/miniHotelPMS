@@ -124,14 +124,31 @@ docs/architecture.md, docs/open-questions.md, docs/old-codebase-improve.md. They
 specification and the execution trackers. docs/plan.md is the v2 build log (slices 0-15);
 docs/plan-v3.md is authoritative for what is next (slices 16-24).
 
-STATE: v2 IS COMPLETE (slices 0-15) AND v3 IS UNDER CONSTRUCTION (docs/plan-v3.md). Merged:
+STATE: v2 IS COMPLETE (slices 0-15) AND v3 IS COMPLETE (slices 16-24, docs/plan-v3.md). Merged:
 fix #48 (#52), slice 16 (#53), fix #54 (#55), slice 17 (#56), fix #57 (#58), slice 18 (#61),
 slice 19 (#62), slice 20 (#63), slice 21 (#65), slice 22 (#68), fix #70 (#72), fix #73 (#74),
-fix #75 (#76), slice 23 (the evidence refresh). Baseline on main after slice 23: 2850 passed /
-3 skipped (the v3 scope guard skips off a slice branch; on slice/24-* expect one more pass, one
-fewer skip), 1092 spec checks, 135 API goldens identical to a rebuild, 15 DemoPMS files
-identical, spec lock current, 97% coverage. The React UI has 185 Vitest and 22 Playwright tests.
-Open issues: #22 (slice 24 closes it) and #71 (the owner decides when).
+fix #75 (#76), slice 23 (the evidence refresh, #77), slice 24 (host auth + per-property
+credentials, closing #22 and v3). Baseline on main after slice 24: 3053 passed / 3 skipped (the v3 scope
+guard now always skips: no slice/16-* .. slice/24-* branch remains), 1092 spec checks, 135 API
+goldens identical to a rebuild, 15 DemoPMS files identical, spec lock current, 97% coverage.
+The React UI has 205 Vitest and 26 Playwright tests.
+Open issues: #71 (sequenced - see below).
+
+SLICE 24 CLOSED v3 (2026-10-11). The owner delegated every open point to the implementer ("pls u
+decide as an expert"), recorded with each decision in docs/plan-v3.md's status table. D14 built:
+the host authenticates, the engine verifies. hotelcontrols/web/auth.py checks a short-lived
+HMAC-SHA256 tenant context (header X-HotelControls-Context) with hmac.compare_digest, its
+audience, an expiry judged by the injected clock (at most 15 minutes ahead) and a served
+property; App._authenticate is the ONE choke point and overwrites `property` before any route
+runs. OFF unless HOTELCONTROLS_AUTH_SECRET is set (32+ characters) - then every golden is
+byte-identical; HOTELCONTROLS_AUTH=1 with no usable secret refuses to start. Credentials are per
+property (#22): HOTELCONTROLS_<PROPERTY>_<PROVIDER>_*, NO fallback - the sandbox's are
+HOTELCONTROLS_SANDBOX_MINIHOTEL_*. ui/ signs with node:crypto behind a development sign-in that
+says it is a stand-in; ui/test/fixtures/auth-vector.json pins the two signers to one string.
+#71 IS SEQUENCED, NOT FIXED: a dry run showed criterion 1 would fall 5 -> 2 (sandbox2026) and
+60 goldens / 99 tests would move, because no capture asks the controls' own arrival and create
+windows. Plan, on the issue: a covering capture first (two live calls, each approved at the
+time), then the fix with the tests moved onto it.
 
 SLICE 23 REFRESHED THE EVIDENCE (2026-10-10). Four live calls, EACH approved by the owner at
 the time: getRooms, getRoomTypes, RoomStatusInquiry 2026-07-08..15, and the 2026 reservation
@@ -216,13 +233,12 @@ EDITING A RULE MAKES A NEW VERSION. Change an IR's verdict-bearing content -> bu
 python3 -m tools.lock_spec. validate_spec fails an edit without a bump; every run names
 policy_version + policy_digest; a run stored before slice 16 reads "version not recorded".
 
-v3 IS APPROVED (PR #50). START FROM docs/v3-implementation-brief.md. DONE: fix #48, slices 16
+v3 IS COMPLETE (slice 24 closed it on 2026-10-11 and deleted docs/v3-implementation-brief.md;
+read it with `git show bfd09a0:docs/v3-implementation-brief.md`). DONE: fix #48, slices 16
 versioning, 17 tenant-scoped store, 18 findings queue, 19 email (two locks), 20 operational log,
 21 typed hotel parameters with "not decided", 22 LATE_CHECKOUT (structured, advisory, no model),
-23 the evidence refresh. REMAINING, AFTER THE OWNER'S GO-AHEAD: 24 authentication at the host
-(HMAC-signed context) + credentials per property (#22; brief check that the ui/ development
-login is acceptable as a labelled stand-in) - the last v3 slice. Each slice in plan-v3.md states what it may and must not change, its test
-gate and its exit test.
+23 the evidence refresh, 24 authentication at the host + credentials per property. No v3 slice
+remains; what is open is listed in the starting prompt above and in plan-v3's status table.
 
 SLICE 15 ADDED A SECOND SCREEN, AND THE ENGINE DID NOT MOVE. ui/ is a Next.js + React +
 TypeScript CLIENT of the engine's JSON API (decision D11). The engine's own server-rendered
@@ -491,10 +507,11 @@ arguments print, each once (no transport retry), and refuses a plan it cannot se
 
 ```bash
 export HOTELCONTROLS_LIVE=1
-export HOTELCONTROLS_MINIHOTEL_BASE_URL=...      # the sandbox host
-export HOTELCONTROLS_MINIHOTEL_USER=...
-export HOTELCONTROLS_MINIHOTEL_PASSWORD=...
-export HOTELCONTROLS_MINIHOTEL_HOTEL=...
+# Per PROPERTY since v3 slice 24 (#22): HOTELCONTROLS_<PROPERTY>_<PROVIDER>_*, no fallback.
+export HOTELCONTROLS_SANDBOX_MINIHOTEL_BASE_URL=...      # the sandbox host
+export HOTELCONTROLS_SANDBOX_MINIHOTEL_USER=...
+export HOTELCONTROLS_SANDBOX_MINIHOTEL_PASSWORD=...
+export HOTELCONTROLS_SANDBOX_MINIHOTEL_HOTEL=...
 # the SAME arguments as the plan that was approved, plus --run --yes. One call per command.
 python3 -m tools.probe --run --yes --property sandbox --control room_assignment_type_validity --endpoint getRooms
 ```

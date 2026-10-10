@@ -418,7 +418,9 @@ def _run(arguments, prepared: Prepared) -> int:
         return 2
     try:
         assert_armed()
-        credentials = Credentials.from_environment(tenant.provider)
+        # THIS property's account (issue #22): two hotels on one PMS hold two accounts, and
+        # the property the plan was printed for is the one whose credentials are read.
+        credentials = Credentials.from_environment(tenant.provider, tenant.tenant_id)
     except (TransportDisabled, MissingCredential) as refusal:
         print("REFUSED: %s" % refusal)
         return 2

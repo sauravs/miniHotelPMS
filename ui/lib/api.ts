@@ -10,6 +10,11 @@
  * The browser never talks to the engine: these run in Server Components and one Server Action,
  * and one route handler (the stylesheet), so there is no CORS to configure and the engine's
  * Content-Security-Policy is untouched. Every one reads the engine's address at RUN time.
+ *
+ * WHO IS ASKING (v3 slice 24). With authentication on, every request carries a tenant context
+ * signed a moment ago for the signed-in person's property (lib/session.ts); the engine verifies it
+ * and lets it, not the `property` in a URL, decide which hotel is asked about. With it off, no
+ * header is sent and nothing here behaves differently from before.
  */
 import type {
   AcceptRefused,
@@ -24,6 +29,7 @@ import type {
   ReadinessReport,
   RunPayload,
 } from "./types";
+import { contextHeaders } from "./session";
 
 /** Where the engine listens. Not a secret, so it has a default: the engine's own default port. */
 const ENGINE = process.env.HOTELCONTROLS_API_URL ?? "http://127.0.0.1:8765";
@@ -41,7 +47,7 @@ export class EngineRefused extends Error {
 async function read<T>(path: string): Promise<T> {
   // `no-store`: every answer here is either free and must be current, or (a run) must happen
   // exactly when asked and never be replayed from a cache as if it were new.
-  const response = await fetch(ENGINE + path, { cache: "no-store" });
+  const response = await fetch(ENGINE + path, { cache: "no-store", headers: await contextHeaders() });
   const body = await response.json();
   if (!response.ok) {
     throw new EngineRefused(response.status, String(body?.error ?? response.statusText));
@@ -53,7 +59,7 @@ async function read<T>(path: string): Promise<T> {
 async function send(path: string, fields: Record<string, string>): Promise<{ status: number; body: unknown }> {
   const response = await fetch(ENGINE + path, {
     method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    headers: { "Content-Type": "application/x-www-form-urlencoded", ...(await contextHeaders()) },
     body: new URLSearchParams(fields).toString(),
     cache: "no-store",
   });
@@ -67,7 +73,10 @@ function refuse(status: number, body: unknown): never {
 const id = encodeURIComponent;
 
 // ---------------------------------------------------------------- free: no provider call
-/** The engine's own stylesheet, so both surfaces share one set of criterion-2 rules. */
+/**
+ * The engine's own stylesheet, so both surfaces share one set of criterion-2 rules. Sent without
+ * a context: it is not tenant data, and the sign-in page needs it before anybody has signed in.
+ */
 export async function getStylesheet(): Promise<string> {
   const response = await fetch(ENGINE + "/style.css", { cache: "no-store" });
   if (!response.ok) throw new EngineRefused(response.status, "the engine did not serve its stylesheet");

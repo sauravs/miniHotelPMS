@@ -1,0 +1,8 @@
+{
+  "note": "v3 slice 24. One tenant context, signed by the engine's reference signer (hotelcontrols/web/auth.py `sign`). The UI's signer (ui/lib/auth.ts) must produce the same string from the same inputs, and the engine must verify it - asserted by ui/test/auth.test.ts and tests/integration/test_host_auth.py. A TEST secret, used nowhere else.",
+  "secret": "vector-secret-not-used-anywhere-else-0123456789",
+  "property": "sandbox",
+  "sub": "alice",
+  "exp": 1791709200,
+  "token": "eyJhdWQiOiJob3RlbGNvbnRyb2xzLWVuZ2luZSIsImV4cCI6MTc5MTcwOTIwMCwicHJvcGVydHkiOiJzYW5kYm94Iiwic3ViIjoiYWxpY2UiLCJ2IjoxfQ.2cIGBhourQYLQBxBDKlP7Qgn4lpnwEnnUN2oN3h4mcY"
+}

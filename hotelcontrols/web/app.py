@@ -63,6 +63,15 @@ run, a request that DECIDES something never falls back to the first property - a
 property would apply another hotel's policy to this guest - so an unknown one is a 400. The
 decision is stored and its task raised here, one layer above `guest/`, which is pure. A guest
 task is not a violation, so the findings queue keeps listing violations only and points here.
+
+AND, WHEN THE HOST SIGNS ONE, KNOWS WHO IS ASKING (slice 24)
+-------------------------------------------------------------
+D14: the host authenticates, this engine verifies (`auth.py`). With a secret configured, every
+request but the stylesheet must carry a signed tenant context, and `_authenticate` - the one
+choke point, run before any route - overwrites whatever `property` the URL or the form named
+with the verified one. No route can select another hotel, because no route ever sees a property
+the context did not sign. Listings shrink to that property, compose transcripts are kept per
+property, and a task moved by a person records who. With no secret this is the demo exactly.
 """
 from __future__ import annotations
 
@@ -85,9 +94,14 @@ from ..runner import Coverage, next_evaluation, readiness, run
 from ..spec import (ControlIR, Registry, SpecError, TenantConfig, available, available_tenants,
                     load, provider_map)
 from ..store import RunStore
+from . import auth as _auth
 from . import render
 
 HTML = "text/html; charset=utf-8"
+
+# "Read the authentication environment" - the default, so `tools/serve.py`, which builds its own
+# App and is not this slice's to change, is protected by the same secret as the server.
+_FROM_ENVIRONMENT = object()
 
 # Where an email's link points when nobody says otherwise: this engine's own default address.
 # Not a secret, so it has a default - the same reasoning as the React UI's engine address.
@@ -123,7 +137,8 @@ class App:
 
     def __init__(self, spec_dir=None, store: RunStore | None = None,
                  proposer=None, draft_dir=None, clock=None, notifier=None,
-                 public_url: str = PUBLIC_URL, ops: OpsLog | None = None) -> None:
+                 public_url: str = PUBLIC_URL, ops: OpsLog | None = None,
+                 auth=_FROM_ENVIRONMENT) -> None:
         self.spec_dir = spec_dir
         self.store = store if store is not None else RunStore(":memory:")
         # THE CLOCK A PERSON'S MOVES ARE STAMPED WITH (slice 18). A run's instants come from
@@ -149,6 +164,16 @@ class App:
         # run costs none of them (R1). It is also the number a demo operator should watch.
         self.provider_calls = 0
 
+        # WHO IS ASKING (slice 24). A `Verifier` when the host signs tenant contexts, None for
+        # the single-operator demo. Read from the environment unless one is handed in - the
+        # secret's PRESENCE is the switch - and a misconfigured environment raises here, so the
+        # server refuses to start rather than serving every property unprotected.
+        self.auth = (_auth.Verifier.from_environment(clock=clock)
+                     if auth is _FROM_ENVIRONMENT else auth)
+        # The verified context of the request being handled; None when auth is off. Reset per
+        # request in `_authenticate`, so one request's identity can never outlive it.
+        self._context: _auth.TenantContext | None = None
+
         # THE COMPOSE FRONT END, AND IT IS OFF UNLESS SOMEBODY HANDS IN A PROPOSER.
         #
         # `None` is the default and it is the whole safety property: `python3 -m
@@ -166,21 +191,22 @@ class App:
         self.conversations: dict[str, tuple[Turn, ...]] = {}
 
     # ------------------------------------------------------------------ entry points
-    def handle(self, path: str) -> Response:
+    def handle(self, path: str, context: str | None = None) -> Response:
         """Answer any path, always. This is the last thing before a socket.
 
         Every failure below becomes a page or a JSON object, because a dropped connection tells
-        a reader nothing and a stack trace tells them nothing they can act on.
+        a reader nothing and a stack trace tells them nothing they can act on. `context` is the
+        signed tenant context the host sent (slice 24); with auth off it is ignored.
         """
         segments, query, wants_json = self._parse(path)
         started = self._begin()
         try:
-            response = self.route(segments, query)
+            response = self.route(segments, self._authenticate(segments, query, context))
         except Exception as exc:                                        # noqa: BLE001
             response = self._failure(exc, wants_json)
         return self._logged("GET", path, response, started)
 
-    def handle_post(self, path: str, body: str) -> Response:
+    def handle_post(self, path: str, body: str, context: str | None = None) -> Response:
         """The same, for the routes that write something.
 
         A SEPARATE entry point rather than a method flag on `handle`, so `handle(path)` stays a
@@ -196,14 +222,33 @@ class App:
                 in urllib.parse.parse_qs(body or "").items() if values}
         started = self._begin()
         try:
-            response = self.route_post(segments, {**query, **form})
+            response = self.route_post(
+                segments, self._authenticate(segments, {**query, **form}, context))
         except Exception as exc:                                        # noqa: BLE001
             response = self._failure(exc, wants_json)
         return self._logged("POST", path, response, started)
 
     def _begin(self):
         self._trace = {}
+        self._context = None
         return self.ops.now()
+
+    def _authenticate(self, segments: tuple[str, ...], values: dict, token: str | None) -> dict:
+        """The request's parameters, with its property decided by a verified context.
+
+        THE ONE CHOKE POINT (slice 24). Every route reads its property through `_selection` or
+        `_posted_selection`, and both read `values["property"]` - so overwriting it here, before
+        routing, means no route can be asked about a property the context did not sign, however
+        the URL or the form was written. Refusals carry the verifier's sentence and never the
+        token. Only the stylesheet is exempt: it is not tenant data, and a sign-in page needs it.
+        """
+        if self.auth is None or segments == ("style.css",):
+            return values
+        try:
+            self._context = self.auth.verify(token, self._all_tenants())
+        except _auth.ContextRefused as refusal:
+            raise _Refused(refusal.status, refusal.message) from None
+        return {**values, "property": self._context.property_id}
 
     def _logged(self, method: str, path: str, response: Response, started) -> Response:
         """One request line. The PATH only - never the query string, never a form body - which
@@ -336,7 +381,7 @@ class App:
         return Response(200, HTML, render.compose_page(
             proposer=self._proposer_name(),
             conversation=conversation,
-            transcript=self.conversations.get(conversation, ()),
+            transcript=self.conversations.get(self._conversation_key(conversation), ()),
             templates=self._templates(),
             template=self._template_id(query.get("template")),
             selection=self._selection(query),
@@ -354,7 +399,7 @@ class App:
         proposer = self._require_proposer()
         prose = (form.get("prose") or "").strip()
         conversation = form.get("conversation") or uuid.uuid4().hex[:12]
-        history = self.conversations.get(conversation, ())
+        history = self.conversations.get(self._conversation_key(conversation), ())
 
         template = self._template_id(form.get("template"))
         result = normalise(prose, proposer, self.registry,
@@ -363,7 +408,8 @@ class App:
 
         # Capped, and the cap is the point: a transcript is a convenience, and an unbounded
         # dict keyed by anything a form supplies is a way to spend a demo's memory.
-        self.conversations[conversation] = (history + (result.as_turn(),))[-12:]
+        self.conversations[self._conversation_key(conversation)] = (
+            history + (result.as_turn(),))[-12:]
         if len(self.conversations) > 64:
             self.conversations.pop(next(iter(self.conversations)))
         return conversation, template, result
@@ -450,8 +496,17 @@ class App:
             "templates": [{"control_id": c, "entity": e} for c, e in self._templates()],
             "template": self._template_id(query.get("template")),
             "conversation": conversation,
-            "transcript": [_turn_json(t) for t in self.conversations.get(conversation, ())],
+            "transcript": [_turn_json(t) for t in
+                           self.conversations.get(self._conversation_key(conversation), ())],
         }, indent=2))
+
+    def _conversation_key(self, conversation: str) -> str:
+        """A transcript's key. Per property when auth is on (slice 24): a conversation id is a
+        bearer of prose, and one hotel must not read another's by guessing twelve characters.
+        The demo keeps the bare id, so its transcripts behave exactly as before."""
+        if self._context is None:
+            return conversation
+        return "%s/%s" % (self._context.property_id, conversation)
 
     def _compose_turn_json(self, form: dict) -> Response:
         """One exchange, as data. Writes nothing but the in-memory transcript."""
@@ -472,7 +527,8 @@ class App:
                 "fields": ([entry["field"] for entry in
                             result.compilation.ir.get("required_evidence", [])] if ok else []),
             },
-            "transcript": [_turn_json(t) for t in self.conversations.get(conversation, ())],
+            "transcript": [_turn_json(t) for t in
+                           self.conversations.get(self._conversation_key(conversation), ())],
         }, indent=2))
 
     def _compose_accept_json(self, form: dict) -> Response:
@@ -549,7 +605,7 @@ class App:
         tenant_id, capture = self._selection(query)
         entries = [(ir, self._readiness(ir)) for ir in map(self._ir, self._controls())]
         properties = []
-        for name in available_tenants(self.spec_dir) if self.spec_dir else available_tenants():
+        for name in self._property_ids():
             tenant = self._tenant(name)
             package = providers.load(tenant.provider)
             properties.append((name, tenant.provider, package.captures, tenant.name))
@@ -679,7 +735,7 @@ class App:
         captures is metadata, not a call.
         """
         properties = []
-        for name in available_tenants(self.spec_dir) if self.spec_dir else available_tenants():
+        for name in self._property_ids():
             tenant = self._tenant(name)
             package = providers.load(tenant.provider)
             properties.append({"id": name, "name": tenant.name, "provider": tenant.provider,
@@ -779,14 +835,16 @@ class App:
     def _move(self, action_id: str, form: dict):
         """pending -> done | dismissed, stamped through the injected clock, by the operator.
 
-        `operator` until slice 24 gives the engine a verified identity. A malformed state is a
-        400, a closed task a 409, and a task this property does not have a 404.
+        `operator` in the single-operator demo; with auth on (slice 24), the subject the host
+        signed for, so the record says who. A malformed state is a 400, a closed task a 409, and
+        a task this property does not have a 404.
         """
         tenant_id = self._selection(form)[0]
+        actor = self._context.subject if self._context is not None else OPERATOR
         try:
             moved = self.store.transition(action_id, form.get("state") or "",
                                           tenant_id=tenant_id, at=self._now(tenant_id),
-                                          actor=OPERATOR)
+                                          actor=actor)
         except TransitionRefused as exc:
             raise _Refused(409, str(exc)) from None
         except ValueError as exc:
@@ -950,6 +1008,13 @@ class App:
         return str(getattr(self.notifier, "name", type(self.notifier).__name__))
 
     def _property_ids(self) -> tuple[str, ...]:
+        """The properties this request may see: all of them in the demo, and with auth on only
+        the one its context signed - another hotel's name is not this one's business either."""
+        if self._context is not None:
+            return (self._context.property_id,)
+        return self._all_tenants()
+
+    def _all_tenants(self) -> tuple[str, ...]:
         return tuple(available_tenants(self.spec_dir) if self.spec_dir else available_tenants())
 
     # ------------------------------------------------------------------ doing the work
@@ -1101,7 +1166,7 @@ class App:
         raising: a mistyped query string is not worth a refusal, and the page states plainly
         which property and which evidence it actually used.
         """
-        tenants = available_tenants(self.spec_dir) if self.spec_dir else available_tenants()
+        tenants = self._property_ids()
         if not tenants:
             raise _Refused(500, "No property is configured - spec/tenants/ is empty.")
         tenant_id = query.get("property")

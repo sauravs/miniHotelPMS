@@ -476,6 +476,26 @@ page of refusals for a reason that has nothing to do with the controls. The page
 which instant it asked about, and `?as_of=` overrides it. A date the engine cannot read is
 refused rather than guessed at.
 
+**Authentication at the host (v3 slice 24, D14).** The engine has no login and stores no
+password. The product in front of it signs a short-lived **tenant context** - `{v, aud, property,
+sub, exp}` as base64url JSON, then a dot, then base64url HMAC-SHA256 over the first part - with
+a secret it shares with the engine, and sends it in `X-HotelControls-Context`. `web/auth.py`
+verifies it: `hmac.compare_digest`, the audience, an expiry judged by the injected clock (never
+more than 15 minutes ahead), and a property this engine serves. **`App._authenticate` is the
+one choke point**: before any route runs, it overwrites the `property` of the query or form with
+the verified one, so `?property=` and a POST's `property` select nothing, on every route.
+Unsigned, malformed, wrongly signed and expired contexts are each a 401 with their own sentence,
+a context for a property not served here is a 403, and the token is never echoed or logged.
+Listings shrink to the context's property, compose transcripts are kept per property, and a task
+moved by a person records the signed subject. **Off by default**: the secret's presence
+(`HOTELCONTROLS_AUTH_SECRET`, at least 32 characters) switches it on; with it absent the engine is
+the single-operator demo and every golden is byte-identical. `HOTELCONTROLS_AUTH=1` demands it,
+and with no usable secret the server refuses to start. `/style.css` needs no context. The React
+UI signs with `node:crypto` (`ui/lib/auth.ts`, pinned to the engine by a shared vector) behind a
+development sign-in that labels itself a stand-in. Credentials are per property too (#22):
+`Credentials.from_environment(provider, property)` reads `HOTELCONTROLS_<PROPERTY>_<PROVIDER>_*`,
+with no fallback to a shared account.
+
 `handle(path)` stays a pure function of the path. The two routes that write get a second entry
 point, `handle_post(path, body)`, so that signature and everything asserted about it stay true.
 Nothing here writes to a PMS — what a POST writes is our own `spec/drafts/` and our own run store,

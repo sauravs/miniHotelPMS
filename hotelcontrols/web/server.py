@@ -13,9 +13,13 @@ It LISTENS. It never dials out: there is no HTTP client anywhere in this engine 
 and `tests/unit/test_stdlib_only.py` exempts this one path by name for the listening half while
 still forbidding the outbound half everywhere.
 
-Bound to 127.0.0.1 by default and not to 0.0.0.0. This demo has no authentication - that is
-scoped out in `prd.md` - and it renders pseudonymised guest data. A demo that listened on every
-interface would be a demo that published it.
+Bound to 127.0.0.1 by default and not to 0.0.0.0. It renders pseudonymised guest data, and a
+demo that listened on every interface would be a demo that published it.
+
+AUTHENTICATION (v3 slice 24) is the HOST's job and this file only carries it: the signed tenant
+context arrives in one header (`auth.HEADER`) and is handed to the app, which verifies it. With
+`HOTELCONTROLS_AUTH_SECRET` unset this is the single-operator demo it always was; with
+`HOTELCONTROLS_AUTH=1` and no usable secret it refuses to start, before it listens.
 """
 from __future__ import annotations
 
@@ -28,6 +32,7 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 
 from ..ops import LOGGER_NAME, JsonLines, attach
 from ..store import RunStore
+from . import auth
 from .app import App
 
 HOST, PORT = "127.0.0.1", 8765
@@ -56,7 +61,8 @@ SECURITY_POLICY = "default-src 'none'; style-src 'self'; img-src 'self'"
 MAX_BODY = 64 * 1024
 
 
-def respond(app: App, path: str, body: str | None = None) -> tuple[int, dict[str, str], bytes]:
+def respond(app: App, path: str, body: str | None = None,
+            context: str | None = None) -> tuple[int, dict[str, str], bytes]:
     """One request, as a value: status, headers, body bytes.
 
     Extracted from the handler so the socket half of this file is six lines that decide
@@ -64,9 +70,10 @@ def respond(app: App, path: str, body: str | None = None) -> tuple[int, dict[str
     encoding, the policy header - is asserted here, without binding a port.
 
     `body` is None for a GET, which is every route but the two the compose front end adds.
+    `context` is the signed tenant context, exactly as the header carried it (slice 24).
     """
-    status, content_type, page = (app.handle(path) if body is None
-                                  else app.handle_post(path, body))
+    status, content_type, page = (app.handle(path, context=context) if body is None
+                                  else app.handle_post(path, body, context=context))
     payload = page.encode("utf-8")
     headers = {
         "Content-Type": content_type,
@@ -96,6 +103,20 @@ def _location(page: str) -> str:
     return html.unescape(match.group(1)) if match else "/"
 
 
+class _DefaultApp:
+    """The demo app, built on FIRST USE rather than at import (slice 24).
+
+    Building an `App` reads the authentication environment, and a misconfigured one must refuse
+    in `main` with a sentence, not in an `import` with a traceback. `main` and `tools/serve.py`
+    both replace this with the app they built; it is only ever reached by a bare `Handler`.
+    """
+
+    def __get__(self, instance, owner):
+        built = App()
+        owner.app = built
+        return built
+
+
 class Handler(BaseHTTPRequestHandler):
     """GET everywhere, and POST on the two compose routes.
 
@@ -105,11 +126,11 @@ class Handler(BaseHTTPRequestHandler):
     things a link should not do.
     """
 
-    app = App()
+    app = _DefaultApp()
     server_version = "hotelcontrols"
 
     def do_GET(self) -> None:                                          # noqa: N802
-        self._reply(respond(self.app, self.path))
+        self._reply(respond(self.app, self.path, context=self._context()))
 
     def do_POST(self) -> None:                                         # noqa: N802
         try:
@@ -122,7 +143,14 @@ class Handler(BaseHTTPRequestHandler):
             self._reply(respond(self.app, "/nowhere-this-body-is-too-large"))
             return
         raw = self.rfile.read(length) if length else b""
-        self._reply(respond(self.app, self.path, raw.decode("utf-8", errors="replace")))
+        self._reply(respond(self.app, self.path, raw.decode("utf-8", errors="replace"),
+                            context=self._context()))
+
+    def _context(self) -> str | None:
+        """The signed tenant context, if the request carried one. Never logged: it is a
+        credential for as long as it lasts."""
+        headers = getattr(self, "headers", None)
+        return headers.get(auth.HEADER) if headers is not None else None
 
     def _reply(self, response: tuple[int, dict[str, str], bytes]) -> None:
         status, headers, payload = response
@@ -181,8 +209,13 @@ def build_app(store: str | None) -> App:
 
 def main(argv: list[str] | None = None) -> int:
     arguments = parser().parse_args(argv)
-    if arguments.store:
+    try:
+        # Built HERE, before anything listens, so a misconfigured authentication environment
+        # refuses with a sentence rather than serving every property to anybody (slice 24).
         Handler.app = build_app(arguments.store)
+    except auth.AuthMisconfigured as refusal:
+        print("REFUSED TO START: %s" % refusal, file=sys.stderr)
+        return 2
     configure_log(arguments.log)
 
     server = SERVER((arguments.host, arguments.port), Handler)
@@ -191,6 +224,11 @@ def main(argv: list[str] | None = None) -> int:
     print("History and the findings queue are %s." % (
         "kept in %s" % arguments.store if arguments.store
         else "held in memory and lost on restart (--store PATH keeps them)"))
+    print("Authentication is %s." % (
+        "ON: every request needs a signed tenant context in %s" % auth.HEADER
+        if Handler.app.auth is not None
+        else "off: this is the single-operator demo (set %s to require it)"
+        % auth.SECRET_VARIABLE))
     try:
         server.serve_forever()
     except KeyboardInterrupt:
