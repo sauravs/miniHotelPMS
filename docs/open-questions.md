@@ -262,14 +262,19 @@ changed* — which is a different status from *verified*, and a different status
 and `tools/probe.py`, so there is now a concrete artefact to approve rather than an intention:
 
 ```bash
-python3 -m tools.probe --plan --property sandbox --control room_assignment_type_validity
+python3 -m tools.probe --plan --property sandbox --control room_assignment_type_validity --endpoint getRooms
+python3 -m tools.probe --plan --property sandbox --control room_assignment_type_validity --endpoint getRoomTypes
 python3 -m tools.probe --plan --property sandbox --control resource_occupancy_consistency
+python3 -m tools.probe --plan --property sandbox --reask 9_departures_2026-07.xml --with IncludeRoomPrices
 ```
 
 `--plan` makes **no calls at all** and prints the endpoint, the resolved window, the cost against
 this property's budget, and the **exact request body** with `<user>` and `<password>` where the
-credentials go. Between those two commands it covers all three calls: `getRooms`, `getRoomTypes`
-and `RoomStatusInquiry` over a deliberately small 7-day window (R8).
+credentials go. Each command prints **one** call: `getRooms`, `getRoomTypes`, `RoomStatusInquiry`
+over a deliberately small 7-day window (R8), and v3 slice 23's fourth, the 2026 reservation
+window asked again with room prices (#49). `--run --yes` with the same arguments sends exactly
+the call printed, once (#70). The first version of these commands named whole controls, and
+`--run` would have sent each control's reservation query instead of the room calls.
 
 Three read-only calls settle four load-bearing findings and cost nothing but permission. What is
 missing is the owner's yes to *this specific probe* (D3) and the four `HOTELCONTROLS_MINIHOTEL_*`

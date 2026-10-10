@@ -233,13 +233,17 @@ traced to a fact about the property or the provider in docs/plan.md. DO NOT rela
 THE PROBE IS v3 SLICE 23, AND IT IS WAITING ON THE OWNER, NOT ON CODE: a bounded three-call
 probe of the live MiniHotel sandbox is planned and printed. Slice 23 adds a fourth call, one
 reservation query WITH ROOM PRICES, because stay.rate_code is absent from every capture (#49).
-Print it and show it:
+Print each one and show it, one at a time:
 
-    python3 -m tools.probe --plan --property sandbox --control room_assignment_type_validity
+    python3 -m tools.probe --plan --property sandbox --control room_assignment_type_validity --endpoint getRooms
+    python3 -m tools.probe --plan --property sandbox --control room_assignment_type_validity --endpoint getRoomTypes
     python3 -m tools.probe --plan --property sandbox --control resource_occupancy_consistency
+    python3 -m tools.probe --plan --property sandbox --reask 9_departures_2026-07.xml --with IncludeRoomPrices
 
 That is getRooms, getRoomTypes and RoomStatusInquiry - the three calls open question 1.2
-asks for. It refreshes four load-bearing findings that now rest on a 2024 snapshot of a
+asks for - and the 2026 reservation window with room prices. Each prints ONE call, and
+--run --yes with the same arguments sends exactly that call, once (#70: the first version
+of these commands would have sent each control's reservation query instead). It refreshes four load-bearing findings that now rest on a 2024 snapshot of a
 system we KNOW has moved on. --plan makes no calls at all. DO NOT run --run without the
 owner saying yes to that specific probe, each time (decision D3). It will refuse anyway
 without HOTELCONTROLS_LIVE=1 and the four HOTELCONTROLS_MINIHOTEL_* credentials, which
@@ -430,18 +434,21 @@ this project exists to catch, and the number went down rather than the guard goi
 here can make. Nothing about it is half-built — the plan exists, the transport exists, and the
 only missing inputs are one "yes" and four environment variables.
 
-**Print it first, always:**
+**Print it first, always, one call at a time:**
 
 ```bash
-python3 -m tools.probe --plan --property sandbox --control room_assignment_type_validity
+python3 -m tools.probe --plan --property sandbox --control room_assignment_type_validity --endpoint getRooms
+python3 -m tools.probe --plan --property sandbox --control room_assignment_type_validity --endpoint getRoomTypes
 python3 -m tools.probe --plan --property sandbox --control resource_occupancy_consistency
+python3 -m tools.probe --plan --property sandbox --reask 9_departures_2026-07.xml --with IncludeRoomPrices
 ```
 
 `--plan` makes **no calls at all** — a test asserts that by making `FrozenSource.fetch` raise and
 running the whole plan anyway. It prints the endpoint, the resolved window, the stage, the cost
 against the property's budget, and the **exact request body**, with `<user>` and `<password>` where
 the credentials go. That is the artefact decision D3 approves: the thing being approved is the
-thing that happens.
+thing that happens. Since #70 that is tested: `--run` sends exactly the distinct requests the same
+arguments print, each once (no transport retry), and refuses a plan it cannot send as printed.
 
 **The three calls, and what each settles** (open question 1.2):
 
@@ -459,8 +466,12 @@ export HOTELCONTROLS_MINIHOTEL_BASE_URL=...      # the sandbox host
 export HOTELCONTROLS_MINIHOTEL_USER=...
 export HOTELCONTROLS_MINIHOTEL_PASSWORD=...
 export HOTELCONTROLS_MINIHOTEL_HOTEL=...
-python3 -m tools.probe --run --yes --property sandbox --control room_assignment_type_validity
+# the SAME arguments as the plan that was approved, plus --run --yes. One call per command.
+python3 -m tools.probe --run --yes --property sandbox --control room_assignment_type_validity --endpoint getRooms
 ```
+
+The recording is dated the day the call is made (`observed_at`, by the property's clock), and
+`as_of` is the day the plan resolved its windows against.
 
 There are no defaults for any of those and there will not be any (F15). The transport refuses
 without them and names the variable that is missing. **Never put a credential in a file in this
