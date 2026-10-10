@@ -141,8 +141,9 @@ class TestCredentialsComeFromTheEnvironmentWithNoDefault:
 
     def test_every_credential_is_read_from_the_environment(self, monkeypatch):
         for name in self.NAMES:
-            monkeypatch.setenv("HOTELCONTROLS_SOMEPROVIDER_%s" % name, "value-%s" % name)
-        creds = Credentials.from_environment("someprovider")
+            monkeypatch.setenv("HOTELCONTROLS_SOMEPROPERTY_SOMEPROVIDER_%s" % name,
+                               "value-%s" % name)
+        creds = Credentials.from_environment("someprovider", "someproperty")
         assert creds.user == "value-USER"
         assert creds.hotel == "value-HOTEL"
         assert creds.base_url == "value-BASE_URL"
@@ -153,21 +154,21 @@ class TestCredentialsComeFromTheEnvironmentWithNoDefault:
         four credentials would fail at the vendor's authentication layer, and the error a
         reader sees would be about the vendor rather than about this machine."""
         for name in self.NAMES:
-            monkeypatch.setenv("HOTELCONTROLS_SOMEPROVIDER_%s" % name, "x")
-        monkeypatch.delenv("HOTELCONTROLS_SOMEPROVIDER_%s" % missing)
+            monkeypatch.setenv("HOTELCONTROLS_SOMEPROPERTY_SOMEPROVIDER_%s" % name, "x")
+        monkeypatch.delenv("HOTELCONTROLS_SOMEPROPERTY_SOMEPROVIDER_%s" % missing)
 
         with pytest.raises(MissingCredential) as refusal:
-            Credentials.from_environment("someprovider")
-        assert "HOTELCONTROLS_SOMEPROVIDER_%s" % missing in str(refusal.value)
+            Credentials.from_environment("someprovider", "someproperty")
+        assert "HOTELCONTROLS_SOMEPROPERTY_SOMEPROVIDER_%s" % missing in str(refusal.value)
 
     def test_an_empty_credential_counts_as_missing(self, monkeypatch):
         """`export HOTELCONTROLS_X_PASSWORD=` is the commonest way to have a credential and
         not have it."""
         for name in self.NAMES:
-            monkeypatch.setenv("HOTELCONTROLS_SOMEPROVIDER_%s" % name, "x")
-        monkeypatch.setenv("HOTELCONTROLS_SOMEPROVIDER_PASSWORD", "   ")
+            monkeypatch.setenv("HOTELCONTROLS_SOMEPROPERTY_SOMEPROVIDER_%s" % name, "x")
+        monkeypatch.setenv("HOTELCONTROLS_SOMEPROPERTY_SOMEPROVIDER_PASSWORD", "   ")
         with pytest.raises(MissingCredential):
-            Credentials.from_environment("someprovider")
+            Credentials.from_environment("someprovider", "someproperty")
 
     def test_the_password_never_appears_in_a_repr(self):
         """Credentials get printed by accident - in a traceback, a log line, a debugger. The
@@ -176,6 +177,43 @@ class TestCredentialsComeFromTheEnvironmentWithNoDefault:
         assert "hunter2" not in repr(creds)
         assert "hunter2" not in str(creds)
         assert "someone" in repr(creds), "the user is not a secret and identifies the account"
+
+
+class TestCredentialsArePerProperty:
+    """Issue #22, v3 slice 24. Credentials used to be keyed by provider alone, so a second hotel
+    on the same PMS could only be given its own account by overwriting the first one's. Every
+    other per-property fact - status map, budget, settings - was keyed by the property already.
+    """
+
+    NAMES = ("USER", "PASSWORD", "HOTEL", "BASE_URL")
+
+    def _export(self, monkeypatch, prefix, marker):
+        for name in self.NAMES:
+            monkeypatch.setenv("%s%s" % (prefix, name), "%s-%s" % (marker, name))
+
+    def test_two_properties_on_the_same_pms_resolve_distinct_credentials(self, monkeypatch):
+        """#22's failing test, written first: the whole point, in one assertion."""
+        self._export(monkeypatch, "HOTELCONTROLS_HOTEL_A_SOMEPROVIDER_", "a")
+        self._export(monkeypatch, "HOTELCONTROLS_HOTEL_B_SOMEPROVIDER_", "b")
+        first = Credentials.from_environment("someprovider", "hotel-a")
+        second = Credentials.from_environment("someprovider", "hotel-b")
+        assert (first.user, first.hotel, first.base_url) == ("a-USER", "a-HOTEL", "a-BASE_URL")
+        assert (second.user, second.hotel, second.base_url) == ("b-USER", "b-HOTEL", "b-BASE_URL")
+
+    def test_the_provider_only_names_are_never_read(self, monkeypatch):
+        """No fallback. A property with no account of its own falling back to a shared one is
+        #22 itself - one hotel's calls made with another hotel's login - and a fallback is a
+        default, which credentials do not have (F15)."""
+        self._export(monkeypatch, "HOTELCONTROLS_SOMEPROVIDER_", "shared")
+        with pytest.raises(MissingCredential) as refusal:
+            Credentials.from_environment("someprovider", "hotel-a")
+        assert "HOTELCONTROLS_HOTEL_A_SOMEPROVIDER_" in str(refusal.value)
+
+    def test_the_property_is_required(self):
+        """Keyword or positional, never defaulted: a missing property is a TypeError, the same
+        rule slice 17 gave every store read."""
+        with pytest.raises(TypeError):
+            Credentials.from_environment("someprovider")
 
 
 # ---------------------------------------------------------------------------------------
@@ -516,9 +554,13 @@ class TestItOnlyRetriesWhatCouldSucceed:
         not be able to masquerade as a hotel whose data is incomplete."""
         dial, calls = self.dialer_raising(self.Refused(code))
         with pytest.raises(transport_http.NotAuthorised) as refusal:
-            a_source(dialer=dial, attempts=3).fetch(Request("anything"))
+            a_source(dialer=dial, attempts=3,
+                     credentials=credentials(
+                         variables="HOTELCONTROLS_SOMEPROPERTY_SOMEPROVIDER_")
+                     ).fetch(Request("anything"))
         assert len(calls) == 1, "an authentication failure was retried"
-        assert "HOTELCONTROLS_SOMEPROVIDER_PASSWORD" in str(refusal.value)
+        # Since #22 the refusal names the PROPERTY's variables, the ones it actually read.
+        assert "HOTELCONTROLS_SOMEPROPERTY_SOMEPROVIDER_PASSWORD" in str(refusal.value)
 
     @pytest.mark.parametrize("code", (400, 404, 410, 422))
     def test_a_permanent_failure_is_an_evidence_gap_after_one_attempt(self, code):

@@ -14,6 +14,27 @@ cd ui && npm ci && npm run build && npm start   # this UI, :3000
 
 `HOTELCONTROLS_API_URL` points the UI at the engine. It defaults to `http://127.0.0.1:8765`.
 
+### With authentication on (v3 slice 24)
+
+The engine verifies; this UI, as the host, signs. Give **both** processes the same secret, and the
+UI its development users:
+
+```bash
+export HOTELCONTROLS_AUTH_SECRET='at-least-32-characters-of-shared-secret'
+python3 -m hotelcontrols.web.server                     # now refuses any request without a context
+HOTELCONTROLS_UI_DEV_USERS='alice:sandbox:a-dev-password,bob:demo:another-one' npm start
+```
+
+Every page then asks you to sign in at `/login`. Each request the UI makes to the engine carries a
+tenant context signed a moment ago for **your** property (`lib/session.ts`, `lib/auth.ts`, with
+`node:crypto` and no new package), and the engine, not the URL, decides which hotel is shown.
+
+**The sign-in is a development stand-in, and says so on its page.** Its users come from one
+environment variable on the machine running the UI, each bound to one property; passwords are
+compared in constant time and never written anywhere. It is not production authentication. In
+production the host product's own user store signs the context; the engine's half does not change.
+With `HOTELCONTROLS_AUTH_SECRET` unset there is no sign-in and the UI is the demo it always was.
+
 ## How it is built, and why
 
 - **The browser never talks to the engine.** Data is fetched in Server Components through one
