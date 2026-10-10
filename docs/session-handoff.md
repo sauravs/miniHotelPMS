@@ -5,14 +5,17 @@ session, exactly as written.** The longer block after it is the STATE block the 
 session to read. Do not paste that one. Everything either references is in the repository;
 nothing depends on the previous conversation.
 
-**Last updated:** 2026-10-11, after v3's close, on `main` at `c537300`. **The owner's go-ahead
+**Last updated:** 2026-10-11, after follow-up 4, on `main` at `8e071b0`. **The owner's go-ahead
 (2026-10-11): follow-ups 4, 1, 3, 2, 5, in that order, one at a time, reporting after each.**
-**v2 (slices 0–15) and v3 (slices 16–24) are both COMPLETE.** v3's last PRs: slice 23 the evidence refresh (#77, after
-fixes #72, #74, #76), slice 24 host authentication + per-property credentials (#79, closing #22),
-and fix #80 (#81). Criteria V1–V12 are all met (`docs/plan-v3.md` §7 says where each is proven);
-`prd.md` criterion 1 stays NOT MET on every capture. **One issue is open: #71, sequenced, not
-fixed.** There is no planned slice left - what remains is the follow-up list in the prompt below,
-worked in the order the owner gave. An item marked DONE in the prompt has merged.
+Follow-up 4 is DONE (fixes #84, #85, #86); the next is 1 (#71).
+**v2 (slices 0–15) and v3 (slices 16–24) are both COMPLETE.** v3's last PRs: slice 23 the
+evidence refresh (#77, after fixes #72, #74, #76), slice 24 host authentication + per-property
+credentials (#79, closing #22), and fix #80 (#81). Criteria V1–V12 are all met
+(`docs/plan-v3.md` §7 says where each is proven);
+`prd.md` criterion 1 stays NOT MET on every capture. **Two issues are open: #71, sequenced, not
+fixed; and #87, found by follow-up 4, whose fix is the owner's call.** There is no planned
+slice left - what remains is the follow-up list in the prompt below, worked in the order the
+owner gave. An item marked DONE in the prompt has merged.
 
 **The live probe** is a runbook now: [The probe](#the-probe--done-2026-10-10-v3-slice-23-kept-as-the-runbook-for-the-next-one).
 Since slice 24 its credentials are per property: `HOTELCONTROLS_SANDBOX_MINIHOTEL_*`.
@@ -29,18 +32,18 @@ Continue miniHotelPMS after v3. Working directory: /Users/sauravs/Desktop/Work/m
 
 Start-up, before anything else:
   git status && git branch --no-merged main          # the LOCAL list must be empty
-  PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -m pytest -q -o addopts=""    # 3056 passed, 3 skipped
+  PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -m pytest -q -o addopts=""    # 3090 passed, 3 skipped
   PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -m tools.validate_spec        # PASSED - all 1092 checks
   PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -m tools.dump_api_fixtures --check   # 135 files
   PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -m tools.transcode_demopms --check   # 15 files
   .venv/bin/python -m coverage run -m pytest && .venv/bin/python -m coverage report   # 97%
   cd ui && npm ci && npm run typecheck && npm test && npm run e2e          # 205 Vitest, 26 Playwright
-  gh issue list --state open                          # #71 only
+  gh issue list --state open                          # #71 and #87
 Any number that differs is a reason to stop and find out why. Then read CLAUDE.md,
 docs/session-handoff.md (the STATE block), docs/plan-v3.md (status table, §7) and
 docs/open-questions.md.
 
-Where things stand: v2 and v3 are complete; main is at c537300 or a docs-only commit after it.
+Where things stand: v2 and v3 are complete; main is at 8e071b0 or a docs-only commit after it.
 There is no planned slice. Every item below is a bug-workflow fix or a small PR of its own:
 a GitHub issue first (what, reproduction, which gate, severity), then fix/NN-..., a failing
 test, the fix, a PR "Fixes #NN", CI green on test (3.11) and test (3.13), squash-merge.
@@ -69,16 +72,20 @@ THE FOLLOW-UPS (decided at v3's close, 2026-10-11, by the implementer at my dele
    does.
 3. Golden payloads for the guest routes (POST /api/guest/requests, /api/guest/decisions[/<id>])
    in tools/dump_api_fixtures.py - new files only, every existing golden byte-identical.
-4. Audit the 16 non-boolean fields declared absent_means "false" (listed in #75): any used as a
-   grouping or join key (occupancy.reservation_id first - two empty ids would count as one
-   reservation and hide an overlap) gets its own issue and fix, as #75 did.
+4. DONE (2026-10-11). The audit of #75's 16 fields is on #75. Three are keys, each fixed under
+   its own issue: #84 occupancy.reservation_id (PR #88), #85 reservation.id plus the duplicate
+   count (PR #89), #86 the stay-to-room join plus room.number (PR #90). All latent - no capture
+   holds an empty key - so no golden moved. It also found #87 (below).
 5. Two stale comments, one issue: hotelcontrols/evaluator/predicates.py:138-139 ("has not
    supplied" also means "not decided" since slice 21) and
    hotelcontrols/providers/minihotel/fixtures.py:5 ("fourteen" responses; it is eighteen).
 
 Deferred - do NOT start these without my explicit say-so: emailing guest tasks; a React guest
 view; offering the refresh capture (sandbox2026refresh) in the demo, which edits the engine's
-capture lists and existing goldens.
+capture lists and existing goldens; and #87 - ooo_room_protection tests a reservation id against
+the closed dates (first segment only), so a guest inside a closed window PASSes. Latent (no room
+has ever had a closed window). The fix needs a rule version bump and an evaluator capability;
+the issue recommends a type guard on `within` first. It is mine to decide.
 
 Live calls (item 1 only): the credentials are in the git-ignored .env as
 HOTELCONTROLS_SANDBOX_MINIHOTEL_* (per property since slice 24). Run an approved call as
@@ -114,11 +121,27 @@ STATE: v2 IS COMPLETE (slices 0-15) AND v3 IS COMPLETE (slices 16-24, docs/plan-
 fix #48 (#52), slice 16 (#53), fix #54 (#55), slice 17 (#56), fix #57 (#58), slice 18 (#61),
 slice 19 (#62), slice 20 (#63), slice 21 (#65), slice 22 (#68), fix #70 (#72), fix #73 (#74),
 fix #75 (#76), slice 23 (the evidence refresh, #77), slice 24 (host auth + per-property
-credentials, closing #22 and v3). Baseline on main after slice 24 and fix #80: 3056 passed / 3 skipped (the v3 scope
-guard now always skips: no slice/16-* .. slice/24-* branch remains), 1092 spec checks, 135 API
-goldens identical to a rebuild, 15 DemoPMS files identical, spec lock current, 97% coverage.
-The React UI has 205 Vitest and 26 Playwright tests.
-Open issues: #71 (sequenced - see below).
+credentials, closing #22 and v3); after v3, follow-up 4's fixes #84 (#88), #85 (#89) and #86
+(#90). Baseline on main after follow-up 4: 3090 passed / 3 skipped (the v3 scope guard always
+skips: no slice/16-* .. slice/24-* branch remains), 1092 spec checks, 135 API goldens identical
+to a rebuild, 15 DemoPMS files identical, spec lock current, 97% coverage. The React UI has 205
+Vitest and 26 Playwright tests.
+Open issues: #71 (sequenced - see below) and #87 (the owner's call - see below).
+
+FOLLOW-UP 4 AUDITED #75's SIXTEEN absent_means "false" FIELDS (2026-10-11; the table is on #75).
+An absence read as known False is right for `exists` and wrong as a KEY: stringified, every
+absence is the key "False". Three keys were fixed, each under its own issue, each latent (no
+committed capture has an empty key, so no golden moved): #84 occupancy.reservation_id (two
+id-less segments in one room were one reservation, never compared - a false PASS); #85
+reservation.id (id-less bookings on one portal id counted as one - a false PASS - and a folio
+call was sent for reservation False; `_count_lte` now treats an unreadable id as possibly
+another reservation instead of dropping it); #86 the stay-to-room join (an absent key on both
+sides matched; `reference.absent_key()` is never indexed or looked up; room.number -> unknown;
+stay.room_number keeps "false" because four scopes EXCLUDE on it). #87 was found on the way and
+is NOT fixed: ooo_room_protection asserts `occupancy.reservation_id within room.closed_from..
+room.closed_to` on the first collected segment only, so a guest inside a closed window PASSes.
+No evaluator code reads `Bundle.related`. Latent, because every room is EXCLUDED; the owner
+decides the fix.
 
 SLICE 24 CLOSED v3 (2026-10-11). The owner delegated every open point to the implementer ("pls u
 decide as an expert"), recorded with each decision in docs/plan-v3.md's status table. D14 built:
@@ -540,8 +563,9 @@ public, which was defensible and made the habit dangerous.
 | any time | Whether the compose launcher (`tools.serve`) should attach the operational log too (`--log`), in a later slice whose scope allows `tools/serve.py` |
 | ~~v3 slice 22~~ | ~~Approve the `LATE_CHECKOUT` decision table~~ — **approved and merged, #68** |
 | ~~v3 slice 23~~ | ~~Approval of each probe call at the time~~ — **four calls approved one by one, 2026-10-10; merged** |
-| v3 slice 24 — **next** | Brief check: is the `ui/` development login acceptable as a labelled stand-in? Then the go-ahead |
+| ~~v3 slice 24~~ | ~~Brief check: is the `ui/` development login acceptable as a labelled stand-in?~~ — **decided 2026-10-11 by the implementer at the owner's delegation, on four conditions; merged, #79** |
 | any time | Issue #71: when to fix the replay window-name gap. It changes existing answers (a declared V1 change) and likely lowers criterion 1 |
+| any time | Issue #87: how to fix `ooo_room_protection` - a type guard on `within` first (recommended), then an evaluator capability that judges every record of a `collection`. Either is a rule version bump; neither moves a golden today |
 | any time | Ask MiniHotel what `<CreditCard Number="****" ExpirationDate="202101"/>` means (question 2.8, #48). It is the only thing that can unblock G4 |
 | ~~any time~~ | ~~**The cheapest open win:** nominated rate codes for control 15 (1.4).~~ **Corrected (#49):** a list alone changes nothing, because `stay.rate_code` is absent from every capture. It needs slice 23's capture **and** a real property's list |
 | any time | Ask MiniHotel what `OK4` and `WL` mean (question 2.1). They cover 44 of the 217 reservations ever seen, and they are why the known duplicate pair resolves to UNKNOWN rather than to an answer |
