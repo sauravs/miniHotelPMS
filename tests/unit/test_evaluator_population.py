@@ -154,6 +154,61 @@ class TestUnknownsDoNotCorruptOtherRecords:
             or "not established" in verdicts["A"].reason.lower()
 
 
+def unidentified(portal, evidence=True):
+    """A reservation whose own id could not be read - or, with evidence=False, was never in
+    its bundle at all. Either way the count cannot say which reservation it is."""
+    fields = {"reservation.status": Value.known("confirmed"),
+              "reservation.channel_confirmation_id": Value.known(portal)}
+    if evidence:
+        fields["reservation.id"] = Value.unknown("reservation.id is present but empty in the "
+                                                 "provider response")
+    return Bundle("reservation", None, fields, {}, {})
+
+
+class TestAnUnreadableIdentityIsNeverCountedAway:
+    """Issue #85. `count_lte` counts DISTINCT ids, and used to collect only the ids it could
+    read - so an unreadable one simply vanished from the count. Next to A it might be a second
+    reservation (a duplicate) or A repeated (none), and "A is the only one" was a PASS the
+    evidence did not support."""
+
+    def test_two_records_whose_ids_cannot_be_read_do_not_pass(self):
+        """The live shape of #85 once an empty id stops reading as False: two bookings on one
+        portal id, neither identifiable. Zero ids were counted, and both PASSed."""
+        verdicts = evaluate_population(duplicate_ir(), [unidentified("OTA-1"),
+                                                        unidentified("OTA-1")])
+        assert [v.outcome for v in verdicts] == [Outcome.UNKNOWN, Outcome.UNKNOWN]
+
+    def test_a_readable_record_beside_an_unreadable_one_is_not_cleared(self):
+        verdicts = evaluate_population(duplicate_ir(), [reservation("A", "OTA-1"),
+                                                        unidentified("OTA-1")])
+        assert [v.outcome for v in verdicts] == [Outcome.UNKNOWN, Outcome.UNKNOWN]
+        assert "could not be read" in verdicts[0].reason
+
+    def test_an_established_duplicate_still_fails_beside_an_unreadable_one(self):
+        """All, the Kleene way round: A and B are two distinct reservations on one portal id
+        whatever the third is, so the violation is established - and hiding it behind an
+        unrelated gap would be the opposite mistake. The unreadable record itself cannot be
+        named, so it cannot be accused: UNKNOWN, as in `no_overlap`."""
+        verdicts = by_id(evaluate_population(duplicate_ir(), [
+            reservation("A", "OTA-1"), reservation("B", "OTA-1"), unidentified("OTA-1")]))
+        assert verdicts["A"].outcome is Outcome.FAIL
+        assert verdicts["B"].outcome is Outcome.FAIL
+        assert verdicts[None].outcome is Outcome.UNKNOWN
+
+    def test_a_limit_that_holds_whatever_the_unreadable_id_is_still_passes(self):
+        """Not over-cautious either: at a limit of 2, A plus one more reservation is within it
+        even if the unreadable id is a different one."""
+        verdicts = by_id(evaluate_population(duplicate_ir(limit=2), [
+            reservation("A", "OTA-1"), unidentified("OTA-1")]))
+        assert verdicts["A"].outcome is Outcome.PASS
+        assert verdicts[None].outcome is Outcome.UNKNOWN
+
+    def test_an_id_missing_from_the_evidence_counts_as_unreadable(self):
+        verdicts = evaluate_population(duplicate_ir(), [
+            reservation("A", "OTA-1"), unidentified("OTA-1", evidence=False)])
+        assert [v.outcome for v in verdicts] == [Outcome.UNKNOWN, Outcome.UNKNOWN]
+
+
 class TestNoOverlap:
     """Control 20: a room's occupancy must be consistent with the reservations on it."""
 
