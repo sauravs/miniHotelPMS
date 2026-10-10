@@ -31,6 +31,9 @@ FIELDS = {
     "NameOnCard": r'NameOnCard="([^"]*)"',
     "Street": r'Street="([^"]*)"',
     "City": r'City="([^"]*)"',
+    # The occupancy response's spelling of a guest's name (issue #73).
+    "Namef": r'Namef="([^"]*)"',
+    "Namep": r'Namep="([^"]*)"',
 }
 
 
@@ -55,6 +58,19 @@ class TestCommittedFixturesCarryOnlyPseudonyms:
             for value in re.findall(FIELDS["surname"], text):
                 if value.strip() and value not in scrub._SURNAME:
                     offenders.append("%s: surname=%r" % (path.name, value))
+        assert not offenders, offenders
+
+    def test_every_occupancy_name_is_one_we_invented_too(self):
+        """Issue #73. The occupancy response names a guest as `Namef`/`Namep`, which the first
+        scrubber did not know. The committed 2024 file kept three tester strings there and no
+        CI check could see it, because this class only looked at the reservation spelling."""
+        offenders = []
+        for path in committed():
+            text = path.read_text(encoding="utf-8")
+            for field, pool in (("Namef", scrub._GIVEN), ("Namep", scrub._SURNAME)):
+                for value in re.findall(FIELDS[field], text):
+                    if value.strip() and value not in pool:
+                        offenders.append("%s: %s=%r" % (path.name, field, value))
         assert not offenders, offenders
 
     def test_every_email_uses_a_reserved_domain_that_cannot_route(self):

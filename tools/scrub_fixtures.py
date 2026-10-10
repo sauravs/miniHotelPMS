@@ -123,6 +123,12 @@ _ATTRIBUTES = (
     ("Address", "Street", "street"),
     ("Address", "City", "city"),
     ("Address", "Zip", "zip"),
+    # The occupancy response spells a guest's name differently, as two attributes on each
+    # date segment (issue #73). The same kinds as `Name` above, so a guest who appears in both
+    # responses stays one guest after scrubbing. The 2024 capture hid the gap: its three
+    # values were tester strings, and the live 2026 week carried twenty real-looking guests.
+    ("Reservation", "Namef", "given_name"),
+    ("Reservation", "Namep", "surname"),
 )
 _ELEMENTS = (
     ("Email", "email"),
