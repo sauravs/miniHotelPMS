@@ -1,7 +1,7 @@
 {
   "provider": "minihotel",
   "version": 2,
-  "verified_against": "sandbox.minihotel.cloud, read-only probe, 2026-09-01 and 2026-09-04",
+  "verified_against": "sandbox.minihotel.cloud, read-only probe, 2026-09-01 and 2026-09-04; getRooms, getRoomTypes, RoomStatusInquiry and GetReservationKey (with room prices) re-verified 2026-10-10 by v3 slice 23 - all 43 of their mappings find their field in the refresh capture. GetReservationBalance and BulkARI were not re-probed",
   "note": "Every 'test' regex is asserted against its 'probe' file by validate_spec.py. observed_populated=false means the field EXISTS in the response but was empty in every sandbox record - the mapping is structural, not behaviourally proven. A mapping with existence_only=true proves the field is PRESENT in the response; its value_test regex must then find nothing for observed_populated=false to hold.",
   "mappings": [
     {

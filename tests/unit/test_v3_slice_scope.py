@@ -121,6 +121,12 @@ MAY_CHANGE = {
         ("fixtures/demopms/", NEW),
         ("fixtures/api/", NEW),
         ("spec/providers/", ANY),                # verified_against dates
+        # Added with the owner's approval, 2026-10-10 (choice "A" at slice 23's go-ahead). The
+        # transcoder names each capture and each source file in two explicit maps, so a new
+        # capture label raises KeyError in `transcode_demopms --check` until it is added to
+        # them. Only those two maps change; hotelcontrols/ stays a must-not, so the new capture
+        # is measured by a test rather than offered by the demo, and no existing golden moves.
+        ("tools/transcode_demopms.py", ANY),
     ),
     24: (  # Authentication at the host, credentials per property (G5 auth, G11, #22)
         ("hotelcontrols/web/", ANY),
@@ -298,6 +304,18 @@ class TestTheGuardRule:
         assert violations(23, [("M", "fixtures/minihotel/2_getRooms_all.xml"),
                                ("M", "hotelcontrols/web/app.py")]) == [
             "M fixtures/minihotel/2_getRooms_all.xml", "M hotelcontrols/web/app.py"]
+
+    def test_slice_23_may_teach_the_transcoder_a_capture_and_no_other_tool_anything(self):
+        """The owner approved one file, not `tools/` (2026-10-10, choice A). The engine's own
+        capture lists stay where they are, so the demo does not offer the new capture."""
+        assert violations(23, [("M", "tools/transcode_demopms.py")]) == []
+        assert violations(23, [("M", "tools/probe.py"),
+                               ("M", "tools/dump_api_fixtures.py"),
+                               ("M", "hotelcontrols/providers/minihotel/__init__.py"),
+                               ("M", "hotelcontrols/providers/demopms/__init__.py")]) == [
+            "M hotelcontrols/providers/demopms/__init__.py",
+            "M hotelcontrols/providers/minihotel/__init__.py",
+            "M tools/dump_api_fixtures.py", "M tools/probe.py"]
 
     def test_slice_24_may_change_the_credential_key_but_not_the_store(self):
         assert violations(24, [("M", "hotelcontrols/providers/transport/http.py"),

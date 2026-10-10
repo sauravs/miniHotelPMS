@@ -631,7 +631,7 @@ something.
 
 | # | Criterion | State |
 | --- | --- | --- |
-| 1 | ≥8 of 11 controls reach PASS or FAIL; the rest name their blocker | **NOT MET — 5 of 11.** The second half IS met: every non-concluding control names its blocker. See the assessment below |
+| 1 | ≥8 of 11 controls reach PASS or FAIL; the rest name their blocker | **NOT MET — 5 of 11 on `sandbox2026`; 4 of 11 on the 2026-10-10 refresh (v3 slice 23).** The second half IS met: every non-concluding control names its blocker. See the assessment below |
 | 2 | All four outcomes from captured evidence; UNKNOWN distinct from FAIL | **Met** — all four reached from captured evidence since slice 4, and the distinction is asserted three ways: wording with every tag stripped, border style, and hue |
 | 3 | Every verdict traces to its fields | **Met** — structurally; a `Verdict` cannot be built without evidence |
 | 4 | Call count is `1 + R + N`, asserted | **Met** — counted invocations, slice 3 and again end to end |
@@ -678,14 +678,39 @@ capture.** It was written that naming this property's nominated rate codes takes
 mapping unblocks control 9. Measured, neither does. `stay.rate_code` is absent from every captured
 reservation, because the captures were not taken with room prices. Both controls return identical
 counts with and without the hotel's data, stopping at *"stay.rate_code is absent"* before the
-hotel's data is read. They need a capture taken with room prices (v3 slice 23) **and** the hotel's
-answer from a real property. Nobody can honestly nominate codes for the vendor's test hotel. One
+hotel's data is read. They need a capture taken with room prices (v3 slice 23 took it on
+2026-10-10: rate codes on 126 of 136 stays) **and** the hotel's answer from a real property. Nobody can honestly nominate codes for the vendor's test hotel. One
 sentence from the vendor about what `OK4` and `WL` mean still resolves 44 of the 217 reservations
 this project has ever seen. The other three are the property being what it is — and reporting
 "compliant" about a mechanism nobody has ever seen working is exactly what v1 did.
 
 **The second half of criterion 1 IS met**: every control that does not conclude names its specific
 blocker, on screen and in the API, and a run that concluded nothing shows no count tiles.
+
+### Criterion 1, measured again: per capture, 2026-10-10 (v3 slice 23)
+
+The evidence refresh is a **second measurement beside the first, not a replacement for it**. Both
+are asserted by name in `tests/e2e/test_refresh_capture.py`, through both providers, unrounded:
+
+| capture | concludes | which |
+| --- | --- | --- |
+| `sandbox2026` (captured 2026-09-08) | **5 of 11** | the five above, unchanged |
+| `sandbox2026refresh` (captured 2026-10-10) | **4 of 11** | `duplicate_channel_reservation`, `inactive_room_future_stay`, `resource_occupancy_consistency`, `room_assignment_type_validity` |
+
+**What the refresh gains:** `resource_occupancy_consistency` concludes (31 PASS, 4 UNKNOWN), because
+2026 occupancy was captured for the first time. **What it loses:** the two checkout controls, which
+find their two departures and stop at UNKNOWN for want of a folio. No folio was re-taken, since one
+call per reservation was not part of the approved probe (R1), and September's folios were not
+borrowed into an October capture, which would have dated them wrongly (F7). The other six read as
+before. `required_reservation_fields` now sees rate codes on 126 of 136 stays and still answers
+nothing, because the sandbox's nominated codes are *not decided*. #49's capture half is done, and its
+hotel half cannot be done honestly for a vendor's test property.
+
+**A caveat that applies to both rows: issue #71.** Three of the controls concluding on both captures
+(`duplicate_channel_reservation`, `inactive_room_future_stay`, `room_assignment_type_validity`)
+ask an arrival or create window and are answered from the capture's departure window, which the
+replay guard does not compare. Their populations are therefore partial, without saying so. Fixing it
+changes existing answers, so when to do it is the owner's call; until then both figures carry it.
 
 ---
 

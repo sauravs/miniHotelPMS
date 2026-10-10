@@ -1,0 +1,301 @@
+{
+  "schema": "demopms/v1",
+  "endpoint": "occupancy",
+  "rooms": [
+    {
+      "room_no": "102",
+      "occupancy": [
+        {
+          "booking_ref": "007004338",
+          "from": "06 Jul 2026",
+          "to": "09 Jul 2026",
+          "state": "IN_HOUSE"
+        }
+      ]
+    },
+    {
+      "room_no": "103",
+      "occupancy": [
+        {
+          "booking_ref": "007004340",
+          "from": "06 Jul 2026",
+          "to": "07 Jul 2026",
+          "state": "IN_HOUSE"
+        },
+        {
+          "booking_ref": "007004340",
+          "from": "07 Jul 2026",
+          "to": "08 Jul 2026",
+          "state": "IN_HOUSE"
+        },
+        {
+          "booking_ref": "007004340",
+          "from": "08 Jul 2026",
+          "to": "09 Jul 2026",
+          "state": "IN_HOUSE"
+        }
+      ]
+    },
+    {
+      "room_no": "606",
+      "occupancy": [
+        {
+          "booking_ref": "007004342",
+          "from": "06 Jul 2026",
+          "to": "07 Jul 2026",
+          "state": "IN_HOUSE"
+        },
+        {
+          "booking_ref": "007004342",
+          "from": "07 Jul 2026",
+          "to": "08 Jul 2026",
+          "state": "IN_HOUSE"
+        },
+        {
+          "booking_ref": "007004342",
+          "from": "08 Jul 2026",
+          "to": "09 Jul 2026",
+          "state": "IN_HOUSE"
+        }
+      ]
+    },
+    {
+      "room_no": "303",
+      "occupancy": [
+        {
+          "booking_ref": "007004344",
+          "from": "08 Jul 2026",
+          "to": "09 Jul 2026",
+          "state": "IN_HOUSE"
+        },
+        {
+          "booking_ref": "007004367",
+          "from": "10 Jul 2026",
+          "to": "11 Jul 2026",
+          "state": "IN_HOUSE"
+        },
+        {
+          "booking_ref": "007004367",
+          "from": "11 Jul 2026",
+          "to": "12 Jul 2026",
+          "state": "IN_HOUSE"
+        },
+        {
+          "booking_ref": "007004367",
+          "from": "12 Jul 2026",
+          "to": "13 Jul 2026",
+          "state": "IN_HOUSE"
+        },
+        {
+          "booking_ref": "007004367",
+          "from": "13 Jul 2026",
+          "to": "14 Jul 2026",
+          "state": "IN_HOUSE"
+        }
+      ]
+    },
+    {
+      "room_no": "809",
+      "occupancy": [
+        {
+          "booking_ref": "007004354",
+          "from": "08 Jul 2026",
+          "to": "09 Jul 2026",
+          "state": "DEPARTED"
+        },
+        {
+          "booking_ref": "007004365",
+          "from": "09 Jul 2026",
+          "to": "10 Jul 2026",
+          "state": "DEPARTED"
+        }
+      ]
+    },
+    {
+      "room_no": "903",
+      "occupancy": [
+        {
+          "booking_ref": "007004355",
+          "from": "08 Jul 2026",
+          "to": "09 Jul 2026",
+          "state": "IN_HOUSE"
+        }
+      ]
+    },
+    {
+      "room_no": "701",
+      "occupancy": [
+        {
+          "booking_ref": "007004357",
+          "from": "08 Jul 2026",
+          "to": "09 Jul 2026",
+          "state": "IN_HOUSE"
+        }
+      ]
+    },
+    {
+      "room_no": "101",
+      "occupancy": [
+        {
+          "booking_ref": "007004346",
+          "from": "07 Jul 2026",
+          "to": "10 Jul 2026",
+          "state": "IN_HOUSE"
+        }
+      ]
+    },
+    {
+      "room_no": "501",
+      "occupancy": [
+        {
+          "booking_ref": "007004353",
+          "from": "08 Jul 2026",
+          "to": "10 Jul 2026",
+          "state": "IN_HOUSE"
+        }
+      ]
+    },
+    {
+      "room_no": "104",
+      "occupancy": [
+        {
+          "booking_ref": "007004366",
+          "from": "09 Jul 2026",
+          "to": "10 Jul 2026",
+          "state": "IN_HOUSE"
+        },
+        {
+          "booking_ref": "007004372",
+          "from": "13 Jul 2026",
+          "to": "14 Jul 2026",
+          "state": "IN_HOUSE"
+        }
+      ]
+    },
+    {
+      "room_no": "904",
+      "occupancy": [
+        {
+          "booking_ref": "007003932",
+          "from": "09 Jul 2026",
+          "to": "11 Jul 2026",
+          "state": "IN_HOUSE"
+        }
+      ]
+    },
+    {
+      "room_no": "808",
+      "occupancy": [
+        {
+          "booking_ref": "007004364",
+          "from": "08 Jul 2026",
+          "to": "09 Jul 2026",
+          "state": "IN_HOUSE"
+        },
+        {
+          "booking_ref": "007004364",
+          "from": "09 Jul 2026",
+          "to": "10 Jul 2026",
+          "state": "IN_HOUSE"
+        },
+        {
+          "booking_ref": "007004364",
+          "from": "10 Jul 2026",
+          "to": "11 Jul 2026",
+          "state": "IN_HOUSE"
+        }
+      ]
+    },
+    {
+      "room_no": "02",
+      "occupancy": [
+        {
+          "booking_ref": "007004259",
+          "from": "04 Jul 2026",
+          "to": "12 Jul 2026",
+          "state": "IN_HOUSE"
+        },
+        {
+          "booking_ref": "007004391",
+          "from": "14 Jul 2026",
+          "to": "15 Jul 2026",
+          "state": "IN_HOUSE"
+        }
+      ]
+    },
+    {
+      "room_no": "01",
+      "occupancy": [
+        {
+          "booking_ref": "007004329",
+          "from": "10 Jul 2026",
+          "to": "12 Jul 2026",
+          "state": "PROV4"
+        },
+        {
+          "booking_ref": "007004300",
+          "from": "15 Jul 2026",
+          "to": "17 Jul 2026",
+          "state": "PROV4"
+        }
+      ]
+    },
+    {
+      "room_no": "301",
+      "occupancy": [
+        {
+          "booking_ref": "007004367",
+          "from": "10 Jul 2026",
+          "to": "11 Jul 2026",
+          "state": "BOOKED"
+        },
+        {
+          "booking_ref": "007004367",
+          "from": "11 Jul 2026",
+          "to": "12 Jul 2026",
+          "state": "BOOKED"
+        },
+        {
+          "booking_ref": "007004367",
+          "from": "12 Jul 2026",
+          "to": "13 Jul 2026",
+          "state": "BOOKED"
+        }
+      ]
+    },
+    {
+      "room_no": "302",
+      "occupancy": [
+        {
+          "booking_ref": "007004367",
+          "from": "10 Jul 2026",
+          "to": "11 Jul 2026",
+          "state": "BOOKED"
+        },
+        {
+          "booking_ref": "007004367",
+          "from": "11 Jul 2026",
+          "to": "12 Jul 2026",
+          "state": "BOOKED"
+        }
+      ]
+    },
+    {
+      "room_no": "",
+      "occupancy": [
+        {
+          "booking_ref": "007004312",
+          "from": "08 Jul 2026",
+          "to": "13 Jul 2026",
+          "state": "IN_HOUSE"
+        },
+        {
+          "booking_ref": "007004313",
+          "from": "08 Jul 2026",
+          "to": "13 Jul 2026",
+          "state": "IN_HOUSE"
+        }
+      ]
+    }
+  ]
+}
