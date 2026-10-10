@@ -409,8 +409,8 @@
         "field": "occupancy.reservation_id",
         "type": "string",
         "nullable": true,
-        "absent_means": "false",
-        "description": "Reservation occupying it",
+        "absent_means": "unknown",
+        "description": "Reservation occupying it. Overlap checks use it as the segment's IDENTITY, so an empty one is an evidence gap, never a value: as 'false' every id-less segment was one reservation called False, and two of them overlapping in one room were never compared and both PASSed (issue #84)",
         "resolvable": true
       },
       {
