@@ -167,23 +167,55 @@ def _count_lte(predicate, key, members, group_by):
     Distinct, not rows: a reservation can appear more than once in a population - several room
     stays, or a provider repeating it - and counting rows would report every multi-room booking
     as a duplicate of itself.
+
+    AN ID WE CANNOT READ IS NOT ONE WE MAY COUNT AWAY (issue #85). Beside A it might be a second
+    reservation - a duplicate - or A repeated - none - so the count is a range: the readable
+    distinct ids at least, plus one per unreadable record at most. FAIL when the least already
+    exceeds the limit; PASS when even the most is within it; between the two nothing is
+    established. This used to collect only the readable ids, so an unreadable one vanished and
+    "A is the only reservation" was a PASS the evidence did not support. A record whose own id
+    is unreadable is never accused or cleared - it cannot be named - so it is UNKNOWN, exactly
+    as an unreadable segment is in `no_overlap`.
     """
     name, limit = predicate["field"], predicate["value"]
-    identifiers = {str(b.fields[name].payload) for b in members
-                   if name in b.fields and b.fields[name].is_known}
     fields = [group_by, name]
+    readable, unreadable = [], []
+    for b in members:
+        value = b.fields.get(name)
+        (readable if value is not None and value.is_known else unreadable).append(b)
+    identifiers = {str(b.fields[name].payload) for b in readable}
+    at_most = len(identifiers) + len(unreadable)
 
-    if len(identifiers) <= limit:
-        return [(b, Outcome.PASS,
-                 "%s is the only %s with %s %s" % (b.record_id, b.entity, group_by, key)
-                 if len(identifiers) == 1 else
-                 "%d records share %s %s, which is within the limit of %d"
-                 % (len(identifiers), group_by, key, limit), fields) for b in members]
+    results = [(b, Outcome.UNKNOWN,
+                "%s could not be read for this record, so it cannot be counted among the "
+                "records sharing %s %s" % (name, group_by, key), fields) for b in unreadable]
 
-    return [(b, Outcome.FAIL,
-             "%d records share %s %s, which exceeds the limit of %d: %s"
-             % (len(identifiers), group_by, key, limit, ", ".join(sorted(identifiers))),
-             fields) for b in members]
+    if len(identifiers) > limit:
+        unread = ("" if not unreadable else
+                  " (and %d more whose %s could not be read)" % (len(unreadable), name))
+        return results + [(b, Outcome.FAIL,
+                           "%d records share %s %s, which exceeds the limit of %d: %s%s"
+                           % (len(identifiers), group_by, key, limit,
+                              ", ".join(sorted(identifiers)), unread),
+                           fields) for b in readable]
+
+    if at_most <= limit:
+        return results + [(b, Outcome.PASS,
+                           "%s is the only %s with %s %s" % (b.record_id, b.entity, group_by, key)
+                           if at_most == 1 else
+                           "%d records share %s %s, which is within the limit of %d"
+                           % (len(identifiers), group_by, key, limit)
+                           if not unreadable else
+                           "at most %d records share %s %s, counting each of the %d whose %s "
+                           "could not be read as a different one, which is within the limit "
+                           "of %d" % (at_most, group_by, key, len(unreadable), name, limit),
+                           fields) for b in readable]
+
+    return results + [(b, Outcome.UNKNOWN,
+                       "%d record(s) sharing %s %s have a %s that could not be read, so whether "
+                       "this group stays within the limit of %d cannot be established"
+                       % (len(unreadable), group_by, key, name, limit), fields)
+                      for b in readable]
 
 
 def _no_overlap(predicate, key, members, group_by):

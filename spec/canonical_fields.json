@@ -7,8 +7,8 @@
         "field": "reservation.id",
         "type": "string",
         "nullable": false,
-        "absent_means": "false",
-        "description": "PMS-internal reservation identifier",
+        "absent_means": "unknown",
+        "description": "PMS-internal reservation identifier. The IDENTITY of a reservation, stay and folio, and what duplicate checks count, so an empty one is an evidence gap, never a value: as 'false' id-less bookings on one portal id counted as one reservation called False and PASSed, and a folio call was sent for reservation False (issue #85)",
         "resolvable": true
       },
       {
