@@ -5,18 +5,19 @@ session, exactly as written.** The longer block after it is the STATE block the 
 session to read. Do not paste that one. Everything either references is in the repository;
 nothing depends on the previous conversation.
 
-**Last updated:** 2026-10-13, at #109's design checkpoint (#87's option 2), on `main` at `a75b380`.
+**Last updated:** 2026-10-13, #109's design APPROVED (P1-P6 as written), on `main` at `f5271f9`.
 **The owner's order (2026-10-11, amended 2026-10-13): follow-ups 4, 1, then #87's guard, then 3,
 2, 5 - one at a time, reporting after each.** Follow-ups 4, 1, #87's guard, 3 and 2 are DONE: 4
 as fixes #84, #85, #86; 1 as fix #71 (PR #95, after #92 and the covering capture #94), under the
 owner's choice **A+B**; the guard as fix #87 (PR #98); 3 as fix #100 (PR #101); 2 as fix #103
 (PR #104); 5 as fix #106 (PR #107). **Every follow-up on that list is DONE.** Then the owner
-approved **#87's option 2** (2026-10-13, "go ahead with your recommendation"), filed as **issue
-#109**, whose design checkpoint (P1-P6, one recommendation each) is held BEFORE any code.
+approved **#87's option 2** (2026-10-13), filed as **issue #109**, and then **approved its
+design, P1-P6 as written** ("yes go ahead with this"), asking that the NEXT session build it.
+**The next session builds #109.**
 **v2 (slices 0–15) and v3 (slices 16–24) are both COMPLETE.** Criteria V1–V12 are all met
 (`docs/plan-v3.md` §7); `prd.md` criterion 1 stays NOT MET on every capture (since #71:
-`sandbox2026` 2 of 11, refresh 1, covering capture 5). **No issue is open.** #87's option 2
-(judge every record of a collection) is recorded in `docs/open-questions.md` §3 and is deferred.
+`sandbox2026` 2 of 11, refresh 1, covering capture 5). **One issue is open: #109**, #87's option
+2 (judge every record of a collection), approved with its design - the next session builds it.
 There is no planned slice left and no approved follow-up. An item marked DONE has merged.
 
 **The live probe** is a runbook now: [The probe](#the-probe--done-2026-10-10-v3-slice-23-kept-as-the-runbook-for-the-next-one).
@@ -27,9 +28,8 @@ call is needed for anything left below.**
 
 ## The starting prompt — paste exactly this
 
-v3 is complete and every follow-up on the owner's list is DONE. #87's option 2 is approved as
-issue #109 and waits at its design checkpoint. This prompt has the session verify main, read
-#109, and ASK the owner for the checkpoint answer - no code before it.
+v3 is complete and every follow-up on the owner's list is DONE. This session BUILDS issue #109
+(#87's option 2), whose design the owner approved as written. It is the only approved item.
 
 ```
 Continue miniHotelPMS after v3. Working directory: /Users/sauravs/Desktop/Work/miniHotelPMS
@@ -42,12 +42,12 @@ Start-up, before anything else:
   PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -m tools.transcode_demopms --check   # 17 files
   .venv/bin/python -m coverage run -m pytest && .venv/bin/python -m coverage report   # 97%
   cd ui && npm ci && npm run typecheck && npm test && npm run e2e          # 249 Vitest, 26 Playwright
-  gh issue list --state open                     # #109 (its design checkpoint)
+  gh issue list --state open                     # #109 - read its body AND its comments
 Those are main's numbers. Any that differs is a reason to stop and find out why. Then read
 CLAUDE.md, docs/session-handoff.md (the STATE block), docs/plan-v3.md (status table, §7),
 docs/open-questions.md (§3 for #87's option 2).
 
-Where things stand: v2 and v3 are complete; main is at a75b380 or a docs-only commit after it.
+Where things stand: v2 and v3 are complete; main is at f5271f9 or a docs-only commit after it.
 Every item below is a bug-workflow fix or a small PR of its own: a GitHub issue first (what,
 reproduction, which gate, severity), then fix/NN-..., a failing test, the fix, a PR "Fixes #NN",
 CI green on test (3.11) and test (3.13), squash-merge.
@@ -56,14 +56,56 @@ WORKING AGREEMENT (owner): after each item ends end to end, REPORT to me and WAI
 before the next. Before starting anything new, write the next session's starting prompt into
 docs/session-handoff.md as a docs-only PR. Recommend one option at every decision.
 
-GO-AHEAD: #87's option 2, issue #109 - approved 2026-10-13. Its DESIGN CHECKPOINT is open: P1
-(collections judged per record, mode `none` only), P2 (the occupancy reference asks a bounded
-window in the deployment half, today..today+7d), P3 (PASS only if the closure from today lies in
-the fetched window; an overlap seen is FAIL; else UNKNOWN; a refused reference never PASS), P4
-(a closure ended before today EXCLUDED, via a relative-date literal the runner resolves), P5
-(rule version 4; declared goldens; no outcome moves), P6 (offline proof, no live call). If the
-owner has not answered on #109, ask for it and write no code. Once answered: issue already
-filed, so branch fix/109-..., failing tests from the design, the fix, PR "Fixes #109".
+GO-AHEAD: issue #109 (#87's option 2) - item approved 2026-10-13, DESIGN P1-P6 APPROVED AS
+WRITTEN the same day. Build it end to end: the issue exists, so branch fix/109-collections-per-
+record, failing tests written from the design (each seen failing with PYTHONDONTWRITEBYTECODE=1),
+the fix, PR "Fixes #109", CI green on test (3.11) and test (3.13), squash-merge, then REPORT and
+WAIT. The approved design, in short (the issue body is authoritative):
+  P1 a predicate reading a `collection` field is judged once per related record, ONLY in an
+     assertion of mode `none`; the validator refuses a collection field in scope, exceptions or
+     mode all/any, by name. FAIL if any record satisfies a predicate; else UNKNOWN if any could
+     not be judged; else PASS only if the collection is complete for the question (P3).
+  P2 the occupancy reference asks a bounded window: a new DEPLOYMENT-half key,
+     population.reference_windows {"occupancy": {"from": "today", "to": "today+7d"}} (canonical
+     relative dates, resolved through the property clock like a population window), mapped by
+     each adapter to its own filter (MiniHotel DateRange, DemoPMS window). Not in the sentence:
+     the grammar refuses windows there (criterion 9) and the round-trip compares logic only.
+  P3 the evidence layer records the window each collection was fetched for, on the bundle. A
+     room PASSes only if its closure from today onward lies inside it; an overlap seen inside
+     it is FAIL whatever lies beyond; else UNKNOWN naming the uncovered dates. An open-ended
+     closure can FAIL, never PASS. A refused reference or an unreadable key is UNKNOWN - NEVER
+     an empty collection read as "no guests".
+  P4 a closure that ended before today is EXCLUDED ("its closed window has ended"); the runner
+     resolves a relative-date literal (today, today+Nd) in a predicate's value through the
+     property clock before evaluating, so the evaluator stays pure. An absent end stays IN scope.
+  P5 ooo_room_protection version 4 + tools.lock_spec: the two overlap predicates of v3, P4's
+     scope clause, P2's window. Declared goldens: ooo_room_protection's runs and listings only
+     (version, digest, one scope evidence line, occupancy evidence reasons); NO outcome moves on
+     any capture (still EXCLUDED 28). Update the eight V1 entries' reason (_FIX_71_THEN_87).
+  P6 offline proof, both providers, stand-in sources built from the refresh capture as in
+     tests/integration/test_closed_room_never_passes.py (no fixture edited): 303 closed 10..13 Jul
+     with guest 007004367 -> FAIL naming the segment; a closed room with no segment in a window
+     inside 08..15 -> PASS; 303 closed 10..20 -> FAIL; a room with no segments closed 16..20 ->
+     UNKNOWN naming the uncovered dates; open-ended, no overlap -> UNKNOWN; reference refused ->
+     UNKNOWN never PASS; closure ended before today -> EXCLUDED. Plus validator, evaluator,
+     contract tests. NO live call is needed or approved.
+  Traps found while designing (check each; none changes the approved behaviour):
+   - gather._related() returns () when the reference is unavailable OR the key cannot be read
+     (it drops match()'s reason); read bundle.joins[entity] - known(True/False) vs unknown - so
+     an absence of segments is never mistaken for "no guests".
+   - #87's guard, `_from_a_collection` in evaluator/predicates.py, refuses every collection
+     read; P1 replaces it for mode `none` assertions only - keep the refusal (and its tests'
+     intent) everywhere else, now backed by the validator.
+   - scope clauses AND together, but P4 needs "closed_to absent OR closed_to on/after today".
+     Choose the smallest expression that keeps an absent end in scope and say how in the PR;
+     if no honest expression exists without new grammar, stop and ask rather than widen.
+   - the IR schema is closed (population and references have additionalProperties: false):
+     reference_windows is a schema addition; validate_spec and the grammar round-trip must pass.
+   - sandbox2026 / cover hold only a 2024 occupancy week, so there the windowed reference is
+     refused (a different reason in the evidence lines); the refresh capture holds exactly
+     2026-07-08..15, which is why 7 days is provable offline.
+   - docs: open-questions §3 (the collection gap closes, horizon recorded), 2.4, plan-v3 row,
+     CLAUDE.md, architecture.md (a collection judged per record; the reference window).
 (The owner's list 4, 1, #87-guard, 3, 2, 5 is all DONE.)
 
 THE FOLLOW-UPS:
@@ -104,7 +146,7 @@ Rules that outrank everything: never widen a verdict; never edit a fixture to pa
 never hit the live API without my yes to that call; no credential or third-party personal data
 in a committed file.
 
-After the start-up checks, REPORT TO ME AND STOP at #109's checkpoint unless it is answered.
+When #109 has merged, REPORT TO ME AND STOP. Nothing after it is approved.
 ```
 
 ## The STATE block — read by the session, not pasted
@@ -148,7 +190,7 @@ capture's documents, room 303 closed 10..20 Jul in memory, no fixture edited): v
 it with guest 007004367 inside. Worth knowing: since #71 the occupancy reference asks no window,
 so replay refuses it on EVERY capture - on frozen evidence #87 was hidden, not prevented. Option
 2 (judge every record of a collection, Kleene `none` across segments) needs that reference to ask
-a window too; it is in docs/open-questions.md §3 and deferred.
+a window too; it is issue #109, design approved 2026-10-13 (P1-P6), built next.
 
 FOLLOW-UP 1, #71, IS DONE (2026-10-11..13, PR #95). Replay picked the FIRST response of an
 endpoint in a capture and compared only windows both questions name, so seven controls asking an
