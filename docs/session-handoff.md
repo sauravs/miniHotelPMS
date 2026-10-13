@@ -122,9 +122,10 @@ fix #75 (#76), slice 23 (the evidence refresh, #77), slice 24 (host auth + per-p
 credentials, closing #22 and v3); after v3, follow-up 4's fixes #84 (#88), #85 (#89) and #86
 (#90); for follow-up 1, fix #92 (#93), the covering capture (#94) and fix #71 (#95); fix #87
 (#98); for follow-up 3, fix #100 (#101); for follow-up 2, fix #103 (#104); for follow-up 5,
-fix #106 (#107) - every approved follow-up. Baseline on main at 1923d7f: 3268 passed / 3 skipped (the v3 scope guard always skips: no slice/16-* .. slice/24-*
-branch remains), 1096 spec checks, 228 API goldens identical to a rebuild, 17 DemoPMS files identical to a rebuild, spec lock current,
-97% coverage. The React UI has 249 Vitest and 26 Playwright tests.
+fix #106 (#107) - every approved follow-up. Baseline on main at 1923d7f: 3268 passed / 3
+skipped (the v3 scope guard always skips: no slice/16-* .. slice/24-* branch remains), 1096 spec
+checks, 228 API goldens identical to a rebuild, 17 DemoPMS files identical to a rebuild, spec
+lock current, 97% coverage. The React UI has 249 Vitest and 26 Playwright tests.
 No issue is open.
 
 #87'S GUARD IS DONE (2026-10-13, PR #98). ooo_room_protection version 2 placed
