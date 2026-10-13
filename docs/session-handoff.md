@@ -5,16 +5,16 @@ session, exactly as written.** The longer block after it is the STATE block the 
 session to read. Do not paste that one. Everything either references is in the repository;
 nothing depends on the previous conversation.
 
-**Last updated:** 2026-10-13, in the middle of follow-up 1 (#71), on `main` at `3bdbe5a`.
+**Last updated:** 2026-10-13, after follow-up 1 (#71), on `main` at `c7128ca`.
 **The owner's order (2026-10-11, amended 2026-10-13): follow-ups 4, 1, then #87's guard, then 3,
-2, 5 - one at a time, reporting after each.** Follow-up 4 is DONE (fixes #84, #85, #86). Follow-up
-1 is half done: the two live calls are made and merged as the covering capture (#94, after #92),
-and the fix is **draft PR #95**, finished under the owner's choice A and waiting for B, which the
-owner approved (**"A+B"**, 2026-10-13).
+2, 5 - one at a time, reporting after each.** Follow-ups 4 and 1 are DONE: 4 as fixes #84, #85,
+#86; 1 as fix #71 (PR #95, after #92 and the covering capture #94), under the owner's choice
+**A+B**. **The next item is #87's guard.**
 **v2 (slices 0–15) and v3 (slices 16–24) are both COMPLETE.** Criteria V1–V12 are all met
-(`docs/plan-v3.md` §7); `prd.md` criterion 1 stays NOT MET on every capture. **Open issues: #71
-(draft PR #95) and #87 (decided: the guard first).** There is no planned slice left - only the
-follow-ups in the prompt below. An item marked DONE has merged.
+(`docs/plan-v3.md` §7); `prd.md` criterion 1 stays NOT MET on every capture (since #71:
+`sandbox2026` 2 of 11, refresh 1, covering capture 5). **Open issue: #87 (decided: the guard
+first).** There is no planned slice left - only the follow-ups in the prompt below. An item
+marked DONE has merged.
 
 **The live probe** is a runbook now: [The probe](#the-probe--done-2026-10-10-v3-slice-23-kept-as-the-runbook-for-the-next-one).
 Since slice 24 its credentials are per property: `HOTELCONTROLS_SANDBOX_MINIHOTEL_*`. **No live
@@ -31,21 +31,19 @@ Each finished item is marked DONE; the session starts at the first item not mark
 Continue miniHotelPMS after v3. Working directory: /Users/sauravs/Desktop/Work/miniHotelPMS
 
 Start-up, before anything else:
-  git status && git branch --no-merged main     # LOCAL list: only fix/71-replay-window-names
-                                                 # (pushed; it is draft PR #95)
-  PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -m pytest -q -o addopts=""    # 3104 passed, 3 skipped
+  git status && git branch --no-merged main     # LOCAL list: empty
+  PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -m pytest -q -o addopts=""    # 3218 passed, 3 skipped
   PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -m tools.validate_spec        # PASSED - all 1092 checks
-  PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -m tools.dump_api_fixtures --check   # 135 files
+  PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -m tools.dump_api_fixtures --check   # 179 files
   PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -m tools.transcode_demopms --check   # 17 files
   .venv/bin/python -m coverage run -m pytest && .venv/bin/python -m coverage report   # 97%
-  cd ui && npm ci && npm run typecheck && npm test && npm run e2e          # 205 Vitest, 26 Playwright
-  gh issue list --state open                     # #71 and #87
-  gh pr view 95                                  # the draft: read its body
+  cd ui && npm ci && npm run typecheck && npm test && npm run e2e          # 249 Vitest, 26 Playwright
+  gh issue list --state open                     # #87 only
 Those are main's numbers. Any that differs is a reason to stop and find out why. Then read
 CLAUDE.md, docs/session-handoff.md (the STATE block), docs/plan-v3.md (status table, §7),
-docs/open-questions.md, and the comments on issues #71 and #87.
+docs/open-questions.md, and the comments on issue #87.
 
-Where things stand: v2 and v3 are complete; main is at 3bdbe5a or a docs-only commit after it.
+Where things stand: v2 and v3 are complete; main is at c7128ca or a docs-only commit after it.
 Every item below is a bug-workflow fix or a small PR of its own: a GitHub issue first (what,
 reproduction, which gate, severity), then fix/NN-..., a failing test, the fix, a PR "Fixes #NN",
 CI green on test (3.11) and test (3.13), squash-merge.
@@ -61,42 +59,13 @@ start at the first item not marked DONE, finish it end to end, then REPORT and W
 THE FOLLOW-UPS:
 4. DONE (2026-10-11). The audit of #75's 16 fields is on #75; fixes #84 (PR #88), #85 (PR #89),
    #86 (PR #90). It also found #87 (below).
-1. #71 - IN PROGRESS. Finish draft PR #95 (branch fix/71-replay-window-names) as A+B, which
-   the owner approved on 2026-10-13. Already DONE: #92 (PR #93, the probe can add
-   IncludeRoomPrices to a control's question); the two live calls, each approved by me at the
-   time (arrivals 2026-07-08..10-06 + prices, 385 bookings; created 2026-06-08..07-08, 150),
-   scrubbed and merged as capture sandbox2026cover / demo2026cover (PR #94). NO further live
-   call is needed or approved.
-   On the branch, A is done: both frozen sources answer from the response whose recorded
-   question covers the ask, and refuse (a) a window the recording never named, (b) a wider
-   window, (c) a recorded narrowing the run does not ask; 68 goldens rebuilt and 48 run goldens
-   declared in test_v1_no_answer_changed.py; ~130 tests moved onto the covering capture
-   without weakening one (tests/covering.py offers it to page tests only); engine suite 3148
-   passed / 3 skipped. NOTE: step A merged two WRONG DemoPMS files (bookings_arrivals_* 108
-   bookings instead of 385, bookings_created_* 40 instead of 150 - the transcoder read through
-   the same faulty replay). They are correct on the branch, with a guard
-   (TestEachFileHoldsItsWholeSource). Until #95 merges, main carries them.
-   B, to do on the same branch:
-     - add sandbox2026cover / demo2026cover to CAPTURES in hotelcontrols/providers/minihotel/
-       __init__.py and .../demopms/__init__.py. DEFAULT_CAPTURE stays sandbox2026 / demo2026.
-       Measured: 44 new goldens (11 controls x 2 providers, run/ + runs/) and 25 existing
-       listing pages change (22 history, actions/demo.json, actions/sandbox.json,
-       properties.json); NO existing run's answer moves beyond the 48 already declared.
-       Rebuild with tools.dump_api_fixtures and READ the diff. tests/covering.py may then
-       become unnecessary - remove it if so.
-     - Point the failing React tests (4 Vitest in test/run.test.tsx and test/history.test.tsx,
-       2 Playwright in e2e/run.spec.tsx) at the covering capture's goldens: under A alone no
-       demo golden holds an UNKNOWN, which is why B was approved. Never hand-build a fixture.
-     - Docs: docs/plan.md criterion 1 PER CAPTURE (sandbox2026 5 -> 2, refresh 4 -> 1,
-       sandbox2026cover 5 of 11 from the right evidence; NOT MET everywhere); docs/open-
-       questions.md 1.4 (with rate codes present, a decided list now MOVES control 15 - the
-       example list Tourist-BB gives 15 PASS / 56 FAIL - so the list must be a real property's);
-       CLAUDE.md status; plan-v3 status table; the #71 caveat removed wherever criterion 1 is
-       quoted.
-     - Squash the WIP commits into one clean message, mark #95 ready, CI green, merge. #71
-       closes with it (GitHub closed it early when #94 merged; it was reopened).
-   Then REPORT and WAIT.
-#87-guard. ooo_room_protection asserts occupancy.reservation_id `within` the closed dates, on the
+1. DONE (2026-10-13). #71 fixed by PR #95 (after #92 -> PR #93, and the covering capture
+   sandbox2026cover / demo2026cover -> PR #94, two owner-approved live calls), as the owner's
+   A+B: replay answers only the question a response was recorded for, and the demo offers the
+   covering capture beside sandbox2026 (default unchanged). Criterion 1: sandbox2026 2 of 11,
+   refresh 1, sandbox2026cover 5 - NOT MET on each. 48 moved goldens declared in
+   test_v1_no_answer_changed.py; 44 new ones.
+#87-guard. NEXT. ooo_room_protection asserts occupancy.reservation_id `within` the closed dates, on the
    first collected segment only, so a guest inside a closed window PASSes (latent: no room has
    ever had a closed window). Decided (on #87): option 1 first - `within` / `not_within` refuse a
    left operand whose canonical type is not a date or datetime (validator and evaluator), and
@@ -145,31 +114,33 @@ fix #48 (#52), slice 16 (#53), fix #54 (#55), slice 17 (#56), fix #57 (#58), sli
 slice 19 (#62), slice 20 (#63), slice 21 (#65), slice 22 (#68), fix #70 (#72), fix #73 (#74),
 fix #75 (#76), slice 23 (the evidence refresh, #77), slice 24 (host auth + per-property
 credentials, closing #22 and v3); after v3, follow-up 4's fixes #84 (#88), #85 (#89) and #86
-(#90); for follow-up 1, fix #92 (#93) and #71's step A, the covering capture (#94). Baseline on
-main at 3bdbe5a: 3104 passed / 3 skipped (the v3 scope guard always skips: no slice/16-* ..
-slice/24-* branch remains), 1092 spec checks, 135 API goldens identical to a rebuild, 17 DemoPMS
-files identical to a rebuild (two of them WRONG on main - see below), spec lock current, 97%
-coverage. The React UI has 205 Vitest and 26 Playwright tests.
-Open issues: #71 (draft PR #95 - see below) and #87 (decided: the guard first - see below).
+(#90); for follow-up 1, fix #92 (#93), the covering capture (#94) and fix #71 (#95). Baseline on
+main at c7128ca: 3218 passed / 3 skipped (the v3 scope guard always skips: no slice/16-* ..
+slice/24-* branch remains), 1092 spec checks, 179 API goldens identical to a rebuild, 17 DemoPMS
+files identical to a rebuild, spec lock current, 97% coverage. The React UI has 249 Vitest and
+26 Playwright tests.
+Open issue: #87 (decided: the guard first - see below).
 
-FOLLOW-UP 1, #71, IS HALF DONE (2026-10-11..13). Replay picked the FIRST response of an endpoint
-in a capture and compared only windows both questions name, so seven controls asking an arrival
-or create window were answered from sandbox2026's departure window - part of a population
-presented as the whole, behind three of criterion 1's five. Done and merged: #92 (the probe can
-add IncludeRoomPrices to a control's population question, so the call could be printed and
-approved); two live calls, EACH approved by the owner at the time (2026-10-11 arrivals
-2026-07-08..10-06 + prices, 385 bookings; 2026-10-13 created 2026-06-08..07-08, 150), scrubbed,
-merged as sandbox2026cover = sandbox2026's responses + those two, transcoded to demo2026cover;
-neither is offered in the demo yet. The fix is DRAFT PR #95, done under the owner's choice A
-(keep the demo on sandbox2026; declare the moved goldens): with it, criterion 1 is sandbox2026
-2 of 11, refresh 1, sandbox2026cover 5 from the right evidence, both providers agreeing. A turned
-out to leave no UNKNOWN on any demo page, so the owner approved A+B: B offers the covering
-capture in the demo beside sandbox2026 (default unchanged). The prompt's item 1 lists what is
-left. Two traps found on the way: the transcoder reads through the same replay, so step A's two
-new DemoPMS files on main are the departure response narrowed (108 and 40 bookings) and a
-rebuild reproduces them - #95 fixes them and adds a direct file-to-file guard; and a test that
-reads a whole response must ask the question the capture RECORDED, because an empty request
-now (rightly) is refused as "everything, ever".
+FOLLOW-UP 1, #71, IS DONE (2026-10-11..13, PR #95). Replay picked the FIRST response of an
+endpoint in a capture and compared only windows both questions name, so seven controls asking an
+arrival or create window were answered from sandbox2026's departure window - part of a population
+presented as the whole, behind three of criterion 1's five. Now both frozen sources answer only
+from the response whose recorded question covers the ask, and refuse (a) a window never named,
+(b) a wider window, (c) a recorded narrowing the run does not ask. Two live calls, EACH approved
+by the owner at the time (2026-10-11 arrivals 2026-07-08..10-06 + prices, 385 bookings;
+2026-10-13 created 2026-06-08..07-08, 150), are the covering capture sandbox2026cover =
+sandbox2026's responses + those two, transcoded to demo2026cover (#94, after #92 let the probe
+print the first call). The owner's A+B: the demo offers the covering capture beside sandbox2026,
+whose default is unchanged. Criterion 1 per capture: sandbox2026 2 of 11 (the two checkout
+controls; the seven others are refused), refresh 1 (occupancy), sandbox2026cover 5 from the right
+evidence; NOT MET on each, both providers agreeing. 48 run goldens' answers moved, declared in
+test_v1_no_answer_changed.py; 44 goldens are new (the cover runs, 18 MB on disk, ~330 KB
+gzipped). Two traps worth remembering: the transcoder reads through the same replay, so a replay
+bug can reproduce itself in a "byte-identical" DemoPMS rebuild (TestEachFileHoldsItsWholeSource
+now compares each demo file with its source directly); and a test that reads a whole response
+must ask the question the capture RECORDED, because an empty request is refused as "everything,
+ever". Open question 1.4 changed: on the covering capture a decided rate-code list now MOVES
+control 15 (example Tourist-BB: 15 PASS / 56 FAIL), so it must be a real property's.
 
 FOLLOW-UP 4 AUDITED #75's SIXTEEN absent_means "false" FIELDS (2026-10-11; the table is on #75).
 An absence read as known False is right for `exists` and wrong as a KEY: stringified, every
@@ -197,10 +168,7 @@ byte-identical; HOTELCONTROLS_AUTH=1 with no usable secret refuses to start. Cre
 property (#22): HOTELCONTROLS_<PROPERTY>_<PROVIDER>_*, NO fallback - the sandbox's are
 HOTELCONTROLS_SANDBOX_MINIHOTEL_*. ui/ signs with node:crypto behind a development sign-in that
 says it is a stand-in; ui/test/fixtures/auth-vector.json pins the two signers to one string.
-#71 IS SEQUENCED, NOT FIXED: a dry run showed criterion 1 would fall 5 -> 2 (sandbox2026) and
-60 goldens / 99 tests would move, because no capture asks the controls' own arrival and create
-windows. Plan, on the issue: a covering capture first (two live calls, each approved at the
-time), then the fix with the tests moved onto it.
+#71 was sequenced here and is now FIXED (PR #95, see FOLLOW-UP 1 above).
 
 SLICE 23 REFRESHED THE EVIDENCE (2026-10-10). Four live calls, EACH approved by the owner at
 the time: getRooms, getRoomTypes, RoomStatusInquiry 2026-07-08..15, and the 2026 reservation
@@ -218,8 +186,8 @@ each filed before it was fixed: #70 the probe's --run did not send what --plan p
 4_RoomStatus.xml with the owner's approval); #75 an empty occupancy room number read as a known
 False - a false FAIL, or a PASS on no room (fixed, #76); #71 replay compares windows only by
 name, so an arrival-window question is answered from a departure-window capture unchecked -
-three of criterion 1's concluding controls rest on it. #71 is OPEN: fixing it changes existing
-answers, so it is the owner's call. The owner's .env (git-ignored) holds the sandbox account;
+three of criterion 1's concluding controls rested on it (fixed since, #95: the refresh now
+concludes 1 of 11). The owner's .env (git-ignored) holds the sandbox account;
 the auto-mode classifier asks before each live call.
 
 THE OWNER'S WORKING AGREEMENT (2026-10-10): report after each slice ends end to end, and WAIT
@@ -511,7 +479,9 @@ approved (decision D3) is the thing that would happen.
 
 ### Success criterion 1 is recorded as NOT MET, and stays that way
 
-5 of 11 controls reach a PASS or FAIL; the PRD asks for 8. **Do not relax the criterion.** The six
+5 of 11 controls reach a PASS or FAIL on the covering capture `sandbox2026cover`; the PRD asks for
+8. Since #71 (2026-10-13) it is measured per capture: `sandbox2026` 2 of 11, the refresh 1, the
+covering capture 5, the only one asked the controls' own questions. **Do not relax the criterion.** The six
 shortfalls are traced one by one in `docs/plan.md`, and none is a defect in the engine. It used to
 say three would move on a conversation. **Measured 2026-10-09, it is one** (`OK4`/`WL`). The two
 rate-code controls also need a capture taken with room prices (#49, v3 slice 23).
@@ -607,7 +577,7 @@ public, which was defensible and made the habit dangerous.
 | ~~v3 slice 22~~ | ~~Approve the `LATE_CHECKOUT` decision table~~ — **approved and merged, #68** |
 | ~~v3 slice 23~~ | ~~Approval of each probe call at the time~~ — **four calls approved one by one, 2026-10-10; merged** |
 | ~~v3 slice 24~~ | ~~Brief check: is the `ui/` development login acceptable as a labelled stand-in?~~ — **decided 2026-10-11 by the implementer at the owner's delegation, on four conditions; merged, #79** |
-| ~~any time~~ | ~~Issue #71: when to fix the replay window-name gap~~ — **dry run shown 2026-10-13; the owner chose A, then A+B. Draft PR #95** |
+| ~~any time~~ | ~~Issue #71: when to fix the replay window-name gap~~ — **dry run shown 2026-10-13; the owner chose A, then A+B. Merged, PR #95** |
 | ~~any time~~ | ~~Issue #87: how to fix `ooo_room_protection`~~ — **decided 2026-10-13 at the owner's delegation: the type guard on `within` first, after #71; option 2 (judge every record of a `collection`) stays open** |
 | any time | Ask MiniHotel what `<CreditCard Number="****" ExpirationDate="202101"/>` means (question 2.8, #48). It is the only thing that can unblock G4 |
 | ~~any time~~ | ~~**The cheapest open win:** nominated rate codes for control 15 (1.4).~~ **Corrected (#49):** a list alone changes nothing, because `stay.rate_code` is absent from every capture. It needs slice 23's capture **and** a real property's list |
