@@ -142,8 +142,11 @@ def _right_hand_side(predicate, bundle, settings, fields):
     if "tenant_setting" in predicate:
         name = predicate["tenant_setting"]
         if settings is None or name not in settings:
-            # The validator catches this before a run, so reaching it means a rule is being
-            # evaluated against a tenant that never declared the setting.
+            # Two ways to get here. A setting the tenant never DECLARED is refused by the
+            # validator before a run, so reaching it that way means an unvalidated rule. A
+            # setting declared `null` is NOT DECIDED (slice 21): it passes validation and is
+            # kept out of `settings` on purpose, so this branch is its normal path - the
+            # UNKNOWN that names the parameter (#106). Never a raise, never a default.
             return None, None, ("this property has not supplied %r, which this control needs"
                                 % name)
         return settings[name], "the property's %s" % name.replace("_", " "), None
