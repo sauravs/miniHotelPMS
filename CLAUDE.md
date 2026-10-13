@@ -22,7 +22,7 @@ that adding a PMS is a new adapter plus a mapping file, not a change to any rule
 | v1 demo: control 6, four silos, 152 tests | **Done** — and measured: only 1 of its 10 controls ever answers |
 | v1 review, 20 findings | **Done** — `docs/old-codebase-improve.md` |
 | v2 documents | **Done** — prd, context, architecture, plan, open questions |
-| v2 code | **All 12 slices merged**, plus slice 13 (compose) and slice 14 (UI/UX pass). 1940 tests at slice 14 (1996 today), 96% coverage, 1080 spec checks, CI green. 11 of 12 criteria met; criterion 1 is recorded as **not met** with its arithmetic in `docs/plan.md` |
+| v2 code | **All 12 slices merged**, plus slice 13 (compose) and slice 14 (UI/UX pass). 1940 tests at slice 14 (1996 at v2's close, `7f384c4`; today's baseline is in the v3 row), 96% coverage, 1080 spec checks, CI green. 11 of 12 criteria met; criterion 1 is recorded as **not met** with its arithmetic in `docs/plan.md` |
 | Slice 15: React UI | **Done** — `ui/`, a Next.js client of the JSON API. The engine is unchanged and both surfaces ship. 152 Vitest and 19 Playwright tests; criteria 2, 3, 8 and 10 re-proven. See `ui/README.md` |
 | v3 | **COMPLETE 2026-10-11** — `docs/plan-v3.md`, slices 16–24, decisions D12–D16, **criteria V1–V12 all met** (§7 says where each is proven). Merged: fix #48 (#52), slices 16 policy versioning (#53), 17 tenant-scoped store (#56), 18 findings queue (#61), 19 email (#62), 20 operational log (#63), 21 typed parameters (#65), 22 `LATE_CHECKOUT` (#68), 23 evidence refresh (#77, after fixes #72, #74, #76), 24 host auth + per-property credentials (#79, closing #22), then fix #80 (#81). `prd.md` criterion 1 stays **NOT MET** on every capture. **After v3:** follow-up 4 done (2026-10-11) - the audit of #75's sixteen fields, on #75; fixes #84 (#88), #85 (#89), #86 (#90). Follow-up 1 done (2026-10-13): fix #71 (#95), after #92 (#93) and the covering capture `sandbox2026cover` (#94, two owner-approved live calls). Replay answers only the question a response was recorded for; the demo offers the covering capture beside `sandbox2026` (default unchanged). Criterion 1 per capture: `sandbox2026` 2 of 11, refresh 1, `sandbox2026cover` 5, NOT MET on each. #87's guard done (2026-10-13): `within` refuses a non-date, a collection is never judged by its first record, `ooo_room_protection` is version 3 (UNKNOWN for a closed room until #87's option 2, since built as #109). Follow-up 3 done (2026-10-13): fix #100, golden payloads for the guest routes (`fixtures/api/guest/`, 49 new files, every existing one unchanged). Follow-up 2 done: fix #103, `tools.serve --log`. Follow-up 5 done: fix #106, two stale comments. #109 done (2026-10-13, #87's option 2): a collection is judged record by record under `none`, its reference asks a bounded window (`population.reference_windows`), and a PASS must lie inside it; a predicate may say what an absence answers (`absent`); `ooo_room_protection` is version 4, still EXCLUDED 28 on every capture. **Every approved follow-up is done;** what is deferred is listed in `docs/session-handoff.md`. Baseline: on `main`, 3378 passed / 3 skipped, 1098 spec checks, 228 API goldens and 17 DemoPMS files identical to a rebuild, 97% coverage; React 249 Vitest / 26 Playwright |
 
@@ -82,9 +82,10 @@ throughout the code, the tests and the docs.
    guest overpaid. This is why control 6 is **two** controls in v2: money owed and unrefunded credit
    are different business events with different urgencies and different queues.
 
-And one that will bite the *product*, not the code: **44 of the 217 reservations we have ever seen —
-one in five — carry a status code (`OK4`, `WL`) that is documented nowhere.** They resolve to
-UNKNOWN. That is the honest cost of not guessing.
+And one that will bite the *product*, not the code: **77 of the 526 reservations we have ever seen —
+about one in seven — carry a status code (`OK4`, `WL`) that is documented nowhere** (counted
+2026-10-13 over every capture; it was 44 of 217, one in five, before the 2026-10 captures). They
+resolve to UNKNOWN. That is the honest cost of not guessing.
 
 ## Conventions
 

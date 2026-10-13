@@ -24,8 +24,8 @@ Five passes were made against the vendor sandbox, and the order is the finding:
 | 4 | **The evidence refresh**, 2026-10-10 (v3 slice 23): four calls, each approved by the owner at the time | R11 and R12 still true; still no closed-date window on any room; occupancy for July 2026 for the first time. Preparing and running it found four defects (#70, #71, #73, #75) |
 | 5 | **The covering capture**, 2026-10-11 and 10-13 (#71): two calls, each approved at the time | The arrival and creation windows seven controls ask, which no earlier capture had recorded |
 
-Every live call since pass 3 was first printed by `tools.probe --plan`, request body and all, and
-sent only after the owner said yes to **that** call.
+Every live call in passes 4 and 5 was first printed by `tools.probe --plan`, request body and all,
+and sent only after the owner said yes to **that** call.
 
 > **The rule this produced, now binding:** *if the documentation and a captured response disagree,
 > the response wins.* A spec validator exists so that a claim cannot sit unchecked — `probe` and

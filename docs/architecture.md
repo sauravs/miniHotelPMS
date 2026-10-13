@@ -630,14 +630,14 @@ do not exist rather than producing a rule that runs and quietly answers about no
 
 ```
 hotelcontrols/
-  kernel/         value.py · money.py · outcome.py · verdict.py · clock.py · errors.py
+  kernel/         value.py · money.py · outcome.py · verdict.py · clock.py · dates.py · errors.py
   spec/           registry.py · ir.py · lock.py · tenant.py · schema.py · parameters.py
   providers/      base.py · registry.py
                   minihotel/  adapter.py · paths.py · transforms.py · records.py · fixtures.py
                   demopms/    adapter.py · paths.py · records.py · transforms.py · fixtures.py
                   transport/  http.py · ratelimit.py · record.py     # opt-in, off by default
   evidence/       gather.py · population.py · reference.py · cache.py · budget.py
-  evaluator/      record.py · population.py · predicates.py · intervals.py · logic.py
+  evaluator/      record.py · population.py · predicates.py · intervals.py · collections.py
   runner/         run.py · coverage.py · readiness.py · scheduling.py
   actions/        records.py · notify.py · guest.py   # 18: a FAIL -> one task; 19: email it
                                                       # once; 22: a guest decision -> one task
@@ -645,7 +645,7 @@ hotelcontrols/
                   service.py                  # slice 22: LATE_CHECKOUT, decided by the table
   ops/            log.py                      # slice 20: the operational log, JSON lines
   store/          sqlite.py · schema.sql      # runs, verdicts, evidence, actions, decisions
-  web/            app.py · render.py · server.py · assets/
+  web/            app.py · render.py · server.py · auth.py · assets/
   compiler/       grammar.py · sentences.py · model.py · problems.py
 spec/             canonical_fields.json · ir_schema.json · ir/*.json
                   ir.lock.json            # version + digest per control - GENERATED
