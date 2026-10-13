@@ -5,13 +5,14 @@ session, exactly as written.** The longer block after it is the STATE block the 
 session to read. Do not paste that one. Everything either references is in the repository;
 nothing depends on the previous conversation.
 
-**Last updated:** 2026-10-13, after the last approved follow-up (5, #106), on `main` at `1923d7f`.
+**Last updated:** 2026-10-13, at #109's design checkpoint (#87's option 2), on `main` at `a75b380`.
 **The owner's order (2026-10-11, amended 2026-10-13): follow-ups 4, 1, then #87's guard, then 3,
 2, 5 - one at a time, reporting after each.** Follow-ups 4, 1, #87's guard, 3 and 2 are DONE: 4
 as fixes #84, #85, #86; 1 as fix #71 (PR #95, after #92 and the covering capture #94), under the
 owner's choice **A+B**; the guard as fix #87 (PR #98); 3 as fix #100 (PR #101); 2 as fix #103
-(PR #104); 5 as fix #106 (PR #107). **Every approved follow-up is DONE. Nothing is approved
-next:** a session starts by reporting and asking the owner, never by picking a deferred item.
+(PR #104); 5 as fix #106 (PR #107). **Every follow-up on that list is DONE.** Then the owner
+approved **#87's option 2** (2026-10-13, "go ahead with your recommendation"), filed as **issue
+#109**, whose design checkpoint (P1-P6, one recommendation each) is held BEFORE any code.
 **v2 (slices 0–15) and v3 (slices 16–24) are both COMPLETE.** Criteria V1–V12 are all met
 (`docs/plan-v3.md` §7); `prd.md` criterion 1 stays NOT MET on every capture (since #71:
 `sandbox2026` 2 of 11, refresh 1, covering capture 5). **No issue is open.** #87's option 2
@@ -26,8 +27,9 @@ call is needed for anything left below.**
 
 ## The starting prompt — paste exactly this
 
-v3 is complete and every approved follow-up is DONE. This prompt has the session verify main,
-report, and ASK the owner what is next - it approves nothing by itself.
+v3 is complete and every follow-up on the owner's list is DONE. #87's option 2 is approved as
+issue #109 and waits at its design checkpoint. This prompt has the session verify main, read
+#109, and ASK the owner for the checkpoint answer - no code before it.
 
 ```
 Continue miniHotelPMS after v3. Working directory: /Users/sauravs/Desktop/Work/miniHotelPMS
@@ -40,12 +42,12 @@ Start-up, before anything else:
   PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -m tools.transcode_demopms --check   # 17 files
   .venv/bin/python -m coverage run -m pytest && .venv/bin/python -m coverage report   # 97%
   cd ui && npm ci && npm run typecheck && npm test && npm run e2e          # 249 Vitest, 26 Playwright
-  gh issue list --state open                     # none
+  gh issue list --state open                     # #109 (its design checkpoint)
 Those are main's numbers. Any that differs is a reason to stop and find out why. Then read
 CLAUDE.md, docs/session-handoff.md (the STATE block), docs/plan-v3.md (status table, §7),
 docs/open-questions.md (§3 for #87's option 2).
 
-Where things stand: v2 and v3 are complete; main is at 1923d7f or a docs-only commit after it.
+Where things stand: v2 and v3 are complete; main is at a75b380 or a docs-only commit after it.
 Every item below is a bug-workflow fix or a small PR of its own: a GitHub issue first (what,
 reproduction, which gate, severity), then fix/NN-..., a failing test, the fix, a PR "Fixes #NN",
 CI green on test (3.11) and test (3.13), squash-merge.
@@ -54,9 +56,15 @@ WORKING AGREEMENT (owner): after each item ends end to end, REPORT to me and WAI
 before the next. Before starting anything new, write the next session's starting prompt into
 docs/session-handoff.md as a docs-only PR. Recommend one option at every decision.
 
-GO-AHEAD: NONE OUTSTANDING. The owner's list (4, 1, #87-guard, 3, 2, 5 - 2026-10-11, #87's guard
-placed after 1 on 2026-10-13) is all DONE. Do not start anything until the owner names it. When
-asking, offer the deferred items below with one recommendation, and anything found on start-up.
+GO-AHEAD: #87's option 2, issue #109 - approved 2026-10-13. Its DESIGN CHECKPOINT is open: P1
+(collections judged per record, mode `none` only), P2 (the occupancy reference asks a bounded
+window in the deployment half, today..today+7d), P3 (PASS only if the closure from today lies in
+the fetched window; an overlap seen is FAIL; else UNKNOWN; a refused reference never PASS), P4
+(a closure ended before today EXCLUDED, via a relative-date literal the runner resolves), P5
+(rule version 4; declared goldens; no outcome moves), P6 (offline proof, no live call). If the
+owner has not answered on #109, ask for it and write no code. Once answered: issue already
+filed, so branch fix/109-..., failing tests from the design, the fix, PR "Fixes #109".
+(The owner's list 4, 1, #87-guard, 3, 2, 5 is all DONE.)
 
 THE FOLLOW-UPS:
 4. DONE (2026-10-11). The audit of #75's 16 fields is on #75; fixes #84 (PR #88), #85 (PR #89),
@@ -86,7 +94,7 @@ THE FOLLOW-UPS:
    minihotel/fixtures.py's "fourteen" count is dropped for index.json, the list. Comments only.
 
 Deferred - do NOT start these without my explicit say-so: emailing guest tasks; a React guest
-view; offering the refresh capture (sandbox2026refresh) in the demo; #87's option 2.
+view; offering the refresh capture (sandbox2026refresh) in the demo.
 
 Live calls: none are needed for anything above. If one ever is, it needs my yes to that exact
 call, printed first with tools.probe --plan (credentials in the git-ignored .env as
@@ -96,7 +104,7 @@ Rules that outrank everything: never widen a verdict; never edit a fixture to pa
 never hit the live API without my yes to that call; no credential or third-party personal data
 in a committed file.
 
-After the start-up checks, REPORT TO ME AND STOP: say main matches, and ask what is next.
+After the start-up checks, REPORT TO ME AND STOP at #109's checkpoint unless it is answered.
 ```
 
 ## The STATE block — read by the session, not pasted
