@@ -5,11 +5,12 @@ session, exactly as written.** The longer block after it is the STATE block the 
 session to read. Do not paste that one. Everything either references is in the repository;
 nothing depends on the previous conversation.
 
-**Last updated:** 2026-10-13, after #87's guard, on `main` at `7a8aa06`.
+**Last updated:** 2026-10-13, after follow-up 3 (#100), on `main` at `1d391f7`.
 **The owner's order (2026-10-11, amended 2026-10-13): follow-ups 4, 1, then #87's guard, then 3,
-2, 5 - one at a time, reporting after each.** Follow-ups 4, 1 and #87's guard are DONE: 4 as
+2, 5 - one at a time, reporting after each.** Follow-ups 4, 1, #87's guard and 3 are DONE: 4 as
 fixes #84, #85, #86; 1 as fix #71 (PR #95, after #92 and the covering capture #94), under the
-owner's choice **A+B**; the guard as fix #87 (PR #98). **The next item is 3.**
+owner's choice **A+B**; the guard as fix #87 (PR #98); 3 as fix #100 (PR #101). **The next item
+is 2.**
 **v2 (slices 0–15) and v3 (slices 16–24) are both COMPLETE.** Criteria V1–V12 are all met
 (`docs/plan-v3.md` §7); `prd.md` criterion 1 stays NOT MET on every capture (since #71:
 `sandbox2026` 2 of 11, refresh 1, covering capture 5). **No issue is open.** #87's option 2
@@ -33,9 +34,9 @@ Continue miniHotelPMS after v3. Working directory: /Users/sauravs/Desktop/Work/m
 
 Start-up, before anything else:
   git status && git branch --no-merged main     # LOCAL list: empty
-  PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -m pytest -q -o addopts=""    # 3247 passed, 3 skipped
+  PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -m pytest -q -o addopts=""    # 3264 passed, 3 skipped
   PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -m tools.validate_spec        # PASSED - all 1096 checks
-  PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -m tools.dump_api_fixtures --check   # 179 files
+  PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -m tools.dump_api_fixtures --check   # 228 files
   PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -m tools.transcode_demopms --check   # 17 files
   .venv/bin/python -m coverage run -m pytest && .venv/bin/python -m coverage report   # 97%
   cd ui && npm ci && npm run typecheck && npm test && npm run e2e          # 249 Vitest, 26 Playwright
@@ -44,7 +45,7 @@ Those are main's numbers. Any that differs is a reason to stop and find out why.
 CLAUDE.md, docs/session-handoff.md (the STATE block), docs/plan-v3.md (status table, §7),
 docs/open-questions.md (§3 for #87's option 2).
 
-Where things stand: v2 and v3 are complete; main is at 7a8aa06 or a docs-only commit after it.
+Where things stand: v2 and v3 are complete; main is at 1d391f7 or a docs-only commit after it.
 Every item below is a bug-workflow fix or a small PR of its own: a GitHub issue first (what,
 reproduction, which gate, severity), then fix/NN-..., a failing test, the fix, a PR "Fixes #NN",
 CI green on test (3.11) and test (3.13), squash-merge.
@@ -72,9 +73,13 @@ THE FOLLOW-UPS:
    (UNKNOWN, naming the count); ooo_room_protection is version 3 (a segment overlapping the
    closed window), UNKNOWN for a room in scope until option 2. 18 goldens declared, no outcome
    moved (still EXCLUDED 28).
-3. NEXT. Golden payloads for the guest routes (POST /api/guest/requests, /api/guest/decisions[/<id>])
-   in tools/dump_api_fixtures.py - new files only, every existing golden byte-identical.
-2. tools/serve.py attaches the operational log (--log), as python3 -m hotelcontrols.web.server
+3. DONE (2026-10-13), fix #100 (PR #101). fixtures/api/guest/: each POST answer, each
+   property's decisions (and an untouched store's), every decision by id, one refused request -
+   49 new files, every existing golden byte-identical. Shipped properties: STAFF_REVIEW naming
+   the six undecided parameters (true, kept). Two TEST properties (test_d2_49, test_d2_49_demo)
+   with D2 §49's policy, built in a throwaway spec/ copy, carry the nine criterion-7 cases, so
+   all four decisions are in the contract. No guest detail in any file (a test measures it).
+2. NEXT. tools/serve.py attaches the operational log (--log), as python3 -m hotelcontrols.web.server
    does.
 5. Two stale comments, one issue: hotelcontrols/evaluator/predicates.py:145-147 ("has not
    supplied" also means "not decided" since slice 21) and
@@ -116,10 +121,10 @@ slice 19 (#62), slice 20 (#63), slice 21 (#65), slice 22 (#68), fix #70 (#72), f
 fix #75 (#76), slice 23 (the evidence refresh, #77), slice 24 (host auth + per-property
 credentials, closing #22 and v3); after v3, follow-up 4's fixes #84 (#88), #85 (#89) and #86
 (#90); for follow-up 1, fix #92 (#93), the covering capture (#94) and fix #71 (#95); fix #87
-(#98). Baseline on main at 7a8aa06: 3247 passed / 3 skipped (the v3 scope guard always skips: no
-slice/16-* .. slice/24-* branch remains), 1096 spec checks, 179 API goldens identical to a rebuild, 17 DemoPMS
-files identical to a rebuild, spec lock current, 97% coverage. The React UI has 249 Vitest and
-26 Playwright tests.
+(#98); for follow-up 3, fix #100 (#101). Baseline on main at 1d391f7: 3264 passed / 3 skipped (the
+v3 scope guard always skips: no slice/16-* .. slice/24-* branch remains), 1096 spec checks, 228
+API goldens identical to a rebuild, 17 DemoPMS files identical to a rebuild, spec lock current,
+97% coverage. The React UI has 249 Vitest and 26 Playwright tests.
 No issue is open.
 
 #87'S GUARD IS DONE (2026-10-13, PR #98). ooo_room_protection version 2 placed
@@ -219,8 +224,8 @@ is evidence.gather, unchanged, over a one-call departures window (yesterday..tom
 `decisions` table, tenant-scoped; one decision and one task per double submission (identity
 includes received_on, the property's day); DENIED raises none. Guest tasks live in `actions`
 with kind guest_request, and /queue and /api/actions list violations only. Routes: POST
-/api/guest/requests, GET /api/guest/decisions[/<id>], /guest. NOT DONE, FLAGGED: no goldens and
-no React guest view (tools/dump_api_fixtures.py was outside the slice), guest tasks not emailed.
+/api/guest/requests, GET /api/guest/decisions[/<id>], /guest. NOT DONE, FLAGGED: no goldens
+(done since, #100 - fixtures/api/guest/) and no React guest view (tools/dump_api_fixtures.py was outside the slice), guest tasks not emailed.
 
 SLICE 21 MADE "NOT DECIDED" A STATE. spec/parameters.json types every tenant setting
 (text_list, text_list_map, money, time_of_day, choice; required stated; NO defaults) and
