@@ -1,0 +1,70 @@
+{
+  "decision_id": "f59a5bbd3c248197",
+  "property": "test_d2_49_demo",
+  "template": "LATE_CHECKOUT",
+  "template_version": 1,
+  "template_digest": "sha256:36310ed91a9f03b5c5afe3ce47cabd60bd3832c8b188d3a74d023e03db2c86c5",
+  "parameters_digest": "sha256:f2d2f25672939061c7f1cc18eafddeb39b6a808d93f1735e689338f8c41499cb",
+  "reservation_id": "007004343",
+  "requested_time": "16:01",
+  "received_at": "2026-07-08T00:00:00+03:00",
+  "received_on": "2026-07-08",
+  "decision": "STAFF_REVIEW",
+  "label": "STAFF REVIEW",
+  "rule": "LC10-needs-approval",
+  "reason": "After 16:00 a person must approve a late checkout; if approved, the fee would be 75.00 USD (3 charged hours from 14:00 at 25.00 USD per hour). Nothing is charged by this decision.",
+  "fee": null,
+  "gaps": [],
+  "evidence": [
+    {
+      "field": "reservation.status",
+      "known": true,
+      "value": "checked_in",
+      "unit": null,
+      "reason": null,
+      "risk": null,
+      "source": "pms:demopms/bookings"
+    },
+    {
+      "field": "reservation.departure_date",
+      "known": true,
+      "value": "2026-07-08",
+      "unit": "date",
+      "reason": null,
+      "risk": null,
+      "source": "pms:demopms/bookings"
+    }
+  ],
+  "provider": "demopms",
+  "evidence_label": "demo2026",
+  "severity": "medium",
+  "audience": "front_office_manager",
+  "action_id": "bd713c9a925957de",
+  "task": {
+    "action_id": "bd713c9a925957de",
+    "property": "test_d2_49_demo",
+    "control_id": "LATE_CHECKOUT",
+    "control_name": "Late checkout request",
+    "record_id": "f59a5bbd3c248197",
+    "severity": "medium",
+    "audience": "front_office_manager",
+    "type": "guest_request",
+    "reason": "Late checkout at 16:01 for reservation 007004343 on 2026-07-08: a person must decide. After 16:00 a person must approve a late checkout; if approved, the fee would be 75.00 USD (3 charged hours from 14:00 at 25.00 USD per hour). Nothing is charged by this decision.",
+    "policy_version": 1,
+    "policy_digest": "sha256:36310ed91a9f03b5c5afe3ce47cabd60bd3832c8b188d3a74d023e03db2c86c5",
+    "state": "pending",
+    "state_changed_at": null,
+    "state_changed_by": null,
+    "raised": {
+      "decision_id": "f59a5bbd3c248197",
+      "at": "2026-07-08T00:00:00+03:00",
+      "as_of": "2026-07-08",
+      "provider": "demopms",
+      "evidence": "demo2026"
+    },
+    "last_failing": null,
+    "cleared": null,
+    "annotation": null
+  },
+  "advisory": "Advisory. This engine writes nothing to the PMS and posts no fee: a person carries out the task. An approval applies the hotel's stated policy and does not check whether the room is needed for an arrival - no evidence can establish that."
+}

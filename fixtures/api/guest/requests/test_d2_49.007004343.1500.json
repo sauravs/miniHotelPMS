@@ -1,0 +1,70 @@
+{
+  "decision_id": "c4933579520ec837",
+  "property": "test_d2_49",
+  "template": "LATE_CHECKOUT",
+  "template_version": 1,
+  "template_digest": "sha256:36310ed91a9f03b5c5afe3ce47cabd60bd3832c8b188d3a74d023e03db2c86c5",
+  "parameters_digest": "sha256:f2d2f25672939061c7f1cc18eafddeb39b6a808d93f1735e689338f8c41499cb",
+  "reservation_id": "007004343",
+  "requested_time": "15:00",
+  "received_at": "2026-07-08T00:00:00+03:00",
+  "received_on": "2026-07-08",
+  "decision": "APPROVED_WITH_FEE",
+  "label": "APPROVED WITH FEE",
+  "rule": "LC11-fee",
+  "reason": "15:00 is 1 charged hour after 14:00 at 25.00 USD per hour: 25.00 USD.",
+  "fee": "25.00 USD",
+  "gaps": [],
+  "evidence": [
+    {
+      "field": "reservation.status",
+      "known": true,
+      "value": "checked_in",
+      "unit": null,
+      "reason": null,
+      "risk": null,
+      "source": "pms:minihotel/GetReservationKey"
+    },
+    {
+      "field": "reservation.departure_date",
+      "known": true,
+      "value": "2026-07-08",
+      "unit": "date",
+      "reason": null,
+      "risk": null,
+      "source": "pms:minihotel/GetReservationKey"
+    }
+  ],
+  "provider": "minihotel",
+  "evidence_label": "sandbox2026",
+  "severity": "medium",
+  "audience": "front_office_manager",
+  "action_id": "fc7c18e5083e559e",
+  "task": {
+    "action_id": "fc7c18e5083e559e",
+    "property": "test_d2_49",
+    "control_id": "LATE_CHECKOUT",
+    "control_name": "Late checkout request",
+    "record_id": "c4933579520ec837",
+    "severity": "medium",
+    "audience": "front_office_manager",
+    "type": "guest_request",
+    "reason": "Late checkout at 15:00 for reservation 007004343 on 2026-07-08: APPROVED WITH FEE 25.00 USD. 15:00 is 1 charged hour after 14:00 at 25.00 USD per hour: 25.00 USD. Tell the guest, record the new departure time and post the fee in the PMS - this engine writes and posts nothing. It did not check whether the room is needed for an arrival: no evidence can establish that (G12a).",
+    "policy_version": 1,
+    "policy_digest": "sha256:36310ed91a9f03b5c5afe3ce47cabd60bd3832c8b188d3a74d023e03db2c86c5",
+    "state": "pending",
+    "state_changed_at": null,
+    "state_changed_by": null,
+    "raised": {
+      "decision_id": "c4933579520ec837",
+      "at": "2026-07-08T00:00:00+03:00",
+      "as_of": "2026-07-08",
+      "provider": "minihotel",
+      "evidence": "sandbox2026"
+    },
+    "last_failing": null,
+    "cleared": null,
+    "annotation": null
+  },
+  "advisory": "Advisory. This engine writes nothing to the PMS and posts no fee: a person carries out the task. An approval applies the hotel's stated policy and does not check whether the room is needed for an arrival - no evidence can establish that."
+}

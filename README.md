@@ -184,8 +184,9 @@ make the two-provider test pass by being a different hotel. Runs over it report
 `evidence_is_synthetic`, because a run over records this repository produced must say so.
 
 `fixtures/api/` holds the JSON API's answers for the full matrix: every control, property and
-capture, plus history, readiness and the compose window's states. They are **generated, never
-edited**. They are the contract the React UI is built against, so a change that alters a payload
-shows up as a failing rebuild here rather than as a broken screen later.
+capture, plus history, readiness, the compose window's states and the guest routes' decisions.
+They are **generated, never edited**. They are the contract the React UI is built against, so a
+change that alters a payload shows up as a failing rebuild here rather than as a broken screen
+later.
 
 Nothing in this repository is invented to reach a nicer answer, and no credentials are stored here.

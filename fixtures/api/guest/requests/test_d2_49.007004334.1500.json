@@ -1,0 +1,45 @@
+{
+  "decision_id": "728845f1dfd99daf",
+  "property": "test_d2_49",
+  "template": "LATE_CHECKOUT",
+  "template_version": 1,
+  "template_digest": "sha256:36310ed91a9f03b5c5afe3ce47cabd60bd3832c8b188d3a74d023e03db2c86c5",
+  "parameters_digest": "sha256:f2d2f25672939061c7f1cc18eafddeb39b6a808d93f1735e689338f8c41499cb",
+  "reservation_id": "007004334",
+  "requested_time": "15:00",
+  "received_at": "2026-07-08T00:00:00+03:00",
+  "received_on": "2026-07-08",
+  "decision": "DENIED",
+  "label": "DENIED",
+  "rule": "LC2-cancelled",
+  "reason": "Reservation 007004334 is cancelled: there is no stay to extend.",
+  "fee": null,
+  "gaps": [],
+  "evidence": [
+    {
+      "field": "reservation.status",
+      "known": true,
+      "value": "cancelled",
+      "unit": null,
+      "reason": null,
+      "risk": null,
+      "source": "pms:minihotel/GetReservationKey"
+    },
+    {
+      "field": "reservation.departure_date",
+      "known": true,
+      "value": "2026-07-07",
+      "unit": "date",
+      "reason": null,
+      "risk": null,
+      "source": "pms:minihotel/GetReservationKey"
+    }
+  ],
+  "provider": "minihotel",
+  "evidence_label": "sandbox2026",
+  "severity": null,
+  "audience": null,
+  "action_id": null,
+  "task": null,
+  "advisory": "Advisory. This engine writes nothing to the PMS and posts no fee: a person carries out the task. An approval applies the hotel's stated policy and does not check whether the room is needed for an arrival - no evidence can establish that."
+}

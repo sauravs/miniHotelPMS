@@ -41,6 +41,18 @@ the captures (007004348, unrefunded credit). The untouched store's queue is the 
 must render as "not an all-clear" - every control not run. New files only: nothing that existed
 before slice 18 changes.
     compose/*.json                                        off, wired, and three kinds of turn
+    guest/requests/<property>.<reservation>.<HHMM>.json   POST /api/guest/requests, answered
+    guest/requests/refused.json                           one request refused (400)
+    guest/decisions.<property>.json                       GET /api/guest/decisions, after them
+    guest/decisions.empty.<property>.json                 an untouched store's decisions
+    guest/decisions/<decision_id>.json                    GET /api/guest/decisions/<id>, each
+
+The guest routes (slice 22; issue #100). The shipped properties have decided no late-checkout
+policy, so every request there is STAFF_REVIEW naming the six undecided parameters - true, and
+written. A client built on that alone would never see the other three decisions, so two TEST
+properties, ids beginning `test_`, carry D2 §49's policy in a throwaway copy of spec/, exactly
+as `tests/integration/test_guest_requests.py` builds them. No policy is invented for a shipped
+property, and nothing is written into spec/.
 
 `run/` and `runs/` are both complete so that every `run_id` a history row names resolves to a
 file - the same promise the live API makes. `drafts.json` is the unwired state (`App()` with no
@@ -110,6 +122,7 @@ def build() -> dict[str, str]:
         built["actions/empty.%s.json" % tenant_id] = body + "\n"
 
     built.update(_compose())
+    built.update(_guest())
     return built
 
 
@@ -150,6 +163,87 @@ def _compose() -> dict[str, str]:
         if status != 422:
             raise SystemExit("a refused accept answered %d, not 422" % status)
         out["compose/accept-refused.json"] = body + "\n"
+    return out
+
+
+# D2 §49's policy, the worked example the decision table was approved against. Given to TEST
+# properties only: the shipped ones decide nothing, and inventing a policy for them would be
+# the anti-criterion.
+D2_49 = {"free_until": "14:00", "charge_from": "14:00", "approval_required_after": "16:00",
+         "maximum_time": "18:00", "fee_per_hour": {"amount": "25.00", "currency": "USD"},
+         "hour_rounding": "started_hour"}
+# Test property -> the shipped tenant whose vocabulary (and so whose provider) it borrows.
+GUEST_TEST_PROPERTIES = {"test_d2_49": "sandbox", "test_d2_49_demo": "demo"}
+# The sandbox2026 capture's day, 2026-07-08, holds each kind of guest a rule distinguishes - the
+# nine cases criterion 7 is asserted on for a decision. Between them, every decision and every
+# rule family: both thresholds, past the maximum, cancelled, checked out, tomorrow, a status
+# nobody has named (OK4 / PROV4), and a reservation that does not exist.
+GUEST_CASES = (("007004343", "14:00"), ("007004343", "15:00"), ("007004343", "16:01"),
+               ("007004343", "18:01"), ("007004334", "15:00"), ("007004348", "15:00"),
+               ("007004338", "15:00"), ("007004258", "15:00"), ("999999999", "15:00"))
+# A shipped property is asked the one request the slice was written for: 3 PM, checked in.
+GUEST_SHIPPED_CASES = (("007004343", "15:00"),)
+
+
+def _guest() -> dict[str, str]:
+    """The guest routes' payloads, over the shipped properties and two labelled test ones."""
+    import shutil
+    import tempfile
+    from urllib.parse import urlencode
+
+    from hotelcontrols.spec import available_tenants
+    from hotelcontrols.spec.registry import SPEC_DIR
+    from hotelcontrols.web import App
+
+    out: dict[str, str] = {}
+    with tempfile.TemporaryDirectory() as scratch:
+        spec = pathlib.Path(scratch) / "spec"
+        shutil.copytree(SPEC_DIR, spec, ignore=shutil.ignore_patterns("drafts"))
+        for tenant_id, like in GUEST_TEST_PROPERTIES.items():
+            raw = json.loads((spec / "tenants" / ("%s.json" % like)).read_text("utf-8"))
+            raw["tenant_id"] = tenant_id
+            raw["name"] = "TEST PROPERTY - %s's vocabulary, D2 §49's policy" % like
+            raw["guest_services"] = {"LATE_CHECKOUT": D2_49}
+            (spec / "tenants" / ("%s.json" % tenant_id)).write_text(json.dumps(raw), "utf-8")
+
+        cases = {tenant_id: GUEST_SHIPPED_CASES for tenant_id in available_tenants()}
+        cases.update({tenant_id: GUEST_CASES for tenant_id in GUEST_TEST_PROPERTIES})
+
+        def get(app, path, name):
+            status, content_type, body = app.handle(path)
+            if status != 200 or not content_type.startswith("application/json"):
+                raise SystemExit("%s answered %d %s:\n%s" % (path, status, content_type,
+                                                             body[:400]))
+            out[name] = body + "\n"
+            return json.loads(body)
+
+        for tenant_id in sorted(cases):
+            get(App(spec_dir=spec), "/api/guest/decisions?property=%s" % tenant_id,
+                "guest/decisions.empty.%s.json" % tenant_id)
+
+        app = App(spec_dir=spec)        # one store: every property's decisions, kept apart
+        for tenant_id in sorted(cases):
+            for reservation_id, at in cases[tenant_id]:
+                status, _ct, body = app.handle_post("/api/guest/requests", urlencode(
+                    {"property": tenant_id, "reservation_id": reservation_id,
+                     "requested_time": at}))
+                if status != 201:
+                    raise SystemExit("a guest request answered %d, not 201:\n%s"
+                                     % (status, body[:400]))
+                out["guest/requests/%s.%s.%s.json" % (tenant_id, reservation_id,
+                                                      at.replace(":", ""))] = body + "\n"
+            listing = get(app, "/api/guest/decisions?property=%s" % tenant_id,
+                          "guest/decisions.%s.json" % tenant_id)
+            for entry in listing["decisions"]:
+                get(app, "/api/guest/decisions/%s?property=%s"
+                    % (entry["decision_id"], tenant_id),
+                    "guest/decisions/%s.json" % entry["decision_id"])
+
+        status, _ct, body = app.handle_post("/api/guest/requests", urlencode(
+            {"property": "sandbox", "reservation_id": "007004343"}))
+        if status != 400:
+            raise SystemExit("a request with no time answered %d, not 400" % status)
+        out["guest/requests/refused.json"] = body + "\n"
     return out
 
 

@@ -1,0 +1,101 @@
+{
+  "decision_id": "b452c7dab9903fb4",
+  "property": "sandbox",
+  "template": "LATE_CHECKOUT",
+  "template_version": 1,
+  "template_digest": "sha256:36310ed91a9f03b5c5afe3ce47cabd60bd3832c8b188d3a74d023e03db2c86c5",
+  "parameters_digest": "sha256:444e91d273b59aee140507036269acb1b2f36313885eb8c7daff7bb84e08aebc",
+  "reservation_id": "007004343",
+  "requested_time": "15:00",
+  "received_at": "2026-07-08T00:00:00+03:00",
+  "received_on": "2026-07-08",
+  "decision": "STAFF_REVIEW",
+  "label": "STAFF REVIEW",
+  "rule": "LC1-gaps",
+  "reason": "A person must decide: free_until is not decided by this property (null in its configuration); charge_from is not decided by this property (null in its configuration); approval_required_after is not decided by this property (null in its configuration); maximum_time is not decided by this property (null in its configuration); fee_per_hour is not decided by this property (null in its configuration); hour_rounding is not decided by this property (null in its configuration).",
+  "fee": null,
+  "gaps": [
+    {
+      "name": "free_until",
+      "kind": "parameter",
+      "reason": "is not decided by this property (null in its configuration)"
+    },
+    {
+      "name": "charge_from",
+      "kind": "parameter",
+      "reason": "is not decided by this property (null in its configuration)"
+    },
+    {
+      "name": "approval_required_after",
+      "kind": "parameter",
+      "reason": "is not decided by this property (null in its configuration)"
+    },
+    {
+      "name": "maximum_time",
+      "kind": "parameter",
+      "reason": "is not decided by this property (null in its configuration)"
+    },
+    {
+      "name": "fee_per_hour",
+      "kind": "parameter",
+      "reason": "is not decided by this property (null in its configuration)"
+    },
+    {
+      "name": "hour_rounding",
+      "kind": "parameter",
+      "reason": "is not decided by this property (null in its configuration)"
+    }
+  ],
+  "evidence": [
+    {
+      "field": "reservation.status",
+      "known": true,
+      "value": "checked_in",
+      "unit": null,
+      "reason": null,
+      "risk": null,
+      "source": "pms:minihotel/GetReservationKey"
+    },
+    {
+      "field": "reservation.departure_date",
+      "known": true,
+      "value": "2026-07-08",
+      "unit": "date",
+      "reason": null,
+      "risk": null,
+      "source": "pms:minihotel/GetReservationKey"
+    }
+  ],
+  "provider": "minihotel",
+  "evidence_label": "sandbox2026",
+  "severity": "medium",
+  "audience": "front_office_manager",
+  "action_id": "2d625e00f9f4a404",
+  "task": {
+    "action_id": "2d625e00f9f4a404",
+    "property": "sandbox",
+    "control_id": "LATE_CHECKOUT",
+    "control_name": "Late checkout request",
+    "record_id": "b452c7dab9903fb4",
+    "severity": "medium",
+    "audience": "front_office_manager",
+    "type": "guest_request",
+    "reason": "Late checkout at 15:00 for reservation 007004343 on 2026-07-08: a person must decide. A person must decide: free_until is not decided by this property (null in its configuration); charge_from is not decided by this property (null in its configuration); approval_required_after is not decided by this property (null in its configuration); maximum_time is not decided by this property (null in its configuration); fee_per_hour is not decided by this property (null in its configuration); hour_rounding is not decided by this property (null in its configuration).",
+    "policy_version": 1,
+    "policy_digest": "sha256:36310ed91a9f03b5c5afe3ce47cabd60bd3832c8b188d3a74d023e03db2c86c5",
+    "state": "pending",
+    "state_changed_at": null,
+    "state_changed_by": null,
+    "raised": {
+      "decision_id": "b452c7dab9903fb4",
+      "at": "2026-07-08T00:00:00+03:00",
+      "as_of": "2026-07-08",
+      "provider": "minihotel",
+      "evidence": "sandbox2026"
+    },
+    "last_failing": null,
+    "cleared": null,
+    "annotation": null
+  },
+  "advisory": "Advisory. This engine writes nothing to the PMS and posts no fee: a person carries out the task. An approval applies the hotel's stated policy and does not check whether the room is needed for an arrival - no evidence can establish that."
+}
