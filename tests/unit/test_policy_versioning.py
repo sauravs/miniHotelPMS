@@ -66,9 +66,11 @@ def _validate(spec: pathlib.Path, capsys) -> tuple[int, str]:
 class TestTheLoaderReadsTheVersion:
 
     def test_every_shipped_control_says_which_version_it_is(self):
-        """plan-v3 §2: every IR says `"version": 2` and no loader read it until now."""
+        """plan-v3 §2: every IR said `"version": 2` and no loader read it until slice 16. Since
+        then a rule moves only by a bump: ooo_room_protection is 3 since issue #87."""
+        bumped = {"ooo_room_protection": 3}
         for control_id in available():
-            assert load(control_id).version == 2, control_id
+            assert load(control_id).version == bumped.get(control_id, 2), control_id
 
     def test_the_digest_is_a_named_hash_of_the_rule(self):
         digest = load(CONTROL).digest

@@ -15,7 +15,7 @@ without being dangerous: whatever writes an IR, a human or a model, it passes th
 these checks, and one that references vocabulary nobody defined is rejected NAMING the missing
 fields rather than producing a rule that runs and quietly answers about nothing.
 
-Six checks, beyond the schema itself. Each exists because skipping it lets a specific class of
+Seven checks, beyond the schema itself. Each exists because skipping it lets a specific class of
 broken rule through:
 
   1. Every field referenced anywhere is a declared canonical field.
@@ -26,6 +26,7 @@ broken rule through:
      setting. Two would mean the engine picks one, and the rule would be ambiguous.
   5. Interval operators carry an interval; aggregate operators appear only in aggregates.
   6. A reference carries the fields its kind needs, and any field it joins on is declared.
+  7. `within` / `not_within` place a DATE in a window, so their field is a date or datetime.
 """
 from __future__ import annotations
 
@@ -41,6 +42,10 @@ from .tenant import TenantConfig
 
 # Operators that compare a record against an interval of dates, and therefore need one.
 INTERVAL_OPERATORS = frozenset({"within", "not_within", "no_overlap"})
+# Operators that place one record's DATE inside a window of dates (check 7). `no_overlap` is an
+# interval operator too, but an aggregate over each record's own span, and is checked as one.
+DATE_IN_WINDOW_OPERATORS = frozenset({"within", "not_within"})
+DATE_TYPES = frozenset({"date", "datetime"})
 # Operators that ask a question about a GROUP of records, and are meaningless on one record.
 AGGREGATE_OPERATORS = frozenset({"count_lte", "no_overlap"})
 # Operators that ask whether a declared reference resolved for this record.
@@ -211,6 +216,7 @@ def validate(ir: ControlIR | dict[str, Any], registry: Registry,
     problems.extend(_check_assertion_shape(control, where))
     problems.extend(_check_predicates(control, where))
     problems.extend(_check_references(control, registry, where))
+    problems.extend(_check_interval_operands(control, registry, where))
     if tenant is not None:
         problems.extend(_check_tenant_settings(control, tenant, where))
     return problems
@@ -348,6 +354,28 @@ def _check_references(ir: ControlIR, registry: Registry, where: str) -> list[Pro
                 if key in reference:
                     problems.append(Problem(
                         where, "%s: %s is for a lookup or collection" % (site, key)))
+    return problems
+
+
+def _check_interval_operands(ir: ControlIR, registry: Registry, where: str) -> list[Problem]:
+    """Check 7 - `within` asks where a DATE lies.
+
+    Issue #87: `ooo_room_protection` version 2 asked it of `occupancy.reservation_id`. The
+    interval layer compares ISO dates as strings, so "007000001" < "2026-07-01" because '0' <
+    '2': every real reservation id landed outside every window, and a room with a guest inside
+    its closed window PASSed. The rule was valid by every other check. Undeclared fields are
+    check 1's to report, so they are skipped here rather than reported twice.
+    """
+    problems: list[Problem] = []
+    for clause, predicate in ir.predicates():
+        name, operator = predicate["field"], predicate["operator"]
+        if operator not in DATE_IN_WINDOW_OPERATORS or not registry.has(name):
+            continue
+        kind = registry.field(name).type
+        if kind not in DATE_TYPES:
+            problems.append(Problem(
+                where, "%s predicate on %s: %r places a date inside a window, and %s is not a "
+                       "date - its canonical type is %r" % (clause, name, operator, name, kind)))
     return problems
 
 
