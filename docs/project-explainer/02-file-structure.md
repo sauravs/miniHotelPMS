@@ -11,18 +11,24 @@
 ```
 miniHotelPMS/
 ├── hotelcontrols/     THE ENGINE.  Python. Knows how to run a control. Knows no control.
-├── spec/              THE RULES.   JSON data, read at runtime. 11 controls live here.
-│   └── drafts/        COMPOSED RULES. Runnable, unreviewed, uncounted.
-├── fixtures/          THE EVIDENCE. Captured API responses. Never edited.
+├── spec/              THE RULES.   JSON data, read at runtime. 11 controls live here,
+│   ├── guest/         one guest decision table, the hotel parameters' types,
+│   └── drafts/        and COMPOSED RULES: runnable, unreviewed, uncounted.
+├── fixtures/          THE EVIDENCE. Captured API responses, four captures. Never edited.
 │   └── api/           THE CONTRACT. The JSON API's own answers, generated, for the React UI.
-├── tests/             THE PROOF.   1,956 tests. Offline. Four layers.
-├── tools/             THE UTILITIES. Validate, pseudonymise, transcode, probe, dump —
-│   └── proposers/     and every MODEL BACKEND, deliberately outside the engine.
+├── tests/             THE PROOF.   Offline. Four layers. Count: the README's table.
+├── tools/             THE UTILITIES. Validate, lock, pseudonymise, transcode, probe, dump —
+│   ├── proposers/     every MODEL BACKEND, and
+│   └── notifiers/     every EMAIL BACKEND, deliberately outside the engine.
 ├── ui/                THE SECOND SCREEN. Next.js + React. A client of the JSON API, never
 │                      imported by the engine. Delete it and the engine still ships.
 ├── docs/              THE PROSE.   Including this folder.
 └── miniHotelLegacy/   v1, PRESERVED. The mistake this codebase was built to avoid.
 ```
+
+The counts that drift (tests, checks, golden files, lines) are measured once, with the command
+that produced them, in the [README's table](README.md#what-is-true-as-of-this-writing). Line
+counts below were measured with `wc -l` on 2026-10-13.
 
 The critical separation, and everything else follows from it:
 
@@ -44,29 +50,33 @@ flowchart LR
         FIX["fixtures/<br/><i>captured API responses</i>"]
     end
 
-    ENG["hotelcontrols/<br/><b>the engine</b><br/><i>~10,400 lines</i>"]
+    ENG["hotelcontrols/<br/><b>the engine</b><br/><i>~15,300 lines of Python</i>"]
 
     subgraph outputs[" PRODUCED "]
         WEB["a web page<br/>+ JSON API"]
-        DB["runs.sqlite<br/><i>run history</i>"]
+        DB["SQLite store<br/><i>runs · tasks · guest decisions<br/>in memory unless --store PATH</i>"]
+        LOG["operational log<br/><i>JSON lines, stderr by default</i>"]
     end
 
-    UI["ui/<br/><b>the React UI</b><br/><i>a client, outside the engine</i>"]
+    UI["ui/<br/><b>the React UI</b><br/><i>a client, outside the engine<br/>signs the tenant context when auth is on</i>"]
     API["fixtures/api/<br/><i>golden JSON payloads</i>"]
 
-    TESTS["tests/<br/><i>1,956 tests</i>"]
-    TOOLS["tools/<br/><i>validate · scrub ·<br/>transcode · probe</i>"]
+    TESTS["tests/<br/><i>unit · integration ·<br/>contract · e2e</i>"]
+    TOOLS["tools/<br/><i>validate · lock · scrub ·<br/>transcode · probe · dump</i>"]
+    INJ["tools/proposers/ · tools/notifiers/<br/><i>model and email backends</i>"]
 
     SPEC --> ENG
     FIX --> ENG
     ENG --> WEB
     ENG --> DB
+    ENG --> LOG
     WEB -- JSON --> UI
+    INJ -. injected by tools/serve.py .-> ENG
     TOOLS -.dumps.-> API
     API -.renders in tests.-> UI
     TESTS -.asserts.-> ENG
     TESTS -.asserts.-> SPEC
-    TOOLS -.validates.-> SPEC
+    TOOLS -.validates · locks.-> SPEC
     TOOLS -.generates.-> FIX
 
     style ENG fill:#2d3f5e,color:#fff
@@ -79,6 +89,10 @@ flowchart LR
 engine has no compile-time knowledge of either. Delete `spec/ir/checkout_money_owed.json` and the
 engine does not fail to import — it simply offers ten controls instead of eleven.
 
+The one arrow from `tools/` into the engine is an **injection**, not an import. `tools/serve.py`
+builds a model backend or an email backend and hands it to the app. Nothing in `hotelcontrols/`
+imports either, and two tests over the source tree fail if anything ever does.
+
 ---
 
 ## 3. `hotelcontrols/` — the engine
@@ -89,15 +103,22 @@ point **downwards only**: `kernel` imports nothing, `web` imports everything.
 ```
 hotelcontrols/
 ├── kernel/       L1 · the vocabulary every layer speaks
-├── spec/         L2 · loading and validating the rules
+├── spec/         L2 · loading, validating, versioning and typing the rules
 ├── providers/    L3 · ◄── THE CANONICAL BOUNDARY. PMS knowledge stops here
 ├── evidence/     L4 · which records to look at, and what each costs
 ├── evaluator/    L5 · applying the rule. Pure. No I/O
 ├── runner/       L6 · orchestration, coverage, readiness, scheduling
-├── store/        L6c · run history in SQLite
-├── web/          L7 · routing and rendering
+├── store/        L6c · runs, tasks and guest decisions in SQLite, one hotel at a time
+├── actions/      ABOVE L6 · a FAIL becomes one task; email it once      (v3)
+├── guest/        BESIDE L6 · a guest request, decided by an approved table (v3)
+├── ops/          ABOVE L6 · the operational log                         (v3)
+├── web/          L7 · routing, rendering, and who is asking
 └── compiler/     L0 · English → IR. Runs BESIDE the stack, not inside it
 ```
+
+The three v3 packages sit above or beside the runner, never inside it. A run does not create a
+task, decide a guest request or write a log line: the web layer does each of those **after** it
+has the run, so `runner/` did not change to make room for them.
 
 ### L1 · `kernel/` — the vocabulary. *Depends on nothing.*
 
@@ -111,6 +132,7 @@ than trusting callers.
 | `outcome.py` | 51 | `PASS · FAIL · UNKNOWN · EXCLUDED`, plus `is_answer` | Folding EXCLUDED into PASS, which turns "90 records were out of scope" into "90 passed" |
 | `verdict.py` | 98 | `Verdict(outcome, reason, evidence[])` + `EvidenceLine` | The constructor **raises `NotAuditable`** on empty evidence or a blank reason. A verdict without receipts cannot be built at all |
 | `clock.py` | 112 | `Clock` protocol, `PropertyClock`, `FixedClock` | Every date is a question about the **hotel's** calendar, never the server's. Enforced since slice 8 by an AST test: this is the only module allowed to read a wall clock |
+| `dates.py` | 44 | The grammar of `today`, `today-1d`, `today+7d`, once. It reads no clock; it is handed the hotel's date (#109) | Three layers read the token: the validator, the evidence layer and the runner. Three regular expressions would one day disagree about what `today+7d` means |
 | `errors.py` | 59 | `UnknownValue`, `CurrencyMismatch`, `UnitRequired`, `NotAuditable` | Every one is *raised*, never swallowed. A layer that returns a plausible default when it cannot answer manufactures confidence |
 
 ### L2 · `spec/` (the Python package) — loading and policing the rules
@@ -121,9 +143,11 @@ Note the two `spec`s: `hotelcontrols/spec/` is **code that reads**; `spec/` at t
 | File | Lines | What it is |
 | --- | --- | --- |
 | `registry.py` | 163 | The canonical vocabulary. A rule may reference `folio.balance_due`; it may **not** reference whatever one PMS happens to call it. This is what makes "the rule never names a PMS" enforceable rather than aspirational |
-| `ir.py` | 382 | Loads and validates a Control IR before anything tries to run it. Includes the cross-check that anything used in scope/exceptions/assertions is *also* declared as required evidence |
-| `schema.py` | 193 | A deliberately small JSON-Schema validator. `jsonschema` is not in the standard library, and criterion 11 says the engine imports nothing that is not — so this implements exactly the subset `spec/ir_schema.json` uses, and **refuses** any keyword it does not support rather than ignoring it |
-| `tenant.py` | 152 | One hotel's vocabulary and policy as data: status map, department map, timezone, call budget, nominated rate codes. In v1 these were dictionaries in a Python module, which made onboarding a second property a code change |
+| `ir.py` | 560 | Loads and validates a Control IR before anything tries to run it. Includes the cross-check that anything used in scope/exceptions/assertions is *also* declared as required evidence, and, since #87 and #109, that `within` only ever reads a date, that a collection is read only under mode `none`, and that `absent` is said only of an ordering on a field whose absence is a fact |
+| `lock.py` | 150 | **v3, slice 16.** Hashes each rule's verdict-bearing content and checks it against `spec/ir.lock.json`. A rule edited without a version bump fails `validate_spec`, so a version number cannot lie about which rule produced a stored answer |
+| `parameters.py` | 309 | **v3, slice 21.** Types every hotel setting from `spec/parameters.json`: text lists, maps, money with its currency, a time of day, a choice. **No defaults.** `null` is the only way to write *not decided*, and it is kept apart from the settings a rule reads |
+| `schema.py` | 201 | A deliberately small JSON-Schema validator. `jsonschema` is not in the standard library, and criterion 11 says the engine imports nothing that is not — so this implements exactly the subset `spec/ir_schema.json` uses, and **refuses** any keyword it does not support rather than ignoring it |
+| `tenant.py` | 231 | One hotel's vocabulary and policy as data: status map, department map, timezone, call budget, the currencies its records show, its settings, and which settings are not decided. In v1 these were dictionaries in a Python module, which made onboarding a second property a code change |
 | `errors.py` | 42 | Spec failures. Each means: *fix the spec, not the engine* |
 
 ### L3 · `providers/` — **the canonical boundary**
@@ -134,24 +158,26 @@ Note the two `spec`s: `hotelcontrols/spec/` is **code that reads**; `spec/` at t
 
 | File | Lines | What it is |
 | --- | --- | --- |
-| `base.py` | 118 | The `Provider` protocol — 10 methods — plus `Request`, and the error types (`ResponseUnavailable`, `RecordBoundaryUnknown`) that callers turn into UNKNOWN rather than into a verdict |
+| `base.py` | 123 | The `Provider` protocol — 10 methods — plus `Request`, and the error types (`ResponseUnavailable`, `RecordBoundaryUnknown`) that callers turn into UNKNOWN rather than into a verdict |
 | `registry.py` | 124 | **Discovers** adapters by importing sub-packages that declare themselves (`ADAPTER`, `FROZEN`, `CAPTURES`, `DEFAULT_CAPTURE`). A hard-coded `{"minihotel": MiniHotelAdapter}` would be the first place the boundary leaked |
 
 #### `providers/minihotel/` — XML, real, captured from the vendor sandbox
 
 | File | Lines | What it is |
 | --- | --- | --- |
-| `adapter.py` | 295 | `resolve(field, record) -> Value`. The entire interface the layer above sees |
+| `adapter.py` | 311 | `resolve(field, record) -> Value`. The entire interface the layer above sees. Since #109 it also maps a reference's window (`DateRange`) |
 | `paths.py` | 183 | Addressing a value inside a document **tree**. Replaces v1's regexes-over-raw-XML, where reordering two attributes silently turned a known date into UNKNOWN and XML entities were never decoded |
 | `records.py` | 131 | Where one record ends and the next begins. Get this wrong and field 3 of booking 1 pairs with field 7 of booking 2 |
-| `transforms.py` | 226 | Every MiniHotel quirk, one named function each: three date formats, `0`-means-unset, tenant status/department maps, `to_money` |
-| `fixtures.py` | 230 | Replays captured responses **and replays the filters the way the live server would**. A request for a window the capture never covered **raises**, because "no data" and "nothing wrong" are different answers |
-| `live.py` | 204 | What one of these calls looks like on the wire. Adapter knowledge, so it lives here — the transport itself knows no PMS |
+| `transforms.py` | 248 | Every MiniHotel quirk, one named function each: three date formats, `0`-means-unset, tenant status/department maps, `to_money` |
+| `fixtures.py` | 266 | Replays captured responses **and replays the filters the way the live server would**. Since #71 it answers only from the response whose **recorded question covers the ask**, and refuses a window the recording never named, a wider window, or a narrowing the recording made and the run did not ask for. "No data" and "nothing wrong" are different answers, and so are "this week" and "a week" |
+| `live.py` | 204 | What one of these calls looks like on the wire, transcribed from the calls that produced the captures. Adapter knowledge, so it lives here — the transport itself knows no PMS |
 
 #### `providers/demopms/` — JSON, fictional, generated
 
-Same six-file shape (minus `live.py` — nobody has ever called DemoPMS, so it has no encoder; it can
-be replayed but not probed, and that difference is reported rather than papered over).
+Same shape (minus `live.py` — nobody has ever called DemoPMS, so it has no encoder; it can be
+replayed but not probed, and that difference is reported rather than papered over). `adapter.py`
+280, `fixtures.py` 256, `paths.py` 142, `records.py` 131, `transforms.py` 289 lines. Its replay
+obeys the same #71 rule as MiniHotel's.
 
 **Its quirks were chosen to disagree with MiniHotel's**, because agreement would prove nothing:
 
@@ -166,7 +192,7 @@ be replayed but not probed, and that difference is reported rather than papered 
 
 | File | Lines | What it is |
 | --- | --- | --- |
-| `http.py` | 371 | The only file in the engine that can open an outbound socket, **and it is off**. Two locks: an environment variable, *and* a refusal to arm while a test runner is loaded in the process |
+| `http.py` | 390 | The only file in the engine that can open an outbound socket, **and it is off**. Two locks: an environment variable, *and* a refusal to arm while a test runner is loaded in the process. Since slice 24 its credentials are **per property**, `HOTELCONTROLS_<PROPERTY>_<PROVIDER>_*`, with no fallback: two hotels on one PMS never share an account by accident |
 | `ratelimit.py` | 77 | Token bucket. How fast this engine is allowed to be a guest on someone else's server |
 | `record.py` | 144 | Writes a live response into the fixture set **with the request that produced it** — so probing stops being a hand-run script whose output somebody pastes somewhere |
 
@@ -176,9 +202,9 @@ Cost is `1 + R + N`: one population call, one per reference set, one per record 
 
 | File | Lines | What it is |
 | --- | --- | --- |
-| `gather.py` | 227 | The orchestrator. Three sources **in cost order** — the population response (free), a reference (1 call per run, however many records want it), a per-record follow-up (1 call each). Every declared field is present as a `Value`; a gap is an unknown, never a missing key |
-| `population.py` | 78 | Turns the IR's population query into request filters, resolving relative dates (`today-1d`) through the tenant clock. §24 of the brief: *"produce a population query, not an IF statement"* |
-| `reference.py` | 122 | Joining a record to property-wide data. **This is the single largest functional gap in v1** — three of its controls returned 111 UNKNOWN out of 111 records because a stay could never be joined to its room |
+| `gather.py` | 269 | The orchestrator. Three sources **in cost order** — the population response (free), a reference (1 call per run, however many records want it), a per-record follow-up (1 call each). Every declared field is present as a `Value`; a gap is an unknown, never a missing key. Since #109 a bundle also carries the **window** each reference was fetched for, and the related records whose key could not be read (`unplaced`), so the evaluator can tell "no guest" from "a guest we could not place" |
+| `population.py` | 74 | Turns the IR's population query into request filters, resolving relative dates (`today-1d`) through the tenant clock. §24 of the brief: *"produce a population query, not an IF statement"* |
+| `reference.py` | 206 | Joining a record to property-wide data. **This is the single largest functional gap in v1** — three of its controls returned 111 UNKNOWN out of 111 records because a stay could never be joined to its room. Since #86 an absent key is **never** indexed or looked up: two blanks are not a match. Since #109 a reference may ask a bounded window (`population.reference_windows`), because a property-wide question with no window is the unbounded query R8 forbids |
 | `cache.py` | 62 | One response, one call, for the length of a run. v1 cached per record, so a response fetched for record A was fetched again for record B |
 | `budget.py` | 56 | The thing that stops a run. It **raises**; it never truncates |
 
@@ -189,30 +215,56 @@ reproducible six months later, and it is asserted by a test rather than assumed.
 
 | File | Lines | What it is |
 | --- | --- | --- |
-| `record.py` | 162 | One record → one Verdict. The order is fixed: **scope → exceptions → assertion** |
-| `population.py` | 265 | Questions about a *group*. "Two active reservations must not share a confirmation number" is not a property of a reservation — it is a property of the set. A second shape, not a special case of the first |
-| `predicates.py` | 261 | One IR clause applied to one record's evidence. Every predicate returns **three** answers: holds, does not hold, or cannot tell |
+| `record.py` | 177 | One record → one Verdict. The order is fixed: **scope → exceptions → assertion** |
+| `population.py` | 297 | Questions about a *group*. "Two active reservations must not share a confirmation number" is not a property of a reservation — it is a property of the set. A second shape, not a special case of the first. Since #85 a record whose id cannot be read is never counted away: it might be another reservation |
+| `predicates.py` | 354 | One IR clause applied to one record's evidence. Every predicate returns **three** answers: holds, does not hold, or cannot tell. A value with no date unit is never placed in a window (#87), and an ordering on an absent value answers only if the rule said what an absence means (`absent`, #109) |
+| `collections.py` | 274 | **#109.** A room's occupancy is *many* records. Under mode `none`, each related record is judged: FAIL naming the record; else UNKNOWN if one could not be judged; else PASS **only if** the window fetched covers the room's own dates from today on. Before #87 the room was judged by its first guest |
 | `intervals.py` | 64 | `within` / `not_within` / `overlaps`. v1 declared these in its schema and implemented none of them |
 
 ### L6 · `runner/` — orchestration and judgement
 
 | File | Lines | What it is |
 | --- | --- | --- |
-| `run.py` | 168 | One control, end to end, in a box readable six months later. **Knows what no control is** — the control id names a file |
+| `run.py` | 206 | One control, end to end, in a box readable six months later. **Knows what no control is** — the control id names a file. Every run names the rule's `policy_version` and `policy_digest` (slice 16), and resolves a `today+Nd` written into a rule's value through the hotel's clock (#109) |
 | `coverage.py` | 113 | *Did this run conclude anything?* `evaluated = PASS + FAIL`. A run with zero renders as *"reached no conclusion about any record"* — **never as four reassuring zeroes** |
 | `readiness.py` | 120 | What a control could answer on a provider **before it is ever run**. This is the brief's §15–16: *"1 of 2 evidence sources connected"* |
 | `scheduling.py` | 348 | `next_evaluation()` and `freshness_of()`, as **pure functions** with an injected clock. A control whose events a provider does not publish falls back to its interval and the plan **names the missing event** — with no fallback it is `unschedulable` rather than given a plausible interval |
 
-### L6c · `store/` and L7 · `web/`
+### L6c · `store/`
 
 | File | Lines | What it is |
 | --- | --- | --- |
-| `store/sqlite.py` | 215 | Run history. A verdict that cannot be re-read is not an audit trail — and re-reading must not cost a provider call |
-| `store/schema.sql` | — | Three timestamps that are three different facts: `as_of` (what date it describes), `observed_at` (when the evidence was obtained), `created_at` (when the run happened) |
-| `web/app.py` | 749 | `handle(path) -> (status, content_type, body)`. **A pure function of the path** — which is why the whole demo is testable without a socket. Since slice 15 it also serves the JSON a second client needs: `/api/controls`, `/api/properties`, `/api/history/<id>`, `/api/drafts`, `/api/outcomes`, `/api/plan/<id>`, and compose as JSON (its one write path, which never touches a PMS) |
-| `web/render.py` | 998 | Pure functions from objects to strings. UNKNOWN is distinguished from FAIL by **hue, border style *and* wording** — three signals, so it survives a monochrome screen or a colour-blind reader |
-| `web/server.py` | 158 | The only file in the engine that knows a socket exists. Eleven lines of work around `handle()` |
-| `web/assets/style.css` | — | Served from the package, never from a CDN |
+| `store/sqlite.py` | 604 | Run history, the findings queue and guest decisions. A verdict that cannot be re-read is not an audit trail — and re-reading must not cost a provider call. **Since slice 17 every read names its hotel** (`tenant_id` is keyword-only, so forgetting it is an error, not a leak), and another hotel's run is the same "not found" as a missing one |
+| `store/schema.sql` | 165 | Five tables: `runs`, `verdicts`, `evidence`, `actions` (slice 18) and `decisions` (slice 22). Three timestamps on a run that are three different facts: `as_of` (what date it describes), `observed_at` (when the evidence was obtained), `created_at` (when the run happened). A test fails any SQL in `store/` that touches one of these tables without `tenant_id = ?` |
+
+The store is **in memory** unless the server is started with `--store PATH`, and every page that
+shows the queue says so, rather than imply a persistence it lacks.
+
+### v3 · `actions/`, `guest/`, `ops/` — above and beside the runner
+
+| File | Lines | What it is |
+| --- | --- | --- |
+| `actions/records.py` | 263 | **Slice 18.** `findings_from(run, ir)`, pure: only a FAIL of a reviewed control raises a task, with the severity and audience the IR's `action` block declares, word for word. Keyed by (hotel, control, rule version, record), so a control re-run five times is one task. A task moves `pending → done \| dismissed` by a person; a later PASS annotates it and never closes it |
+| `actions/notify.py` | 198 | **Slice 19.** A `Notifier` *protocol* and `dispatch`. The engine holds nothing that can send; the SMTP backend lives in `tools/notifiers/` and is injected. One email per task per channel. An email carries the record id, the control, the amount with its currency and a link — **never the verdict's reason**, never a guest's details |
+| `actions/guest.py` | 74 | **Slice 22.** A guest decision as a task in the same table, kind `guest_request`, so the findings queue (violations only) never shows an approval with a VIOLATION badge. `DENIED` raises none |
+| `guest/template.py` | 158 | Loads `spec/guest/late_checkout.json` and **refuses** a table that is not `approved`, or whose rules differ from the code's in id, order or decision |
+| `guest/request.py` | 70 | The request is **structured**: a reservation id and `HH:MM`, read by slice 21's own time reader. No model reads what a guest wrote |
+| `guest/policy.py` | 126 | The hotel's six late-checkout parameters, typed by slice 21's schema. `null` stays *not decided* |
+| `guest/evidence.py` | 148 | The reservation's status and departure date through `evidence.gather`, unchanged — so both providers answer the same canonical question. One call, a departures window around today |
+| `guest/decision.py` | 274 | `decide(...)`, pure. Eleven ordered rules, gaps first: any missing fact or undecided parameter is `STAFF_REVIEW` naming **all** of them, so no later rule runs on a guess |
+| `guest/fee.py` | 57 | The fee as `Money`, by repeated addition of the hourly rate. `Money` has no multiplication and gained none |
+| `guest/service.py` | 31 | Request → evidence → table → an identified, versioned decision |
+| `ops/log.py` | 102 | **Slice 20.** JSON lines through stdlib `logging`, one per request, run and email, each with `tenant_id`, `run_id`, `control_id`, `policy_version` and `provider`. Stamped by the injected clock, never the log record's own time. No password, guest detail or staff address, checked over every line of a full run |
+
+### L7 · `web/`
+
+| File | Lines | What it is |
+| --- | --- | --- |
+| `web/app.py` | 1272 | `handle(path) -> (status, content_type, body)`. **A pure function of the path** — which is why the whole demo is testable without a socket. Writes go through a second entry point, `handle_post(path, body)`. Since slice 15 it also serves the JSON a second client needs (`/api/controls`, `/api/properties`, `/api/history/<id>`, `/api/drafts`, `/api/outcomes`, `/api/plan/<id>`, compose as JSON). v3 added the queue (`/queue`, `/api/actions`, moving a task) and guest decisions (`/guest`, `POST /api/guest/requests`, `/api/guest/decisions`). After saving a run it raises that run's tasks, emails them if a notifier is wired, and logs the line. None of its writes touches a PMS |
+| `web/auth.py` | 212 | **Slice 24.** The host authenticates; the engine **verifies**. An HMAC-SHA256 tenant context in `X-HotelControls-Context`, checked with `hmac.compare_digest`, its audience, and an expiry judged by the injected clock (at most 15 minutes ahead). Off unless `HOTELCONTROLS_AUTH_SECRET` is set. When it is on, `App._authenticate` is the **one choke point**: it overwrites `property` before any route runs, so a URL cannot choose another hotel |
+| `web/render.py` | 1548 | Pure functions from objects to strings. UNKNOWN is distinguished from FAIL by **hue, border style *and* wording** — three signals, so it survives a monochrome screen or a colour-blind reader |
+| `web/server.py` | 242 | The only file in the engine that knows a socket exists. Serial on purpose. `--store PATH` keeps history in a file; `--log PATH\|-\|off` sends the operational log to a file, stderr (the default) or nowhere |
+| `web/assets/style.css` | 466 | Served from the package, never from a CDN |
 
 ### L0 · `compiler/` — English → IR. Runs *beside* the stack.
 
@@ -220,7 +272,7 @@ Nothing at runtime depends on it. It produces spec artefacts that L2 then valida
 
 | File | Lines | What it is |
 | --- | --- | --- |
-| `grammar.py` | 652 | A restricted-English parser. Deterministic, offline, no model. Emits **data**, then hands it to the same `spec.validate` that has policed hand-written rules since slice 1 |
+| `grammar.py` | 676 | A restricted-English parser. Deterministic, offline, no model. Emits **data**, then hands it to the same `spec.validate` that has policed hand-written rules since slice 1 |
 | `model.py` | 111 | The seam for a proposal that is already IR — and not one gram of extra trust. Decision D9: built, exercised against a stub, no model wired. Its output goes through `ir.validate` unchanged |
 | `sentences.py` | 235 | **Decision D10.** A `SentenceProposer` protocol and `normalise()`: prose → restricted English → the grammar above. Takes an injected proposer and **cannot acquire one** — which is what keeps this package free of anything that could open a socket |
 | `problems.py` | 119 | What a compilation is, and `DEPLOYMENT_KEYS` — the list of things a *sentence* is not allowed to contain, because a sentence naming an endpoint would break criterion 5 |
@@ -231,15 +283,20 @@ Nothing at runtime depends on it. It produces spec artefacts that L2 then valida
 
 ```
 spec/
-├── canonical_fields.json      THE VOCABULARY. Every field a rule may name.
+├── canonical_fields.json      THE VOCABULARY. Every field a rule may name (53 of them).
 ├── ir_schema.json             The shape a control file must have.
-├── ir/                        ELEVEN CONTROLS. One JSON file each.
+├── ir/                        ELEVEN CONTROLS. One JSON file each, each with a version.
+├── ir.lock.json               GENERATED by tools.lock_spec: each control's version + content digest.
+├── parameters.json            The TYPE of every hotel setting. No defaults.               (v3, slice 21)
+├── guest/
+│   └── late_checkout.json     The guest decision table the owner approved.                (v3, slice 22)
+├── drafts/                    Composed from prose: runnable, unreviewed, never counted.
 ├── providers/
 │   ├── minihotel.json         canonical field → endpoint + path + transform
 │   └── demopms.json           the same fields, a different API
 └── tenants/
-    ├── sandbox.json           one HOTEL's vocabulary (MiniHotel property)
-    └── demo.json              one HOTEL's vocabulary (DemoPMS property)
+    ├── sandbox.json           one HOTEL's vocabulary and policy (MiniHotel property)
+    └── demo.json              one HOTEL's vocabulary and policy (DemoPMS property)
 ```
 
 ### The eleven controls in `spec/ir/`
@@ -258,6 +315,11 @@ spec/
 | `room_assignment_type_validity` | 1a–1c | A reservation may only be assigned to a room that exists, of a defined type, matching what was booked |
 | `room_capacity_compliance` | 4 | Guests assigned to a room must not exceed the room's configured capacity |
 
+Every control is at version 2 except `ooo_room_protection`, which is at **version 4**. Version 3
+stopped it comparing a reservation number against a date (#87). Version 4 judges every guest in a
+closed room over a bounded seven-day window (#109). It still applies to none of the 28 rooms,
+because no room has ever had a closed window. Both bumps are recorded in `spec/ir.lock.json`.
+
 **Control 6 became two controls.** Money owed is a collections problem and a probable loss;
 unrefunded credit is a liability with a different urgency and often a different team. One queue
 makes severity meaningless for both. It was a *spec* change — and therefore the first real test of
@@ -270,15 +332,17 @@ owns the plumbing**, and the split is enforced both ways.
 
 | Key | What it is | Which half |
 | --- | --- | --- |
+| `version` | Which version of this rule it is. Bumped whenever its verdict-bearing content changes, then recorded with `tools.lock_spec`; `validate_spec` fails an edit without a bump (slice 16) | — |
 | `natural_language` | The prose a person wrote | sentence |
 | `restricted_language` | The same rule in the controlled language the grammar parses | sentence |
 | `entity` | What the control is about (`reservation`, `room`) | sentence |
 | `scope` | Does this control *apply*? → EXCLUDED if not | sentence |
 | `exceptions` | Is this record *exempt*? → EXCLUDED if so | sentence |
-| `assertion` | The rule itself: `mode` (`all`/`any`/`none`/`aggregate`) + predicates | sentence |
-| `references` | Property-wide data to join against | sentence |
+| `assertion` | The rule itself: `mode` (`all`/`any`/`none`/`aggregate`) + predicates. A predicate may carry `absent` (written *"or absent"* / *"if present"*) to say what an absent value answers, only for an ordering on a field whose absence is a fact (#109) | sentence |
+| `references` | Property-wide data to join against: one record by key (`lookup`), every record matching the key (`collection`), or membership of a set (`set`). Fetched once per run | sentence |
 | `required_evidence` | Every field needed, with `source` and `resolvable` | sentence |
 | `population.provider_query` | Endpoint + filters + declared call cost, **per provider** | deployment |
+| `population.reference_windows` | The bounded window a reference asks for, such as occupancy `today..today+7d`. Without one, a property-wide question is the unbounded query R8 forbids (#109) | deployment |
 | `execution` | Trigger mode, events, and the fallback interval | deployment |
 | `freshness_requirement` | `maximum_age`, with a stated rationale | deployment |
 | `action` | `notify`, severity, audience | deployment |
@@ -310,6 +374,14 @@ against its named fixture.** A mapping cannot claim a field exists unless a capt
 proves it. `observed_populated: false` means *the field exists in the response but was empty in
 every record we ever saw* — a structural mapping, not a behaviourally proven one.
 
+### `spec/guest/late_checkout.json` — a decision table, approved before any code
+
+Slice 22's one guest template, `status: approved`, version 1: the request's shape, the evidence it
+needs, six typed parameters, **eleven ordered rules** with the gaps checked first, the fee, and the
+owner's worked examples. `hotelcontrols/guest/template.py` refuses to run if the file is not
+approved, or if its rules differ from the code's. The file says what the owner approved, the code
+says what runs, and the two may not disagree.
+
 ### `spec/tenants/*.json` — one hotel's vocabulary, not the API's
 
 Status codes and posting categories are **customisable per property**. So they belong to the
@@ -321,21 +393,30 @@ property, not to the adapter.
 "known_unmapped_statuses": ["OK4", "WL", "LWP"],
 "department_map":          {},
 "call_budget":             101,
-"settings": { "nominated_rate_codes": [], "rate_plan_permitted_room_types": {} }
+"currencies":              ["EUR", "ILS", "USD"],
+"settings": { "nominated_rate_codes": null, "rate_plan_permitted_room_types": null },
+"guest_services": { "LATE_CHECKOUT": { …six parameters, every one null… } }
 ```
 
-Three of these deserve attention:
+Five of these deserve attention:
 
 - **`known_unmapped_statuses` is deliberately unmapped**, so the gap is a *decision* rather than an
-  oversight. `OK4` appears on 32 reservations and `WL` on 12 — together **44 of the 217 distinct
-  reservations this project has ever seen** — and neither is documented anywhere. Each resolves to
-  UNKNOWN.
+  oversight. Across every capture `OK4` appears on 50 reservations and `WL` on 27, together **77 of
+  the 526 distinct reservations this project has seen** (it was 44 of 217 before the 2026-10
+  captures), and neither is documented anywhere. Each resolves to UNKNOWN.
 - **`department_map` ships empty on purpose.** There is no provider-wide vocabulary for folio
   departments at all, so every one is UNKNOWN until a hotel supplies its own. That is what drives
   *"connect your finance mapping to enable this control"* rather than a wrong verdict.
-- **`settings` is what only the hotel can supply.** `nominated_rate_codes: []` means one control
-  excludes every record — useless but honest. v1 instead carried the literal string
-  `"<hotel-nominated rate codes>"` inside a rule it then tried to run.
+- **`settings` is what only the hotel can supply, and `null` means *not decided*** (slice 21). It
+  is a different fact from `[]`, *decided: none*. A `null` setting is kept out of what the rule
+  reads, so a control that needs it answers UNKNOWN **naming** it. Every setting's type is declared
+  in `spec/parameters.json`, and a wrong type, unit or currency is refused when the file loads. v1
+  carried the literal string `"<hotel-nominated rate codes>"` inside a rule it then tried to run.
+- **`currencies` is observed, not decided**: the currencies this hotel's own records are in. A
+  money setting in any other currency is refused, never converted (R9).
+- **`guest_services` is the late-checkout policy** (slice 22), typed by the same schema. Both
+  shipped hotels leave every parameter `null`, so they answer *staff review* to every request and
+  name the six decisions nobody has made. No policy is invented for them.
 
 ---
 
@@ -345,17 +426,32 @@ Three of these deserve attention:
 fixtures/
 ├── minihotel/
 │   ├── raw/                   git-ignored. The unscrubbed captures. LOCAL ONLY.
-│   ├── *.xml                  14 pseudonymised real responses
-│   └── index.json             ◄── the request that produced each response
+│   ├── *.xml                  20 pseudonymised real responses
+│   └── index.json             ◄── the request that produced each response, and its captures
 ├── demopms/
-│   ├── *.json                 the same hotel, transcoded
+│   ├── *.json                 the same hotel, transcoded: 16 files
 │   └── index.json
 └── api/                       the JSON API's own answers - GENERATED, never edited
     ├── run/  runs/            every control × property × capture, live and re-read
-    ├── history/ readiness/    one per control
+    ├── history/ readiness/    per control (history per property)
+    ├── actions/               the findings queue per property, after the runs and untouched   (v3)
+    ├── guest/                 every guest request, decision and refusal                       (v3)
     ├── compose/               switched off, switched on, and three kinds of turn
     └── controls.json  properties.json  outcomes.json  drafts.json
 ```
+
+**A capture is a named body of evidence**, and `index.json` says which responses belong to which.
+A response can belong to several. There are four per provider:
+
+| Capture | Taken | What it holds | Offered by the demo? |
+| --- | --- | --- | --- |
+| `sandbox2024` | 2026-09-01 | The sandbox's 2024 data: 11 reservations, the room master, a week of August 2024 occupancy, two folios | yes |
+| `sandbox2026` | 2026-09-08 | The departures window around 8 July 2026 and three folios, including `007004348`'s | yes, **the default** |
+| `sandbox2026refresh` | 2026-10-10 | Slice 23's four calls: rooms, room types, a July 2026 occupancy week, departures again with room prices. No folio | no. Its tests build it directly (`tests/e2e/test_refresh_capture.py`) |
+| `sandbox2026cover` | 2026-10-11 and 10-13 | `sandbox2026`, plus the arrivals (385 bookings) and creations (150) windows the controls ask. Two live calls, each approved by the owner (#71) | yes |
+
+DemoPMS has the same four (`demo2024`, `demo2026`, `demo2026refresh`, `demo2026cover`),
+transcoded from these.
 
 **Three rules, each bought with a specific failure:**
 
@@ -385,7 +481,7 @@ a payload shows up as a stale file rather than as a broken screen weeks later.
 
 ---
 
-## 6. `tests/` — 1,956 tests, four layers, zero network
+## 6. `tests/` — four layers, zero network
 
 ```
 tests/
@@ -395,28 +491,46 @@ tests/
 └── e2e/           Does a run produce the right verdicts with evidence? (full stack)
 ```
 
+How many in each layer is in the [README's table](README.md#what-is-true-as-of-this-writing). The
+counts per file below were collected with `pytest --collect-only` on 2026-10-13.
+
 ### The tests that are load-bearing rather than routine
 
 | Test | Count | What it guards |
 | --- | --- | --- |
-| `e2e/test_two_providers.py` | **105** | 11 controls × 3 as-of dates, per record id, **with identical call counts**, through XML and JSON. This is the whole thesis |
+| `e2e/test_two_providers.py` | **106** | 11 controls × 3 as-of dates × 3 checks (verdicts per record id, blocking, **identical call counts**), through XML and JSON, plus seven that keep the agreement from being vacuous. The 2026 date is asked of the covering captures. This is the whole thesis |
 | `integration/test_scheduling_plans.py` | 124 | Every control's trigger plan on every provider |
 | `integration/test_compiler_roundtrip.py` | 100 | All 11 controls recompile from their own restricted-English sentence to the same rule *and the same verdicts* |
-| `contract/test_provider_contract.py` | 73 | One shared suite, parameterised over every registered provider. **Adding Mews means running an existing suite, not writing a new one** |
+| `contract/test_provider_contract.py` | 94 | One shared suite, parameterised over every registered provider. **Adding Mews means running an existing suite, not writing a new one** |
 | `integration/test_web_pages.py` | 103 | The rendered page, without a socket, and every JSON route over the full matrix |
-| `integration/test_api_goldens.py` | 144 | The React UI's contract: the golden payloads rebuild byte-identical, the matrix is complete, nothing is git-ignored, and the shapes the UI depends on are pinned. Above all, a run that concluded nothing still *carries* counts, so `concluded` must be the gate |
+| `integration/test_api_goldens.py` | 228 | The React UI's contract: the golden payloads rebuild byte-identical, the matrix is complete, nothing is git-ignored, and the shapes the UI depends on are pinned. Above all, a run that concluded nothing still *carries* counts, so `concluded` must be the gate |
+| `integration/test_v1_no_answer_changed.py` | 89 | **v3's regression wall (V1).** The verdicts, counts and coverage inside every run golden, compared with v2's close (`7f384c4`). A changed answer must be declared by name, with the PR that made it |
+| `unit/test_v3_slice_scope.py` | 141 | On a `slice/16-*` … `slice/24-*` branch, fails any path the plan's *May change* line did not list. Off such a branch the guard itself skips. That is one of the suite's three skips; the others are the slice-15 guard below and the optional hosted model backend |
+| `unit/test_policy_versioning.py` | 34 | A rule edited without a version bump is refused; every run names the version and digest that judged it; an old row says *not recorded* |
+| `unit/test_tenant_scoped_store.py` | 27 | Every SQL statement in `store/` that touches a hotel's table must say which hotel. Seen failing on a planted unscoped `SELECT` |
+| `integration/test_host_auth.py` | 200 | With auth on: one hotel's context reads none of another's runs, tasks, decisions or drafts on any JSON route; forged, unsigned, expired, malformed, tampered and over-long contexts are refused on every route; no secret, no start |
+| `integration/test_findings_queue.py` | 38 | A FAIL raises exactly one task however often it re-runs; UNKNOWN, EXCLUDED, a blocked run and a run that concluded nothing raise none |
+| `integration/test_guest_requests.py` | 42 | The late-checkout Definition of Done: 15:00 → `APPROVED_WITH_FEE 25.00 USD` on a real checked-in guest, both providers, one decision for a double submission |
+| `integration/test_replay_answers_only_its_question.py` | 16 | **#71.** A capture refuses a window it never recorded, a wider one, and a narrowing it made that the run did not ask for |
+| `integration/test_closed_room_never_passes.py` | 24 | **#87, #109.** A guest inside a closed room is never a PASS, proven on both providers with stand-in sources built in memory, never by editing a fixture |
+| `unit/test_collection_judgement.py` | 34 | **#109.** A collection judged record by record, and a PASS only when the window fetched covers the question |
 | `unit/test_slice15_engine_untouched.py` | 17 | On a `slice/15-*` branch, **no engine file may change** but `web/app.py`. Fails rather than skips when it cannot find the base to compare against |
 | `unit/test_ui_hygiene.py` | 17 | Polices `ui/` from the **required** suite: no parsed money, no injected HTML, no `title=` help, no inline styles, one module that makes requests, exact pins, three runtime packages |
-| `unit/test_transport.py` | 58 | Including: the test that sets the enabling environment variable **and is refused anyway** |
-| `e2e/test_runs.py` | 46 | Holds the concluding/blocked/non-concluding control sets **by name**, so a change turns a test red rather than passing quietly |
+| `unit/test_transport.py` | 61 | Including: the test that sets the enabling environment variable **and is refused anyway**, and credentials per property with no fallback |
+| `e2e/test_runs.py` | 58 | Holds the concluding/blocked/non-concluding control sets **by name**, per capture, so a change turns a test red rather than passing quietly |
+| `e2e/test_refresh_capture.py` · `e2e/test_covering_capture.py` | 30 · 11 | The two 2026-10 captures are what their index says, and criterion 1 per capture, beside the old figure and never instead of it |
 | `unit/test_canonical_boundary.py` | 62 | Greps the tree for 28 identifiers from **both** providers, with allowed directories *discovered* rather than listed. Since slice 15 it walks `ui/` too, where no vendor name may appear even in a comment |
-| `integration/test_transcode_fidelity.py` | 20 | The DemoPMS fixtures still match a rebuild, byte for byte |
+| `integration/test_transcode_fidelity.py` | 26 | The DemoPMS fixtures still match a rebuild, byte for byte, and each demo file is compared with its own source directly (#71: the transcoder reads through replay, so a replay bug could reproduce itself in a "byte-identical" rebuild) |
 | `unit/test_clock_is_always_injected.py` | 5 | An **AST walk over the whole engine**: `kernel/clock.py` is the only module allowed to read a wall clock |
 | `unit/test_stdlib_only.py` | 2 | Walks the source tree and asserts the engine contains no outbound HTTP client at all |
 | `unit/test_web_compose.py` | 65 | The compose window: off by default, an absence *stated* not 404'd, a refusal that names the field, a question with no run button, and **still no JavaScript**. Also compose as JSON: the sentence *sent back* is what gets filed, a refused sentence writes nothing, and the HTML window is unchanged |
 | `unit/test_compose_normalise.py` | 29 | Prose → sentence → rule against a stub. §17's gate and §18's restraint, plus reply parsing across five wrapping styles |
 | `unit/test_proposers_refuse_in_tests.py` | 25 | **No test reaches a model.** Both live backends refuse inside a test process *with their variable set* — the transport's own proof pattern |
 | `integration/test_draft_lifecycle.py` | 15 | A rule composed from prose runs on **both** providers with identical verdicts and identical call counts |
+| `unit/test_notifiers_refuse_in_tests.py` | 19 | **No test can send an email.** The SMTP backend refuses inside a test process *with its variable set* — the same two-lock pattern again |
+| `integration/test_email_dispatch.py` · `integration/test_operational_log.py` | 14 · 14 | One email per task, none for a run that concluded nothing, and no guest detail in any message; one `run_id` traced request → run → email through the log, with no credential or guest detail on any line |
+| `integration/test_typed_parameters.py` | 29 | An undecided setting is UNKNOWN **naming** it, never "none"; one rule file, two hotels, two different verdicts |
+| `unit/test_guest_no_model.py` | 4 | An AST walk over everything `guest/` imports, transitively: no model is reachable. Shown to catch a model planted two imports away |
 
 > **`PYTHONDONTWRITEBYTECODE=1` is a correctness gate, not hygiene.** An edit that changes neither a
 > file's size nor its mtime-second leaves a stale `.pyc` valid, so the suite runs the *old* code and
@@ -428,12 +542,13 @@ tests/
 
 | Command | What it does | Why it exists |
 | --- | --- | --- |
-| `python3 -m tools.validate_spec` | Validates the vocabulary, the rules, the provider maps, the tenants — **1,080 checks** | Not ceremony. It caught four rules whose joins read a field they never declared, **on its first real run.** It is also the gate that makes a natural-language compiler safe to add |
+| `python3 -m tools.validate_spec` | Validates the vocabulary, the rules, the provider maps, the tenants, the parameter types and the spec lock (count: the README's table). It lists each hotel's undecided settings as a note, not a failure | Not ceremony. It caught four rules whose joins read a field they never declared, **on its first real run.** It is also the gate that makes a natural-language compiler safe to add |
+| `python3 -m tools.lock_spec` | Records each rule's version and content digest in `spec/ir.lock.json`. Run it **after** bumping a rule's version | Slice 16. A version a person keeps by hand is a version that can lie. It refuses to record an edit that kept its old version |
 | `python3 -m tools.scrub_fixtures <in> <out>` | Pseudonymises a raw capture | The largest capture alone (`9_departures_2026-07.xml`, 138 reservations) carries **27 distinct email addresses and 30 phone numbers** from someone else's sandbox - 66 and 61 across all of them - plus free-text remarks naming a guest. This repository is public |
 | `python3 -m tools.transcode_demopms --check` | Rebuilds the DemoPMS fixtures and verifies nothing changed | Makes "the same hotel through two providers" a checked claim rather than a decorative one |
 | `python3 -m tools.dump_api_fixtures --check` | Rebuilds `fixtures/api/` from the engine and verifies nothing changed | The React UI's tests render from these files. A payload change has to be a visible diff here, not a surprise there |
-| `python3 -m tools.probe --plan` | Prints exactly what a live probe *would* ask. **Makes no calls** | The vendor asks integrators not to query wide ranges without agreement. Live calls are opt-in, staged, bounded, and approved individually |
-| `python3 -m tools.serve --llm local` | The demo **with the compose window** at `/compose` | Decision D10. This is where the dependency arrow turns around: the model client lives here, outside the engine, and is injected into the app. `hotelcontrols/` still imports only the standard library |
+| `python3 -m tools.probe --plan` | Prints exactly what a live probe *would* ask, with the request body and `<user>`/`<password>` where credentials go. **Makes no calls.** `--endpoint` narrows it to one call; `--reask FILE [--with IncludeRoomPrices]` asks a recorded question again | The vendor asks integrators not to query wide ranges without agreement. Live calls are opt-in, staged, bounded, and approved **individually**. Since #70, `--run` sends exactly what the same arguments print, once each, and refuses a plan it cannot send as printed |
+| `python3 -m tools.serve --llm local` | The demo **with the compose window** at `/compose`. `--notify smtp` wires email (still refused unless `HOTELCONTROLS_NOTIFY=1`); `--log PATH\|-\|off` as the plain server | Decision D10. This is where the dependency arrow turns around: the model and email clients live here, outside the engine, and are injected into the app. `hotelcontrols/` still imports only the standard library |
 
 ### `tools/proposers/` — the model backends, deliberately outside the engine
 
@@ -443,6 +558,14 @@ tests/
 | `local.py` | Ollama over stdlib `urllib`. **Free, offline, zero dependencies.** The default |
 | `anthropic_api.py` | `claude-haiku-4-5` with the vocabulary cached. Optional `anthropic` extra |
 | `stub.py` | Fixed replies. **The only backend any test wires** — and it exercises the validator harder than a real model would, because it emits exactly the proposals that reach each outcome |
+
+### `tools/notifiers/` — the email backends, the same way (v3, slice 19)
+
+| File | What |
+| --- | --- |
+| `base.py` | The lock: refuses unless `HOTELCONTROLS_NOTIFY=1` **and** no test runner is loaded |
+| `smtp.py` | The only `smtplib` import in the repository. Requires verified STARTTLS. Recipients come from `HOTELCONTROLS_NOTIFY_<AUDIENCE>`, with no default: a missing one leaves the task unsent and *says so* |
+| `stub.py` | Records what would have been sent. What the tests use |
 
 ---
 
@@ -454,7 +577,8 @@ tests/
 | `README.md` | The pitch, the status, and the honest scorecard |
 | `pyproject.toml` | **No runtime dependencies and not packaged for distribution.** It configures pytest and a 90% coverage floor — *"a floor, not a target. Coverage says a line ran; it does not say the line was checked"* |
 | `requirements-dev.txt` | `pytest` + `coverage`. Never imported by `hotelcontrols/` |
-| `.env.example` | Credential variable names only. **No credentials in source, ever** — environment only, with no default, so a missing one fails loudly |
+| `.env.example` | Variable names only: the per-property PMS credentials (`HOTELCONTROLS_SANDBOX_MINIHOTEL_*`) and the authentication variables, with the secret commented out. **No credentials in source, ever** — environment only, with no default, so a missing one fails loudly. `tests/unit/test_env_example.py` derives the names from the code, so the file cannot drift |
+| `requirements-llm.txt` | The optional `anthropic` extra, used by exactly one file under `tools/proposers/` and never importable from the engine |
 | `.github/workflows/ci.yml` | Python 3.11 (the floor) and 3.13 (what we develop on), required on every PR to `main`. Plus a separate `ui` job (typecheck, component tests, build, real-browser tests) that is **not** required, so a broken npm can never block an engine fix |
 
 ---
@@ -472,14 +596,19 @@ ui/
 │   ├── run/[controlId]/   ask a control a question. The Run button is a POST (actions.ts)
 │   ├── runs/[runId]/      a run, re-read from the store for free. Safe to reload and bookmark
 │   ├── history/[controlId]/  past runs, gated exactly like a run
-│   ├── compose/           the compose window (its only client component and only write path)
+│   ├── compose/           the compose window (its only client component). Files a draft
+│   ├── queue/             the findings queue: mark a task done or dismiss it (v3, slice 18)
+│   ├── login/             the DEVELOPMENT sign-in, labelled a stand-in on its own page (v3, slice 24)
 │   ├── style.css/         the ENGINE'S stylesheet, served here, so both screens share one set of rules
 │   └── not-found.tsx  error.tsx   ours, because Next's defaults break the security policy
 ├── components/          pure functions of a payload, so every state is tested from a golden file
 ├── lib/api.ts           THE ONLY MODULE THAT TALKS TO THE ENGINE
 ├── lib/types.ts         the API contract, with the three traps named in its comments
+├── lib/auth.ts          signs the tenant context with node:crypto - no new package (v3)
+├── lib/session.ts       the signed-in person's session cookie (v3)
+├── lib/devUsers.ts      the stand-in user list, from one environment variable (v3)
 ├── proxy.ts             a real Content-Security-Policy, with a fresh nonce per request
-├── test/                Vitest: criteria 2, 3, 8, 10, and the parity harness over every golden
+├── test/                Vitest: criteria 2, 3, 8, 10, the parity harness over every golden, the queue, sign-in
 ├── e2e/                 Playwright, with no server: computed styles, keyboard, accessibility
 └── README.md            how to run it, and why each of its dependencies is there
 ```
@@ -489,8 +618,10 @@ ui/
 | `lib/api.ts` | `GET /api/run/` spends provider calls and writes a row. Keeping every request in one file means the expensive one is findable, and a required test refuses a request from anywhere else |
 | `components/RunView.tsx` | The three states of a run, gated on `coverage.concluded`, **never** on whether counts exist |
 | `components/Verdict.tsx` | One verdict and its evidence table. Values are rendered exactly as the engine wrote them |
-| `test/parity.test.tsx` | Over all 88 run payloads, no record dropped, duplicated or mis-grouped, every evidence row verbatim, and tiles if and only if the run concluded |
+| `test/parity.test.tsx` | Over every run payload (66 live and 66 stored), no record dropped, duplicated or mis-grouped, every evidence row verbatim, and tiles if and only if the run concluded |
 | `e2e/run.spec.tsx` | The four computed border styles and hues, which only a real browser can measure |
+| `lib/auth.ts` + `test/fixtures/auth-vector.json` | The UI signs; the engine verifies. One shared test vector pins the two signers to the same string, so they cannot drift apart |
+| `components/QueueView.tsx` | The findings queue. An empty queue reads *not an all-clear*, beside each control's latest conclusion |
 
 ---
 
@@ -528,6 +659,10 @@ The table people most often want:
 | Change how a page **looks or reads** in the React UI | `ui/components/` | anything in `hotelcontrols/` |
 | Give the React UI **a field it lacks** | a read-only route in `web/app.py`, then `python3 -m tools.dump_api_fixtures` and read the diff | `kernel/`, `evaluator/`, `store/` — a missing field is a web-layer problem |
 | Change **what an outcome is called** | `WORDING` in `web/render.py` — both screens follow, because the UI reads it from `/api/outcomes` | any `.tsx` file — typing "VIOLATION" there would be a second copy free to drift |
+| **Edit a shipped rule** | its `spec/ir/*.json`, **bump its `version`**, then `python3 -m tools.lock_spec` | the lock file by hand. `validate_spec` fails an edit without a bump |
+| Record a **hotel's decision** (rate codes, a late-checkout fee) | that hotel's `spec/tenants/<id>.json`, in the type `spec/parameters.json` declares | the sandbox's `null`s. Only a real hotel can decide them, and inventing one moves a number |
+| Add a **guest template** | a decision table in `spec/guest/`, approved by the owner **before** any code, then `hotelcontrols/guest/` | — four of five are deferred, by the owner |
+| Take **new evidence** from the live API | `tools.probe --plan` first, the owner's yes to *that* call, then the same arguments with `--run --yes`, then `tools.scrub_fixtures`, a new capture label, a transcode | any existing fixture. A new capture sits **beside** the old ones |
 
 > **The rule that outranks every other rule in this repository:** never widen a verdict. If evidence
 > is missing the answer is UNKNOWN. Turning an UNKNOWN into a PASS to make a test green, a number

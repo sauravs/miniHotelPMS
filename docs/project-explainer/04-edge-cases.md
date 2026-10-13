@@ -7,20 +7,25 @@
 > **Part B** — one real reservation walked from raw XML to the pixel on screen, through all eight
 > layers, then repeated through a completely different JSON provider.
 >
-> Every fixture excerpt, count and output below was re-verified against the repository while
-> writing this document.
+> Every fixture excerpt, count and output below was re-verified against the repository on
+> **2026-10-13**, after v3 and issue #109, by running it.
 
 ---
 
 ## The method, and why it matters
 
-Three passes were made against the vendor sandbox, and the order is the finding:
+Five passes were made against the vendor sandbox, and the order is the finding:
 
 | Pass | What it was | What it produced |
 | --- | --- | --- |
 | 1 | Documentation review — ~25 reference pages | The first feasibility rating, and risks R1–R8 |
 | 2 | **Seven live read-only calls** | **Documentation review got 4 of 12 risks wrong** |
 | 3 | The checkout probe — seven more calls, staged, one second apart | The sandbox had moved on to 2026 data; a checked-out folio can be **negative** |
+| 4 | **The evidence refresh**, 2026-10-10 (v3 slice 23): four calls, each approved by the owner at the time | R11 and R12 still true; still no closed-date window on any room; occupancy for July 2026 for the first time. Preparing and running it found four defects (#70, #71, #73, #75) |
+| 5 | **The covering capture**, 2026-10-11 and 10-13 (#71): two calls, each approved at the time | The arrival and creation windows seven controls ask, which no earlier capture had recorded |
+
+Every live call since pass 3 was first printed by `tools.probe --plan`, request body and all, and
+sent only after the owner said yes to **that** call.
 
 > **The rule this produced, now binding:** *if the documentation and a captured response disagree,
 > the response wins.* A spec validator exists so that a claim cannot sit unchecked — `probe` and
@@ -78,7 +83,8 @@ adult capacity across the 26 rooms that declare one:
 ```
 
 A room that holds zero adults is not a room. Some per-room *prices* are `0` on demonstrably paid
-bookings too.
+bookings too. Re-asked live on 2026-10-10 (`11_getRooms_2026-10.xml`), the distribution is
+identical: still 21 zeroes and 2 with no element.
 
 **Read those as real zeroes and the capacity control produces a wall of false FAILs against 23 of
 28 rooms.** The transform is named for what it means:
@@ -88,8 +94,10 @@ bookings too.
   "notes": "R12 - 0 on 23 of 28 rooms" }
 ```
 
-This is the direct cause of `room_capacity_compliance` reaching **40 UNKNOWN and 0 conclusions** —
-and it is the correct outcome.
+This is the largest single reason `room_capacity_compliance` reaches **0 conclusions**. On the
+covering capture, 53 of its 128 UNKNOWNs are a room capacity that is `0` or missing. The rest are an
+undocumented status (41) and a guest count the response does not carry (34). It is the correct
+outcome.
 
 ---
 
@@ -224,20 +232,23 @@ So control 6 became **two controls**:
 
 ---
 
-## A5 — one in five reservations carries a status nobody documents
+## A5 — one in seven reservations carries a status nobody documents
 
-Counted across every fixture in the repository — **217 distinct reservations**:
+Counted on 2026-10-13 across every MiniHotel capture in the repository — **526 distinct
+reservations**:
 
 | Status | Distinct reservations | Mapped? |
 | --- | --- | --- |
-| `CL` | 108 | ✅ cancelled |
-| `OK` | 32 | ✅ confirmed |
-| `OK4` | **32** | ❌ **documented nowhere** |
-| `IN` | 26 | ✅ checked_in |
-| `WL` | **12** | ❌ **documented nowhere** |
-| `OUT` | 7 | ✅ checked_out |
+| `CL` | 330 | ✅ cancelled |
+| `OK` | 62 | ✅ confirmed |
+| `OK4` | **50** | ❌ **documented nowhere** |
+| `IN` | 39 | ✅ checked_in |
+| `WL` | **27** | ❌ **documented nowhere** |
+| `OUT` | 18 | ✅ checked_out |
 
-**44 of 217 — one in five — carry a status this engine refuses to name.** They resolve to UNKNOWN.
+**77 of 526, about one in seven, carry a status this engine refuses to name.** They resolve to
+UNKNOWN. Before the 2026-10 captures it was 44 of 217, one in five. The share fell because most of
+the reservations the new windows added are cancellations, not because anybody named a code.
 
 They are listed explicitly in the tenant config so the gap is **a decision rather than an
 oversight**:
@@ -249,7 +260,7 @@ oversight**:
 > *A status we cannot name must not decide whether a control applies.*
 
 This is the **honest cost of not guessing** — and the cheapest open win available. One sentence from
-the vendor explaining `OK4` and `WL` resolves 44 records. It is
+the vendor explaining `OK4` and `WL` resolves 77 records. It is
 [question 2.1](../open-questions.md) to MiniHotel.
 
 `LWP` (Left Without Payment) is documented, but a property may use it as its own exception marker —
@@ -268,9 +279,13 @@ drives *"connect your finance mapping to enable this control"* rather than a wro
 | **Per-record response cache** | v1 cached follow-ups *per record*, so a response fetched for record A was fetched again for record B | `evidence/cache.py` — run-scoped |
 | **Replaying a filter without checking the window** | A control querying a window the capture never covered got an **empty population** — indistinguishable on screen from "no violations" | `fixtures.py` **raises** for an uncovered window. `index.json` records what each fixture was asked |
 | **Answering from the wrong week** | Issue #9: `resource_occupancy_consistency` was answering about **July 2026** from occupancy captured in **August 2024**. It counted towards criterion 1 | Fixed. **The score fell from 6 to 5 and the guard stayed** |
+| **Answering a question from a response recorded for another** | Issue #71: the July capture recorded a *departures* window, and seven controls ask about *arrivals* or *creations*. Replay compared windows only by name, so it answered them from the departures. Three controls concluded about part of their population and presented it as the whole | Both frozen sources compare the whole recorded question and refuse otherwise. On `sandbox2026` **the score fell from 5 to 2**. Two owner-approved calls recorded the right questions as `sandbox2026cover`, where it is 5 again, from the right evidence |
+| **A transcoder that trusts the code it checks** | The DemoPMS files are generated *through* replay, so #71's bug reproduced itself in two "byte-identical" rebuilds (108 and 40 bookings instead of 385 and 150) | Each demo file is now compared with its own source directly, not only with a rebuild |
+| **An empty field read as the word `False`** | Issues #75, #84, #85, #86: two bookings with no room number "clashed" in a room called False; id-less bookings counted as one reservation called False; a folio call was sent for reservation `False`; a stay with no room "joined" a room with no number | An empty identity is `unknown`, and two unknowns never match. #75 was real: the refresh capture held the two room-less bookings, and it was fixed before that capture merged. #84–#86 were found by auditing every field read the same way, and were latent: no committed capture held the case, so no golden moved |
+| **A room judged by its first guest** | Issue #87: `ooo_room_protection` placed a *reservation id* between two dates, which as strings put every real id outside every window, and it read only the room's first occupancy segment. A guest inside a closed room would have PASSed | `within` now refuses a non-date (validator check 7). Since #109 each segment is judged, a PASS needs a window that covers the closure, and the rule is at version 4. Latent too: no room has ever had a closed window |
 | **Hand-written second fixtures** | v1's `fixtures/synthetic/` drifted towards whatever answers looked best | `fixtures/demopms/` is **generated** from the real captures, gaps included; a test asserts a byte-identical rebuild |
 | **The machine's clock** | v1 called `date.today()` throughout. Every control here is a question about the **hotel's** calendar | An **AST walk over the whole engine**: only `kernel/clock.py` may read a wall clock |
-| **Committing someone else's guests** | The largest capture alone (138 reservations) carries **27 distinct email addresses and 30 phone numbers** - 66 and 61 across all captures - plus remarks naming a guest and a manager's approval | `tools/scrub_fixtures.py`; `raw/` is git-ignored |
+| **Committing someone else's guests** | The largest capture of its time (138 reservations) carried **27 distinct email addresses and 30 phone numbers** - 66 and 61 across the captures then - plus remarks naming a guest and a manager's approval. In 2026-10 the scrubber was found to pass the occupancy response's guest names straight through (#73), caught before anything was staged | `tools/scrub_fixtures.py`, now covering occupancy names too; `raw/` is git-ignored; a check requires invented occupancy names |
 
 ---
 
@@ -278,6 +293,14 @@ drives *"connect your finance mapping to enable this control"* rather than a wro
 
 **The question:** *"A reservation cannot be closed while the hotel still owes the guest a refund."*
 **The record:** reservation `007004348`, which departed on 7 July 2026.
+**The evidence:** `sandbox2026`, the demo's default capture.
+
+Since issue #71, a capture answers only the questions it recorded and refuses the rest. That is why
+this trace was re-run on 2026-10-13 rather than assumed. This control asks about **departures**,
+yesterday to today. `sandbox2026` recorded a departures window that covers it, so it still answers,
+and every value below is what the engine produced that day. The same run on the covering capture,
+`sandbox2026cover`, which holds `sandbox2026`'s responses unchanged, gives the same two verdicts.
+Ask `sandbox2026` a control that wants *arrivals*, and it refuses.
 
 ---
 
@@ -327,7 +350,14 @@ Request(endpoint='GetReservationKey',
                 'BookingSearch': {'Status': 'OUT'}})                        ← CALL 1
 ```
 
-Returns **2 records**. Not 217, not 111 — because a folio costs one call each (R1).
+Returns **2 records**. Not 526, not 138, because a folio costs one call each (R1).
+
+That exact request is what `python3 -m tools.probe --plan --property sandbox --control
+checkout_unrefunded_credit --as-of 2026-07-08` prints, making no call. Replay answers it from
+`9_departures_2026-07.xml`, whose recorded question, `DepartureDate 2026-07-01..2026-08-09`,
+covers this one. The status filter is a narrowing this run asks for, so replay applies it the way
+the live server would. Had the recorded window not covered the ask, the run would have been refused,
+not answered from the wrong set (#71).
 
 ---
 
@@ -476,11 +506,22 @@ this in a year sees that **the folio and the reservation are denominated differe
 Run(control_id='checkout_unrefunded_credit', provider='minihotel',
     evidence_label='sandbox2026', evidence_is_synthetic=False,
     as_of='2026-07-08', calls=3,
+    policy_version=2, policy_digest='sha256:fa1518f4…',
     verdicts=[FAIL 007004348, PASS 007004351])
 
 coverage:   evaluated 2 of 2  ·  concluded ✅
-freshness:  observed_at vs maximum_age '1h'
+freshness:  observed_at vs maximum_age '24h'
+            "This evidence was captured 62 days AFTER the instant this run asks
+             about, so it may describe a later state than the question."
 ```
+
+`policy_version` and `policy_digest` are v3's (slice 16). They say *which* rule judged this record:
+version 2 of the control, and the hash of its verdict-bearing content as recorded in
+`spec/ir.lock.json`. Edit the rule without bumping the version and `validate_spec` refuses it, so
+this line cannot lie about the rule six months from now.
+
+The freshness line is honest in the other direction. The bytes were fetched in September for a
+question about July. That is neither stale nor fresh, and the run says which it is.
 
 Then saved to SQLite — **with the evidence table intact**, because *a stored FAIL with the number
 missing is an accusation without a receipt.*
@@ -514,6 +555,34 @@ On both screens the FAIL block carries a **double** left border in the violation
 signals, so the difference survives a monochrome printout and a colour-blind reader. On the React
 side, a real browser measures the four computed border styles and asserts they are four different
 values.
+
+---
+
+### Step 9 · The violation becomes a task — v3
+
+Before v3 the trace ended at the screen. Now the web layer, **after** saving the run, asks
+`actions.findings_from(run, ir)` what the run raises. Only a FAIL raises anything, so this run
+raises one task. This is the engine's real answer, in `fixtures/api/actions/sandbox.json`:
+
+```
+record_id   007004348          control   checkout_unrefunded_credit
+severity    medium             audience  finance       ← the IR's own action block, word for word
+reason      folio.balance_due is -490.75 ILS, which does not satisfy `gte 0`
+policy      version 2, sha256:fa1518f4…
+state       pending            raised by run a750fd271556d48f (sandbox2026)
+                               last failing   run dc74b8050e10cbca (sandbox2026cover)
+```
+
+Note the last two lines. The same record failed under the same rule on two captures, and it is
+**one** task. The table's key is (hotel, control, rule version, record), so asking again can only
+update *last failing*. `007004351`'s PASS raises nothing. A person moves the task to *done* or
+*dismissed*. A later PASS would add a note to it and leave it open, because only a person knows
+whether the 490.75 shekels went back to the guest.
+
+If the operator has wired email (`tools.serve --notify smtp`, plus `HOTELCONTROLS_NOTIFY=1`), the
+finance address hears about it once. The email carries the record id, the control, `-490.75 ILS`
+and a link, and never the reason or the guest's name. Without email the queue page says nobody is
+emailed. It does not leave you to assume someone was.
 
 ---
 
@@ -570,8 +639,11 @@ difference in the entire output is the `source` token — which is exactly the o
 *supposed* to name the system.
 
 > Not one line of the IR changed. Not one line above `providers/` changed. That is the whole thesis,
-> and `tests/e2e/test_two_providers.py` asserts it **105 times** — 11 controls × 3 as-of dates, per
-> record id, with call counts compared too.
+> and `tests/e2e/test_two_providers.py` asserts it **106 times** — 11 controls × 3 as-of dates, per
+> record id, with call counts and blocking compared too.
+
+The two providers agree even on what they refuse. Ask `demo2026` an arrivals question and it
+refuses, exactly as `sandbox2026` does.
 
 ---
 
@@ -582,10 +654,12 @@ produces a **plausible, wrong, confident answer**.
 
 | Step | The obvious mistake | What it produces |
 | --- | --- | --- |
-| 1 · Population | Fetch all reservations, filter in memory | 217 folio calls instead of 2, against someone else's server |
+| 1 · Population | Fetch all reservations, filter in memory | Hundreds of folio calls instead of 2 (this project has seen 526 reservations), against someone else's server |
 | 1 · Population | Query a window the capture never covered, return empty | **"No violations"** — from data that was never fetched |
+| 1 · Population | Answer from a response recorded for a *different* question with the same parameter names | Part of the population, presented as the whole. Issue #71, and three of criterion 1's five |
 | 3 · Boundary | Treat `"OUT"` as a MiniHotel constant | A second property with different codes needs a code change |
-| 3 · Boundary | Map `OK4` to "probably confirmed" | A guess, on **32 reservations** |
+| 3 · Boundary | Map `OK4` to "probably confirmed" | A guess, on **50 reservations** |
+| 3 · Boundary | Read an empty reservation id as a value | Every id-less booking becomes one reservation called `False` (#85) |
 | 3 · Boundary | Read `TotalDebit` as a float | A reconciliation control you cannot trust to the cent |
 | 3 · Boundary | Read `TotalDebit` without `Currency` | 870 USD meets 3,262.50 ILS in a comparison |
 | 4 · Bundle | Omit fields that could not be resolved | The evaluator silently skips a predicate it should have failed on |
@@ -599,6 +673,9 @@ produces a **plausible, wrong, confident answer**.
 | 8 · Screen | Draw count tiles because `counts` is in the JSON | v1's clean bill of health again, on a new screen |
 | 8 · Screen | Branch on the vendor name in `source` | The second screen quietly stops being PMS-agnostic |
 | 8 · Screen | Fetch the run while the page renders | A reload or a prefetch re-runs it: double provider calls, against someone else's server |
+| 9 · Task | Raise a task per run | Five re-runs, five tasks for one overpaid guest, and a queue nobody trusts |
+| 9 · Task | Close the task when a later run passes | The engine declares the refund made. Only a person knows that |
+| 9 · Task | Put the verdict's reason in the email | Evidence and a guest's details sent to an inbox, where nobody audits them |
 
 **Every one of these is prevented by a type that raises or a test that fails** — not by a convention
 somebody has to remember on the day they add the twelfth control.
@@ -612,15 +689,31 @@ somebody has to remember on the day they add the twelfth control.
 > product.
 
 It is why `resource_occupancy_consistency` is **BLOCKED** rather than answering July's question from
-August 2024's data. It is why the criterion-1 score is recorded as **5 of 11 — not met** instead of
-quietly rounded up. And it is why that score **went down** when a bug was fixed.
+August 2024's data. It is why the criterion-1 score is recorded as **not met on every capture** (2 of
+11 on `sandbox2026`, 1 on the refresh, 5 on the covering capture) instead of quietly rounded up. And
+it is why that score **went down**, twice, when a bug was fixed: 6 to 5 for issue #9, then 5 to 2
+on `sandbox2026` for issue #71.
 
 > v1 met **all seven** of its own success criteria while **nine of its ten controls answered nothing
 > at all.** That is the mistake this whole codebase is shaped around.
 
 ---
 
-## Two things this document predates
+## What arrived after Part B was first written
+
+Part B was first traced in v2. It was re-run on 2026-10-13 and still holds value for value. Four
+things have arrived since, and each changes the trace by a step at most.
+
+**v3 (2026-10-09..11) added three lines and one step.** The run now carries its rule's version and
+digest (step 7), and the FAIL becomes one task in the findings queue (step 9). With authentication
+on, the property this trace asks about comes from a **verified signature**, not the URL. The
+hotel's settings are typed, and `checkout_unrefunded_credit` reads none of them, so nothing it
+decides can be *not decided*. Nothing in steps 1–6 changed. v3's regression test compares every
+stored answer with v2's and allows no change it was not told about by name.
+
+**Issue #71 (2026-10-13) changed where the trace may run, not what it says.** A capture answers
+only what it recorded, which is why the trace now states its capture, and why
+`sandbox2026` answers this control and refuses seven others.
 
 Since 2026-09-16 (decision D10) a rule can also arrive as **prose** through `/compose`, where a
 model rewrites it into a restricted sentence that the same deterministic grammar then compiles.
@@ -637,7 +730,8 @@ See [01-project-overview.md](01-project-overview.md) §10.
 Since slice 15 there is also a second screen, a React UI under `ui/`. It changes Part B even less:
 it reads the engine's JSON and renders it, and the engine did not change to make room for it. Step 8
 above is the only place it appears, and every new mistake it could make there is closed by a test
-in the engine's required suite. See [01-project-overview.md](01-project-overview.md) §9.
+in the engine's required suite. Since v3 it also shows step 9's task, at `/queue`. See
+[01-project-overview.md](01-project-overview.md) §9 and §11.
 
 ---
 

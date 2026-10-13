@@ -1,7 +1,7 @@
 # Project Explainer
 
 Four documents that take you from *"what is this company selling?"* to *"which line of code
-decides that?"* in about an hour, without needing to read the eight documents in `docs/` first.
+decides that?"* in about an hour, without needing to read the twelve documents in `docs/` first.
 
 They are **standalone**. Everything you need is here; links point outward only when you want the
 long version.
@@ -23,23 +23,37 @@ There are **two screens** over the same engine: the engine's own server-rendered
 UI under `ui/` that is a client of its JSON API. Why there are two, and what the second one is not
 allowed to do, is [01-project-overview.md §9](01-project-overview.md#9-two-screens-over-one-engine--the-react-ui).
 
+What happened **after** a verdict, which is most of v3 (the findings queue, email, guest
+decisions, signed tenant contexts, rule versions), is
+[01-project-overview.md §11](01-project-overview.md#11-v3--from-a-verdict-to-a-task-a-person-can-act-on).
+
 If you have five minutes and not an hour, read §1 and §2 of
 [01-project-overview.md](01-project-overview.md) and the first diagram in
 [03-code-architecture.md](03-code-architecture.md).
 
 ## What is true as of this writing
 
-Measured, not quoted. Every number below was produced by running the code, last on 2026-10-09.
+Measured, not quoted. Every number below was produced by running the command beside it, on
+**2026-10-13**, on `main` after v3 and issue #109. The other four documents refer to this table
+rather than repeating its numbers. If one of them disagrees with it, this table is the one that was
+measured.
 
-| | |
-| --- | --- |
-| Tests | **1956 passing**, offline, in ~13 seconds. The React UI adds 154 component and 19 real-browser tests of its own |
-| Spec validation | **1,080 checks passing** (`python3 -m tools.validate_spec`) |
-| Runtime dependencies | **Zero in the engine.** Python standard library only. The optional compose backend and the React UI both live outside it |
-| Controls shipped | **11**, as data files in `spec/ir/` — plus any composed into `spec/drafts/` |
-| Providers | **2** — MiniHotel (XML, real captures) and DemoPMS (JSON, generated) |
-| Success criteria met | **11 of 12.** The twelfth is recorded as *not met* with its arithmetic |
-| Screens | **2.** The engine's own pages (no JavaScript) and the React UI in `ui/`, both over one JSON API |
+| | | Measured by |
+| --- | --- | --- |
+| Tests | **3,378 passing, 3 skipped**, offline, in about a minute. 3,381 collected: unit 1,704 · integration 1,333 · contract 94 · e2e 250 | `PYTHONDONTWRITEBYTECODE=1 python3 -m pytest -q` |
+| React UI tests | **249** component tests and **26** real-browser tests, of its own | `cd ui && npm test && npm run e2e` |
+| Coverage | **97.6%** of the engine's lines and branches (the floor is 90%) | `coverage run -m pytest && coverage report --precision=2` |
+| Spec validation | **1,098 checks passing** | `python3 -m tools.validate_spec` |
+| Golden API payloads | **228**, identical to a rebuild. The React UI's contract | `python3 -m tools.dump_api_fixtures --check` |
+| DemoPMS files | **17**, identical to a rebuild from the MiniHotel captures | `python3 -m tools.transcode_demopms --check` |
+| Runtime dependencies | **Zero in the engine.** Python standard library only. The model backends, the email backend and the React UI all live outside it | `tests/unit/test_stdlib_only.py` |
+| Controls shipped | **11**, as data files in `spec/ir/`, each versioned and locked. Composed ones go to `spec/drafts/` and are never counted | `ls spec/ir` |
+| Guest templates | **1**, `LATE_CHECKOUT`, a decision table the owner approved | `ls spec/guest` |
+| Providers | **2**: MiniHotel (XML, real captures) and DemoPMS (JSON, generated) | `providers/registry.py` |
+| Captures | **4** per provider: `sandbox2024`, `sandbox2026`, `sandbox2026refresh`, `sandbox2026cover` (and `demo…` for each). 20 MiniHotel responses in all | `fixtures/minihotel/index.json` |
+| Success criteria (v2) | **11 of 12 met.** Criterion 1 is **NOT MET on every capture**: 2 of 11 controls conclude on `sandbox2026`, 1 on the refresh, 5 on the covering capture. The PRD asks for 8 | `tests/e2e/test_runs.py`, `tests/e2e/test_refresh_capture.py` |
+| Success criteria (v3) | **V1–V12, all met** | `docs/plan-v3.md` §7 |
+| Screens | **2.** The engine's own pages (no JavaScript) and the React UI in `ui/`, both over one JSON API | |
 
 ## The one-sentence version
 
@@ -54,13 +68,19 @@ Measured, not quoted. Every number below was produced by running the code, last 
 CLAUDE.md                    ← 2-minute orientation for a coding session
 README.md                    ← the pitch
 ui/README.md                 ← the React UI: how it is built and tested, and every dependency justified
+spec/drafts/README.md        ← how a composed draft is promoted to a shipped control
 docs/
   project-explainer/         ← YOU ARE HERE. Business → code, for a newcomer
   prd.md                     ← the contract: what we build, 12 falsifiable criteria
   context.md                 ← the history: how we got here, every decision + why
   architecture.md            ← the design: 8 layers, interfaces, what each hides
-  plan.md                    ← the build log: 15 slices, test gates, honest scorecard
-  open-questions.md          ← what we know we don't know
-  old-codebase-improve.md    ← the v1 post-mortem: 12 keeps, 20 fixes
-  QA.md                      ← running transcript with the project owner
+  plan.md                    ← the v2 build log: slices 0–15, test gates, the criterion-1 arithmetic
+  plan-v3.md                 ← v3: every StayOps gap's disposition, slices 16–24, criteria V1–V12
+  open-questions.md          ← what we know we don't know, and what the engine does meanwhile
+  session-handoff.md         ← the starting prompt for the next coding session, and the state since 2026-10-09
+  old-codebase-improve.md    ← the v1 post-mortem: 12 keeps, 20 fixes. A historical record
+  QA.md                      ← running transcript with the project owner, append-only
+  stayOps_Cotrols_Rule_Engine_V2.md  ← the StayOps documents' intent, in plain language. Not a status report
+  stayops-gap-analysis.md    ← StayOps' requirements against what existed on 2026-09-28. The input to v3
+  poc-comparison-brief.md    ← a brief for a comparison with a second implementation. Never started
 ```

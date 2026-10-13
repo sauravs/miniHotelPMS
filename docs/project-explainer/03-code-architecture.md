@@ -20,8 +20,13 @@ Eight layers. Each is a **deep module**: a wide capability behind a narrow inter
  ┌──────────────────┴──────────────────────────────────────────────┴───────────────┐
  │ L7 · WEB            handle(path) -> (status, content_type, body)                 │
  │ routing · server-side rendering · JSON API · no framework, no JavaScript in it   │
+ │ web/auth.py: with auth on, a VERIFIED tenant context picks the property  (v3)    │
  └────────────────────────────────────────▲────────────────────────────────────────┘
                                           │ run(control_id, tenant, evidence, as_of)
+ ┌─ ABOVE AND BESIDE THE RUN (v3) ────────┼────────────────────────────────────────┐
+ │ actions/  a FAIL → one task · email it once    ops/  one log line per boundary   │
+ │ guest/    a guest request → the approved table → a decision, through L4          │
+ └────────────────────────────────────────┼────────────────────────────────────────┘
  ┌────────────────────────────────────────┴────────────────────────────────────────┐
  │ L6 · RUNNER         orchestration · Run + coverage verdict · readiness           │ ─ UNKNOWN:
  │      ┌──────────────────┬────────────────────┬──────────────────────┐            │   run blocked
@@ -51,6 +56,7 @@ CANONICAL BOUNDARY — no PMS name, endpoint, path or wire format appears above 
  ┌────────────────────────────────────────┴────────────────────────────────────────┐
  │ L2 · SPEC           canonical field registry · IR schema + loader · validator    │
  │      · tenant configuration (status maps, timezone, budget, nominated codes)     │
+ │      · spec lock (version + digest) · typed parameters, null = not decided  (v3) │
  └────────────────────────────────────────▲────────────────────────────────────────┘
                                           │
  ┌────────────────────────────────────────┴────────────────────────────────────────┐
@@ -148,9 +154,10 @@ sequenceDiagram
     participant S as L6c store
 
     B->>W: GET /run/checkout_unrefunded_credit
+    W->>W: auth on? verify the signed context,<br/>overwrite the property (v3)
     W->>W: as_of ← the capture's own instant<br/>2026-07-08
     W->>R: run(control_id, tenant, adapter, clock)
-    R->>R: load IR from spec/ir/*.json<br/>validate before running
+    R->>R: load IR from spec/ir/*.json<br/>validate before running<br/>policy_version 2 + digest
 
     rect rgba(90,74,42,0.25)
     note over E,P: Cost = 1 + R + N. Budget counts every call.
@@ -174,6 +181,14 @@ sequenceDiagram
     R->>R: freshness_of(maximum_age, observed_at, now)
     R-->>W: Run
     W->>S: save(run)
+
+    rect rgba(58,58,68,0.25)
+    note over W,S: v3. After the run, above it. runner/ never changed for this.
+    W->>W: findings_from(run, ir)<br/>only a FAIL raises: 007004348<br/>medium · finance (the IR's action block)
+    W->>S: one task per (property, control,<br/>version, record) - a re-run adds none
+    W->>W: email it, only if a notifier is wired<br/>log one line: request · run · dispatch
+    end
+
     W-->>B: HTML · every verdict with its evidence table
 ```
 
@@ -213,7 +228,7 @@ sequenceDiagram
 The browser never talks to the engine: every arrow into `web/app.py` comes from the UI's own
 server, so no cross-origin header exists anywhere and the engine's security policy is untouched.
 
-**Two design decisions visible in the first trace:**
+**Design decisions visible in the first trace:**
 
 - **`as_of` defaults to the instant the *evidence* describes, not to today.** A capture of July
   answers questions about July. Asking today's date instead would produce a page of refusals for a
@@ -221,7 +236,43 @@ server, so no cross-origin header exists anywhere and the engine's security poli
   about; `?as_of=` overrides it; a date the engine cannot read is **refused rather than guessed at**.
 - **The run is saved on a GET.** Asking the same control the same question over the same evidence at
   the same instant produces the same `run_id`, so a refresh *replaces* rather than duplicating — the
-  history records distinct questions, not page loads.
+  history records distinct questions, not page loads. The task is keyed the same way: asking about
+  `007004348` again, even from a different capture, updates the one task's *last failing* run and
+  raises no second one.
+- **`as_of` defaults to `sandbox2026`'s instant because `sandbox2026` is the default capture.** It
+  can answer this control's question, departures from yesterday to today, because that is the
+  question it recorded. Ask it a control that wants *arrivals* and it refuses, naming the question
+  it does hold (#71). The demo offers the covering capture, `sandbox2026cover`, for those.
+
+### A guest request, end to end (v3, slice 22)
+
+The other thing v3 decides is a guest's request to check out late. It takes the same evidence path
+as a control, and it ends in a decision rather than a verdict.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant B as Staff, on a guest's behalf
+    participant W as L7 web/app.py
+    participant G as guest/
+    participant E as L4 evidence/gather.py
+    participant S as L6c store
+
+    B->>W: POST /api/guest/requests<br/>property · reservation_id · 15:00
+    W->>G: parse_request: an id and HH:MM,<br/>or a 400 naming the field. No model
+    G->>G: load_template("LATE_CHECKOUT")<br/>refused unless status is approved<br/>and its rules match the code's
+    G->>G: load_policy: six typed parameters<br/>null = not decided
+    G->>E: gather(the template's population, unchanged)<br/>departures yesterday..tomorrow: 1 call
+    E-->>G: reservation.status · reservation.departure_date
+    G->>G: decide(): 11 ordered rules, gaps first<br/>any gap → STAFF_REVIEW naming all of them
+    G-->>W: Decision: rule id · version · fee as Money
+    W->>S: the decision and its task, one transaction<br/>a double submission is one of each
+    W-->>B: 201 · the decision. DENIED raises no task
+```
+
+On the two shipped hotels every parameter is `null`, so step 7 answers `STAFF_REVIEW` naming all
+six, which is true. The `APPROVED_WITH_FEE 25.00 USD` in the tests belongs to two test hotels built
+in a scratch copy of `spec/`, never to a shipped one.
 
 ---
 
@@ -289,6 +340,19 @@ missing. Calling that UNKNOWN would hide a real violation behind an irrelevant g
 **The reverse must never happen:** a would-be *pass* outranking a missing field. Both directions are
 tested.
 
+**A collection is judged record by record** (#109). A room has many occupancy segments, and
+*"a closed room must not have a guest in it"* is a question about **all** of them, so it is only
+ever asked under `none`. Each segment is judged on its own. One that overlaps the closure is a FAIL
+that names the reservation. Otherwise, one that cannot be judged makes it UNKNOWN. Only then can it
+PASS, and only if the window fetched covers the room's own dates from today on. Anything less is
+UNKNOWN naming the uncovered dates. A closure with no end can FAIL but never PASS, because no
+bounded window covers it. Before #87, the room was judged by its **first** segment alone.
+
+**An absence can be a fact, if the rule says so.** The grammar has no OR, and a closure's end date
+can simply be missing. So a predicate may say what an absent value answers, written `… at least
+"today" or absent` (#109). This is allowed only on an ordering, and only on a field whose absence
+the vocabulary declares a fact. Without it, an ordering on an absent value is UNKNOWN.
+
 ```
   balance = 250 ILS  (known, violates)      ┐
   approval_flag      (unknown)              ├─ mode: all  →  FAIL   ✅ correct
@@ -354,7 +418,7 @@ flowchart TD
     end
 
     subgraph L4["L4 · EVIDENCE"]
-        BUN["<b>Bundle</b><br/>entity · record_id<br/>fields: canonical → Value<br/>related: joined records<br/>joins: did the key match?<br/><br/><i>always complete in shape:<br/>a gap is an unknown Value,<br/>never a missing key</i>"]
+        BUN["<b>Bundle</b><br/>entity · record_id<br/>fields: canonical → Value<br/>related: joined records<br/>joins: did the key match?<br/>windows: what each reference asked (#109)<br/>unplaced: related records with no key<br/><br/><i>always complete in shape:<br/>a gap is an unknown Value,<br/>never a missing key</i>"]
     end
 
     subgraph L5["L5 · EVALUATOR"]
@@ -362,7 +426,7 @@ flowchart TD
     end
 
     subgraph L6["L6 · RUNNER"]
-        RUN["<b>Run</b><br/>verdicts · counts · calls<br/>coverage · blocked<br/>as_of · observed_at · created_at<br/>evidence_is_synthetic"]
+        RUN["<b>Run</b><br/>verdicts · counts · calls<br/>coverage · blocked<br/>as_of · observed_at · created_at<br/>evidence_is_synthetic<br/>policy_version · policy_digest (v3)"]
     end
 
     MON --> VAL
@@ -387,6 +451,12 @@ A three-valued answer, kept separate from the resolved fields:
 > *"The room is not in the master"* and *"we could not read the master"* must never produce the same
 > verdict. **A join never invents a match** — wrong evidence behind a right-looking verdict is the
 > worst thing this system can produce.
+
+**Two blanks are not a match** (#86). Until 2026-10-11 an empty key was read as the word `False`
+on both sides, so a stay with no room "joined" a room with no number. Now an absent key is never
+indexed and never looked up, and the join is `unknown`, naming the missing field. Issues #75, #84
+and #85 closed the same hole for a room number, an occupancy reservation id and a reservation id.
+None of them had touched a committed capture yet, which is the best time to find one.
 
 ### The three timestamps on a `Run`, which are three different facts
 
@@ -420,16 +490,21 @@ flowchart LR
 | Source | Cost | Why |
 | --- | --- | --- |
 | the population response | **free** — already fetched | |
-| a reference | **1 call per run**, however many records want it | The room master answers for all 111 stays at once. v1 had no way to say this, and three of its controls returned **111 UNKNOWN out of 111 records** |
+| a reference | **1 call per run**, however many records want it, over a **bounded window** where the reference is a time series (#109) | The room master answers for all 372 stays of the covering capture at once. v1 had no way to say this, and three of its controls returned **111 UNKNOWN out of 111 records** |
 | a per-record follow-up | **1 call per record** | A folio takes one reservation per call and no bulk journal endpoint exists. This is why a population query exists at all |
 
-**Measured, on the 2026 capture:**
+**Measured on 2026-10-13, on the covering capture `sandbox2026cover`:**
 
 | Control | Calls | Shape |
 | --- | --- | --- |
 | `duplicate_channel_reservation` | **1** | population only — grouped in memory |
-| `checkout_unrefunded_credit` | **3** | 1 population + 2 folios (`1 + N`, N=2) |
+| `checkout_unrefunded_credit` | **3** | 1 population + 2 folios (`1 + N`, N=2). The same on `sandbox2026` |
 | `room_assignment_type_validity` | **3** | 1 population + 2 references (`1 + R`, R=2) |
+| `ooo_room_protection` | **2** | 1 population (rooms) + 1 reference (occupancy, `today..today+7d`) |
+
+On `sandbox2026` the third control spends **one** call and stops: the population it asks for,
+arrivals, is a question that capture never recorded, so replay refuses it before a reference is
+fetched. Refusing costs one call; answering wrongly would have cost three.
 
 ### The budget raises; it never truncates
 
@@ -458,9 +533,9 @@ Not an error path. A legitimate answer that must survive to the screen intact.
 
 ```mermaid
 flowchart BT
-    P["<b>L3 PROVIDER</b>"] -->|"status code 'OK4' is in no tenant map<br/>capacity is 0, meaning unconfigured<br/>the currency is not stated"| E
-    E["<b>L4 EVIDENCE</b>"] -->|"the follow-up call failed<br/>the join key was unreadable<br/>the reference was never connected"| V
-    V["<b>L5 EVALUATOR</b>"] -->|"a predicate's operand is unknown<br/>a group's membership cannot be settled"| R
+    P["<b>L3 PROVIDER</b>"] -->|"status code 'OK4' is in no tenant map<br/>capacity is 0, meaning unconfigured<br/>the currency is not stated<br/>an id or room number is empty (#75, #84, #85)<br/>the capture never recorded this question (#71)"| E
+    E["<b>L4 EVIDENCE</b>"] -->|"the follow-up call failed<br/>the join key was unreadable or absent (#86)<br/>the reference was never connected"| V
+    V["<b>L5 EVALUATOR</b>"] -->|"a predicate's operand is unknown<br/>a group's membership cannot be settled<br/>a value with no date unit, in a window (#87)<br/>a collection not covered by its window (#109)<br/>the hotel has not decided a setting (v3)"| R
     R["<b>L6 RUNNER</b>"] -->|"the whole run is BLOCKED, with a sentence<br/>the evidence is stale"| W
     W["<b>L7 WEB</b><br/>UNKNOWN rendered with<br/><b>hue + border + wording</b><br/>and the fields to fix"]
 
@@ -506,9 +581,10 @@ flowchart TD
     style VD fill:#7a3838,color:#fff
 ```
 
-`tests/e2e/test_two_providers.py` — **105 tests**: 11 controls × 3 as-of dates, per record id, with
-call counts compared too. The side-by-side proof is in
-[04-edge-cases.md](04-edge-cases.md) Part B.
+`tests/e2e/test_two_providers.py` — **106 tests**: 11 controls × 3 as-of dates, per record id, with
+call counts and blocking compared too, plus seven that keep the agreement from being vacuous. Since
+#71 the 2026 date is asked of the covering captures, where every control's question is on record.
+The side-by-side proof is in [04-edge-cases.md](04-edge-cases.md) Part B.
 
 **How the boundary is actually held:**
 
@@ -516,7 +592,7 @@ call counts compared too. The side-by-side proof is in
 | --- | --- |
 | `providers/registry.py` | **Discovers** adapters by importing sub-packages that declare `ADAPTER`, `FROZEN`, `CAPTURES`, `DEFAULT_CAPTURE`. A hard-coded dict of `{"minihotel": …}` would be the first leak |
 | `tests/unit/test_canonical_boundary.py` | Greps the tree for **28 identifiers from both providers**, with allowed directories *discovered* rather than listed. Strict enough that it has caught prose |
-| `tests/contract/test_provider_contract.py` | **73 tests**, one suite parameterised over every registered provider. Adding Mews means running an existing suite |
+| `tests/contract/test_provider_contract.py` | **94 tests**, one suite parameterised over every registered provider. Adding Mews means running an existing suite |
 | `Value.source` | The **one** thing carrying a provider name that crosses the boundary — and it crosses as **opaque audit data** (`pms:minihotel/GetReservationBalance`). No layer above ever parses it |
 
 ---
@@ -664,6 +740,16 @@ Nothing here relies on someone remembering. Each row is a mechanism.
 | The React UI never parses money, injects HTML, or makes a request outside `lib/api.ts` | `test_ui_hygiene.py`, in the **required** Python suite | test |
 | The UI's test data is the engine's real answers | `test_api_goldens.py`: `fixtures/api/` rebuilds byte-identical, and git ignores none of it | test |
 | Both screens show the same signals | the UI's own suite re-proves criteria 2, 3, 8 and 10, with a parity check over every run payload and the border styles measured in a real browser | CI (`ui` job) |
+| **v3:** no v2 answer changes unless a PR declares it | `test_v1_no_answer_changed.py` compares every run golden's verdicts, counts and coverage with `7f384c4`; a change goes in its `DECLARED` dict, with the PR | test |
+| **v3:** a rule's version cannot lie | `spec/ir.lock.json` + `validate_spec`: content changed and version did not → refused | tool |
+| **v3:** no query on a hotel's table forgets the hotel | `test_tenant_scoped_store.py` over every SQL literal and every executed statement in `store/`; new tables are covered automatically | test |
+| **v3:** the URL cannot choose the hotel | `App._authenticate`, the one choke point, overwrites `property` from the verified context before any route runs; `test_host_auth.py` across every route | type + test |
+| **v3:** a FAIL is one task, an UNKNOWN none | the `actions` table's `UNIQUE` natural key; `test_findings_queue.py` | type + test |
+| **v3:** no test can send an email | the SMTP backend refuses without `HOTELCONTROLS_NOTIFY=1` **and** inside a test runner; `test_notifiers_refuse_in_tests.py` | test |
+| **v3:** no log line holds a credential, a guest or a staff address | `test_operational_log.py`, over every line of a full run with fake credentials set for every provider | test |
+| **v3:** no model can decide a guest request | `test_guest_no_model.py`, an AST walk over `guest/`'s transitive imports | test |
+| **#71:** a capture answers only the question it recorded | both frozen sources compare the whole recorded question; `test_replay_answers_only_its_question.py` | test |
+| **#87, #109:** a guest in a closed room is never a PASS | `ir.py` refuses `within` on a non-date and a collection outside `none`; `collections.py` judges each segment; `test_closed_room_never_passes.py` on both providers | type + test |
 
 ---
 
