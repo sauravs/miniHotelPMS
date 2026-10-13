@@ -16,7 +16,8 @@ A declared change is an entry in DECLARED, naming the PR that made it. Slice 21 
 the plan foresees (`required_reservation_fields` on the sandbox, if `null` changes a reason).
 After v3, issue #71's fix declared 48 more (the owner's choice A+B, 2026-10-13): runs that were
 answered from part of a population are now refused, saying which question the capture holds.
-Issue #87's fix moved ooo_room_protection's eight again, by two evidence lines on every verdict.
+Issue #87's fix moved ooo_room_protection's eight again, by two evidence lines on every verdict,
+and #109's (#87's option 2) once more, by the reason on its four occupancy evidence lines.
 B's 44 new goldens - the covering capture, offered beside sandbox2026 - have no baseline to move
 from, so they need no declaration.
 """
@@ -48,7 +49,15 @@ _FIX_87 = ("Then PR for issue #87 (the guard): ooo_room_protection version 3 rea
            "every verdict carries those two evidence lines (unknown: the occupancy reference is "
            "refused on every capture since #71). No outcome, count, reason or coverage moved: "
            "still EXCLUDED 28. Pinned by tests/integration/test_closed_room_never_passes.py")
-_FIX_71_THEN_87 = _FIX_71 + " " + _FIX_87
+_FIX_109 = ("Then PR for issue #109 (#87's option 2, design P1-P6 approved 2026-10-13): "
+            "ooo_room_protection version 4 judges every occupancy segment, asks its occupancy "
+            "reference for today..today+7d (population.reference_windows), and EXCLUDES a "
+            "closure that ended before today. These captures hold no occupancy for that window, "
+            "so the four occupancy evidence lines name the refusal of 2026-07-08..15 "
+            "(2024-09-01..08 on the 2024 captures) instead of the refusal of an unwindowed "
+            "question. No outcome, count, reason or coverage moved: still EXCLUDED 28. Pinned by "
+            "tests/integration/test_closed_room_never_passes.py")
+_FIX_71_THEN_87 = _FIX_71 + " " + _FIX_87 + " " + _FIX_109
 DECLARED: dict[str, str] = {
     "run/checkout_money_owed.demo.demo2024.json": _FIX_71,
     "run/checkout_money_owed.sandbox.sandbox2024.json": _FIX_71,

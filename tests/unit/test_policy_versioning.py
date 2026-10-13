@@ -67,8 +67,9 @@ class TestTheLoaderReadsTheVersion:
 
     def test_every_shipped_control_says_which_version_it_is(self):
         """plan-v3 §2: every IR said `"version": 2` and no loader read it until slice 16. Since
-        then a rule moves only by a bump: ooo_room_protection is 3 since issue #87."""
-        bumped = {"ooo_room_protection": 3}
+        then a rule moves only by a bump: ooo_room_protection is 3 since issue #87, and 4 since
+        #109 (each segment judged, a 7-day reference window, an ended closure EXCLUDED)."""
+        bumped = {"ooo_room_protection": 4}
         for control_id in available():
             assert load(control_id).version == bumped.get(control_id, 2), control_id
 

@@ -185,3 +185,79 @@ class TestBuilding:
                 ir_with([{"entity": "room", "kind": "lookup",
                           "local_field": "stay.room_number", "remote_field": "room.number"}]),
                 adapter, ResponseCache(adapter.fetch, budget))
+
+
+class TestAWindowedCollection:
+    """Issue #109, P2 and P3. A collection's request asks the window the IR's deployment half
+    declares (`population.reference_windows`), resolved through the PROPERTY clock, and the
+    index records that window - so the evaluator can tell a complete collection from a part of
+    one. A record whose key cannot be read is kept, as UNPLACED: it may belong to any record,
+    and dropping it would make a room that looks empty read as one that is."""
+
+    REFERENCE = {"entity": "occupancy", "kind": "collection", "local_field": "room.number",
+                 "remote_field": "occupancy.room_number"}
+
+    class Windowed(StubAdapter):
+        def __init__(self, **kwargs):
+            super().__init__(**kwargs)
+            self.asked = []
+
+        def reference_request(self, entity, window=None):
+            self.asked.append((entity, window))
+            return Request("occupancy", {"between": window}) if window else None
+
+    def ir(self, window=None):
+        ir = ir_with([self.REFERENCE])
+        ir.raw["population"] = {"reference_windows": {
+            "occupancy": window or {"from": "today", "to": "today+7d"}}}
+        return ir
+
+    def adapter(self):
+        return self.Windowed(
+            records={"occupancy": ["s1", "s2"]},
+            values={("occupancy.room_number", "s1"): Value.known("303"),
+                    ("occupancy.room_number", "s2"): Value.unknown("present but empty")})
+
+    def clock(self):
+        from hotelcontrols.kernel import FixedClock
+        return FixedClock.at("2026-07-08T01:30", "Asia/Jerusalem")
+
+    def test_the_window_is_resolved_through_the_property_clock(self):
+        adapter = self.adapter()
+        build_references(self.ir(), adapter, cache_for(adapter), self.clock())
+        assert adapter.asked == [("occupancy", {"from": "2026-07-08", "to": "2026-07-15"})]
+
+    def test_the_index_records_the_window_and_the_day_it_was_asked(self):
+        from hotelcontrols.evidence import FetchedWindow
+        adapter = self.adapter()
+        index = build_references(self.ir(), adapter, cache_for(adapter),
+                                 self.clock())["occupancy"]
+        assert index.window == FetchedWindow("2026-07-08", "2026-07-15", "2026-07-08")
+
+    def test_a_record_whose_key_is_unreadable_is_kept_as_unplaced(self):
+        adapter = self.adapter()
+        index = build_references(self.ir(), adapter, cache_for(adapter),
+                                 self.clock())["occupancy"]
+        assert set(index.by_key) == {"303"}
+        assert index.unplaced == ("s2",)
+
+    def test_a_provider_that_cannot_bound_the_entity_says_so(self):
+        adapter = self.adapter()
+        adapter.reference_request = lambda entity, window=None: None
+        index = build_references(self.ir(), adapter, cache_for(adapter),
+                                 self.clock())["occupancy"]
+        assert not index.is_available
+        assert "window" in index.unavailable
+
+    def test_a_reference_without_a_window_records_none(self):
+        adapter = StubAdapter(requests={"occupancy": Request("occupancy", {})},
+                              records={"occupancy": []})
+        index = build_references(ir_with([self.REFERENCE]), adapter,
+                                 cache_for(adapter))["occupancy"]
+        assert index.window is None
+
+    def test_a_window_without_a_clock_is_a_spec_error_not_a_guess(self):
+        from hotelcontrols.spec import SpecError
+        adapter = self.adapter()
+        with pytest.raises(SpecError):
+            build_references(self.ir(), adapter, cache_for(adapter))

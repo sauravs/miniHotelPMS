@@ -13,10 +13,10 @@ Four things live here, and the last two are what v1 lacked entirely:
 """
 from .coverage import Coverage, coverage_of
 from .readiness import EvidenceSource, Readiness, readiness
-from .run import Run, run
+from .run import Run, run, with_dates_resolved
 from .scheduling import (Freshness, Plan, ScheduleError, freshness_of, next_evaluation,
                          parse_duration)
 
 __all__ = ["Coverage", "EvidenceSource", "Freshness", "Plan", "Readiness", "Run",
            "ScheduleError", "coverage_of", "freshness_of", "next_evaluation",
-           "parse_duration", "readiness", "run"]
+           "parse_duration", "readiness", "run", "with_dates_resolved"]

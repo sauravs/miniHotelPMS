@@ -34,7 +34,7 @@ from ..spec import TenantConfig
 from .budget import BudgetExceeded, CallBudget
 from .cache import ResponseCache
 from .population import build_request, population
-from .reference import ReferenceIndex, absent_key, build_references
+from .reference import FetchedWindow, ReferenceIndex, absent_key, build_references
 
 
 @dataclass(frozen=True, slots=True)
@@ -57,6 +57,13 @@ class Bundle:
     # Kept separately from the resolved fields because "the room is not in the master" and "we
     # could not read the master" must never produce the same verdict.
     joins: dict[str, Value] = field(default_factory=dict)
+    # Per collection, the window it was fetched for and the day it was asked (#109, P3). A rule
+    # judging every record of a collection may PASS only inside it; absent, never.
+    windows: dict[str, FetchedWindow] = field(default_factory=dict)
+    # Per collection, the related records whose key could not be read - each may be THIS
+    # record's, so a collection judged per record judges them too (#109). Never `related`:
+    # nobody knows that they belong here.
+    unplaced: dict[str, tuple[dict[str, Value], ...]] = field(default_factory=dict)
 
     def unknown_fields(self) -> tuple[str, ...]:
         """What a verdict of UNKNOWN would cite."""
@@ -89,7 +96,10 @@ def gather(ir, adapter, tenant: TenantConfig, clock: Clock,
     cache = ResponseCache(adapter.fetch, budget)
 
     records = population(ir, adapter, clock, cache)
-    references = build_references(ir, adapter, cache)
+    references = build_references(ir, adapter, cache, clock)
+    unplaced = _unplaced(ir, adapter, references)
+    windows = {entity: index.window for entity, index in references.items()
+               if index.kind == "collection" and index.window is not None}
 
     population_key = adapter.source_key_for_request(build_request(ir, adapter.name, clock))
     fields = [entry["field"] for entry in ir["required_evidence"]]
@@ -103,7 +113,8 @@ def gather(ir, adapter, tenant: TenantConfig, clock: Clock,
             fields=_assemble(fields, record, identity, adapter, references, cache,
                              population_key),
             related=_related(ir, record, adapter, references),
-            joins=_joins(record, adapter, references)))
+            joins=_joins(record, adapter, references),
+            windows=dict(windows), unplaced=dict(unplaced)))
 
     return EvidenceSet(tuple(bundles), references, budget.spent)
 
@@ -141,8 +152,14 @@ def _through_reference(name, record, identity, adapter, reference) -> Value:
     matches, reason = reference.match(_key_for(reference, record, adapter))
     if reason is not None:
         return Value.unknown(reason, source=provenance)
-    # For a collection, the full set is exposed through `related`; reading one field scalar-wise
-    # gives the first match, which is what a per-record predicate means by it.
+    if reference.kind == "collection":
+        # No one value stands for many records. This was the FIRST match, and a predicate over
+        # it spoke for one segment as if for the room (#87). Every record is in `related`, and
+        # the evaluator judges each one there (#109); on the room itself, this says so.
+        return Value.unknown(
+            "%s belongs to a collection - this record has %d %s records - so no single value "
+            "stands for it; each record is judged on its own"
+            % (name, len(matches), reference.entity), source=provenance)
     return adapter.resolve(name, matches[0])
 
 
@@ -214,6 +231,23 @@ def _joins(record, adapter, references) -> dict[str, Value]:
     return joins
 
 
+def _unplaced(ir, adapter, references) -> dict[str, tuple[dict[str, Value], ...]]:
+    """Each collection's records whose key could not be read, with their fields resolved."""
+    unplaced: dict[str, tuple[dict[str, Value], ...]] = {}
+    for entity, index in references.items():
+        if index.kind != "collection" or not index.unplaced:
+            continue
+        wanted = _wanted(ir, entity)
+        unplaced[entity] = tuple(
+            {name: adapter.resolve(name, record) for name in wanted}
+            for record in index.unplaced)
+    return unplaced
+
+
+def _wanted(ir, entity) -> list[str]:
+    return [e["field"] for e in ir["required_evidence"] if e["field"].split(".")[0] == entity]
+
+
 def _related(ir, record, adapter, references) -> dict[str, tuple[dict[str, Value], ...]]:
     """Every record joined by a `collection` reference, with its own fields resolved."""
     related: dict[str, tuple[dict[str, Value], ...]] = {}
@@ -225,9 +259,11 @@ def _related(ir, record, adapter, references) -> dict[str, tuple[dict[str, Value
         if not index.is_available:
             related[entity] = ()
             continue
+        # An unmatched or unreadable key leaves this EMPTY, and an empty tuple says nothing on
+        # its own: whether it means "no segments" or "could not look" is `joins[entity]`, and
+        # the evaluator reads that before it reads this (#109).
         matches, _reason = index.match(_key_for(index, record, adapter))
-        wanted = [e["field"] for e in ir["required_evidence"]
-                  if e["field"].split(".")[0] == entity]
+        wanted = _wanted(ir, entity)
         related[entity] = tuple(
             {name: adapter.resolve(name, match) for name in wanted} for match in matches)
     return related

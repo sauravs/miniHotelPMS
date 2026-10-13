@@ -596,6 +596,10 @@ verdicts.
 4. **What is the format of `rm_clsdt1` / `rm_clsdt2`?** Never observed populated on any room, so the
    out-of-service mechanism has never been seen working. Controls 1d, 2 and 13 depend on it — and if
    the format differs from the docs, they would **silently pass everything**.
+   **Since #109** control 2 answers as soon as a window appears: every occupancy segment is judged
+   and a guest inside a closure is a FAIL naming the segment, proven offline on both providers
+   with a stand-in room master. Its scope still rests on this format, so a misread one would still
+   EXCLUDE the room silently - the question stands.
 5. **Does any endpoint resolve a reservation's rate code to permitted room types?** (Control 9.)
 6. **Agreed rate limits and windows** for a production integration (R8).
 7. **Is there a partner or multi-property credential model, or is it strictly one credential set per
@@ -638,7 +642,7 @@ Not questions — decisions, recorded so they can be reversed knowingly.
 | **Free-text remarks unmapped** | Nothing reads them | Question 1.5 |
 | **No FX source** | Cross-currency comparison raises; controls compare against literal zero | R9. Inventing a rate would be the single most damaging thing this engine could do to a finance team |
 | **A run's identity does not include its rule** (slice 16) | `make_run_id` hashes control, property, provider, evidence, `as_of` and `created_at`, but not `policy_version`. In the demo, whose clock is fixed at the capture's instant, re-running the same question after a rule's version bump **replaces** that row. The replacement always carries the new rule's verdicts **and** its version together; history groups by version and digest | `docs/plan-v3.md` §6.6: every stored run and golden keeps its identity, and idempotency lives on the action record (slice 18), not on `run_id`. Outside the fixed-clock demo `created_at` differs, so two versions are two rows. Reversing it would change all 88 run goldens' ids |
-| **A collection is not judged record by record** (#87, option 2 open) | A predicate that reads a field of a `collection` reference - a room's occupancy segments - answers UNKNOWN, naming how many records it would have to judge. So `ooo_room_protection` (version 3) is UNKNOWN for every room with a closed window, and never a PASS | The evidence layer fills a collection's fields with its FIRST match, and a room whose first segment was clean PASSed with a guest inside its closed window (#87). Judging every record, with Kleene logic across them, is a new evaluator capability. It also needs the occupancy reference to ask a window: it asks none, and since #71 replay refuses it on every capture. Neither can move a verdict today, because no room has ever had a closed window (2.4) |
+| **Control 2 sees seven days of occupancy** (#109, since #87's option 2) | A room's occupancy segments are judged one by one (FAIL naming the segment), but the occupancy reference asks only `today..today+7d` (`population.reference_windows`). A room PASSes only if its closure, from today onward, lies inside that window; a closure running past it, or with no end date, is UNKNOWN naming the dates nobody looked at - an overlap seen inside it is still a FAIL. A segment whose room number is unreadable, falling inside a closure, keeps the room UNKNOWN | R8: MiniHotel asks for bounded ranges, and seven days is the precedent `resource_occupancy_consistency` set - one call, shared by both occupancy controls. It is also the only window a capture recorded (the refresh: 2026-07-08..15), so it is proven offline. A wider horizon is a version bump once MiniHotel agrees limits (2.6). No verdict has moved: no room has ever had a closed window (2.4) |
 | **Occupancy is a projection, not a native record** | Assembled by a declared join from sibling lists | The provider genuinely has no single block per occupancy record. Where a projection cannot be defined, the control is blocked **by name**, not crashed |
 
 ---
@@ -646,6 +650,14 @@ Not questions — decisions, recorded so they can be reversed knowingly.
 ## Recently closed
 
 Kept briefly, because *how* they closed matters more than that they did.
+
+- **"A collection is not judged record by record"** (§3, #87's option 2). *Closed by #109,
+  2026-10-13.* The design was held at a checkpoint (P1-P6, approved as written) before any code,
+  because PASS needed more than "no segment matched": a collection fetched for no window is a
+  sample, not the whole. So the reference asks a bounded window and a PASS has to lie inside it.
+  One decision surfaced while building, and went back to the owner rather than being guessed: an
+  absent end date had no honest expression in clauses that AND together, so a rule now says what
+  an absence answers (`absent`), in its sentence.
 
 - **"The sandbox has no checked-out reservation."** *Closed — it was wrong.* Inferred from one 2024
   capture taken with an **arrival** filter. Seven authorised calls found seven checked-out

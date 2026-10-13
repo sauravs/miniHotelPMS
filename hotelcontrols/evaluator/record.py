@@ -33,6 +33,10 @@ unrelated gap.
 
 What must NEVER happen is the reverse: a predicate that would pass outranking a missing one.
 Both directions are tested.
+
+A COLLECTION IS JUDGED RECORD BY RECORD (issue #109). Under `none`, a predicate reading a room's
+occupancy segments is applied to EACH segment, and a PASS also needs the segments to be all of
+them for the question's dates - see `collections.py`. Every other mode keeps #87's refusal.
 """
 from __future__ import annotations
 
@@ -40,6 +44,7 @@ from typing import Any
 
 from ..evidence import Bundle
 from ..kernel import EvidenceLine, Outcome, Verdict
+from .collections import collections_read, judge_collection
 from .predicates import evaluate_predicate
 
 
@@ -95,6 +100,16 @@ def evaluate_record(ir, bundle: Bundle, settings: dict[str, Any] | None = None) 
                       "this control's assertion is %r, which is a question about a group of "
                       "records rather than about this one" % mode,
                       [p["field"] for p in assertion["predicates"]])
+
+    if mode == "none" and collections_read(assertion["predicates"], bundle):
+        judged = judge_collection(ir, bundle, settings)
+        for name in judged.seen:
+            if name not in seen:
+                seen.append(name)
+        shown = Bundle(bundle.entity, bundle.record_id, judged.evidence)
+        return Verdict(judged.outcome, judged.reason,
+                       _evidence(ir, shown, judged.fields, seen),
+                       control_id=ir.get("control_id"), record_id=bundle.record_id)
 
     results = run(assertion["predicates"])
     outcome, decisive = _MODES[mode](results)

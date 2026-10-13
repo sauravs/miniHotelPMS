@@ -56,6 +56,7 @@ import json
 import sys
 
 from hotelcontrols.evidence.population import build_request
+from hotelcontrols.evidence.reference import reference_request, reference_window
 from hotelcontrols.kernel import FixedClock, PropertyClock
 from hotelcontrols.providers import registry as providers
 from hotelcontrols.providers.base import ProviderError, Request
@@ -125,7 +126,11 @@ def plan_for(control_id: str, tenant: TenantConfig, adapter, clock) -> list[Stag
         "folio costs one call per record (R1)",
         [build_request(ir, adapter.name, clock)])]
 
-    references = [adapter.reference_request(reference["entity"])
+    # Through the evidence layer's own helper, so a reference's window (#109) is printed
+    # exactly as a run would send it - a plan that differs from the run is #70.
+    windows = ir["population"].get("reference_windows") or {}
+    references = [reference_request(adapter, reference["entity"],
+                                    reference_window(reference["entity"], windows, clock))
                   for reference in ir.references
                   if reference.get("source") != "tenant"]
     references = [request for request in references if request is not None]

@@ -23,6 +23,7 @@ from typing import Any
 
 from ..evidence import Bundle
 from ..kernel import NOT_APPLICABLE, CurrencyMismatch, UnknownValue, Value
+from ..kernel.dates import is_relative_date
 from .intervals import within as _within
 
 # Operators that ask a question about a GROUP of records. Reaching one here means the IR is
@@ -31,6 +32,9 @@ AGGREGATE_OPERATORS = frozenset({"count_lte", "no_overlap"})
 # The units an adapter stamps on a date it has parsed (R2). A value without one is not a date,
 # whatever it looks like - see `_interval`.
 DATE_UNITS = frozenset({"date", "datetime"})
+# Orderings: the operators with no answer of their own for an ABSENCE (#109). `False >=
+# "2026-07-08"` is a TypeError, not a comparison, so the rule must say - see `_absence`.
+ORDERINGS = frozenset({"lt", "lte", "gt", "gte"})
 
 
 @dataclass(frozen=True, slots=True)
@@ -84,6 +88,9 @@ def evaluate_predicate(predicate: dict[str, Any], bundle: Bundle,
     right, right_text, problem = _right_hand_side(predicate, bundle, settings, fields)
     if problem is not None:
         return PredicateResult(None, problem, tuple(fields))
+
+    if operator in ORDERINGS and _is_absence(left):
+        return _absence(predicate, operator, name, left, right_text, fields)
 
     handler = OPERATORS.get(operator)
     if handler is None:
@@ -151,7 +158,42 @@ def _right_hand_side(predicate, bundle, settings, fields):
                                 % name)
         return settings[name], "the property's %s" % name.replace("_", " "), None
 
-    return predicate.get("value"), repr(predicate.get("value")), None
+    value = predicate.get("value")
+    if is_relative_date(value):
+        # The runner resolves it through the property clock before evaluating (#109, P4). One
+        # still here was never resolved, and as text "2026-07-05" >= "today" is False because
+        # '2' < 't' - every closed room EXCLUDED, silently. So it is not compared at all.
+        return None, None, ("%s is compared against the relative date %r, which was not resolved "
+                            "through the property clock before this rule was evaluated"
+                            % (predicate["field"], value))
+    return value, repr(value), None
+
+
+# --------------------------------------------------------------------------- absences
+def _is_absence(value: Value) -> bool:
+    """A field the provider left empty and the registry declared a FACT: known False, or not
+    applicable. Never an unknown - that is an evidence gap, and stays one."""
+    return value.is_known and (value.payload is False or value.payload is NOT_APPLICABLE)
+
+
+def _absence(predicate, operator, name, left, right_text, fields):
+    """What an ordering answers when its field is absent: what the rule says, or nothing.
+
+    Issue #109, P4, and the owner's choice (2026-10-13). "room.closed_to at least today, or
+    absent" keeps an open-ended closure in scope: the rule states that an absent end satisfies
+    the clause. Without that statement there is no honest answer - an absent end is not before
+    today and not after it - so the clause cannot be established.
+    """
+    clause = "`%s %s`" % (operator, right_text)
+    if "absent" not in predicate:
+        return PredicateResult(
+            None, "%s is %s, and an ordering has no answer for an absence - this rule does not "
+                  "say what an absent %s means for %s" % (name, describe(left), name, clause),
+            tuple(fields))
+    holds = bool(predicate["absent"])
+    return PredicateResult(
+        holds, "%s is absent, which this rule reads as %s %s"
+               % (name, "satisfying" if holds else "not satisfying", clause), tuple(fields))
 
 
 # --------------------------------------------------------------------------- collections
@@ -161,9 +203,13 @@ def _from_a_collection(predicate, bundle) -> str | None:
     Issue #87. A collection joins MANY records to this one - a room's occupancy segments - and
     the evidence layer fills each of their fields with the FIRST match. A predicate over that
     value speaks for one segment and would be reported as speaking for the room: a room whose
-    first segment was clean PASSed with a guest inside its closed window. Judging every record
-    of a collection, with Kleene logic across them, is #87's option 2 and does not exist yet,
-    so until it does the answer is "cannot tell", naming how many records it would have to be.
+    first segment was clean PASSed with a guest inside its closed window.
+
+    Since #109 (#87's option 2) an assertion of mode `none` judges every record instead - see
+    `collections.py`, which hands this function ONE record at a time, so this never fires
+    there. Everywhere else - scope, exceptions, `all`, `any` - it still does: the validator
+    refuses those rules before they run (check 8), and this is the lock for one that was not
+    validated. The answer is "cannot tell", naming how many records it would have to be.
     """
     named = [predicate["field"], predicate.get("compare_to"),
              *(predicate.get("interval") or {}).values()]

@@ -28,6 +28,7 @@ from hotelcontrols.providers.base import (Provider, ProviderError, RecordBoundar
                                           Request, ResponseUnavailable)
 from hotelcontrols.providers.registry import all_providers, load, names
 from hotelcontrols.spec import Registry, SpecError
+from hotelcontrols.spec import load as load_ir
 
 REGISTRY = Registry.load()
 
@@ -491,3 +492,48 @@ def _population(provider, entity: str = "reservation"):
     ir = load("duplicate_channel_reservation" if entity == "reservation"
               else "room_assignment_type_validity")
     return build_request(ir, provider.name, provider.clock)
+
+
+class TestAWindowedReference:
+    """Issue #109, P2. A collection's reference asks a bounded window - canonical dates from
+    the IR's deployment half - and each provider maps it to its OWN filter. Above this layer
+    the window is two dates; nothing there knows what either provider calls it.
+
+    And P3 rests on one fact about the answer, pinned here on each provider's refresh capture
+    (`<default>refresh`, the only one that recorded a 2026 occupancy window): a windowed
+    occupancy response holds every segment that TOUCHES the window - one begun before it, one
+    beginning on its last day. That is what makes "no segment overlaps a closure inside the
+    window" a complete answer rather than a sample."""
+
+    WINDOW = {"from": "2026-07-08", "to": "2026-07-15"}
+
+    def test_the_occupancy_reference_asks_the_window(self, provider):
+        request = provider.adapter.reference_request("occupancy", self.WINDOW)
+        assert isinstance(request, Request)
+        assert request.endpoint == provider.adapter.reference_request("occupancy").endpoint
+        assert self.WINDOW in list(request.params.values()), request.params
+
+    @pytest.mark.parametrize("entity", ["room", "room_type"])
+    def test_a_reference_with_no_window_on_this_provider_says_so(self, provider, entity):
+        """A master list has no dates to bound. Asking for it anyway, unbounded, would be a
+        different question from the one the rule declared."""
+        assert provider.adapter.reference_request(entity, self.WINDOW) is None
+
+    def test_it_is_the_same_question_the_occupancy_population_asks(self, provider):
+        """One call serves both occupancy controls in a run (R1, R8): the cache is keyed by
+        the request, so the two must be the same request."""
+        from hotelcontrols.evidence.population import build_request
+        population = build_request(load_ir("resource_occupancy_consistency"), provider.name,
+                                   provider.clock)
+        assert provider.adapter.reference_request(
+            "occupancy", {"from": "2026-07-08", "to": "2026-07-15"}) == population
+
+    def test_the_answer_holds_every_segment_touching_the_window(self, provider):
+        adapter, _source = provider.package.build(
+            provider.tenant, provider.package.default_capture + "refresh")
+        response = adapter.fetch(adapter.reference_request("occupancy", self.WINDOW))
+        spans = [(adapter.resolve("occupancy.from", r).payload,
+                  adapter.resolve("occupancy.to", r).payload)
+                 for r in adapter.records(response, "occupancy")]
+        assert any(start < "2026-07-08" < end for start, end in spans), "begun before it"
+        assert any(start == "2026-07-15" for start, _end in spans), "begun on its last day"

@@ -190,7 +190,9 @@ class Provider(Protocol):
     def resolve(field, record) -> Value              # canonical name in, Value out
     def source_key(field) -> Token                   # opaque: "which call yields this"
     def follow_up(field, record_id) -> Request|None  # per-record call, or None
-    def reference_request(entity) -> Request|None    # whole-property call for a join
+    def reference_request(entity, window=None) -> Request|None
+                                                     # whole-property call for a join; a
+                                                     # window maps to this PMS's own filter
     def events() -> tuple[str, ...]                  # canonical events this PMS publishes
 ```
 
@@ -225,8 +227,11 @@ and it can be replayed but not probed.
 ```python
 gather(ir, provider, tenant, as_of, budget) -> EvidenceSet
 EvidenceSet  = { bundles: [Bundle], references: {entity: ReferenceIndex}, calls: int }
-Bundle       = { entity, record_id, fields: {canonical -> Value} }
+Bundle       = { entity, record_id, fields: {canonical -> Value},
+                 related: {entity -> [record]}, joins: {entity -> Value},   # collections
+                 windows: {entity -> FetchedWindow}, unplaced: {entity -> [record]} }
 ReferenceIndex = { key_value -> {canonical -> Value} }     # joined by canonical key only
+FetchedWindow  = { start, end, asked_on }                  # #109: what a collection covers
 ```
 
 Hides: translating the IR's population query into request filters (resolving relative dates through
@@ -243,6 +248,13 @@ reference key that does not match resolves to UNKNOWN with that reason; **a join
 match**, because wrong evidence behind a right-looking verdict is the worst thing this system can
 produce.
 
+**A collection knows what it is complete for** (issue #109). A room's occupancy is many segments
+over all of time, and no request asks for all of time (R8). So an IR's deployment half may declare
+`population.reference_windows` - `{"occupancy": {"from": "today", "to": "today+7d"}}`, canonical
+relative dates resolved through the property clock exactly as a population window is - and each
+adapter maps it to its own filter. The bundle records the window and the day it was asked. A remote
+record whose join key cannot be read is kept as **unplaced**, because it may be any record's.
+
 ### L5 · Evaluator
 
 ```python
@@ -252,7 +264,8 @@ evaluate_population(ir, evidence_set)        -> [Verdict]     # for aggregate as
 
 Hides: the predicate operators · scope filtering and exceptions · **unknown precedence** · interval
 arithmetic for `within` / `not_within` / `overlaps` · group computation for `count_lte` and
-`aggregate` · building the evidence table that explains each verdict.
+`aggregate` · judging a collection record by record · building the evidence table that explains
+each verdict.
 
 Order, and it matters:
 
@@ -284,6 +297,22 @@ each contributing record with the group's evidence attached. That is what makes 
 all, and it must exclude cancelled records and `NOT_APPLICABLE` channel ids (R7) or every direct
 booking looks like a duplicate of every other.
 
+**A collection is judged one record at a time, under `none` only** (issue #109, #87's option 2).
+A predicate reading a `collection` reference - a room's occupancy segments - is applied to each
+related record: FAIL if any satisfies a predicate (naming it), else UNKNOWN if any could not be
+judged, else PASS **only if the collection is complete for the question**: the record's own dates
+the predicates place a collection's dates against, from the day it was asked onward, must lie inside
+the window it was fetched for. Otherwise UNKNOWN, naming the dates nobody looked at; so an
+open-ended closure can FAIL and never PASS. Whether the room has no segments or nobody could look is
+`joins[entity]`, read first - an empty collection is never "no guests". An unplaced record that
+would satisfy a predicate makes the room UNKNOWN. The validator refuses a collection field in scope,
+in an exception, or under `all`/`any` (check 8), and the evaluator still refuses one there.
+
+**An absence is answered only where the rule says** (#109, P4). An ordering (`lt`..`gte`) has no
+answer for a declared absence (a known False), so a predicate may carry `absent: true|false` -
+"`room.closed_to at least "today" or absent`" - and without it the clause is UNKNOWN. A relative
+date in a predicate's value is resolved by the runner, never compared as text.
+
 ### L6 · Runner
 
 ```python
@@ -291,6 +320,7 @@ run(control_id, tenant, evidence, as_of) -> Run
 Run = { control, as_of, provider, evidence_origin, is_synthetic, calls,
         verdicts, counts, coverage, blocked,
         policy_version, policy_digest }        # slice 16: the rule that judged it
+with_dates_resolved(ir, clock)           -> ControlIR   # #109: `today` in a value, resolved
 readiness(control_id, provider)          -> Readiness   # fields resolvable / total, per source
 next_evaluation(ir, provider_events, clock, last_run_at, event_at) -> Plan
 freshness_of(maximum_age, observed_at, now)                        -> Freshness

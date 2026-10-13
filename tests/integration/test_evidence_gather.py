@@ -79,17 +79,19 @@ class TestTheJoinThatV1CouldNotExpress:
         assert "dbl" in codes.payload and "twin" in codes.payload
 
     def test_a_collection_reference_never_takes_one_recorded_week_for_all_occupancy(self):
-        """Control 2 starts from the room side, and joins occupancy with NO window. The only
-        occupancy ever recorded is a week, so until issue #71 room 303 collected that week's two
-        segments as if they were all of its occupancy. A part presented as the whole is now
-        refused: the reference is unavailable, it says why, and no room collects anything.
-        (The matching itself - several segments per room - is pinned in
-        tests/unit/test_evidence_reference.py; no capture answers this question on real data.)"""
+        """Control 2 starts from the room side. Until issue #71 it joined occupancy with NO
+        window, and room 303 collected the one recorded 2024 week's two segments as if they
+        were all of its occupancy. Since #109 the reference asks a bounded window - the
+        property's next seven days - and this capture recorded a different one, so the
+        reference is refused, saying both windows, and no room collects anything. (The
+        matching itself is pinned in tests/unit/test_evidence_reference.py, and a windowed
+        answer on 2026 data in tests/integration/test_closed_room_never_passes.py.)"""
         adapter, tenant, source, clock = setup()
         evidence = gather(load("ooo_room_protection"), adapter, tenant, clock, CallBudget(200))
         occupancy = evidence.references["occupancy"]
         assert not occupancy.is_available
-        assert "DateRange" in occupancy.unavailable and "does not ask" in occupancy.unavailable
+        assert "DateRange was captured for 2024-08-14..2024-08-21" in occupancy.unavailable
+        assert "asks for 2026-07-08..2026-07-15" in occupancy.unavailable
         assert not any(b.related.get("occupancy") for b in evidence)
 
 

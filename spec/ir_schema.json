@@ -75,6 +75,26 @@
           "type": "object",
           "description": "Per-provider query, keyed by provider name. Opaque data to every layer above the provider adapter, which resolves relative dates like 'today-1d' through the property clock and passes the rest through unchanged.",
           "minProperties": 1
+        },
+        "reference_windows": {
+          "type": "object",
+          "description": "Per referenced entity, the window of dates its one request asks for - canonical relative dates ('today', 'today+7d'), resolved through the property clock like a population window and mapped by each provider adapter to its own filter. Deployment half, not the sentence: the grammar refuses a window in a rule (criterion 9). Issue #109: a collection fetched for no window can never be shown complete, so a rule judging every record of one (mode 'none') can PASS only inside the window recorded here.",
+          "additionalProperties": {
+            "type": "object",
+            "required": [
+              "from",
+              "to"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "from": {
+                "type": "string"
+              },
+              "to": {
+                "type": "string"
+              }
+            }
+          }
         }
       }
     },
@@ -394,6 +414,10 @@
               "type": "string"
             }
           }
+        },
+        "absent": {
+          "type": "boolean",
+          "description": "What this clause answers when its field is a DECLARED absence - a known False or not-applicable, which the registry says is a fact about the record. Never applies to an unknown, which stays UNKNOWN. Issue #109, P4: 'room.closed_to at least today, or absent' keeps an open-ended closure in scope. Orderings only (lt, lte, gt, gte), and only on a field whose absent_means is not 'unknown'; without it an ordering on an absence is UNKNOWN."
         },
         "note": {
           "type": "string"

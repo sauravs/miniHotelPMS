@@ -18,8 +18,8 @@
       "digest": "sha256:b512f2444adeea29bdd7fb930f3a4f8b2e870669ca979452395555c7da5f1461"
     },
     "ooo_room_protection": {
-      "version": 3,
-      "digest": "sha256:ad512f42e1249dfbc8248b62d5f849753620fc3907cdf30545dc09a3ffe2c999"
+      "version": 4,
+      "digest": "sha256:994868665692cf9b1644e56cfca511157602448c678e59843171f438cf9950af"
     },
     "rate_room_category_consistency": {
       "version": 2,

@@ -24,15 +24,26 @@ AN ABSENCE IS NOT A KEY (issue #86). `absent_means: "false"` makes a missing fie
 `False` - right for `exists` ("this stay is not yet assigned"), wrong as a key: stringified,
 every absence is the same key "False", so an unassigned stay matched the one room with no number
 and was judged on that room's evidence. An absent key is never indexed and never looked up.
+
+A COLLECTION KNOWS WHAT IT IS COMPLETE FOR (issue #109, P2 and P3). A room's occupancy is many
+segments over all of time, and no request asks for all of time (R8). So the rule's deployment
+half declares the window a collection's ONE request asks (`population.reference_windows`), it
+is resolved through the property clock, and the index records it - with the day it was asked.
+Without that, "no segment overlaps the closure" would be a statement about whatever slice of
+time the response happened to hold. And a remote record whose key cannot be READ is kept, as
+UNPLACED: it may be any record's, so dropping it would make a room that looks empty read as one
+that is.
 """
 from __future__ import annotations
 
 from dataclasses import dataclass, field
 from typing import Any
 
-from ..kernel import NOT_APPLICABLE, Value
+from ..kernel import NOT_APPLICABLE, Clock, Value
 from ..providers.base import ProviderError
+from ..spec import SpecError
 from .budget import BudgetExceeded
+from .population import resolve_dates
 
 
 def absent_key(key: Value) -> bool:
@@ -46,6 +57,19 @@ def absent_key(key: Value) -> bool:
 
 
 @dataclass(frozen=True, slots=True)
+class FetchedWindow:
+    """The dates a collection was fetched for, both inclusive, and the property's day it was
+    asked on - what a PASS over every record of it has to lie inside (#109, P3)."""
+
+    start: str
+    end: str
+    asked_on: str
+
+    def __str__(self) -> str:
+        return "%s..%s" % (self.start, self.end)
+
+
+@dataclass(frozen=True, slots=True)
 class ReferenceIndex:
     """One resolved reference: the remote records, indexed by the key they join on."""
 
@@ -56,6 +80,11 @@ class ReferenceIndex:
     by_key: dict[str, list[Any]] = field(default_factory=dict)
     values: tuple = ()
     unavailable: str | None = None
+    # A collection's window, when the rule declared one (#109). None: fetched for no window,
+    # so complete for no question.
+    window: FetchedWindow | None = None
+    # Remote records whose key could not be read: each may belong to any local record.
+    unplaced: tuple = ()
 
     @property
     def is_available(self) -> bool:
@@ -85,11 +114,13 @@ class ReferenceIndex:
         return found, None
 
 
-def build_references(ir, adapter, cache) -> dict[str, ReferenceIndex]:
+def build_references(ir, adapter, cache, clock: Clock | None = None) -> dict[str, ReferenceIndex]:
     """Fetch and index every reference the control declares. One call each, at most."""
     indexes: dict[str, ReferenceIndex] = {}
+    windows = (ir.get("population") or {}).get("reference_windows") or {}
     for reference in ir.references:
         entity, kind = reference["entity"], reference["kind"]
+        window = reference_window(entity, windows, clock)
 
         if reference.get("source") == "tenant":
             # The hotel supplies this, not the PMS. R13 is the live example: a reservation's
@@ -102,11 +133,12 @@ def build_references(ir, adapter, cache) -> dict[str, ReferenceIndex]:
                     "has not supplied it" % entity))
             continue
 
-        request = adapter.reference_request(entity)
+        request = reference_request(adapter, entity, window)
         if request is None:
             indexes[entity] = ReferenceIndex(
                 entity, kind, unavailable=(
-                    "this provider offers no way to retrieve %s records" % entity))
+                    "this provider offers no way to retrieve %s records%s"
+                    % (entity, " within a window of dates (%s)" % window if window else "")))
             continue
 
         try:
@@ -133,11 +165,42 @@ def build_references(ir, adapter, cache) -> dict[str, ReferenceIndex]:
         else:
             remote_field = reference["remote_field"]
             by_key: dict[str, list[Any]] = {}
+            unplaced: list[Any] = []
             for record in records:
                 key = adapter.resolve(remote_field, record)
                 if key.is_known and not absent_key(key):
                     by_key.setdefault(str(key.payload), []).append(record)
+                elif not key.is_known:
+                    # Not an absence, which is a fact ("this segment names no room"): a key
+                    # nobody could read may be ANY record's. Kept, so a collection judged per
+                    # record can see it; a lookup never matches it.
+                    unplaced.append(record)
             indexes[entity] = ReferenceIndex(
                 entity, kind, local_field=reference["local_field"],
-                remote_field=remote_field, by_key=by_key)
+                remote_field=remote_field, by_key=by_key, window=window,
+                unplaced=tuple(unplaced))
     return indexes
+
+
+def reference_request(adapter, entity: str, window: FetchedWindow | None):
+    """The one request a reference makes: bounded to its window when the rule declares one.
+
+    Shared with the probe's printed plan, so what a plan shows is what a run sends (#70).
+    """
+    if window is None:
+        return adapter.reference_request(entity)
+    return adapter.reference_request(entity, {"from": window.start, "to": window.end})
+
+
+def reference_window(entity: str, windows: dict, clock: Clock | None) -> FetchedWindow | None:
+    """The window this reference's request asks, resolved through the PROPERTY clock (F11)."""
+    declared = windows.get(entity)
+    if declared is None:
+        return None
+    if clock is None:
+        # Never a guess at "today": a window resolved against the wrong day is a collection
+        # complete for a question nobody asked.
+        raise SpecError("the %s reference declares a window of relative dates, and resolving "
+                        "it needs the property clock, which was not supplied" % entity)
+    resolved = resolve_dates(declared, clock)
+    return FetchedWindow(resolved["from"], resolved["to"], clock.today().isoformat())

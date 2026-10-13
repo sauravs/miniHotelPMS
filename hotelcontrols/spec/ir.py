@@ -15,7 +15,7 @@ without being dangerous: whatever writes an IR, a human or a model, it passes th
 these checks, and one that references vocabulary nobody defined is rejected NAMING the missing
 fields rather than producing a rule that runs and quietly answers about nothing.
 
-Seven checks, beyond the schema itself. Each exists because skipping it lets a specific class of
+Eleven checks, beyond the schema itself. Each exists because skipping it lets a specific class of
 broken rule through:
 
   1. Every field referenced anywhere is a declared canonical field.
@@ -27,6 +27,10 @@ broken rule through:
   5. Interval operators carry an interval; aggregate operators appear only in aggregates.
   6. A reference carries the fields its kind needs, and any field it joins on is declared.
   7. `within` / `not_within` place a DATE in a window, so their field is a date or datetime.
+  8. A field of a `collection` reference is read only in an assertion of mode `none` (#109).
+  9. `absent` sits on an ordering, of a field whose absence the registry declares a fact.
+ 10. `population.reference_windows` bounds a declared PMS reference, in relative dates.
+ 11. A relative date as a predicate's value (`today+7d`) is well-formed, on a date field.
 """
 from __future__ import annotations
 
@@ -34,6 +38,7 @@ import json
 import pathlib
 from typing import Any, Iterator
 
+from ..kernel.dates import RELATIVE_DATE, is_relative_date, offset_days
 from . import schema as jsonschema
 from .errors import Problem, SpecError
 from .lock import policy_digest
@@ -54,6 +59,9 @@ REFERENCE_OPERATORS = frozenset({"reference_exists", "reference_missing"})
 UNARY_OPERATORS = frozenset({"exists", "not_exists"}) | REFERENCE_OPERATORS
 
 RIGHT_HAND_SIDES = ("value", "compare_to", "tenant_setting")
+# The operators an `absent` key may sit on (check 9). An ordering has no answer for an absence
+# - `False >= "2026-07-08"` is not a comparison - so it is the one place a rule must say.
+ORDERING_OPERATORS = frozenset({"lt", "lte", "gt", "gte"})
 
 
 class ControlIR:
@@ -217,6 +225,10 @@ def validate(ir: ControlIR | dict[str, Any], registry: Registry,
     problems.extend(_check_predicates(control, where))
     problems.extend(_check_references(control, registry, where))
     problems.extend(_check_interval_operands(control, registry, where))
+    problems.extend(_check_collections(control, where))
+    problems.extend(_check_absent(control, registry, where))
+    problems.extend(_check_reference_windows(control, where))
+    problems.extend(_check_relative_values(control, registry, where))
     if tenant is not None:
         problems.extend(_check_tenant_settings(control, tenant, where))
     return problems
@@ -376,6 +388,126 @@ def _check_interval_operands(ir: ControlIR, registry: Registry, where: str) -> l
             problems.append(Problem(
                 where, "%s predicate on %s: %r places a date inside a window, and %s is not a "
                        "date - its canonical type is %r" % (clause, name, operator, name, kind)))
+    return problems
+
+
+def _check_collections(ir: ControlIR, where: str) -> list[Problem]:
+    """Check 8 - a collection is judged record by record, and only where that has one meaning.
+
+    Issue #109 (#87's option 2, design P1). A `collection` joins MANY records to this one - a
+    room's occupancy segments - and the evaluator judges a predicate over them once per record,
+    in an assertion of mode `none`: "no related record may satisfy any predicate", which is
+    control 2's sentence. Anywhere else the rule would need a reading nobody has decided - does
+    `all` mean every predicate of one segment, or each predicate of some segment? - and in
+    scope or an exception a collection's field would be read from ONE record and reported as
+    speaking for the room, which is #87. So it is refused here, by name, before it runs.
+    """
+    collections = {r["entity"] for r in ir.references if r["kind"] == "collection"}
+    if not collections:
+        return []
+    mode = ir["assertion"]["mode"]
+    problems: list[Problem] = []
+    for clause, predicate in ir.predicates():
+        if clause == "assertion" and mode == "none":
+            continue
+        place = clause if clause != "assertion" else "an assertion of mode %r" % mode
+        for name in _operands(predicate):
+            if name.split(".")[0] in collections:
+                problems.append(Problem(
+                    where, "%s predicate on %s: %s is a field of the %s collection, which is "
+                           "judged once per record and only in an assertion of mode 'none' - "
+                           "in %s one record would be read as speaking for all of them (#87)"
+                           % (clause, predicate["field"], name, name.split(".")[0], place)))
+    return problems
+
+
+def _operands(predicate: dict[str, Any]) -> list[str]:
+    """Every field a predicate reads: its subject, a field it compares to, its interval."""
+    names = [predicate["field"], predicate.get("compare_to"),
+             *(predicate.get("interval") or {}).values()]
+    return [name for name in names if name]
+
+
+def _check_absent(ir: ControlIR, registry: Registry, where: str) -> list[Problem]:
+    """Check 9 - `absent` says what an ordering answers for a declared absence.
+
+    Issue #109, P4, and the owner's choice (2026-10-13): "closed_to is absent OR on/after
+    today" had no expression in clauses that AND together, so a clause may state what it
+    answers when its field is a known False or not-applicable. On any other operator the
+    evaluator already has an answer for an absence, and on a field whose absence is UNKNOWN the
+    key could never apply - a clause that reads as if it handled something it never sees.
+    """
+    problems: list[Problem] = []
+    for clause, predicate in ir.predicates():
+        if "absent" not in predicate:
+            continue
+        name, operator = predicate["field"], predicate["operator"]
+        site = "%s predicate on %s" % (clause, name)
+        if operator not in ORDERING_OPERATORS:
+            problems.append(Problem(
+                where, "%s: `absent` says what an ordering answers for an absence, and %r is "
+                       "not an ordering - it already has its own answer" % (site, operator)))
+        elif registry.has(name) and registry.field(name).absent_means == "unknown":
+            problems.append(Problem(
+                where, "%s: `absent` can never apply, because %s's absence is an evidence gap "
+                       "(absent_means 'unknown'), never a fact about the record"
+                       % (site, name)))
+    return problems
+
+
+def _check_reference_windows(ir: ControlIR, where: str) -> list[Problem]:
+    """Check 10 - a reference's window bounds a reference the rule declares, in dates the
+    property clock can resolve (#109, P2).
+
+    The window is the deployment half's, carried in canonical relative dates and mapped by each
+    adapter to its own filter. An unrecognised token would reach somebody else's parser, and a
+    window ending before it starts asks for nothing - an empty collection that would read as
+    "no guests".
+    """
+    windows = ir["population"].get("reference_windows") or {}
+    declared = {r["entity"] for r in ir.references if r.get("source", "pms") == "pms"}
+    problems: list[Problem] = []
+    for entity, window in windows.items():
+        site = "population.reference_windows[%r]" % entity
+        if entity not in declared:
+            problems.append(Problem(
+                where, "%s: this rule declares no PMS reference to %r, so there is no request "
+                       "for the window to bound" % (site, entity)))
+        bad = [window[end] for end in ("from", "to") if not is_relative_date(window[end])]
+        for token in bad:
+            problems.append(Problem(
+                where, "%s: %r is not a relative date the property clock can resolve - write "
+                       "today, today+Nd or today-Nd" % (site, token)))
+        if not bad and offset_days(window["from"]) > offset_days(window["to"]):
+            problems.append(Problem(
+                where, "%s: the window ends before it starts (%s..%s), so it asks for nothing"
+                       % (site, window["from"], window["to"])))
+    return problems
+
+
+def _check_relative_values(ir: ControlIR, registry: Registry, where: str) -> list[Problem]:
+    """Check 11 - a relative date as a predicate's value is well-formed, and names a date.
+
+    The runner resolves `today` / `today+Nd` through the property clock before evaluating (#109,
+    P4). A token it cannot resolve would be compared as text - "2026-07-05" >= "today" is
+    False, because '2' < 't' - and against a field that is not a date it would compare a day
+    with a status.
+    """
+    problems: list[Problem] = []
+    for clause, predicate in ir.predicates():
+        value = predicate.get("value")
+        if not (isinstance(value, str) and value.startswith("today")):
+            continue
+        name = predicate["field"]
+        site = "%s predicate on %s" % (clause, name)
+        if not RELATIVE_DATE.match(value):
+            problems.append(Problem(
+                where, "%s: %r is not a relative date the property clock can resolve - write "
+                       "today, today+Nd or today-Nd" % (site, value)))
+        elif registry.has(name) and registry.field(name).type not in DATE_TYPES:
+            problems.append(Problem(
+                where, "%s: %r names a day, and %s is not a date - its canonical type is %r"
+                       % (site, value, name, registry.field(name).type)))
     return problems
 
 
