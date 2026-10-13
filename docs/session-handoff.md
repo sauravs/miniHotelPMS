@@ -5,9 +5,9 @@ session, exactly as written.** The longer block after it is the STATE block the 
 session to read. Do not paste that one. Everything either references is in the repository;
 nothing depends on the previous conversation.
 
-**Last updated:** 2026-10-13, after **the documentation refresh merged** (issue #115, PRs #116 and
-#117, `43d24d5`). **The owner's list (4, 1, #87's guard, 3, 2, 5), #109 and the docs refresh are
-all DONE. Nothing further is approved.** The next session reports the state and asks the owner what
+**Last updated:** 2026-10-13, after **#119 merged** (PR #120, `f451018`), which followed the
+documentation refresh (issue #115, PRs #116 and #117). **The owner's list (4, 1, #87's guard, 3, 2,
+5), #109, the docs refresh and its leftovers (#119) are all DONE. Nothing further is approved.** The next session reports the state and asks the owner what
 is next. It starts no work on its own.
 **v2 (slices 0–15) and v3 (slices 16–24) are both COMPLETE.** Criteria V1–V12 are all met
 (`docs/plan-v3.md` §7); `prd.md` criterion 1 stays NOT MET on every capture (`sandbox2026` 2 of
@@ -21,11 +21,11 @@ call is approved.**
 
 ## The starting prompt — paste exactly this
 
-v3 is complete, every follow-up, #109 and the documentation refresh are DONE. Nothing is approved
-next: this session reports and asks.
+v3 is complete; every follow-up, #109, the documentation refresh and #119 are DONE. Nothing is
+approved next: this session reports and asks.
 
 ```
-Continue miniHotelPMS after v3, #109 and the docs refresh. Working directory: /Users/sauravs/Desktop/Work/miniHotelPMS
+Continue miniHotelPMS after v3, #109, the docs refresh and #119. Working directory: /Users/sauravs/Desktop/Work/miniHotelPMS
 
 Start-up, before anything else:
   git status && git branch --no-merged main     # LOCAL list: empty
@@ -36,7 +36,7 @@ Start-up, before anything else:
   .venv/bin/python -m coverage run -m pytest && .venv/bin/python -m coverage report --precision=2   # 97.56%
   cd ui && npm ci && npm run typecheck && npm test && npm run e2e          # 249 Vitest, 26 Playwright
   gh issue list --state open                     # none
-Those are main's numbers (43d24d5 or a docs-only commit after it). Any that differs is a reason
+Those are main's numbers (f451018 or a docs-only commit after it). Any that differs is a reason
 to stop and find out why. (Without --precision=2 the coverage report rounds 97.56% to 98%; the
 docs say 97% or 97.6%. That is rounding, not drift.) Then read CLAUDE.md,
 docs/project-explainer/README.md (the measured table), docs/session-handoff.md (the STATE block),
@@ -52,11 +52,6 @@ option at every decision.
 GO-AHEAD: NONE. Report the start-up numbers to the owner and ask what is next. Do not start an
 item, open an issue for new work, or make a live call without the owner's explicit yes.
 Candidates the owner may choose from (none approved; recommend one when asked):
-  - two leftovers the docs refresh found and left alone, because they were outside its
-    docs-only scope (both listed on #115): four test docstrings and spec/tenants/sandbox.json's
-    known_unmapped_statuses_note still say "44 of the 217" (it is 77 of 526 since the 2026-10
-    captures; prose only, no assertion reads it); and ui/README.md's tests table has no row for
-    slice 24's sign-in tests (test/auth.test.ts, test/login.test.tsx, e2e/login.spec.tsx);
   - the deferred items below;
   - a wider occupancy horizon for ooo_room_protection - needs MiniHotel's agreed limits first
     (open question 2.6), then a version bump; NOT before;
@@ -71,6 +66,11 @@ commands; Part B re-run - it still holds on sandbox2026 and now says why since #
 version and step 9, the task); PR #117 did the root README, context.md (timeline, passes 4-5,
 every decision since v3 planning), prd.md §9 (v3 built), and factual fixes in CLAUDE.md,
 architecture.md (evaluator/logic.py never existed), open-questions.md, plan.md, plan-v3.md.
+Then #119 (PR #120, the owner's go-ahead the same day): the A5 figure is 77 of 526 in the nine
+places outside docs/ that still said 44 of 217 (three comments, both tenant notes, four test
+docstrings - text only, goldens and DemoPMS byte-identical), and ui/README.md lists the sign-in
+tests. `git grep "217"` over hotelcontrols, tools, tests, spec and ui now finds it only as
+history ("44 of 217 before the 2026-10 captures").
 
 Deferred - do NOT start these without the owner's explicit say-so: emailing guest tasks; a React
 guest view; offering the refresh capture (sandbox2026refresh) in the demo.
@@ -122,9 +122,9 @@ window it asks; step 7 now shows policy_version 2 + digest and maximum_age 24h (
 step 9 shows the one task. Found and fixed in docs: the A5 figure is 77 of 526 reservations (OK4
 50, WL 27) over every capture, not 44 of 217 (true before the 2026-10 captures); architecture.md
 listed an evaluator/logic.py that never existed; plan-v3's #71-step-B row still read "in
-progress". Left as found (outside docs-only scope, listed on #115): four test docstrings and
-spec/tenants/sandbox.json's note still say 44 of 217; ui/README.md has no row for the sign-in
-tests. docs/poc-comparison-brief.md is KEPT (owner): the comparison was never written.
+progress". The two things left as found (outside docs-only scope) were fixed next, as #119 (PR #120):
+the figure in three comments, both tenant notes and four test docstrings, and ui/README.md's
+sign-in tests row. docs/poc-comparison-brief.md is KEPT (owner): the comparison was never written.
 
 #109 IS DONE (2026-10-13, PR #112) - #87's option 2, design P1-P6 approved as written before any
 code. evaluator/collections.py: under mode `none` a predicate reading a `collection` is judged
