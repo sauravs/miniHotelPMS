@@ -186,3 +186,66 @@ class TestTheDemoKeepsItsShape:
             handler.close()
         (line,) = path.read_text(encoding="utf-8").splitlines()
         assert json.loads(line)["path"] == "/api/controls"
+
+
+# ---------------------------------------------------------------------------------------
+class NoPort:
+    """A server that never listens: `main` builds it, serves until "ctrl-c", and closes it."""
+
+    def __init__(self, address, handler):
+        pass
+
+    def serve_forever(self):
+        raise KeyboardInterrupt
+
+    def server_close(self):
+        pass
+
+
+@pytest.fixture
+def launcher(monkeypatch):
+    """`tools.serve.main`, run to completion with no port, every handler it attached removed."""
+    from tools import serve
+
+    monkeypatch.setattr(serve, "SERVER", NoPort)
+    monkeypatch.setattr(serve.Handler, "app", None, raising=False)
+    logger = logging.getLogger("hotelcontrols.ops")
+    before = list(logger.handlers)
+    yield serve
+    for handler in [h for h in logger.handlers if h not in before]:
+        logger.removeHandler(handler)
+        handler.close()
+
+
+class TestTheComposeLauncherKeepsTheLogToo:
+    """Issue #103 (follow-up 2). `tools.serve` is the launcher for compose and for email, so it
+    is the only one that can dispatch - and it attached no log, so every line V7 promises,
+    dispatch included, was dropped. It takes the plain server's flag, default and function."""
+
+    def test_the_same_flag_with_the_same_default(self, launcher):
+        from hotelcontrols.web import server
+        assert launcher.parser().parse_args([]).log == server.parser().parse_args([]).log == "-"
+        assert launcher.parser().parse_args(["--log", "off"]).log == "off"
+
+    def test_it_writes_the_log_where_it_is_told(self, launcher, tmp_path):
+        path = tmp_path / "ops.jsonl"
+        assert launcher.main(["--llm", "off", "--log", str(path)]) == 0
+        launcher.Handler.app.handle("/api/controls")
+        for handler in logging.getLogger("hotelcontrols.ops").handlers:
+            handler.flush()
+        (line,) = path.read_text(encoding="utf-8").splitlines()
+        assert json.loads(line)["path"] == "/api/controls"
+
+    def test_by_default_it_writes_to_stderr(self, launcher):
+        import sys
+        logger = logging.getLogger("hotelcontrols.ops")
+        before = list(logger.handlers)
+        assert launcher.main(["--llm", "off"]) == 0
+        added = [h for h in logger.handlers if h not in before]
+        assert [getattr(h, "stream", None) for h in added] == [sys.stderr]
+
+    def test_off_attaches_nothing(self, launcher):
+        logger = logging.getLogger("hotelcontrols.ops")
+        before = list(logger.handlers)
+        assert launcher.main(["--llm", "off", "--log", "off"]) == 0
+        assert logger.handlers == before
