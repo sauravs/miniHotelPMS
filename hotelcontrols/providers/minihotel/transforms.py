@@ -195,8 +195,9 @@ def one_two_to_charge_payment(raw: str, unit: str | None = None) -> Value:
 # ("checked_out"); only this layer is allowed to know that a hotel writes "OUT".
 #
 # ANYTHING NOT IN THE MAP IS UNKNOWN, NEVER A GUESS. Silently mapping a code nobody told us
-# about would include or exclude reservations from a control's scope invisibly - and 44 of the
-# 217 distinct reservations we have ever seen carry exactly such a code.
+# about would include or exclude reservations from a control's scope invisibly - and 77 of the
+# 526 distinct reservations we have ever seen carry exactly such a code (44 of 217 before the
+# 2026-10 captures; recounted 2026-10-13, #119).
 
 def _map_code(raw: str, mapping: dict[str, str] | None, what: str, consequence: str) -> Value:
     code = (raw or "").strip()

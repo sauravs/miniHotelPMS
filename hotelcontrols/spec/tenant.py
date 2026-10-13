@@ -16,8 +16,9 @@ MiniHotel structurally cannot resolve (R13).
 
 THE RULE THIS FILE EXISTS TO PROTECT
 ------------------------------------
-A code that is not in the map resolves to UNKNOWN. Never a guess. Across every capture, 44 of
-217 distinct reservations - one in five - carry a status documented nowhere (`OK4`, `WL`).
+A code that is not in the map resolves to UNKNOWN. Never a guess. Across every capture, 77 of
+526 distinct reservations - about one in seven - carry a status documented nowhere (`OK4`, `WL`;
+44 of 217, one in five, before the 2026-10 captures - #119).
 Silently mapping one of those to something plausible would include or exclude reservations from
 a control's scope invisibly, which is the quietest possible way for this system to be wrong.
 

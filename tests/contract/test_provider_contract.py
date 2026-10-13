@@ -243,10 +243,11 @@ class TestTenantVocabularyIsNeverGuessedAt:
 
     def test_a_status_the_property_has_not_mapped_resolves_unknown_naming_the_code(
             self, provider):
-        """44 of the 217 reservations this hotel has ever shown us carry a code documented
-        nowhere. Silently mapping one to something plausible would include or exclude
-        reservations from a control's scope invisibly - the quietest way this system could be
-        wrong - so the answer is UNKNOWN and the reason names the code."""
+        """77 of the 526 reservations this hotel has ever shown us carry a code documented
+        nowhere (44 of 217 before the 2026-10 captures, #119). Silently mapping one to
+        something plausible would include or exclude reservations from a control's scope
+        invisibly - the quietest way this system could be wrong - so the answer is UNKNOWN and
+        the reason names the code."""
         assert provider.tenant.known_unmapped_statuses, (
             "%s declares no deliberately-unmapped statuses, so this test would pass vacuously"
             % provider.tenant.tenant_id)

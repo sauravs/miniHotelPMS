@@ -62,7 +62,8 @@ SPEC = ROOT / "spec"
 # Raw code to raw code. NOT to a canonical status: the demo property's status map is a separate
 # decision recorded in `spec/tenants/demo.json`, and the codes it deliberately leaves out are
 # the same ones the real property leaves out. That is what keeps the two hotels the same hotel.
-# `OK4` covers 32 reservations and `WL` 12 - one in five of everything we have ever seen - and
+# `OK4` covers 50 reservations and `WL` 27 - about one in seven of everything we have ever seen,
+# 77 of 526 (#119; 44 of 217 before the 2026-10 captures) - and
 # neither is documented anywhere, so neither may quietly acquire a meaning here.
 STATUS = {
     "OK": "BOOKED",
