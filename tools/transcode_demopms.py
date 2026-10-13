@@ -114,7 +114,10 @@ FILTERS = {
 CAPTURES = {"sandbox2024": "demo2024", "sandbox2026": "demo2026",
             # v3 slice 23's evidence refresh, four calls made 2026-10-10. Transcoded like the
             # others; the engine's own capture lists do not offer it in the demo.
-            "sandbox2026refresh": "demo2026refresh"}
+            "sandbox2026refresh": "demo2026refresh",
+            # Issue #71's covering capture: sandbox2026 plus the arrival and create windows its
+            # controls ask, two calls made 2026-10-11 and 2026-10-13. Not offered in the demo.
+            "sandbox2026cover": "demo2026cover"}
 
 # Source fixture -> the file it becomes. Explicit, because a derived name would change silently
 # the day somebody renames a capture, and these names appear in the provider map's `probe`.
@@ -133,6 +136,8 @@ FILES = {
     "12_getRoomTypes_2026-10.xml": "room-types_2026-10.json",
     "13_RoomStatus_2026-07.xml": "occupancy_2026-07.json",
     "14_departures_2026-07_prices.xml": "bookings_2026-07_prices.json",
+    "15_arrivals_2026-07_prices.xml": "bookings_arrivals_2026-07_prices.json",
+    "16_created_2026-06.xml": "bookings_created_2026-06.json",
 }
 
 MONTHS = ("Jan", "Feb", "Mar", "Apr", "May", "Jun",
