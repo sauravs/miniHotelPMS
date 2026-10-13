@@ -24,7 +24,16 @@ from hotelcontrols.providers.minihotel import FrozenSource, MiniHotelAdapter
 from hotelcontrols.spec import TenantConfig, available, load
 
 
-def run(control_id, capture="sandbox2026", as_of="2026-07-08T09:00"):
+# Issue #71: the capture that recorded the arrival and create windows these controls ask.
+COVER = "sandbox2026cover"
+# ...and the seven controls that ask one of those two windows.
+ASKS_A_RECORDED_WINDOW = {
+    "duplicate_channel_reservation", "inactive_room_future_stay", "rate_room_category_consistency",
+    "required_reservation_fields", "room_assignment_active_room", "room_assignment_type_validity",
+    "room_capacity_compliance"}
+
+
+def run(control_id, capture=COVER, as_of="2026-07-08T09:00"):
     """The whole stack, offline: fetch, gather, judge."""
     tenant = TenantConfig.load("sandbox")
     source = FrozenSource(capture)
@@ -114,11 +123,18 @@ class TestTheControlsV1CouldNotAnswer:
 class TestAllFourOutcomesFromCapturedEvidence:
     """The slice-4 gate."""
 
+    # The covering capture recorded arrivals 2026-07-08..10-06 and creations 06-08..07-08: the
+    # questions these seven controls ask at exactly this instant, and at no later one.
+    COVERED_INSTANT = "2026-07-08T09:00"
+
     def test_every_outcome_is_reachable_without_a_single_invented_record(self):
         seen = Counter()
         for control_id in available():
             for as_of in ("2026-07-08T09:00", "2026-07-10T09:00"):
-                if control_id in CANNOT_BE_ASKED:
+                if control_id in CANNOT_BE_ASKED or (
+                        as_of != self.COVERED_INSTANT and control_id in ASKS_A_RECORDED_WINDOW):
+                    # Issue #71: two days later the arrival and create windows reach past what
+                    # the covering capture recorded, so they are refused, not half-answered.
                     with pytest.raises(ResponseUnavailable):
                         run(control_id, as_of=as_of)
                     continue

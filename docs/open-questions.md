@@ -28,6 +28,11 @@ did not survive a run: [1.4](#14-which-rate-codes-has-the-property-nominated) is
 (issue #49), and a new question for MiniHotel, [2.8](#2-questions-for-minihotel), comes from
 issue #48.
 
+**Updated 2026-10-13, issue #71.** Replay now answers only the question a response was recorded for,
+and the demo offers the covering capture `sandbox2026cover`, which carries rate codes. That changes
+what [1.4](#14-which-rate-codes-has-the-property-nominated) is worth: a decided list now moves
+control 15's answers, so it must come from a real property. No question opened or closed.
+
 ---
 
 ## The two that are worth the most
@@ -38,7 +43,7 @@ in any code that could be written this week, and only the project owner can supp
 
 | | What is needed | What it changes |
 | --- | --- | --- |
-| **[1.4](#14-which-rate-codes-has-the-property-nominated)** | Which rate codes a **real** property has **nominated** | `required_reservation_fields` answers nobody. **Corrected 2026-10-09 (issue #49): one list is not enough.** `stay.rate_code` is absent from every captured reservation, so the control also needs a capture taken with room prices (v3 slice 23). And the sandbox is the vendor's test property: nobody can honestly nominate its codes |
+| **[1.4](#14-which-rate-codes-has-the-property-nominated)** | Which rate codes a **real** property has **nominated** | `required_reservation_fields` answers nobody. **Corrected 2026-10-09 (issue #49): one list is not enough.** `stay.rate_code` is absent from every captured reservation, so the control also needs a capture taken with room prices (v3 slice 23). And the sandbox is the vendor's test property: nobody can honestly nominate its codes. **Since #71 (2026-10-13) a list moves answers** on the covering capture (example `Tourist-BB`: 15 PASS, 56 FAIL), which is why it must be a real property's |
 | **[2.1](#2-questions-for-minihotel)** | Ask MiniHotel what **`OK4`** and **`WL`** mean | **44 of the 217 distinct reservations this project has ever seen — one in five — carry one of those two codes**, and neither is documented anywhere. Each resolves to UNKNOWN, because a status nobody can name must not decide whether a control applies (A5). One sentence from the vendor resolves all 44, and it also settles [1.3](#13-is-the-cancel-and-recreate-pair-a-duplicate-or-the-expected-pattern) |
 
 Neither is a gap in the engine. Both are facts about a property and a vendor that the engine has
@@ -47,7 +52,10 @@ correctly refused to guess at — which is the whole design working, and also th
 A third, the evidence refresh in [1.2](#12-are-the-2024-era-room-findings-still-true), is
 **done** (v3 slice 23, 2026-10-10): three of its four findings are still true and the fourth was not
 re-checked. It added 2026 occupancy and rate codes; criterion 1 on the new capture is reported
-beside the old figure in `docs/plan.md`.
+beside the old figure in `docs/plan.md`. Since issue #71's fix (2026-10-13) that figure is reported
+for three captures: `sandbox2026` 2 of 11, the refresh 1 of 11, and the covering capture
+`sandbox2026cover` 5 of 11, the only one measured from the questions the controls ask. NOT MET on
+each.
 
 **And since 2026-10-02, one of a different kind, which outranks all three for *sequencing* while
 being worth less than either of the two above for *unblocking*.**
@@ -336,6 +344,17 @@ list decides now read *"this property has not supplied 'nominated_rate_codes'"* 
 *"stay.rate_code is unknown"*. Both are true, and the rate code's absence still shows on each
 record's evidence row. The question stays open. What closes it is unchanged: a real property's
 list and slice 23's capture.
+
+**Since issue #71's fix (2026-10-13) a decided list MOVES answers, so it must be a real property's.**
+The covering capture `sandbox2026cover` was taken with room prices, so its stays carry rate codes,
+and the demo offers it. Undecided (`null`), control 15 reads 141 UNKNOWN and 244 EXCLUDED there, 81
+of the UNKNOWNs naming the undecided parameter. With an **example** list, `["Tourist-BB"]`, the
+same run reads **15 PASS, 56 FAIL**, 60 UNKNOWN and 254 EXCLUDED, on both providers
+(`tests/integration/test_typed_parameters.py`). #49's "a list alone changes no count" was true of the
+evidence it was measured on and is not true of this capture. Supplying a list for the vendor's test
+hotel would now invent 56 violations of a policy nobody holds, so the sandbox and demo stay `null`
+until a real property sends its own. On `sandbox2026` the control no longer runs at all: replay
+refuses the arrival window it asks (#71).
 
 ### 1.5 Is unstructured free text an evidence source?
 

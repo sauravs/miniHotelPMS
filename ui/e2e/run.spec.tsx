@@ -15,11 +15,14 @@ const outcomes = golden<Outcomes>("outcomes.json");
 const run = (name: string) => golden<RunPayload>(`run/${name}`);
 const ALL: OutcomeName[] = ["PASS", "FAIL", "UNKNOWN", "EXCLUDED"];
 
-/** One REAL verdict of each outcome, taken from the matrix rather than made up. */
+/**
+ * One REAL verdict of each outcome, taken from the matrix rather than made up. From the covering
+ * capture (#71): sandbox2026 refuses the arrival question, so its UNKNOWNs are gone with it.
+ */
 function oneOfEach() {
   const found = new Map<OutcomeName, RunPayload["verdicts"][number]>();
   for (const name of ["checkout_unrefunded_credit", "inactive_room_future_stay", "room_capacity_compliance"]) {
-    for (const verdict of run(`${name}.sandbox.sandbox2026.json`).verdicts) {
+    for (const verdict of run(`${name}.sandbox.sandbox2026cover.json`).verdicts) {
       if (!found.has(verdict.outcome)) found.set(verdict.outcome, verdict);
     }
   }
@@ -57,7 +60,7 @@ test("criterion 2: the tiles carry the same two signals as the verdicts", async 
 });
 
 test("every disclosure is reachable and operable from the keyboard", async ({ page }) => {
-  await show(page, <RunView run={run("inactive_room_future_stay.sandbox.sandbox2026.json")} outcomes={outcomes} />);
+  await show(page, <RunView run={run("inactive_room_future_stay.sandbox.sandbox2026cover.json")} outcomes={outcomes} />);
   const summaries = page.locator("summary");
   const total = await summaries.count();
   expect(total).toBeGreaterThan(2);
@@ -75,8 +78,9 @@ test("every disclosure is reachable and operable from the keyboard", async ({ pa
   await expect(closed).toHaveAttribute("open", "");
 });
 
+// "concluded" is over the covering capture (#71): on sandbox2026 that run is now refused.
 for (const [state, name] of [
-  ["concluded", "inactive_room_future_stay.sandbox.sandbox2026.json"],
+  ["concluded", "inactive_room_future_stay.sandbox.sandbox2026cover.json"],
   ["concluded nothing", "ooo_room_protection.sandbox.sandbox2026.json"],
   ["blocked", "resource_occupancy_consistency.sandbox.sandbox2026.json"],
   ["a violation", "checkout_unrefunded_credit.sandbox.sandbox2026.json"],

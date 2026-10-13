@@ -116,7 +116,8 @@ CAPTURES = {"sandbox2024": "demo2024", "sandbox2026": "demo2026",
             # others; the engine's own capture lists do not offer it in the demo.
             "sandbox2026refresh": "demo2026refresh",
             # Issue #71's covering capture: sandbox2026 plus the arrival and create windows its
-            # controls ask, two calls made 2026-10-11 and 2026-10-13. Not offered in the demo.
+            # controls ask, two calls made 2026-10-11 and 2026-10-13. The demo offers it beside
+            # sandbox2026 since #71's fix; the refresh above is still not offered.
             "sandbox2026cover": "demo2026cover"}
 
 # Source fixture -> the file it becomes. Explicit, because a derived name would change silently

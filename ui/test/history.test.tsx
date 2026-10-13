@@ -52,7 +52,9 @@ describe("the three states of a row", () => {
     const h = history("inactive_room_future_stay");
     const { container } = render(<HistoryView control={control("inactive_room_future_stay")} history={h} outcomes={outcomes} />);
     const concluded = rows(container).filter((_, index) => h.runs[index].concluded);
-    expect(concluded.length).toBeGreaterThanOrEqual(1); // the sandbox's 2026 run; its 2024 one is blocked
+    // The covering capture's run (#71). Its 2024 and 2026 runs are refused: neither recorded the
+    // arrival window this control asks.
+    expect(concluded.length).toBeGreaterThanOrEqual(1);
     concluded.forEach((row) => {
       const counts = h.runs.find((r) => r.run_id === row.getAttribute("data-run-id"))!.counts!;
       expect(textOf(row.querySelector(".counts")!)).toBe(

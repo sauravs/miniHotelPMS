@@ -20,7 +20,12 @@ from hotelcontrols.providers.minihotel import FrozenSource, MiniHotelAdapter
 from hotelcontrols.spec import TenantConfig, load
 
 
-def setup(capture="sandbox2026", as_of="2026-07-08T09:00"):
+# Issue #71: the capture that recorded the arrival window these controls ask. sandbox2026 holds
+# a departure window only, and replay now refuses rather than answer an arrival question from it.
+COVER = "sandbox2026cover"
+
+
+def setup(capture=COVER, as_of="2026-07-08T09:00"):
     tenant = TenantConfig.load("sandbox")
     source = FrozenSource(capture)
     return (MiniHotelAdapter(tenant, source), tenant, source,
@@ -73,14 +78,19 @@ class TestTheJoinThatV1CouldNotExpress:
         assert codes.is_known
         assert "dbl" in codes.payload and "twin" in codes.payload
 
-    def test_a_collection_reference_brings_back_every_matching_record(self):
-        """Control 2 starts from the room side: one room, several occupancy segments."""
+    def test_a_collection_reference_never_takes_one_recorded_week_for_all_occupancy(self):
+        """Control 2 starts from the room side, and joins occupancy with NO window. The only
+        occupancy ever recorded is a week, so until issue #71 room 303 collected that week's two
+        segments as if they were all of its occupancy. A part presented as the whole is now
+        refused: the reference is unavailable, it says why, and no room collects anything.
+        (The matching itself - several segments per room - is pinned in
+        tests/unit/test_evidence_reference.py; no capture answers this question on real data.)"""
         adapter, tenant, source, clock = setup()
         evidence = gather(load("ooo_room_protection"), adapter, tenant, clock, CallBudget(200))
-        with_segments = [b for b in evidence if b.related.get("occupancy")]
-        assert with_segments, "room 303 holds two captured occupancy segments"
-        segments = with_segments[0].related["occupancy"]
-        assert all("occupancy.reservation_id" in s for s in segments)
+        occupancy = evidence.references["occupancy"]
+        assert not occupancy.is_available
+        assert "DateRange" in occupancy.unavailable and "does not ask" in occupancy.unavailable
+        assert not any(b.related.get("occupancy") for b in evidence)
 
 
 class TestAJoinNeverInventsAMatch:

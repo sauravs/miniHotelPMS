@@ -25,6 +25,8 @@ from tests import guest_details as guest_detail_probe
 from tools.notifiers import RecordingNotifier
 
 PROPERTIES = {"sandbox": "sandbox2026", "demo": "demo2026"}
+# The covering captures (#71): the only ones holding the arrival window's records.
+COVER = {"sandbox": "sandbox2026cover", "demo": "demo2026cover"}
 CREDIT = "checkout_unrefunded_credit"
 NOW = "2026-10-09T09:30:00+03:00"
 PUBLIC = "http://controls.example.test"
@@ -111,7 +113,8 @@ class TestNothingIsSentForARunThatSaidNothing:
 
     def test_the_whole_evidence_sends_exactly_two_emails_one_per_provider(self):
         """Every control x property x capture: two FAILs exist, so two emails, each to finance.
-        Nothing UNKNOWN, EXCLUDED, blocked or unconcluded sends anything."""
+        Nothing UNKNOWN, EXCLUDED, blocked or unconcluded sends anything. The covering captures
+        count too (#71); their one FAIL is the same record, so the same task."""
         app, notifier = wired()
         for control_id in available():
             for property_id in available_tenants():
@@ -164,14 +167,13 @@ class TestNoEmailCarriesGuestDetails:
             assert self._leaks(message, guest_details) == []
 
     def test_constructed_every_record_of_every_run_as_if_it_had_failed(self, guest_details):
-
         from hotelcontrols.actions import ActionRecord, amounts_of, render_message, task_link
 
         app, _notifier = wired()
         checked = 0
         for control_id in available():
             ir = load(control_id)
-            for property_id, capture in PROPERTIES.items():
+            for property_id, capture in COVER.items():           # the arrivals too (#71)
                 stored = app.store.load(run(app, control_id, property_id, capture)["run_id"],
                                         tenant_id=property_id)
                 for verdict in stored.verdicts:

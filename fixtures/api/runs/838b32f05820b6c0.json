@@ -89,7 +89,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "no occupancy in this property matches 01 - the join is reported rather than guessed, because pairing the wrong records would put wrong evidence behind a right-looking verdict",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by window, which the run does not ask, so they are a part of its population presented as the whole",
           "risk": null,
           "source": "pms:demopms/occupancy"
         },
@@ -107,7 +107,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "no occupancy in this property matches 01 - the join is reported rather than guessed, because pairing the wrong records would put wrong evidence behind a right-looking verdict",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by window, which the run does not ask, so they are a part of its population presented as the whole",
           "risk": null,
           "source": "pms:demopms/occupancy"
         }
@@ -169,7 +169,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "no occupancy in this property matches 101 - the join is reported rather than guessed, because pairing the wrong records would put wrong evidence behind a right-looking verdict",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by window, which the run does not ask, so they are a part of its population presented as the whole",
           "risk": null,
           "source": "pms:demopms/occupancy"
         },
@@ -187,7 +187,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "no occupancy in this property matches 101 - the join is reported rather than guessed, because pairing the wrong records would put wrong evidence behind a right-looking verdict",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by window, which the run does not ask, so they are a part of its population presented as the whole",
           "risk": null,
           "source": "pms:demopms/occupancy"
         }
@@ -249,7 +249,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "no occupancy in this property matches 302 - the join is reported rather than guessed, because pairing the wrong records would put wrong evidence behind a right-looking verdict",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by window, which the run does not ask, so they are a part of its population presented as the whole",
           "risk": null,
           "source": "pms:demopms/occupancy"
         },
@@ -267,7 +267,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "no occupancy in this property matches 302 - the join is reported rather than guessed, because pairing the wrong records would put wrong evidence behind a right-looking verdict",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by window, which the run does not ask, so they are a part of its population presented as the whole",
           "risk": null,
           "source": "pms:demopms/occupancy"
         }
@@ -329,7 +329,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "no occupancy in this property matches 606 - the join is reported rather than guessed, because pairing the wrong records would put wrong evidence behind a right-looking verdict",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by window, which the run does not ask, so they are a part of its population presented as the whole",
           "risk": null,
           "source": "pms:demopms/occupancy"
         },
@@ -347,7 +347,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "no occupancy in this property matches 606 - the join is reported rather than guessed, because pairing the wrong records would put wrong evidence behind a right-looking verdict",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by window, which the run does not ask, so they are a part of its population presented as the whole",
           "risk": null,
           "source": "pms:demopms/occupancy"
         }
@@ -409,7 +409,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "no occupancy in this property matches 701 - the join is reported rather than guessed, because pairing the wrong records would put wrong evidence behind a right-looking verdict",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by window, which the run does not ask, so they are a part of its population presented as the whole",
           "risk": null,
           "source": "pms:demopms/occupancy"
         },
@@ -427,7 +427,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "no occupancy in this property matches 701 - the join is reported rather than guessed, because pairing the wrong records would put wrong evidence behind a right-looking verdict",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by window, which the run does not ask, so they are a part of its population presented as the whole",
           "risk": null,
           "source": "pms:demopms/occupancy"
         }
@@ -489,7 +489,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "no occupancy in this property matches 02 - the join is reported rather than guessed, because pairing the wrong records would put wrong evidence behind a right-looking verdict",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by window, which the run does not ask, so they are a part of its population presented as the whole",
           "risk": null,
           "source": "pms:demopms/occupancy"
         },
@@ -507,7 +507,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "no occupancy in this property matches 02 - the join is reported rather than guessed, because pairing the wrong records would put wrong evidence behind a right-looking verdict",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by window, which the run does not ask, so they are a part of its population presented as the whole",
           "risk": null,
           "source": "pms:demopms/occupancy"
         }
@@ -569,7 +569,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "no occupancy in this property matches 103 - the join is reported rather than guessed, because pairing the wrong records would put wrong evidence behind a right-looking verdict",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by window, which the run does not ask, so they are a part of its population presented as the whole",
           "risk": null,
           "source": "pms:demopms/occupancy"
         },
@@ -587,7 +587,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "no occupancy in this property matches 103 - the join is reported rather than guessed, because pairing the wrong records would put wrong evidence behind a right-looking verdict",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by window, which the run does not ask, so they are a part of its population presented as the whole",
           "risk": null,
           "source": "pms:demopms/occupancy"
         }
@@ -646,10 +646,10 @@
         },
         {
           "field": "occupancy.reservation_id",
-          "known": true,
-          "value": "007003204",
+          "known": false,
+          "value": null,
           "unit": null,
-          "reason": null,
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by window, which the run does not ask, so they are a part of its population presented as the whole",
           "risk": null,
           "source": "pms:demopms/occupancy"
         },
@@ -664,10 +664,10 @@
         },
         {
           "field": "occupancy.room_number",
-          "known": true,
-          "value": "303",
+          "known": false,
+          "value": null,
           "unit": null,
-          "reason": null,
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by window, which the run does not ask, so they are a part of its population presented as the whole",
           "risk": null,
           "source": "pms:demopms/occupancy"
         }
@@ -729,7 +729,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "no occupancy in this property matches 901 - the join is reported rather than guessed, because pairing the wrong records would put wrong evidence behind a right-looking verdict",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by window, which the run does not ask, so they are a part of its population presented as the whole",
           "risk": null,
           "source": "pms:demopms/occupancy"
         },
@@ -747,7 +747,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "no occupancy in this property matches 901 - the join is reported rather than guessed, because pairing the wrong records would put wrong evidence behind a right-looking verdict",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by window, which the run does not ask, so they are a part of its population presented as the whole",
           "risk": null,
           "source": "pms:demopms/occupancy"
         }
@@ -809,7 +809,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "no occupancy in this property matches Nemanja - the join is reported rather than guessed, because pairing the wrong records would put wrong evidence behind a right-looking verdict",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by window, which the run does not ask, so they are a part of its population presented as the whole",
           "risk": null,
           "source": "pms:demopms/occupancy"
         },
@@ -827,7 +827,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "no occupancy in this property matches Nemanja - the join is reported rather than guessed, because pairing the wrong records would put wrong evidence behind a right-looking verdict",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by window, which the run does not ask, so they are a part of its population presented as the whole",
           "risk": null,
           "source": "pms:demopms/occupancy"
         }
@@ -889,7 +889,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "no occupancy in this property matches 9900 - the join is reported rather than guessed, because pairing the wrong records would put wrong evidence behind a right-looking verdict",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by window, which the run does not ask, so they are a part of its population presented as the whole",
           "risk": null,
           "source": "pms:demopms/occupancy"
         },
@@ -907,7 +907,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "no occupancy in this property matches 9900 - the join is reported rather than guessed, because pairing the wrong records would put wrong evidence behind a right-looking verdict",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by window, which the run does not ask, so they are a part of its population presented as the whole",
           "risk": null,
           "source": "pms:demopms/occupancy"
         }
@@ -969,7 +969,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "no occupancy in this property matches 104 - the join is reported rather than guessed, because pairing the wrong records would put wrong evidence behind a right-looking verdict",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by window, which the run does not ask, so they are a part of its population presented as the whole",
           "risk": null,
           "source": "pms:demopms/occupancy"
         },
@@ -987,7 +987,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "no occupancy in this property matches 104 - the join is reported rather than guessed, because pairing the wrong records would put wrong evidence behind a right-looking verdict",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by window, which the run does not ask, so they are a part of its population presented as the whole",
           "risk": null,
           "source": "pms:demopms/occupancy"
         }
@@ -1049,7 +1049,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "no occupancy in this property matches 304 - the join is reported rather than guessed, because pairing the wrong records would put wrong evidence behind a right-looking verdict",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by window, which the run does not ask, so they are a part of its population presented as the whole",
           "risk": null,
           "source": "pms:demopms/occupancy"
         },
@@ -1067,7 +1067,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "no occupancy in this property matches 304 - the join is reported rather than guessed, because pairing the wrong records would put wrong evidence behind a right-looking verdict",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by window, which the run does not ask, so they are a part of its population presented as the whole",
           "risk": null,
           "source": "pms:demopms/occupancy"
         }
@@ -1129,7 +1129,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "no occupancy in this property matches 902 - the join is reported rather than guessed, because pairing the wrong records would put wrong evidence behind a right-looking verdict",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by window, which the run does not ask, so they are a part of its population presented as the whole",
           "risk": null,
           "source": "pms:demopms/occupancy"
         },
@@ -1147,7 +1147,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "no occupancy in this property matches 902 - the join is reported rather than guessed, because pairing the wrong records would put wrong evidence behind a right-looking verdict",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by window, which the run does not ask, so they are a part of its population presented as the whole",
           "risk": null,
           "source": "pms:demopms/occupancy"
         }
@@ -1209,7 +1209,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "no occupancy in this property matches 9901 - the join is reported rather than guessed, because pairing the wrong records would put wrong evidence behind a right-looking verdict",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by window, which the run does not ask, so they are a part of its population presented as the whole",
           "risk": null,
           "source": "pms:demopms/occupancy"
         },
@@ -1227,7 +1227,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "no occupancy in this property matches 9901 - the join is reported rather than guessed, because pairing the wrong records would put wrong evidence behind a right-looking verdict",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by window, which the run does not ask, so they are a part of its population presented as the whole",
           "risk": null,
           "source": "pms:demopms/occupancy"
         }
@@ -1289,7 +1289,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "no occupancy in this property matches 102 - the join is reported rather than guessed, because pairing the wrong records would put wrong evidence behind a right-looking verdict",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by window, which the run does not ask, so they are a part of its population presented as the whole",
           "risk": null,
           "source": "pms:demopms/occupancy"
         },
@@ -1307,7 +1307,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "no occupancy in this property matches 102 - the join is reported rather than guessed, because pairing the wrong records would put wrong evidence behind a right-looking verdict",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by window, which the run does not ask, so they are a part of its population presented as the whole",
           "risk": null,
           "source": "pms:demopms/occupancy"
         }
@@ -1369,7 +1369,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "no occupancy in this property matches 401 - the join is reported rather than guessed, because pairing the wrong records would put wrong evidence behind a right-looking verdict",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by window, which the run does not ask, so they are a part of its population presented as the whole",
           "risk": null,
           "source": "pms:demopms/occupancy"
         },
@@ -1387,7 +1387,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "no occupancy in this property matches 401 - the join is reported rather than guessed, because pairing the wrong records would put wrong evidence behind a right-looking verdict",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by window, which the run does not ask, so they are a part of its population presented as the whole",
           "risk": null,
           "source": "pms:demopms/occupancy"
         }
@@ -1449,7 +1449,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "no occupancy in this property matches 903 - the join is reported rather than guessed, because pairing the wrong records would put wrong evidence behind a right-looking verdict",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by window, which the run does not ask, so they are a part of its population presented as the whole",
           "risk": null,
           "source": "pms:demopms/occupancy"
         },
@@ -1467,7 +1467,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "no occupancy in this property matches 903 - the join is reported rather than guessed, because pairing the wrong records would put wrong evidence behind a right-looking verdict",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by window, which the run does not ask, so they are a part of its population presented as the whole",
           "risk": null,
           "source": "pms:demopms/occupancy"
         }
@@ -1529,7 +1529,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "no occupancy in this property matches 9902 - the join is reported rather than guessed, because pairing the wrong records would put wrong evidence behind a right-looking verdict",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by window, which the run does not ask, so they are a part of its population presented as the whole",
           "risk": null,
           "source": "pms:demopms/occupancy"
         },
@@ -1547,7 +1547,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "no occupancy in this property matches 9902 - the join is reported rather than guessed, because pairing the wrong records would put wrong evidence behind a right-looking verdict",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by window, which the run does not ask, so they are a part of its population presented as the whole",
           "risk": null,
           "source": "pms:demopms/occupancy"
         }
@@ -1609,7 +1609,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "no occupancy in this property matches 904 - the join is reported rather than guessed, because pairing the wrong records would put wrong evidence behind a right-looking verdict",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by window, which the run does not ask, so they are a part of its population presented as the whole",
           "risk": null,
           "source": "pms:demopms/occupancy"
         },
@@ -1627,7 +1627,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "no occupancy in this property matches 904 - the join is reported rather than guessed, because pairing the wrong records would put wrong evidence behind a right-looking verdict",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by window, which the run does not ask, so they are a part of its population presented as the whole",
           "risk": null,
           "source": "pms:demopms/occupancy"
         }
@@ -1689,7 +1689,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "no occupancy in this property matches 9903 - the join is reported rather than guessed, because pairing the wrong records would put wrong evidence behind a right-looking verdict",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by window, which the run does not ask, so they are a part of its population presented as the whole",
           "risk": null,
           "source": "pms:demopms/occupancy"
         },
@@ -1707,7 +1707,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "no occupancy in this property matches 9903 - the join is reported rather than guessed, because pairing the wrong records would put wrong evidence behind a right-looking verdict",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by window, which the run does not ask, so they are a part of its population presented as the whole",
           "risk": null,
           "source": "pms:demopms/occupancy"
         }
@@ -1769,7 +1769,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "no occupancy in this property matches 501 - the join is reported rather than guessed, because pairing the wrong records would put wrong evidence behind a right-looking verdict",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by window, which the run does not ask, so they are a part of its population presented as the whole",
           "risk": null,
           "source": "pms:demopms/occupancy"
         },
@@ -1787,7 +1787,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "no occupancy in this property matches 501 - the join is reported rather than guessed, because pairing the wrong records would put wrong evidence behind a right-looking verdict",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by window, which the run does not ask, so they are a part of its population presented as the whole",
           "risk": null,
           "source": "pms:demopms/occupancy"
         }
@@ -1849,7 +1849,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "no occupancy in this property matches 9904 - the join is reported rather than guessed, because pairing the wrong records would put wrong evidence behind a right-looking verdict",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by window, which the run does not ask, so they are a part of its population presented as the whole",
           "risk": null,
           "source": "pms:demopms/occupancy"
         },
@@ -1867,7 +1867,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "no occupancy in this property matches 9904 - the join is reported rather than guessed, because pairing the wrong records would put wrong evidence behind a right-looking verdict",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by window, which the run does not ask, so they are a part of its population presented as the whole",
           "risk": null,
           "source": "pms:demopms/occupancy"
         }
@@ -1929,7 +1929,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "no occupancy in this property matches 605 - the join is reported rather than guessed, because pairing the wrong records would put wrong evidence behind a right-looking verdict",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by window, which the run does not ask, so they are a part of its population presented as the whole",
           "risk": null,
           "source": "pms:demopms/occupancy"
         },
@@ -1947,7 +1947,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "no occupancy in this property matches 605 - the join is reported rather than guessed, because pairing the wrong records would put wrong evidence behind a right-looking verdict",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by window, which the run does not ask, so they are a part of its population presented as the whole",
           "risk": null,
           "source": "pms:demopms/occupancy"
         }
@@ -2009,7 +2009,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "no occupancy in this property matches 9905 - the join is reported rather than guessed, because pairing the wrong records would put wrong evidence behind a right-looking verdict",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by window, which the run does not ask, so they are a part of its population presented as the whole",
           "risk": null,
           "source": "pms:demopms/occupancy"
         },
@@ -2027,7 +2027,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "no occupancy in this property matches 9905 - the join is reported rather than guessed, because pairing the wrong records would put wrong evidence behind a right-looking verdict",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by window, which the run does not ask, so they are a part of its population presented as the whole",
           "risk": null,
           "source": "pms:demopms/occupancy"
         }
@@ -2089,7 +2089,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "no occupancy in this property matches 301 - the join is reported rather than guessed, because pairing the wrong records would put wrong evidence behind a right-looking verdict",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by window, which the run does not ask, so they are a part of its population presented as the whole",
           "risk": null,
           "source": "pms:demopms/occupancy"
         },
@@ -2107,7 +2107,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "no occupancy in this property matches 301 - the join is reported rather than guessed, because pairing the wrong records would put wrong evidence behind a right-looking verdict",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by window, which the run does not ask, so they are a part of its population presented as the whole",
           "risk": null,
           "source": "pms:demopms/occupancy"
         }
@@ -2169,7 +2169,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "no occupancy in this property matches 808 - the join is reported rather than guessed, because pairing the wrong records would put wrong evidence behind a right-looking verdict",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by window, which the run does not ask, so they are a part of its population presented as the whole",
           "risk": null,
           "source": "pms:demopms/occupancy"
         },
@@ -2187,7 +2187,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "no occupancy in this property matches 808 - the join is reported rather than guessed, because pairing the wrong records would put wrong evidence behind a right-looking verdict",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by window, which the run does not ask, so they are a part of its population presented as the whole",
           "risk": null,
           "source": "pms:demopms/occupancy"
         }
@@ -2249,7 +2249,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "no occupancy in this property matches 809 - the join is reported rather than guessed, because pairing the wrong records would put wrong evidence behind a right-looking verdict",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by window, which the run does not ask, so they are a part of its population presented as the whole",
           "risk": null,
           "source": "pms:demopms/occupancy"
         },
@@ -2267,7 +2267,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "no occupancy in this property matches 809 - the join is reported rather than guessed, because pairing the wrong records would put wrong evidence behind a right-looking verdict",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by window, which the run does not ask, so they are a part of its population presented as the whole",
           "risk": null,
           "source": "pms:demopms/occupancy"
         }

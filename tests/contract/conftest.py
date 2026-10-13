@@ -33,14 +33,27 @@ SPEC = pathlib.Path(__file__).resolve().parents[2] / "spec"
 AS_OF = "2026-07-08T09:00"
 
 
+def covering_capture(package) -> str:
+    """The capture that recorded the questions the controls ask, for a provider's default one.
+
+    Issue #71: a default capture holding one departure window can no longer answer an arrival
+    or create window - replay refuses rather than answer from part of a population - so the
+    contract runs over the covering capture: the default's responses plus the questions they
+    lacked. Named by convention, `<default>cover`, so this directory still names no PMS; a
+    provider without one fails `test_every_provider_has_a_covering_capture` by name.
+    """
+    return package.default_capture + "cover"
+
+
 class Subject:
-    """One provider, wired to the property that runs it, over its default evidence."""
+    """One provider, wired to the property that runs it, over its covering evidence (#71)."""
 
     def __init__(self, package):
         self.package = package
         self.name = package.name
+        self.capture = covering_capture(package)
         self.tenant = _tenant_for(package.name)
-        self.adapter, self.source = package.build(self.tenant)
+        self.adapter, self.source = package.build(self.tenant, self.capture)
         self.clock = FixedClock.at(AS_OF, self.tenant.timezone)
 
     def bundles(self):
@@ -52,7 +65,7 @@ class Subject:
         """
         found = []
         for control_id in available():
-            adapter, _source = self.package.build(self.tenant)
+            adapter, _source = self.package.build(self.tenant, self.capture)
             try:
                 evidence = gather(load(control_id), adapter, self.tenant,
                                   self.clock, CallBudget(400))

@@ -311,10 +311,13 @@ class TestValidateSpecRefusesAWrongValueByName:
 
 # --------------------------------------------------------------------------- on the captures
 class TestOnTheCaptures:
-    """The declared change, measured on real records through both providers."""
+    """The declared change, measured on real records through both providers.
 
-    PROVIDERS = {"sandbox": (MiniHotelAdapter, MiniHotelSource, "sandbox2026"),
-                 "demo": (DemoPmsAdapter, DemoSource, "demo2026")}
+    On the covering capture (issue #71): sandbox2026 holds a departure window, and this control
+    asks arrivals, which replay now refuses there rather than answer from part of them."""
+
+    PROVIDERS = {"sandbox": (MiniHotelAdapter, MiniHotelSource, "sandbox2026cover"),
+                 "demo": (DemoPmsAdapter, DemoSource, "demo2026cover")}
 
     def _verdicts(self, tenant_id, tenant=None):
         adapter_class, source_class, capture = self.PROVIDERS[tenant_id]
@@ -326,32 +329,38 @@ class TestOnTheCaptures:
         return evaluate_population(ir, evidence.bundles, tenant.settings)
 
     @pytest.mark.parametrize("tenant_id", ["sandbox", "demo"])
-    def test_undecided_rate_codes_name_the_parameter_on_24_records(self, tenant_id):
+    def test_undecided_rate_codes_name_the_parameter_on_81_records(self, tenant_id):
         verdicts = self._verdicts(tenant_id)
         assert Counter(v.outcome for v in verdicts) == {
-            Outcome.UNKNOWN: 37, Outcome.EXCLUDED: 71}
-        assert sum(NOT_SUPPLIED in v.reason for v in verdicts) == 24
+            Outcome.UNKNOWN: 141, Outcome.EXCLUDED: 244}
+        assert sum(NOT_SUPPLIED in v.reason for v in verdicts) == 81
 
     @pytest.mark.parametrize("tenant_id", ["sandbox", "demo"])
-    def test_a_decided_list_would_move_nothing_either_because_rate_codes_are_absent(
+    def test_a_decided_list_would_now_move_answers_which_is_why_it_must_be_the_hotels(
             self, tenant_id):
-        """#49, kept true: a list alone changes no count, because `stay.rate_code` is absent
-        from every capture. Deciding only changes WHICH gap the 24 records name. This is why
-        nobody should "fix" the sandbox by supplying a list - it would invent a hotel's policy
-        and move nothing."""
+        """#49 said a list alone changes no count, because `stay.rate_code` was absent from
+        every capture. The covering capture was taken WITH room prices, so stays carry rate
+        codes - and a decided list now turns 81 UNKNOWNs into real verdicts (an example list,
+        Tourist-BB: 15 PASS, 56 FAIL). That is exactly why nobody may "fix" the sandbox by
+        supplying one: it would invent a hotel's policy, and now it would also move answers.
+        The list has to come from a real property (open question 1.4)."""
         raw = json.loads((SPEC_DIR / "tenants" / ("%s.json" % tenant_id)).read_text(
             encoding="utf-8"))
         raw["settings"][SETTING] = ["Tourist-BB"]
         decided = TenantConfig.from_dict(raw, parameters=ParameterSchema.load())
         verdicts = self._verdicts(tenant_id, decided)
         assert Counter(v.outcome for v in verdicts) == {
-            Outcome.UNKNOWN: 37, Outcome.EXCLUDED: 71}
-        assert sum("stay.rate_code is unknown" in v.reason for v in verdicts) == 24
+            Outcome.PASS: 15, Outcome.FAIL: 56, Outcome.UNKNOWN: 60, Outcome.EXCLUDED: 254}
+        assert sum("stay.rate_code is unknown" in v.reason for v in verdicts) == 7
         assert not any(NOT_SUPPLIED in v.reason for v in verdicts)
 
 
 # --------------------------------------------------------------------------- the declared diff
 BASELINE = "7f384c4"
+# Slice 21's merge. Its declared diff is a fact about the goldens AS SLICE 21 LEFT THEM: issue
+# #71 later replaced these runs with a refusal (declared in test_v1_no_answer_changed.py), so
+# "now" for this comparison is that commit, and today's state is checked separately below.
+SLICE_21 = "e13da7b"
 DECLARED_GOLDENS = (
     "run/required_reservation_fields.sandbox.sandbox2026.json",
     "run/required_reservation_fields.demo.demo2026.json",
@@ -363,13 +372,13 @@ RATE_CODE_ABSENT = ("whether this control applies could not be established: stay
 NOW_NAMED = "whether this control applies could not be established: " + NOT_SUPPLIED
 
 
-def _baseline(name: str) -> dict:
+def _baseline(name: str, commit: str = BASELINE) -> dict:
     try:
-        shown = subprocess.run(("git", "show", "%s:fixtures/api/%s" % (BASELINE, name)),
+        shown = subprocess.run(("git", "show", "%s:fixtures/api/%s" % (commit, name)),
                                cwd=ROOT, check=True, capture_output=True, text=True).stdout
     except subprocess.CalledProcessError as exc:
         pytest.fail("cannot read %s at %s (%s). In CI the checkout needs fetch-depth: 0."
-                    % (name, BASELINE, exc.stderr.strip()))
+                    % (name, commit, exc.stderr.strip()))
     return json.loads(shown)
 
 
@@ -379,7 +388,7 @@ def test_the_declared_change_is_exactly_what_the_checkpoint_showed(name):
     same outcome and evidence for every record - and the only reasons that changed are the 24
     that said the rate code was absent and now name the undecided parameter."""
     then = _baseline(name)
-    now = json.loads((ROOT / "fixtures" / "api" / name).read_text(encoding="utf-8"))
+    now = _baseline(name, SLICE_21)
 
     assert now["counts"] == then["counts"] == {
         "PASS": 0, "FAIL": 0, "UNKNOWN": 37, "EXCLUDED": 71, "total": 108}
@@ -396,3 +405,12 @@ def test_the_declared_change_is_exactly_what_the_checkpoint_showed(name):
     assert [r for r in now["coverage"]["reasons"] if r["reason"] == NOW_NAMED] == [
         {"reason": NOW_NAMED, "records": 24}]
     assert len(now["coverage"]["reasons"]) == len(then["coverage"]["reasons"])
+
+
+@pytest.mark.parametrize("name", DECLARED_GOLDENS)
+def test_since_issue_71_the_same_runs_are_refused_naming_the_question(name):
+    """sandbox2026 recorded a departure window and this control asks arrivals: refused, saying
+    which question the capture holds, instead of 37 UNKNOWNs drawn from part of a population."""
+    now = json.loads((ROOT / "fixtures" / "api" / name).read_text(encoding="utf-8"))
+    assert now["verdicts"] == []
+    assert "selected by" in now["blocked"] and "departure" in now["blocked"].lower()

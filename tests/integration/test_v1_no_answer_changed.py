@@ -14,6 +14,10 @@ evidence, and how the run's coverage reads. Those are the three keys below.
 
 A declared change is an entry in DECLARED, naming the PR that made it. Slice 21 is the only one
 the plan foresees (`required_reservation_fields` on the sandbox, if `null` changes a reason).
+After v3, issue #71's fix declared 48 more (the owner's choice A+B, 2026-10-13): runs that were
+answered from part of a population are now refused, saying which question the capture holds.
+B's 44 new goldens - the covering capture, offered beside sandbox2026 - have no baseline to move
+from, so they need no declaration.
 """
 import json
 import pathlib
@@ -29,11 +33,63 @@ ANSWER_KEYS = ("verdicts", "counts", "coverage")
 _SLICE_21 = ("PR #65, slice 21: nominated_rate_codes [] -> null (not decided), plan-v3 §3.2, #49. No "
              "count or outcome moved; 24 reasons now name the undecided parameter instead of the "
              "absent rate code. Pinned exactly by tests/integration/test_typed_parameters.py")
+_FIX_71 = ("PR #95 for issue #71 (follow-up 1, step B), owner's choice A+B: replay answers only "
+           "the question a response was recorded for. An arrival or create window asked of a "
+           "departure-window capture is REFUSED instead of answered from part of the population (7 controls on "
+           "2026, every reservation control on 2024); the occupancy reference, which asks no "
+           "window, no longer takes one 2024 week as all occupancy (ooo_room_protection: still "
+           "EXCLUDED 28, the reason now names it). Criterion 1: sandbox2026 5 -> 2, the covering "
+           "capture sandbox2026cover 5 of 11 from the right evidence. Pinned by "
+           "tests/integration/test_replay_answers_only_its_question.py")
 DECLARED: dict[str, str] = {
-    "run/required_reservation_fields.sandbox.sandbox2026.json": _SLICE_21,
-    "run/required_reservation_fields.demo.demo2026.json": _SLICE_21,
-    "runs/c7be275548a09e40.json": _SLICE_21,          # the sandbox run, re-read from the store
-    "runs/4270ab5ef6c1068c.json": _SLICE_21,          # the demo run, re-read from the store
+    "run/checkout_money_owed.demo.demo2024.json": _FIX_71,
+    "run/checkout_money_owed.sandbox.sandbox2024.json": _FIX_71,
+    "run/checkout_unrefunded_credit.demo.demo2024.json": _FIX_71,
+    "run/checkout_unrefunded_credit.sandbox.sandbox2024.json": _FIX_71,
+    "run/duplicate_channel_reservation.demo.demo2024.json": _FIX_71,
+    "run/duplicate_channel_reservation.demo.demo2026.json": _FIX_71,
+    "run/duplicate_channel_reservation.sandbox.sandbox2024.json": _FIX_71,
+    "run/duplicate_channel_reservation.sandbox.sandbox2026.json": _FIX_71,
+    "run/inactive_room_future_stay.demo.demo2026.json": _FIX_71,
+    "run/inactive_room_future_stay.sandbox.sandbox2026.json": _FIX_71,
+    "run/ooo_room_protection.demo.demo2024.json": _FIX_71,
+    "run/ooo_room_protection.demo.demo2026.json": _FIX_71,
+    "run/ooo_room_protection.sandbox.sandbox2024.json": _FIX_71,
+    "run/ooo_room_protection.sandbox.sandbox2026.json": _FIX_71,
+    "run/rate_room_category_consistency.demo.demo2026.json": _FIX_71,
+    "run/rate_room_category_consistency.sandbox.sandbox2026.json": _FIX_71,
+    "run/required_reservation_fields.demo.demo2026.json": _SLICE_21 + "; then " + _FIX_71,
+    "run/required_reservation_fields.sandbox.sandbox2026.json": _SLICE_21 + "; then " + _FIX_71,
+    "run/room_assignment_active_room.demo.demo2026.json": _FIX_71,
+    "run/room_assignment_active_room.sandbox.sandbox2026.json": _FIX_71,
+    "run/room_assignment_type_validity.demo.demo2026.json": _FIX_71,
+    "run/room_assignment_type_validity.sandbox.sandbox2026.json": _FIX_71,
+    "run/room_capacity_compliance.demo.demo2026.json": _FIX_71,
+    "run/room_capacity_compliance.sandbox.sandbox2026.json": _FIX_71,
+    "runs/0e6b91d1d03e9c8e.json": _FIX_71,  # room_capacity_compliance, sandbox2026
+    "runs/1c9c18c57cdbc12e.json": _FIX_71,  # rate_room_category_consistency, demo2026
+    "runs/2b562825a8d7539e.json": _FIX_71,  # rate_room_category_consistency, sandbox2026
+    "runs/2d4c1326a1ec64bf.json": _FIX_71,  # duplicate_channel_reservation, sandbox2024
+    "runs/4270ab5ef6c1068c.json": _SLICE_21 + "; then " + _FIX_71,  # required_reservation_fields, demo2026
+    "runs/4b190a898ad36d4c.json": _FIX_71,  # checkout_money_owed, sandbox2024
+    "runs/4f69986967c9515c.json": _FIX_71,  # room_assignment_type_validity, sandbox2026
+    "runs/52baef0e86c2c46e.json": _FIX_71,  # room_assignment_active_room, demo2026
+    "runs/57b270d6834371d7.json": _FIX_71,  # checkout_money_owed, demo2024
+    "runs/5dbda5e62069da3a.json": _FIX_71,  # ooo_room_protection, demo2024
+    "runs/63c1bc772fded4d3.json": _FIX_71,  # room_assignment_type_validity, demo2026
+    "runs/66c0bcbc30f646f4.json": _FIX_71,  # room_assignment_active_room, sandbox2026
+    "runs/71d70944aef8b185.json": _FIX_71,  # checkout_unrefunded_credit, demo2024
+    "runs/7682f58b49194b12.json": _FIX_71,  # duplicate_channel_reservation, demo2026
+    "runs/838b32f05820b6c0.json": _FIX_71,  # ooo_room_protection, demo2026
+    "runs/a3302f0bfe75c3d3.json": _FIX_71,  # duplicate_channel_reservation, sandbox2026
+    "runs/abf65d7e8e00e2ce.json": _FIX_71,  # inactive_room_future_stay, demo2026
+    "runs/b92123bf3b9c654b.json": _FIX_71,  # ooo_room_protection, sandbox2024
+    "runs/be64f79a551b5251.json": _FIX_71,  # checkout_unrefunded_credit, sandbox2024
+    "runs/c6184f1a690effe3.json": _FIX_71,  # duplicate_channel_reservation, demo2024
+    "runs/c7be275548a09e40.json": _SLICE_21 + "; then " + _FIX_71,  # required_reservation_fields, sandbox2026
+    "runs/daa26af9ac128dd9.json": _FIX_71,  # inactive_room_future_stay, sandbox2026
+    "runs/f150b88be31a62c7.json": _FIX_71,  # ooo_room_protection, sandbox2026
+    "runs/f42793aadc7fd90a.json": _FIX_71,  # room_capacity_compliance, demo2026
 }
 
 

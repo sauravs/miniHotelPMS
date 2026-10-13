@@ -15,6 +15,12 @@ from hotelcontrols.providers.minihotel import FrozenSource, MiniHotelAdapter
 from hotelcontrols.spec import SpecError, TenantConfig
 
 
+# The question sandbox2026 recorded. An empty request asks for every reservation the PMS holds,
+# which a capture of one window cannot answer, and replay refuses it (#71).
+DEPARTURES = Request("GetReservationKey", {"DepartureDate": {"From": "2026-07-01",
+                                                            "To": "2026-08-09"}})
+
+
 @pytest.fixture
 def a():
     return MiniHotelAdapter(TenantConfig.load("sandbox"), FrozenSource("sandbox2026"))
@@ -68,7 +74,7 @@ class TestProvenance:
         assert "TotalDebit" not in provenance
 
     def test_every_value_carries_its_provenance(self, a):
-        record = a.records(a.fetch(Request("GetReservationKey", {})), "reservation")[0]
+        record = a.records(a.fetch(DEPARTURES), "reservation")[0]
         assert a.resolve("reservation.status", record).source == \
             "pms:minihotel/GetReservationKey"
 
@@ -119,7 +125,7 @@ class TestRefusals:
         crash - so the adapter refuses rather than passing the raw string through."""
         a.mappings["reservation.status"] = dict(a.mappings["reservation.status"],
                                                 transform="no_such_transform")
-        record = a.records(a.fetch(Request("GetReservationKey", {})), "reservation")[0]
+        record = a.records(a.fetch(DEPARTURES), "reservation")[0]
         with pytest.raises(SpecError):
             a.resolve("reservation.status", record)
 

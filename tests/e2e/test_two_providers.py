@@ -56,8 +56,10 @@ INSTANTS = ("2026-07-08T09:00", "2024-09-01T09:00", "2024-08-14T09:00")
 # Which capture each property was asked about, per instant. The 2026 captures answer 2026
 # questions and the 2024 ones answer 2024 questions; asking the other way round is refused, and
 # that refusal is itself asserted below.
+# 2026 is asked of the COVERING captures (issue #71): sandbox2026 / demo2026 recorded one
+# departure window and refuse the seven arrival and create questions, which is checked below.
 CAPTURES = {
-    "2026-07-08T09:00": {"sandbox": "sandbox2026", "demo": "demo2026"},
+    "2026-07-08T09:00": {"sandbox": "sandbox2026cover", "demo": "demo2026cover"},
     "2024-09-01T09:00": {"sandbox": "sandbox2024", "demo": "demo2024"},
     "2024-08-14T09:00": {"sandbox": "sandbox2024", "demo": "demo2024"},
 }
@@ -143,6 +145,28 @@ class TestTheAgreementIsNotVacuous:
             for outcome in ("PASS", "FAIL", "UNKNOWN", "EXCLUDED"):
                 assert tally[outcome] > 0, "%s never reaches %s: %s" % (
                     property_id, outcome, dict(tally))
+
+    def test_on_the_departure_captures_both_refuse_the_same_seven_and_conclude_the_same_two(
+            self):
+        """Issue #71, criterion 7: sandbox2026 and demo2026 each recorded a departure window
+        only. Both providers refuse the same questions and conclude the same two controls -
+        the agreement holds in what they CANNOT answer, too."""
+        def shape(property_id, capture):
+            tenant = TenantConfig.load(property_id)
+            package = next(p for p in all_providers() if p.name == tenant.provider)
+            outcome = {}
+            for control_id in available():
+                adapter, _ = package.build(tenant, capture)
+                result = run(control_id, tenant, adapter,
+                             FixedClock.at("2026-07-08T09:00", tenant.timezone))
+                outcome[control_id] = ("blocked" if result.is_blocked
+                                       else result.coverage.concluded)
+            return outcome
+        sandbox, demo = shape("sandbox", "sandbox2026"), shape("demo", "demo2026")
+        assert sandbox == demo
+        assert sum(1 for v in sandbox.values() if v == "blocked") == 8   # 7 + occupancy (#9)
+        assert {c for c, v in sandbox.items() if v is True} == {
+            "checkout_money_owed", "checkout_unrefunded_credit"}
 
     def test_the_two_providers_really_are_different_underneath(self):
         """A guard against the boring way this suite could pass: two adapters that turned out

@@ -67,6 +67,12 @@ class TestTheProtocol:
     def test_the_adapter_names_itself_and_the_name_is_how_it_is_registered(self, provider):
         assert provider.adapter.name == provider.name
 
+    def test_every_provider_has_a_covering_capture(self, provider):
+        """Issue #71. The suite runs over `<default>cover`: the default capture's responses
+        plus the arrival and create windows the controls ask. A provider without one would
+        make every test below run over refusals."""
+        assert provider.package.frozen(provider.capture) is not None
+
     def test_every_declared_capture_can_actually_be_opened(self, provider):
         """A capture named in the package and missing from the fixture set is a provider that
         looks runnable and is not."""

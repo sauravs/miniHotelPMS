@@ -128,42 +128,21 @@ class FrozenSource:
         if not candidates:
             raise ResponseUnavailable(
                 "the %s capture holds no %s response" % (self.capture, request.endpoint))
-        entry = candidates[0]
-        self._check_window_covered(request, entry)
-        return entry
-
-    def _check_window_covered(self, request: Request, entry: dict[str, Any]) -> None:
-        """Refuse a question this capture cannot answer (finding F19c, issue #9).
-
-        If a control asks about a window the capture never covered, replaying the filter would
-        return whatever the capture happens to hold - and that is worse than nothing. An empty
-        result renders identically to "we looked and everything was fine"; a NON-empty result
-        from the wrong window is worse still, because it is a confident answer about records
-        nobody looked at. `resource_occupancy_consistency` asked about July 2026 and was
-        answered with segments from August 2024, as two PASSes.
-
-        EVERY window in the request is checked against the fingerprint, found by SHAPE rather
-        than by name. The first version of this guard checked three filter names, so the fourth
-        window this API spells differently went unguarded from the day it was added - and the
-        fifth would have too.
-        """
-        for name, asked_raw in request.params.items():
-            asked, captured = _window(asked_raw), _window(entry["request"].get(name))
-            if asked is None or captured is None:
-                # Not a date window on one side or the other. `BookingSearch {Status: OUT}` is
-                # a filter but not a window, and a filter the capture did not record cannot be
-                # compared - _booking_matches refuses the ones it cannot replay.
-                continue
-            asked_from, asked_to = asked
-            captured_from, captured_to = captured
-            if (asked_from or "") < (captured_from or "") or \
-                    (asked_to or "9999") > (captured_to or "9999"):
-                raise ResponseUnavailable(
-                    "this capture cannot answer that question: %s was captured for %s..%s and "
-                    "the run asks for %s..%s. An empty population here would look exactly like "
-                    "'no violations found', and a population from the WRONG window would look "
-                    "like an answer, so it is refused instead"
-                    % (name, captured_from, captured_to, asked_from, asked_to))
+        # ISSUE #71. The response that answers is the one whose RECORDED question covers the
+        # one asked - not the first of its endpoint. Taking the first, a run asking arrivals
+        # met sandbox2026's departure window, found no arrival window on it to compare, and
+        # replayed the arrival filter over the departure window's bookings: part of a
+        # population, presented as the whole, behind three of criterion 1's PASSes.
+        refusals = []
+        for entry in candidates:
+            refusal = _uncovered(request, entry)
+            if refusal is None:
+                return entry
+            refusals.append(refusal)
+        raise ResponseUnavailable(
+            refusals[0] if len(refusals) == 1 else
+            "none of the %d %s responses in this capture was asked that question: %s"
+            % (len(refusals), request.endpoint, "; ".join(refusals)))
 
     # ------------------------------------------------------------------ filter replay
     def _replay(self, request: Request, entry: dict[str, Any], body: str) -> str:
@@ -213,6 +192,62 @@ def _booking_matches(booking: ET.Element, params: dict[str, Any]) -> bool:
             # for, which is the one failure a bounded query exists to prevent (R1).
             raise ResponseUnavailable("replay cannot honour request filter %r" % (name,))
     return True
+
+
+def _uncovered(request: Request, entry: dict[str, Any]) -> str | None:
+    """Why this captured response cannot answer this request - or None if it can.
+
+    THREE WAYS A RECORDED QUESTION FAILS TO COVER AN ASKED ONE, each a population that would
+    look complete and is not:
+
+      * the run asks a window the recording never named (issue #71) - its records were
+        selected by a different question, and replaying this one over them answers neither;
+      * the run asks a window wider than the one recorded (finding F19c, issue #9);
+      * the recording was narrowed by something the run does not ask (#71, the other
+        direction) - its records are a part of what the run asks about.
+
+    Windows are found by SHAPE, never by name: issue #9 is what a list of names leaves behind.
+    """
+    recorded = entry["request"]
+    asked_params = request.params or {}
+    for name, asked_raw in asked_params.items():
+        asked = _window(asked_raw)
+        if asked is None:
+            # Not a date window: a status filter narrows WITHIN the recorded window, and
+            # _booking_matches refuses any filter it cannot replay.
+            continue
+        captured = _window(recorded.get(name))
+        if captured is None:
+            return ("this capture cannot answer that question: the run asks for %s %s..%s, and "
+                    "these records were selected by %s - a population replayed from them would "
+                    "be the answer to a different question, and would look exactly as complete "
+                    "as the right one" % (name, asked[0], asked[1], _described(recorded)))
+        asked_from, asked_to = asked
+        captured_from, captured_to = captured
+        if (asked_from or "") < (captured_from or "") or \
+                (asked_to or "9999") > (captured_to or "9999"):
+            return ("this capture cannot answer that question: %s was captured for %s..%s and "
+                    "the run asks for %s..%s. An empty population here would look exactly like "
+                    "'no violations found', and a population from the WRONG window would look "
+                    "like an answer, so it is refused instead"
+                    % (name, captured_from, captured_to, asked_from, asked_to))
+    for name in recorded:
+        if name not in asked_params and name not in REQUEST_OPTIONS:
+            return ("this capture cannot answer that question: these records were also "
+                    "selected by %s, which the run does not ask, so they are a part of its "
+                    "population presented as the whole" % name)
+    return None
+
+
+def _described(recorded: dict[str, Any]) -> str:
+    """A recorded question as a refusal names it, e.g. a window and its two dates."""
+    parts = []
+    for name, value in recorded.items():
+        if name in REQUEST_OPTIONS:
+            continue
+        window = _window(value)
+        parts.append("%s %s..%s" % (name, window[0], window[1]) if window else name)
+    return " and ".join(parts) or "no filter at all"
 
 
 def _window(value: Any) -> tuple[str | None, str | None] | None:

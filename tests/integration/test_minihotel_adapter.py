@@ -28,6 +28,18 @@ def adapter(capture="sandbox2026"):
     return MiniHotelAdapter(TenantConfig.load("sandbox"), FrozenSource(capture))
 
 
+def recorded(a, endpoint):
+    """The question this capture RECORDED for an endpoint - how a test reads a whole response.
+
+    An empty request asks for every record the PMS has ever held, and a capture of one window
+    cannot answer that: replay refuses it rather than present the window as the whole (#71).
+    """
+    source = a.source
+    entry = next(r for r in source.index["responses"]
+                 if r["endpoint"] == endpoint and source.capture in r.get("captures", []))
+    return Request(endpoint, entry["request"])
+
+
 @pytest.fixture(scope="module")
 def provider_map():
     return json.loads((SPEC / "providers" / "minihotel.json").read_text())
@@ -58,7 +70,7 @@ class TestEveryMappingResolves:
         """Absence is an answer and the registry says which one. None would be a second
         failure vocabulary - the one callers forget to check."""
         a = adapter("sandbox2024")
-        record = a.records(a.fetch(Request("GetReservationKey", {})), "reservation")[0]
+        record = a.records(a.fetch(recorded(a, "GetReservationKey")), "reservation")[0]
         for mapping in provider_map["mappings"]:
             if mapping["endpoint"] != "GetReservationKey":
                 continue
@@ -79,7 +91,7 @@ class TestTheCurrencySplitIsVisible:
         assert balance.payload == Money(Decimal("3262.5"), "ILS")
 
         booking = next(
-            r for r in a.records(a.fetch(Request("GetReservationKey", {})), "reservation")
+            r for r in a.records(a.fetch(recorded(a, "GetReservationKey")), "reservation")
             if a.resolve("reservation.id", r).payload == "007003199")
         assert a.resolve("reservation.currency", booking).payload == "USD"
         assert a.resolve("reservation.total_amount", booking).payload.currency == "USD"
@@ -93,7 +105,7 @@ class TestTheCurrencySplitIsVisible:
             a.fetch(Request("GetReservationBalance", {"ReservationNumber": "007003199"})),
             "folio")[0]
         booking = next(
-            r for r in a.records(a.fetch(Request("GetReservationKey", {})), "reservation")
+            r for r in a.records(a.fetch(recorded(a, "GetReservationKey")), "reservation")
             if a.resolve("reservation.id", r).payload == "007003199")
         with pytest.raises(CurrencyMismatch):
             a.resolve("folio.balance_due", folio).equals(
@@ -175,7 +187,7 @@ class TestRecordIsolation:
         """A room stay's amount is inside <RoomStay> while the currency it is denominated in
         sits on the <Booking>. Reading upwards is required."""
         a = adapter("sandbox2024")
-        response = a.fetch(Request("GetReservationKey", {}))
+        response = a.fetch(recorded(a, "GetReservationKey"))
         stay = a.records(response, "stay")[0]
         assert a.resolve("reservation.currency", stay).payload == "USD"
         assert a.resolve("reservation.id", stay).is_known
@@ -185,7 +197,7 @@ class TestRecordIsolation:
         id at all. A resolver that wandered sideways looking for a better answer would report
         every direct booking as a duplicate of every other one."""
         a = adapter("sandbox2024")
-        bookings = a.records(a.fetch(Request("GetReservationKey", {})), "reservation")
+        bookings = a.records(a.fetch(recorded(a, "GetReservationKey")), "reservation")
         ids = [a.resolve("reservation.channel_confirmation_id", b) for b in bookings]
         direct = [v for v in ids if v.payload is NOT_APPLICABLE]
         assert direct, "the 2024 capture should contain direct bookings"
@@ -194,7 +206,7 @@ class TestRecordIsolation:
 
     def test_an_absent_field_does_not_climb_out_into_the_whole_response(self):
         a = adapter("sandbox2024")
-        response = a.fetch(Request("GetReservationKey", {}))
+        response = a.fetch(recorded(a, "GetReservationKey"))
         for booking in a.records(response, "reservation"):
             own = a.resolve("reservation.id", booking).payload
             assert own, "every booking resolves its OWN id"
@@ -205,7 +217,7 @@ class TestOccupancyHasARecordBoundary:
 
     def test_each_reservation_element_is_a_complete_occupancy_segment(self):
         a = adapter()
-        segments = a.records(a.fetch(Request("RoomStatusInquiry", {})), "occupancy")
+        segments = a.records(a.fetch(recorded(a, "RoomStatusInquiry")), "occupancy")
         assert len(segments) == 2
         for segment in segments:
             for field_name in ("occupancy.room_number", "occupancy.reservation_id",
@@ -215,7 +227,7 @@ class TestOccupancyHasARecordBoundary:
     def test_one_reservation_appearing_as_two_segments_keeps_its_own_dates(self):
         """The behaviour v1 read as an obstacle is exactly what an overlap check needs."""
         a = adapter()
-        segments = a.records(a.fetch(Request("RoomStatusInquiry", {})), "occupancy")
+        segments = a.records(a.fetch(recorded(a, "RoomStatusInquiry")), "occupancy")
         assert {a.resolve("occupancy.reservation_id", s).payload for s in segments} == \
             {"007003204"}
         assert [a.resolve("occupancy.from", s).payload for s in segments] == \
@@ -228,7 +240,7 @@ class TestStatusVocabulary:
         """A5. One reservation in five carries a status nobody has documented, and a status we
         cannot name must not decide whether a control applies."""
         a = adapter()
-        bookings = a.records(a.fetch(Request("GetReservationKey", {})), "reservation")
+        bookings = a.records(a.fetch(recorded(a, "GetReservationKey")), "reservation")
         statuses = [a.resolve("reservation.status", b) for b in bookings]
         assert any(v.is_known for v in statuses)
         unknown = [v for v in statuses if not v.is_known]
@@ -243,9 +255,12 @@ class TestReplayHonesty:
     def test_a_status_filter_narrows_the_population_the_way_the_server_did(self):
         """Sending BookingSearch Status='OUT' narrowed 65 bookings to 1 on the live server."""
         a = adapter()
-        everyone = a.records(a.fetch(Request("GetReservationKey", {})), "reservation")
+        everyone = a.records(a.fetch(recorded(a, "GetReservationKey")), "reservation")
+        # Within the recorded window, as the checkout controls ask it: a status filter alone
+        # asks every reservation the PMS holds, which no capture of one window answers (#71).
+        window = recorded(a, "GetReservationKey").params
         checked_out = a.records(
-            a.fetch(Request("GetReservationKey", {"BookingSearch": {"Status": "OUT"}})),
+            a.fetch(Request("GetReservationKey", dict(window, BookingSearch={"Status": "OUT"}))),
             "reservation")
         assert 0 < len(checked_out) < len(everyone)
         for booking in checked_out:
@@ -271,7 +286,7 @@ class TestReplayHonesty:
         """R1. The call count is asserted, never assumed."""
         source = FrozenSource("sandbox2026")
         a = MiniHotelAdapter(TenantConfig.load("sandbox"), source)
-        a.fetch(Request("GetReservationKey", {}))
+        a.fetch(recorded(a, "GetReservationKey"))
         a.fetch(Request("getRooms", {}))
         assert len(source.calls) == 2
 
@@ -281,7 +296,9 @@ class TestTransportIndependence:
         """The gate that proves nothing depends on the frozen path specifically - which is
         what makes a live transport a drop-in rather than a rewrite (slice 11)."""
         frozen = FrozenSource("sandbox2024")
-        body = frozen.fetch(Request("GetReservationKey", {}))
+        question = recorded(MiniHotelAdapter(TenantConfig.load("sandbox"), frozen),
+                            "GetReservationKey")
+        body = frozen.fetch(question)
 
         class ReplayTransport:
             """A stand-in for a live source: hands back bytes it was given."""
@@ -295,10 +312,8 @@ class TestTransportIndependence:
         a_frozen = MiniHotelAdapter(tenant, FrozenSource("sandbox2024"))
         a_replay = MiniHotelAdapter(tenant, ReplayTransport())
 
-        records_frozen = a_frozen.records(
-            a_frozen.fetch(Request("GetReservationKey", {})), "reservation")
-        records_replay = a_replay.records(
-            a_replay.fetch(Request("GetReservationKey", {})), "reservation")
+        records_frozen = a_frozen.records(a_frozen.fetch(question), "reservation")
+        records_replay = a_replay.records(a_replay.fetch(question), "reservation")
 
         for one, two in zip(records_frozen, records_replay):
             for field_name in ("reservation.id", "reservation.status",
@@ -375,11 +390,11 @@ class TestTheWindowGuardCoversEveryEndpoint:
         """The actual defect. A filter naming a window the guard has never heard of must be
         compared against the fingerprint anyway - the next endpoint we add will spell its
         window differently again, and it must not silently become unguarded."""
-        source = FrozenSource("sandbox2026")
+        from hotelcontrols.providers.minihotel.fixtures import _uncovered
         entry = {"file": "4_RoomStatus.xml", "endpoint": "X",
                  "request": {"SomeWindowNobodyAnticipated": {"From": "2024-01-01",
                                                              "To": "2024-01-31"}}}
-        with pytest.raises(ResponseUnavailable):
-            source._check_window_covered(
-                Request("X", {"SomeWindowNobodyAnticipated": {"From": "2025-01-01",
-                                                              "To": "2025-01-31"}}), entry)
+        refusal = _uncovered(
+            Request("X", {"SomeWindowNobodyAnticipated": {"From": "2025-01-01",
+                                                          "To": "2025-01-31"}}), entry)
+        assert refusal and "2024-01-01" in refusal
