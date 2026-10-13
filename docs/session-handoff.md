@@ -5,15 +5,16 @@ session, exactly as written.** The longer block after it is the STATE block the 
 session to read. Do not paste that one. Everything either references is in the repository;
 nothing depends on the previous conversation.
 
-**Last updated:** 2026-10-13, after follow-up 1 (#71), on `main` at `c7128ca`.
+**Last updated:** 2026-10-13, after #87's guard, on `main` at `7a8aa06`.
 **The owner's order (2026-10-11, amended 2026-10-13): follow-ups 4, 1, then #87's guard, then 3,
-2, 5 - one at a time, reporting after each.** Follow-ups 4 and 1 are DONE: 4 as fixes #84, #85,
-#86; 1 as fix #71 (PR #95, after #92 and the covering capture #94), under the owner's choice
-**A+B**. **The next item is #87's guard.**
+2, 5 - one at a time, reporting after each.** Follow-ups 4, 1 and #87's guard are DONE: 4 as
+fixes #84, #85, #86; 1 as fix #71 (PR #95, after #92 and the covering capture #94), under the
+owner's choice **A+B**; the guard as fix #87 (PR #98). **The next item is 3.**
 **v2 (slices 0–15) and v3 (slices 16–24) are both COMPLETE.** Criteria V1–V12 are all met
 (`docs/plan-v3.md` §7); `prd.md` criterion 1 stays NOT MET on every capture (since #71:
-`sandbox2026` 2 of 11, refresh 1, covering capture 5). **Open issue: #87 (decided: the guard
-first).** There is no planned slice left - only the follow-ups in the prompt below. An item
+`sandbox2026` 2 of 11, refresh 1, covering capture 5). **No issue is open.** #87's option 2
+(judge every record of a collection) is recorded in `docs/open-questions.md` §3 and is deferred.
+There is no planned slice left - only the follow-ups in the prompt below. An item
 marked DONE has merged.
 
 **The live probe** is a runbook now: [The probe](#the-probe--done-2026-10-10-v3-slice-23-kept-as-the-runbook-for-the-next-one).
@@ -32,18 +33,18 @@ Continue miniHotelPMS after v3. Working directory: /Users/sauravs/Desktop/Work/m
 
 Start-up, before anything else:
   git status && git branch --no-merged main     # LOCAL list: empty
-  PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -m pytest -q -o addopts=""    # 3218 passed, 3 skipped
-  PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -m tools.validate_spec        # PASSED - all 1092 checks
+  PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -m pytest -q -o addopts=""    # 3247 passed, 3 skipped
+  PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -m tools.validate_spec        # PASSED - all 1096 checks
   PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -m tools.dump_api_fixtures --check   # 179 files
   PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -m tools.transcode_demopms --check   # 17 files
   .venv/bin/python -m coverage run -m pytest && .venv/bin/python -m coverage report   # 97%
   cd ui && npm ci && npm run typecheck && npm test && npm run e2e          # 249 Vitest, 26 Playwright
-  gh issue list --state open                     # #87 only
+  gh issue list --state open                     # none
 Those are main's numbers. Any that differs is a reason to stop and find out why. Then read
 CLAUDE.md, docs/session-handoff.md (the STATE block), docs/plan-v3.md (status table, §7),
-docs/open-questions.md, and the comments on issue #87.
+docs/open-questions.md (§3 for #87's option 2).
 
-Where things stand: v2 and v3 are complete; main is at c7128ca or a docs-only commit after it.
+Where things stand: v2 and v3 are complete; main is at 7a8aa06 or a docs-only commit after it.
 Every item below is a bug-workflow fix or a small PR of its own: a GitHub issue first (what,
 reproduction, which gate, severity), then fix/NN-..., a failing test, the fix, a PR "Fixes #NN",
 CI green on test (3.11) and test (3.13), squash-merge.
@@ -65,17 +66,17 @@ THE FOLLOW-UPS:
    covering capture beside sandbox2026 (default unchanged). Criterion 1: sandbox2026 2 of 11,
    refresh 1, sandbox2026cover 5 - NOT MET on each. 48 moved goldens declared in
    test_v1_no_answer_changed.py; 44 new ones.
-#87-guard. NEXT. ooo_room_protection asserts occupancy.reservation_id `within` the closed dates, on the
-   first collected segment only, so a guest inside a closed window PASSes (latent: no room has
-   ever had a closed window). Decided (on #87): option 1 first - `within` / `not_within` refuse a
-   left operand whose canonical type is not a date or datetime (validator and evaluator), and
-   the rule gets a version bump + tools.lock_spec so it can no longer PASS a closed room.
-   Option 2 (judge every record of a `collection`) stays open for later.
-3. Golden payloads for the guest routes (POST /api/guest/requests, /api/guest/decisions[/<id>])
+#87-guard. DONE (2026-10-13), fix #87 (PR #98). The validator refuses `within` / `not_within`
+   on a field whose canonical type is not a date (check 7, the compiler too); the evaluator
+   places no unit-less value in a window and never judges a `collection` by its first record
+   (UNKNOWN, naming the count); ooo_room_protection is version 3 (a segment overlapping the
+   closed window), UNKNOWN for a room in scope until option 2. 18 goldens declared, no outcome
+   moved (still EXCLUDED 28).
+3. NEXT. Golden payloads for the guest routes (POST /api/guest/requests, /api/guest/decisions[/<id>])
    in tools/dump_api_fixtures.py - new files only, every existing golden byte-identical.
 2. tools/serve.py attaches the operational log (--log), as python3 -m hotelcontrols.web.server
    does.
-5. Two stale comments, one issue: hotelcontrols/evaluator/predicates.py:138-139 ("has not
+5. Two stale comments, one issue: hotelcontrols/evaluator/predicates.py:145-147 ("has not
    supplied" also means "not decided" since slice 21) and
    hotelcontrols/providers/minihotel/fixtures.py:5 ("fourteen" responses; there are now twenty).
 
@@ -114,12 +115,26 @@ fix #48 (#52), slice 16 (#53), fix #54 (#55), slice 17 (#56), fix #57 (#58), sli
 slice 19 (#62), slice 20 (#63), slice 21 (#65), slice 22 (#68), fix #70 (#72), fix #73 (#74),
 fix #75 (#76), slice 23 (the evidence refresh, #77), slice 24 (host auth + per-property
 credentials, closing #22 and v3); after v3, follow-up 4's fixes #84 (#88), #85 (#89) and #86
-(#90); for follow-up 1, fix #92 (#93), the covering capture (#94) and fix #71 (#95). Baseline on
-main at c7128ca: 3218 passed / 3 skipped (the v3 scope guard always skips: no slice/16-* ..
-slice/24-* branch remains), 1092 spec checks, 179 API goldens identical to a rebuild, 17 DemoPMS
+(#90); for follow-up 1, fix #92 (#93), the covering capture (#94) and fix #71 (#95); fix #87
+(#98). Baseline on main at 7a8aa06: 3247 passed / 3 skipped (the v3 scope guard always skips: no
+slice/16-* .. slice/24-* branch remains), 1096 spec checks, 179 API goldens identical to a rebuild, 17 DemoPMS
 files identical to a rebuild, spec lock current, 97% coverage. The React UI has 249 Vitest and
 26 Playwright tests.
-Open issue: #87 (decided: the guard first - see below).
+No issue is open.
+
+#87'S GUARD IS DONE (2026-10-13, PR #98). ooo_room_protection version 2 placed
+occupancy.reservation_id in a window of dates; as strings "007004344" < "2026-07-10", so every
+real id fell outside and the room PASSed - and a collection's fields were the FIRST segment's.
+Now: validator check 7 (`within` needs a date or datetime field, by canonical type; the compiler
+is refused the same way); the evaluator answers UNKNOWN for a unit-less value in a window and for
+any predicate reading a `collection` field (naming the record count); a contract test pins that
+every known date carries a date unit; the rule is version 3 (locked): a segment starting in the
+window, or the window opening during a segment. Reproduced with a STAND-IN source (the refresh
+capture's documents, room 303 closed 10..20 Jul in memory, no fixture edited): version 2 PASSed
+it with guest 007004367 inside. Worth knowing: since #71 the occupancy reference asks no window,
+so replay refuses it on EVERY capture - on frozen evidence #87 was hidden, not prevented. Option
+2 (judge every record of a collection, Kleene `none` across segments) needs that reference to ask
+a window too; it is in docs/open-questions.md §3 and deferred.
 
 FOLLOW-UP 1, #71, IS DONE (2026-10-11..13, PR #95). Replay picked the FIRST response of an
 endpoint in a capture and compared only windows both questions name, so seven controls asking an
@@ -151,11 +166,10 @@ reservation.id (id-less bookings on one portal id counted as one - a false PASS 
 call was sent for reservation False; `_count_lte` now treats an unreadable id as possibly
 another reservation instead of dropping it); #86 the stay-to-room join (an absent key on both
 sides matched; `reference.absent_key()` is never indexed or looked up; room.number -> unknown;
-stay.room_number keeps "false" because four scopes EXCLUDE on it). #87 was found on the way and
-is NOT fixed: ooo_room_protection asserts `occupancy.reservation_id within room.closed_from..
+stay.room_number keeps "false" because four scopes EXCLUDE on it). #87 was found on the way (fixed
+since, PR #98 - see above): ooo_room_protection asserts `occupancy.reservation_id within room.closed_from..
 room.closed_to` on the first collected segment only, so a guest inside a closed window PASSes.
-No evaluator code reads `Bundle.related`. Latent, because every room is EXCLUDED; the owner
-decides the fix.
+No evaluator code reads `Bundle.related`. Latent, because every room is EXCLUDED.
 
 SLICE 24 CLOSED v3 (2026-10-11). The owner delegated every open point to the implementer ("pls u
 decide as an expert"), recorded with each decision in docs/plan-v3.md's status table. D14 built:
@@ -219,7 +233,7 @@ rate_plan_permitted_room_types as null. The owner delegated that call to the imp
 moved; 24 reasons per 2026 capture now name the parameter (4 goldens, in DECLARED, pinned
 against 7f384c4 by tests/integration/test_typed_parameters.py). Tenants state the currencies
 their records show (EUR, ILS, USD), observed, not decided. FLAGGED, NOT FIXED: the comment at
-hotelcontrols/evaluator/predicates.py:138-139 still says that branch means "never declared"; it
+hotelcontrols/evaluator/predicates.py:145-147 still says that branch means "never declared"; it
 now also means "not decided". evaluator/ was a must-not for slice 21.
 
 THE FINDINGS QUEUE EXISTS (slices 18-20). A FAIL of a REVIEWED control raises one task in the
@@ -578,7 +592,7 @@ public, which was defensible and made the habit dangerous.
 | ~~v3 slice 23~~ | ~~Approval of each probe call at the time~~ — **four calls approved one by one, 2026-10-10; merged** |
 | ~~v3 slice 24~~ | ~~Brief check: is the `ui/` development login acceptable as a labelled stand-in?~~ — **decided 2026-10-11 by the implementer at the owner's delegation, on four conditions; merged, #79** |
 | ~~any time~~ | ~~Issue #71: when to fix the replay window-name gap~~ — **dry run shown 2026-10-13; the owner chose A, then A+B. Merged, PR #95** |
-| ~~any time~~ | ~~Issue #87: how to fix `ooo_room_protection`~~ — **decided 2026-10-13 at the owner's delegation: the type guard on `within` first, after #71; option 2 (judge every record of a `collection`) stays open** |
+| ~~any time~~ | ~~Issue #87: how to fix `ooo_room_protection`~~ — **decided 2026-10-13 at the owner's delegation: the type guard on `within` first, after #71; merged, PR #98. Option 2 (judge every record of a `collection`) stays open** |
 | any time | Ask MiniHotel what `<CreditCard Number="****" ExpirationDate="202101"/>` means (question 2.8, #48). It is the only thing that can unblock G4 |
 | ~~any time~~ | ~~**The cheapest open win:** nominated rate codes for control 15 (1.4).~~ **Corrected (#49):** a list alone changes nothing, because `stay.rate_code` is absent from every capture. It needs slice 23's capture **and** a real property's list |
 | any time | Ask MiniHotel what `OK4` and `WL` mean (question 2.1). They cover 44 of the 217 reservations ever seen, and they are why the known duplicate pair resolves to UNKNOWN rather than to an answer |
