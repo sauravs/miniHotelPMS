@@ -292,63 +292,86 @@ Every success criterion was green. Nine tenths of the product answered nothing. 
 *"all criteria met"* and *"the thing does not work"* — is the reason v2 exists and the reason its
 scorecard is written the way it is.
 
-### v2 — everything else in this repository
+### v2 — the engine
 
 Twelve slices, then three more (compose, a UI/UX pass, and a React UI). Each was a branch → PR →
-green CI → squash-merge. Measured on 2026-10-09:
+green CI → squash-merge. v2 closed on 2026-10-09 with 1,996 tests, eleven controls, two providers,
+eight layers and two screens, and 11 of its 12 success criteria met.
 
-```
-1,956 tests passing, offline, in about 13 seconds
-1,080 spec-validation checks passing
-zero runtime dependencies in the engine
-11 controls, 2 providers, 8 layers, 2 screens
-11 of 12 success criteria met
-```
+### v3 — what happens after a verdict
+
+Nine more slices (16–24), planned and built between 2026-10-09 and 2026-10-11, then a run of fixes
+that closed on 2026-10-13. They are §11 below. Every number for the repository as it stands, with
+the command that produced it, is in the [README's table](README.md#what-is-true-as-of-this-writing).
+This document does not repeat those numbers.
 
 ### The honest scorecard
 
 Criterion 1 asked that **at least 8 of the 11 controls reach a PASS or a FAIL** on captured
-evidence. Here is what actually happens when you run all eleven against the 2026 capture — output
-produced by running the engine, not copied from a document:
+evidence. Here is what happens when you run all eleven against the **covering capture**,
+`sandbox2026cover`: the hotel as of 8 July 2026, with every question the controls ask on record.
+This is output produced by running the engine on 2026-10-13, not copied from a document:
 
 | Control | Result | Concludes? |
 | --- | --- | --- |
 | `checkout_money_owed` | 2 PASS | ✅ |
 | `checkout_unrefunded_credit` | 1 PASS, **1 FAIL** | ✅ |
-| `duplicate_channel_reservation` | 4 PASS, 10 UNKNOWN, 26 EXCLUDED | ✅ |
-| `inactive_room_future_stay` | 27 PASS, 13 UNKNOWN, 71 EXCLUDED | ✅ |
-| `room_assignment_type_validity` | 27 PASS, 13 UNKNOWN, 71 EXCLUDED | ✅ |
-| `resource_occupancy_consistency` | **BLOCKED** — no occupancy capture covers this week | ❌ |
+| `duplicate_channel_reservation` | 8 PASS, 28 UNKNOWN, 114 EXCLUDED | ✅ |
+| `inactive_room_future_stay` | 87 PASS, 41 UNKNOWN, 244 EXCLUDED | ✅ |
+| `room_assignment_type_validity` | 87 PASS, 41 UNKNOWN, 244 EXCLUDED | ✅ |
+| `resource_occupancy_consistency` | **BLOCKED**: this capture's occupancy covers a week of August 2024, not July 2026 | ❌ |
 | `ooo_room_protection` | 28 EXCLUDED | ❌ |
-| `room_assignment_active_room` | 111 EXCLUDED | ❌ |
-| `room_capacity_compliance` | 40 UNKNOWN, 71 EXCLUDED | ❌ |
-| `rate_room_category_consistency` | 40 UNKNOWN, 71 EXCLUDED | ❌ |
-| `required_reservation_fields` | 37 UNKNOWN, 71 EXCLUDED | ❌ |
+| `room_assignment_active_room` | 372 EXCLUDED | ❌ |
+| `room_capacity_compliance` | 128 UNKNOWN, 244 EXCLUDED | ❌ |
+| `rate_room_category_consistency` | 128 UNKNOWN, 244 EXCLUDED | ❌ |
+| `required_reservation_fields` | 141 UNKNOWN, 244 EXCLUDED | ❌ |
 
 **5 of 11. The criterion is recorded as NOT MET**, in `docs/plan.md`, with the arithmetic.
+
+It is measured **per capture**, because a capture can only answer the questions it recorded:
+
+| Capture | Concludes | Which |
+| --- | --- | --- |
+| `sandbox2026`, the demo's default (captured 2026-09-08) | **2 of 11** | the two checkout controls. The seven that ask about arrivals or creations are **refused**, because this capture only ever asked about departures |
+| `sandbox2026refresh` (captured 2026-10-10) | **1 of 11** | occupancy, for the first time (31 PASS, 4 UNKNOWN). The checkout controls stop at UNKNOWN, because no folio was re-taken |
+| `sandbox2026cover` (captured 2026-10-13) | **5 of 11** | the table above. The only figure measured from the right evidence |
+
+DemoPMS gives the same answer on every row.
 
 That is the point. Every one of the six shortfalls traces to a fact about *this property* or *this
 vendor*, not to a bug:
 
-- **No room in this hotel has ever had an out-of-service window set.** So two controls correctly
-  apply to nobody. Reporting "compliant" would be reporting a clean bill of health for a mechanism
-  nobody has ever seen working — which is exactly what v1 did.
-- **23 of 28 rooms report capacity `0`**, meaning unconfigured. Reading those as real zeroes would
-  produce a wall of false FAILs.
+- **No room in this hotel has ever had an out-of-service window set.** It was checked again live
+  on 2026-10-10. So two controls correctly apply to nobody. Reporting "compliant" would be
+  reporting a clean bill of health for a mechanism nobody has ever seen working — which is exactly
+  what v1 did.
+- **23 of 28 rooms report capacity `0`**, meaning unconfigured. Still true on 2026-10-10. Reading
+  those as real zeroes would produce a wall of false FAILs.
 - **A rate code and a price-list code are different key spaces** in MiniHotel, so no endpoint can
   resolve the mapping at all.
-- **This property has nominated no rate codes**, so the "required fields on rate X" control applies
-  to no reservation.
+- **This hotel has not decided which rate codes count.** Its setting says *not decided*, which is
+  a different fact from *none*, so the "required fields on rate X" control answers UNKNOWN and names
+  the missing decision. Nobody can honestly decide it for a vendor's test hotel, because on the
+  covering capture a list **would** move the control. A trial list of one code, `Tourist-BB`, tried
+  in memory and never committed, gives 15 PASS and 56 FAIL. That is exactly why the list must come
+  from a real hotel.
+- **The only July 2026 occupancy was captured separately**, in the refresh. Occupancy concludes
+  there and is refused everywhere else.
 
-**Three of those six would move on a conversation, not on code.** One sentence from the hotel naming
-its rate codes. One sentence from the vendor explaining what the status codes `OK4` and `WL` mean —
-which would resolve **44 of the 217 reservations this project has ever seen, one in five.** One
-rate-plan mapping supplied by the hotel.
+**It was once written that three of those six would move on a conversation. Measured, one does**:
+one sentence from the vendor explaining what the status codes `OK4` and `WL` mean. Those two codes
+cover **77 of the 526 reservations this project has seen** (about one in seven; it was 44 of 217
+before the 2026-10 captures). The two rate-code controls need a conversation *and* a capture with
+room prices. The capture now exists. The conversation needs a real property.
 
-> A number that went **down** when a bug was fixed is the most trustworthy number in this document.
-> `resource_occupancy_consistency` used to count towards criterion 1 — it was answering questions
-> about July 2026 using occupancy data captured in August 2024. Issue #9 fixed that. The score fell
-> from 6 to 5 and the guard stayed.
+> A number that went **down** when a bug was fixed is the most trustworthy number in this document,
+> and it has happened twice. `resource_occupancy_consistency` used to count towards criterion 1,
+> answering questions about July 2026 from occupancy captured in August 2024. Issue #9 fixed that,
+> and the score fell from 6 to 5. Then issue #71 found that three more controls had been answering
+> arrival questions from a capture that only recorded departures, so they saw part of their
+> population and presented it as the whole. On that capture the score fell from 5 to 2. The 5 came
+> back only when two new live calls, each approved by the owner, recorded the questions those
+> controls actually ask.
 
 ---
 
@@ -371,6 +394,11 @@ right.
 | "The answer reads the same on any screen" | A second screen that rounds a number, drops a currency or shows four zeroes is a second product with weaker promises | `ui/` (React), a client of the JSON API | The UI's own suite re-proves criteria 2, 3, 8 and 10. The engine's **required** suite bans parsed money, PMS names, injected HTML and requests outside one module anywhere in `ui/` |
 | "It runs anywhere" | A demo with an install step is a demo that fails in the meeting | Standard library only: `xml.etree`, `decimal`, `sqlite3`, `http.server`, `zoneinfo`, `json` | `tests/unit/test_stdlib_only.py` walks the tree and asserts the engine contains no outbound HTTP client at all |
 | "No test can touch the network" | A suite that needs someone else's server up is not a suite | `providers/transport/` is opt-in, off by default | **Two locks:** an environment variable *and* a refusal to arm while a test runner is loaded. The test that sets the variable is still refused |
+| "Every answer names the rule that judged it" *(v3)* | An auditor will ask *"under which version of the rule did this FAIL?"* | `spec/ir.lock.json`, `hotelcontrols/spec/lock.py` | `validate_spec` fails a rule edited without a version bump. Every stored run carries the rule's version **and** a digest of its content |
+| "One hotel never sees another's results" *(v3)* | A hotel group is several hotels, and each manager sees their own | `store/`, `web/auth.py` | A structural test fails any query on a hotel-owned table that does not name its hotel. With authentication on, a **signed** identity overwrites whatever hotel the URL asked for, before any page runs |
+| "A violation becomes a task, never an action on the PMS" *(v3)* | Findings nobody acts on are a report, not a control | `actions/` | Only a FAIL raises a task, **once**, however often the control re-runs. A person marks it done or dismisses it. Nothing writes to a PMS, ever |
+| "*Not decided* is not *none*" *(v3)* | A hotel that has not chosen its policy must not be judged as if it chose "nothing" | `spec/parameters.json` | A setting the hotel has not decided is UNKNOWN **naming it**. No setting has a default |
+| "A guest request is decided by the hotel's table, not by a guess" *(v3)* | Staff act on the answer, and money moves | `guest/`, `spec/guest/late_checkout.json` | Any missing fact or undecided policy is *staff review* naming it, never *approved* or *denied*. No model is reachable from the package, checked over its imports |
 
 ---
 
@@ -439,6 +467,11 @@ At every step the answer may be *"cannot tell"* → **UNKNOWN**.
 A real guest overpaid by 490.75 shekels and left. That is money the hotel owes back, sitting in a
 closed folio where nobody will look for it.
 
+**Stage 7 — a task, since v3.** That FAIL now also becomes **one** pending task in the findings
+queue, addressed to *finance* at *medium* severity because that is what the rule declares, and
+naming the rule's version. Running the control again does not make a second task. A person closes
+it; the engine never does, and it never touches the PMS.
+
 > **Run the identical rule through the completely different JSON provider and every verdict, every
 > record id, and the call count are identical.** That is `tests/e2e/test_two_providers.py`, over 11
 > controls × 3 dates. The full side-by-side proof is in
@@ -474,14 +507,16 @@ Listed so nobody mistakes thin for unfinished. Each is recoverable without rewor
 
 | Not built | Why | What it would take |
 | --- | --- | --- |
-| **Mews** | Credentials do not exist and may not for months | A directory under `providers/`, a map in `spec/providers/`, a tenant file. Nothing above the provider layer changes — the slice-7 diff is the evidence |
+| **Mews** | Out of scope by the owner's decision, and credentials do not exist | A directory under `providers/`, a map in `spec/providers/`, a tenant file. Nothing above the provider layer changes — the slice-7 diff is the evidence |
 | **A running scheduler** | The scheduling *decision* is the hard part and is built and tested as a pure function | A loop that calls `next_evaluation()` |
 | **Webhook ingestion** | IRs already declare their events; nothing subscribes | An HTTP endpoint and a subscription |
-| **Writing to a PMS** | Read-only, permanently. The hotel types *controls*, not commands | Not planned. Ever |
-| **Authentication / multi-user** | Single-operator local demo | Standard work, deliberately deferred |
+| **Writing to a PMS** | Read-only, permanently, and reaffirmed when v3 was planned: the product **advises**. A task is a record a person carries out | Not planned. Ever |
+| **A user store, roles, an organisation level** | v3 built the *engine's* half of authentication: it verifies a signed statement of which hotel a request is about. **Who** may sign it is the host product's job (decision D14). The React UI's sign-in is a development stand-in and says so on its own page | The host product's login, signing the same context. The engine does not change |
+| **A payment-guarantee control** (card on file) | Every card in every capture is the placeholder `****`: 902 card entries, 855 of them expiring January 2021 (it was 228 when v3 was planned). The control would pass every reservation ever seen (issue #48). **Blocked**, not deferred | One answer from MiniHotel about what that placeholder means |
+| **Four of five guest templates**, emailing guest tasks, a React guest view | v3 built one template, `LATE_CHECKOUT`, end to end. The rest are deferred by the owner | Each a decision table the owner approves first |
 | **Free text as evidence** | VIP status and manager approvals exist only as Hebrew free text in a remarks field. Whether that counts is [open question 1.5](../open-questions.md) | An extractor that returns a value **only with the exact quotation it relied on**, and UNKNOWN whenever the text is ambiguous |
-| **A rule-editor UI** | `/compose` (on both screens) is a chat box, not an editor — it files **drafts** and promoting one is manual. There is no screen for editing a shipped control | A form over the compiler, plus a versioning story (§19 of the brief) |
-| **A model anywhere near a verdict** | Decision D10 wired a model to *draft a sentence* (see §10 below). Nothing it produces reaches the evidence layer or the evaluator, and no verdict depends on a model call | Not planned. This one stays out |
+| **A rule-editor UI** | `/compose` (on both screens) is a chat box, not an editor — it files **drafts** and promoting one is manual. There is no screen for editing a shipped control | A form over the compiler. The versioning such an editor needs exists since v3: an edited rule is a new version, recorded in a lock file |
+| **A model anywhere near a verdict** | Decision D10 wired a model to *draft a sentence* (see §10 below). Nothing it produces reaches the evidence layer or the evaluator, and no verdict depends on a model call. v3 kept the same rule for guest requests: no model reads what a guest wrote | Not planned. This one stays out |
 
 ---
 
@@ -527,9 +562,14 @@ test suite**:
 **What it is not allowed to do.** It cannot change the engine. No engine file changed to make room
 for it, enforced by a test on every slice-15 branch. It never names a PMS: the vendor name reaches it
 only as data, displayed and never branched on. It never parses money and never injects HTML. Every
-request goes through one module, and its only write path is the compose window, which files drafts
-and never touches a PMS. Each of those rules is checked by the engine's **required** test suite,
-not only by the UI's own.
+request goes through one module. It writes in exactly three places, and none of them is a PMS: the
+compose window files a draft; the findings queue marks a task done or dismissed (v3); and, with
+authentication on, the development sign-in starts a session (v3). Each of those rules is checked by
+the engine's **required** test suite, not only by the UI's own.
+
+Since v3 it has two more pages: **`/queue`**, the findings queue, and **`/login`**, the development
+sign-in, which says on the page that it is a stand-in. The guest decisions have a page on the
+engine's own screen (`/guest`) but not yet on this one, by the owner's choice.
 
 **How it is tested without a server.** The engine writes its JSON answers for every control,
 property and capture to `fixtures/api/`, and the UI's tests render from those files. No engine
@@ -576,7 +616,8 @@ Three things it deliberately does **not** do:
   `hotelcontrols/` still imports only the standard library, and the two AST guards that enforce
   that passed **without being edited**.
 - **A composed rule is a draft.** It lands in `spec/drafts/`, badged `draft · unreviewed`, and is
-  **not counted** in the 5-of-11 figure above. Promoting it is a deliberate manual step.
+  **not counted** in the criterion-1 figure above. Promoting it is a deliberate manual step, and
+  it raises no task in the findings queue while it is a draft.
 
 And it will **ask rather than guess**. Type *"corporate rates must belong to an approved company"*
 and it answers with a question — *which rate codes count as corporate?* — because only the hotel
@@ -584,7 +625,70 @@ knows that. §18 again: a model can interpret language, but it cannot invent hot
 
 ---
 
-## 11. Where to go next
+## 11. v3 — from a verdict to a task a person can act on
+
+v2 could tell a hotel which of its rules held. It could not do anything with the answer. It did
+not record which version of a rule had said so. It kept no list of what needed doing and told
+nobody. It served one hotel at a time, and it had nothing to say to a guest.
+
+v3 added those things, in nine slices built between 2026-10-09 and 2026-10-11. Its starting point
+was a gap analysis against three design documents for a wider product, **StayOps**, which a
+manager supplied. Every gap was given a disposition: built, narrowed, deferred, blocked, or
+rejected. Each one had to pass a single rule before it was built:
+
+> **A gap is taken only if it can be built without widening a verdict, without crossing the
+> canonical boundary, and without changing an answer the engine already gives — or, where it must
+> change one, the change is named and shown in a reviewed diff.**
+
+That rule overturned the plan before any code was written. The item rated cheapest and safest, a
+twelfth control checking *"a card is on file before arrival"*, turned out to be the most dangerous
+on the list. Every card in the captures is the placeholder `****`, so the control would have passed
+every reservation ever seen. It is **blocked** until the vendor explains the placeholder.
+
+### What the nine slices added
+
+| Slice | What it adds, in one sentence | Why it matters, as an analogy |
+| --- | --- | --- |
+| 16 · Rule versions | Every stored answer names the version of the rule that produced it, and a rule edited without a new version number is refused | A court cites the law **as it read on the day**. "It failed under rule 6" is not an audit trail if rule 6 was edited last week |
+| 17 · One hotel's results are its own | Every stored result belongs to one hotel, and the code cannot ask for one without saying which | Separate filing cabinets rather than one cabinet with a polite note on each drawer. A test fails any query that forgets the hotel |
+| 18 · The findings queue | A violation becomes **one** task for the right team, with the severity the rule declares. A person marks it done or dismisses it | A work order, not an alarm. Re-running the control five times still gives one task. A later pass annotates the task and never closes it, because only a person knows the money was refunded |
+| 19 · Email | The team is told about a new task, once, if the operator has switched email on | Behind **two** locks, like the PMS connection: a switch, and a refusal to send anything while a test is running. An email carries the record id, the control, the amount with its currency and a link. Never a guest's details, and never the verdict's reasoning |
+| 20 · The operational log | One line per request, run and email, saying what ran, for whom, and what it cost | A ship's log rather than a diary: dated by the hotel's clock, and never holding a password, a guest or a staff address |
+| 21 · *Not decided* is a state | Each hotel setting has a declared type. A setting the hotel has not decided is written *not decided*, and a control that needs it answers UNKNOWN **naming** it | An empty list could mean "we chose none" or "nobody asked us". In an exemption rule, the second reading would have accused every guest the hotel meant to exempt |
+| 22 · Late checkout | A guest asks to leave at 3 pm. The hotel's own approved table answers *approved*, *approved with a fee*, *denied*, *unavailable*, or *staff review*, naming the rule it followed. On a test hotel with a decided policy, 3 pm costs `25.00 USD`, as money | The guest-services twin of UNKNOWN is **staff review**: any missing fact or undecided policy goes to a person, never to a guess. The two shipped hotels have decided no policy, so they answer *staff review* to everything, and say why |
+| 23 · An evidence refresh | Four live calls, each approved by the owner at the time, captured as a new body of evidence beside the old | Re-checked rather than assumed. 23 of 28 rooms still report capacity 0, and still no room has a closed window. Occupancy for July 2026 now exists, so that control answered for the first time |
+| 24 · Who is asking | The product in front of the engine signs a short-lived statement, *"this request is about hotel P"*. The engine checks the signature and ignores whatever hotel the address asked for. Each hotel has its own PMS credentials | A wristband checked at the door, rather than a name written on a form. The engine never stores a password, and the vendor's sandbox credentials are named per hotel with no fallback |
+
+### After v3: the fixes that made the numbers honest
+
+Using v3 found three defects. Each one made an answer look **more** confident than its evidence
+allowed. Each was filed as an issue before it was fixed, and each fix made a number fall or held it
+where it was.
+
+- **A capture answered a question it was never asked** (issue #71). The vendor's July capture
+  recorded *departures*. Seven controls ask about *arrivals* or *creations*, and replay answered
+  them from the departures anyway, because it compared windows only by name. Three controls
+  concluded about part of their population and presented it as the whole. Now a capture answers
+  only the question it recorded, and refuses any other. Two new live calls, each approved by the
+  owner, recorded the questions the controls actually ask. The result is the **covering capture**,
+  which the demo offers beside the original.
+- **An empty field was read as the word "False"** (issues #75, #84, #85, #86). Two bookings with
+  no room number were judged to be in the same room, a room called "False", so they clashed. A
+  booking with no id was counted as one reservation called "False". Now an empty identity is
+  *unknown*, and two unknowns are never treated as a match.
+- **A room with many guests was judged by its first guest** (issues #87, #109). The
+  out-of-service control looked at only the first guest in a closed room. For a while it compared a
+  reservation number against a date. Now every guest in the room is judged, and the room passes only
+  if the evidence it fetched covers the closure from today onwards. The occupancy question asks a bounded seven-day
+  window, because MiniHotel asks integrators not to query wide ranges. A closure with no end can
+  fail, but it can never pass.
+
+None of the three changed a verdict on any capture today, apart from the ones #71 corrected, and
+every changed answer is declared by name in the regression test that guards v2's answers. Every room
+is still out of scope for the out-of-service control, because no room has ever had a closed window.
+The fixes matter for the day one does.
+
+## 12. Where to go next
 
 | You want to… | Read |
 | --- | --- |
@@ -593,6 +697,8 @@ knows that. §18 again: a model can interpret language, but it cannot invent hot
 | See the layers, the flow and the logic as diagrams | [03-code-architecture.md](03-code-architecture.md) |
 | Understand the traps in the real API, and see one record traced end-to-end | [04-edge-cases.md](04-edge-cases.md) |
 | Read the falsifiable contract | [`docs/prd.md`](../prd.md) |
+| Read v3's plan, every slice's record and criteria V1–V12 | [`docs/plan-v3.md`](../plan-v3.md) |
+| Know what changed most recently, and what is approved next | [`docs/session-handoff.md`](../session-handoff.md) |
 | Know why any decision was taken | [`docs/context.md`](../context.md) |
 | Know what is still unresolved | [`docs/open-questions.md`](../open-questions.md) |
 | Read the compose decision in full | [`docs/open-questions.md`](../open-questions.md) — decision D10 |
