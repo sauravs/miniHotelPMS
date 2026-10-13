@@ -380,8 +380,9 @@ traced from request to dispatch. **The timestamp is the injected clock's** (the 
 in UTC, by default). The formatter writes the record it was given and never the `LogRecord`'s
 wall-clock `created`. Not copied: a blocked run's reason (a provider's words), a delivery note,
 an address, a query string. `evaluator/` and `providers/` import no logging, which a test
-asserts. `runner/` is untouched. The server attaches the log to stderr by default
-(`--log PATH|-|off`).
+asserts. `runner/` is untouched. Both launchers attach the log to stderr by default
+(`--log PATH|-|off`): the server since slice 20, `tools.serve` - the one that can email - since
+#103, through the server's own `configure_log`.
 
 **A guest asks, and the approved table decides** (slice 22; G1 narrowed, G3a, G2(a)). One
 template, `LATE_CHECKOUT` (D12), in a new pure package `hotelcontrols/guest/`, beside the runner

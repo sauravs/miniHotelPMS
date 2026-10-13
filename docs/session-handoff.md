@@ -592,7 +592,7 @@ public, which was defensible and made the habit dangerous.
 | ~~now~~ | ~~Approve `docs/plan-v3.md`~~ — **approved and merged 2026-10-09, PR #50** |
 | ~~v3 slice 21~~ | ~~Confirm the declared change~~ — **held 2026-10-09**: dry run shown; the owner delegated the call to the implementer, who decided yes (`nominated_rate_codes` and `rate_plan_permitted_room_types` → `null` on sandbox and demo). Merged in #65 |
 | any time | Confirm or overrule slice 18's call that **drafts raise no tasks** (a draft's severity and audience are borrowed from its template) |
-| any time | Whether the compose launcher (`tools.serve`) should attach the operational log too (`--log`), in a later slice whose scope allows `tools/serve.py` |
+| ~~any time~~ | ~~Whether the compose launcher (`tools.serve`) should attach the operational log too (`--log`), in a later slice whose scope allows `tools/serve.py`~~ — **yes: follow-up 2, fix #103** |
 | ~~v3 slice 22~~ | ~~Approve the `LATE_CHECKOUT` decision table~~ — **approved and merged, #68** |
 | ~~v3 slice 23~~ | ~~Approval of each probe call at the time~~ — **four calls approved one by one, 2026-10-10; merged** |
 | ~~v3 slice 24~~ | ~~Brief check: is the `ui/` development login acceptable as a labelled stand-in?~~ — **decided 2026-10-11 by the implementer at the owner's delegation, on four conditions; merged, #79** |

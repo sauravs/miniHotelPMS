@@ -11,6 +11,8 @@ THE DEMO, WITH THE COMPOSE FRONT END WIRED.
                                           (default: in memory, and the queue page says so)
     ... --notify smtp                     email each new task once to its audience (slice 19).
                                           Off by default, and behind HOTELCONTROLS_NOTIFY=1
+    ... --log PATH                        the operational log as JSON lines (slice 20): '-' is
+                                          stderr, the default, as on the plain server; or 'off'
 
 WHY THIS FILE EXISTS AT ALL, RATHER THAN A FLAG ON THE SERVER
 --------------------------------------------------------------
@@ -37,7 +39,7 @@ import sys
 
 from hotelcontrols.store import RunStore
 from hotelcontrols.web.app import App
-from hotelcontrols.web.server import HOST, PORT, SERVER, Handler
+from hotelcontrols.web.server import HOST, PORT, SERVER, Handler, configure_log
 
 from . import notifiers, proposers
 
@@ -72,7 +74,8 @@ def build_app(backend: str, draft_dir: pathlib.Path = DRAFT_DIR,
                **extra)
 
 
-def main(argv: list[str] | None = None) -> int:
+def parser() -> argparse.ArgumentParser:
+    """The command line, as a value, so what it accepts can be tested without a port."""
     parser = argparse.ArgumentParser(
         description="Serve the control engine demo, with the compose front end.")
     parser.add_argument("--host", default=HOST)
@@ -86,7 +89,16 @@ def main(argv: list[str] | None = None) -> int:
                         help="email each new task to its audience (default: %(default)s)")
     parser.add_argument("--public-url", default=None,
                         help="where an email's link points (default: http://HOST:PORT)")
-    arguments = parser.parse_args(argv)
+    # Issue #103: the plain server's flag, default and function. This launcher is the only one
+    # that can email (--notify), so without it every dispatch line V7 promises was dropped.
+    parser.add_argument("--log", metavar="PATH", default="-",
+                        help="write the operational log as JSON lines to PATH, '-' for stderr "
+                             "(the default) or 'off'")
+    return parser
+
+
+def main(argv: list[str] | None = None) -> int:
+    arguments = parser().parse_args(argv)
 
     try:
         app = build_app(arguments.llm, store=arguments.store, notify=arguments.notify,
@@ -98,6 +110,7 @@ def main(argv: list[str] | None = None) -> int:
         # traceback here says nothing a reader can act on.
         print("Could not start: %s" % exc, file=sys.stderr)
         return 2
+    configure_log(arguments.log)
 
     Handler.app = app
     say("Controls at http://%s:%d/" % (arguments.host, arguments.port))
