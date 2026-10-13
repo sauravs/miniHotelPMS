@@ -23,6 +23,13 @@
       "as_of": "2026-07-08",
       "calls": 4,
       "note": "v3 slice 23. Four read-only calls, each approved by the project owner at the time it was made (D3, D16), sent once each by tools.probe (#70) and scrubbed before staging (#73). The room master, the room-type master and a 7-day occupancy window settle open question 1.2; the sandbox2026 reservation window asked again WITH room prices brings the rate codes no earlier capture had (#49). Every response here was observed on 2026-10-10 and none is borrowed from an older capture - so no folio is in it, and the checkout controls find their reservations and resolve UNKNOWN for want of one, saying so."
+    },
+    "sandbox2026cover": {
+      "label": "the covering capture",
+      "captured_at": "2026-10-13",
+      "as_of": "2026-07-08",
+      "calls": 2,
+      "note": "Follow-up 1, step A of issue #71. sandbox2026 holds one reservation question, a DEPARTURE window, and seven controls ask an ARRIVAL or CREATE window - answered from it unchecked, because replay compared windows only by name. This capture is sandbox2026's responses, unchanged and reused (each keeps its own captured_at), plus the two questions those controls actually ask: arrivals 2026-07-08..10-06 with room prices (2026-10-11) and creations 2026-06-08..07-08 (2026-10-13). Two read-only calls, each approved by the project owner at the time it was made (D3), sent once each by tools.probe (#92 let the first carry IncludeRoomPrices), and scrubbed before staging. captured_at is the later call's day; each response carries its own."
     }
   },
 
@@ -31,7 +38,7 @@
       "file": "1_getRoomTypes.xml",
       "endpoint": "getRoomTypes",
       "request": {},
-      "captures": ["sandbox2024", "sandbox2026"],
+      "captures": ["sandbox2024", "sandbox2026", "sandbox2026cover"],
       "captured_at": "2026-09-01",
       "note": "The room-type master. NOT re-probed since the sandbox moved on - open question 1.2."
     },
@@ -39,7 +46,7 @@
       "file": "2_getRooms_all.xml",
       "endpoint": "getRooms",
       "request": {},
-      "captures": ["sandbox2024", "sandbox2026"],
+      "captures": ["sandbox2024", "sandbox2026", "sandbox2026cover"],
       "captured_at": "2026-09-01",
       "note": "28 rooms. 23 report adult capacity 0, meaning unconfigured (R12); all 28 return an empty closed-date window, so the out-of-service mechanism has never been observed working (open question 2.4); rooms 9900/9901/9902 carry a type getRoomTypes does not define (R11). NOT re-probed - open question 1.2."
     },
@@ -55,7 +62,7 @@
       "file": "4_RoomStatus.xml",
       "endpoint": "RoomStatusInquiry",
       "request": { "DateRange": { "from": "2024-08-14", "to": "2024-08-21" } },
-      "captures": ["sandbox2024", "sandbox2026"],
+      "captures": ["sandbox2024", "sandbox2026", "sandbox2026cover"],
       "captured_at": "2026-09-01",
       "note": "Rooms and reservations as SIBLING lists, with one reservation appearing as several date segments. There is no single block per occupancy record, which is why occupancy is assembled by a declared projection rather than cut out."
     },
@@ -63,7 +70,7 @@
       "file": "6_BulkARI.xml",
       "endpoint": "BulkARI",
       "request": { "RatePlanCode": "Tourist-BB" },
-      "captures": ["sandbox2024", "sandbox2026"],
+      "captures": ["sandbox2024", "sandbox2026", "sandbox2026cover"],
       "captured_at": "2026-09-04",
       "note": "Returned ERR 309, the price list is not defined. A reservation's rate code and the ARI price-list code are different key spaces (R13), which is why control 9 is unbuildable from this provider and answers UNKNOWN saying so."
     },
@@ -87,7 +94,7 @@
       "file": "9_departures_2026-07.xml",
       "endpoint": "GetReservationKey",
       "request": { "DepartureDate": { "From": "2026-07-01", "To": "2026-08-09" } },
-      "captures": ["sandbox2026"],
+      "captures": ["sandbox2026", "sandbox2026cover"],
       "captured_at": "2026-09-08",
       "note": "138 reservations, seven of them checked out. The body of evidence the checkout controls actually run against."
     },
@@ -119,7 +126,7 @@
       "file": "5_balance_007004348.xml",
       "endpoint": "GetReservationBalance",
       "request": { "ReservationNumber": "007004348" },
-      "captures": ["sandbox2026"],
+      "captures": ["sandbox2026", "sandbox2026cover"],
       "captured_at": "2026-09-08",
       "note": "Departed at -490.75 ILS: the guest OVERPAID and the hotel owes a refund. v1 reported this as an outstanding balance; decision D8 split control 6 in two because of it."
     },
@@ -127,7 +134,7 @@
       "file": "5_balance_007004351.xml",
       "endpoint": "GetReservationBalance",
       "request": { "ReservationNumber": "007004351" },
-      "captures": ["sandbox2026"],
+      "captures": ["sandbox2026", "sandbox2026cover"],
       "captured_at": "2026-09-08",
       "note": "Departed at 0 ILS - a settled folio, and the control's genuine PASS."
     },
@@ -135,7 +142,7 @@
       "file": "5_balance_007004354.xml",
       "endpoint": "GetReservationBalance",
       "request": { "ReservationNumber": "007004354" },
-      "captures": ["sandbox2026"],
+      "captures": ["sandbox2026", "sandbox2026cover"],
       "captured_at": "2026-09-08",
       "note": ""
     },
@@ -170,6 +177,22 @@
       "captures": ["sandbox2026refresh"],
       "captured_at": "2026-10-10",
       "note": "9_departures_2026-07.xml's question asked again verbatim, plus IncludeRoomPrices (#49). 139 reservations: the same 138 and one more cancellation. Room prices add one thing - a per-stay Total carrying rateCode, on 136 stays (Tourist-BB 122, Tourist-RO 4, empty 10) - so each booking now has two Total elements, its own and its stay's."
+    },
+    {
+      "file": "15_arrivals_2026-07_prices.xml",
+      "endpoint": "GetReservationKey",
+      "request": {"ArrivalDate": {"From": "2026-07-08", "To": "2026-10-06"}, "IncludeRoomPrices": true},
+      "captures": ["sandbox2026cover"],
+      "captured_at": "2026-10-11",
+      "note": "The arrival window six controls ask (90 days from 2026-07-08), with room prices as the 2024 arrival capture had. 385 reservations, 244 of them cancelled; 108 are also in 9_departures_2026-07.xml. Rate codes on the stays: Tourist-BB 324, Tourist-RO 24, empty 24. OK4 41, WL 19 - still undocumented (2.1)."
+    },
+    {
+      "file": "16_created_2026-06.xml",
+      "endpoint": "GetReservationKey",
+      "request": {"CreateDate": {"From": "2026-06-08", "To": "2026-07-08"}},
+      "captures": ["sandbox2026cover"],
+      "captured_at": "2026-10-13",
+      "note": "The create window duplicate_channel_reservation asks (30 days to 2026-07-08). 150 reservations, 85 cancelled, 69 carrying a portal id; 40 are also in 9_departures_2026-07.xml and 25 in 15_arrivals_2026-07_prices.xml."
     }
   ]
 }

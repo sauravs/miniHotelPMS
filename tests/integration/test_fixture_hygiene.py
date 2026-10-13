@@ -46,8 +46,9 @@ class TestCommittedFixturesCarryOnlyPseudonyms:
 
     def test_there_are_fixtures_to_check(self):
         """A guard on the tests below: an empty glob would pass all of them vacuously. 14
-        captured responses, plus the 4 of slice 23's evidence refresh (2026-10-10)."""
-        assert len(committed()) == 18
+        captured responses, plus the 4 of slice 23's evidence refresh (2026-10-10), plus the 2
+        of #71's covering capture (2026-10-11 and 2026-10-13)."""
+        assert len(committed()) == 20
 
     def test_every_name_is_one_we_invented(self):
         offenders = []

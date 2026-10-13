@@ -21,6 +21,12 @@
       "as_of": "2026-07-08",
       "captured_at": "2026-10-10",
       "transcoded_from": "the sandbox2026refresh MiniHotel capture, 2026-10-10"
+    },
+    "demo2026cover": {
+      "label": "the covering capture",
+      "as_of": "2026-07-08",
+      "captured_at": "2026-10-13",
+      "transcoded_from": "the sandbox2026cover MiniHotel capture, 2026-10-13"
     }
   },
   "responses": [
@@ -30,7 +36,8 @@
       "request": {},
       "captures": [
         "demo2024",
-        "demo2026"
+        "demo2026",
+        "demo2026cover"
       ],
       "transcoded_from": "1_getRoomTypes.xml",
       "note": "The room-type master. NOT re-probed since the sandbox moved on - open question 1.2."
@@ -41,7 +48,8 @@
       "request": {},
       "captures": [
         "demo2024",
-        "demo2026"
+        "demo2026",
+        "demo2026cover"
       ],
       "transcoded_from": "2_getRooms_all.xml",
       "note": "28 rooms. 23 report adult capacity 0, meaning unconfigured (R12); all 28 return an empty closed-date window, so the out-of-service mechanism has never been observed working (open question 2.4); rooms 9900/9901/9902 carry a type getRoomTypes does not define (R11). NOT re-probed - open question 1.2."
@@ -73,7 +81,8 @@
       },
       "captures": [
         "demo2024",
-        "demo2026"
+        "demo2026",
+        "demo2026cover"
       ],
       "transcoded_from": "4_RoomStatus.xml",
       "note": "Rooms and reservations as SIBLING lists, with one reservation appearing as several date segments. There is no single block per occupancy record, which is why occupancy is assembled by a declared projection rather than cut out."
@@ -88,7 +97,8 @@
         }
       },
       "captures": [
-        "demo2026"
+        "demo2026",
+        "demo2026cover"
       ],
       "transcoded_from": "9_departures_2026-07.xml",
       "note": "138 reservations, seven of them checked out. The body of evidence the checkout controls actually run against."
@@ -124,7 +134,8 @@
         "booking_ref": "007004348"
       },
       "captures": [
-        "demo2026"
+        "demo2026",
+        "demo2026cover"
       ],
       "transcoded_from": "5_balance_007004348.xml",
       "note": "Departed at -490.75 ILS: the guest OVERPAID and the hotel owes a refund. v1 reported this as an outstanding balance; decision D8 split control 6 in two because of it."
@@ -136,7 +147,8 @@
         "booking_ref": "007004351"
       },
       "captures": [
-        "demo2026"
+        "demo2026",
+        "demo2026cover"
       ],
       "transcoded_from": "5_balance_007004351.xml",
       "note": "Departed at 0 ILS - a settled folio, and the control's genuine PASS."
@@ -148,7 +160,8 @@
         "booking_ref": "007004354"
       },
       "captures": [
-        "demo2026"
+        "demo2026",
+        "demo2026cover"
       ],
       "transcoded_from": "5_balance_007004354.xml",
       "note": ""
@@ -203,6 +216,37 @@
       ],
       "transcoded_from": "14_departures_2026-07_prices.xml",
       "note": "9_departures_2026-07.xml's question asked again verbatim, plus IncludeRoomPrices (#49). 139 reservations: the same 138 and one more cancellation. Room prices add one thing - a per-stay Total carrying rateCode, on 136 stays (Tourist-BB 122, Tourist-RO 4, empty 10) - so each booking now has two Total elements, its own and its stay's."
+    },
+    {
+      "file": "bookings_arrivals_2026-07_prices.json",
+      "endpoint": "bookings",
+      "request": {
+        "arrival": {
+          "from": "2026-07-08",
+          "to": "2026-10-06"
+        },
+        "include_prices": true
+      },
+      "captures": [
+        "demo2026cover"
+      ],
+      "transcoded_from": "15_arrivals_2026-07_prices.xml",
+      "note": "The arrival window six controls ask (90 days from 2026-07-08), with room prices as the 2024 arrival capture had. 385 reservations, 244 of them cancelled; 108 are also in 9_departures_2026-07.xml. Rate codes on the stays: Tourist-BB 324, Tourist-RO 24, empty 24. OK4 41, WL 19 - still undocumented (2.1)."
+    },
+    {
+      "file": "bookings_created_2026-06.json",
+      "endpoint": "bookings",
+      "request": {
+        "created": {
+          "from": "2026-06-08",
+          "to": "2026-07-08"
+        }
+      },
+      "captures": [
+        "demo2026cover"
+      ],
+      "transcoded_from": "16_created_2026-06.xml",
+      "note": "The create window duplicate_channel_reservation asks (30 days to 2026-07-08). 150 reservations, 85 cancelled, 69 carrying a portal id; 40 are also in 9_departures_2026-07.xml and 25 in 15_arrivals_2026-07_prices.xml."
     }
   ]
 }
