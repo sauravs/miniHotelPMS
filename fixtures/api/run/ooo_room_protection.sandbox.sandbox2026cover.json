@@ -1,0 +1,2325 @@
+{
+  "control_id": "ooo_room_protection",
+  "control_name": "Out-of-Service Room Protection",
+  "natural_language": "A room with an active out-of-service period must not have an arriving reservation.",
+  "tenant_id": "sandbox",
+  "provider": "minihotel",
+  "evidence": {
+    "label": "sandbox2026cover",
+    "synthetic": false
+  },
+  "as_of": "2026-07-08",
+  "created_at": "2026-07-08T00:00:00+03:00",
+  "calls": 2,
+  "run_id": "7da75beb3bc91cc8",
+  "policy_version": 2,
+  "policy_digest": "sha256:14ce05f55153cbb65edcda9397ca7e17bfbfd6eefdfefce46ac881ba0b58b004",
+  "blocked": null,
+  "coverage": {
+    "evaluated": 0,
+    "total": 28,
+    "concluded": false,
+    "headline": "This control reached no conclusion about any of its 28 record(s). It has not found the property compliant; it has not looked.",
+    "reasons": [
+      {
+        "reason": "this control does not apply here: room.closed_from is False, which does not satisfy `exists`",
+        "records": 28
+      }
+    ]
+  },
+  "freshness": {
+    "stale": false,
+    "headline": "This evidence was captured 97 days AFTER the instant this run asks about, so it may describe a later state than the question."
+  },
+  "readiness": [
+    {
+      "provider": "demopms",
+      "available": 8,
+      "total": 8,
+      "executable": true,
+      "headline": "demopms: 8 of 8 fields available",
+      "sources": [
+        {
+          "name": "pms",
+          "available": 8,
+          "total": 8,
+          "missing": []
+        }
+      ],
+      "unresolvable": [],
+      "tenant_supplied": []
+    },
+    {
+      "provider": "minihotel",
+      "available": 8,
+      "total": 8,
+      "executable": true,
+      "headline": "minihotel: 8 of 8 fields available",
+      "sources": [
+        {
+          "name": "pms",
+          "available": 8,
+          "total": 8,
+          "missing": []
+        }
+      ],
+      "unresolvable": [],
+      "tenant_supplied": []
+    }
+  ],
+  "verdicts": [
+    {
+      "record_id": "01",
+      "outcome": "EXCLUDED",
+      "means": "The control does not apply to this record, so it has not been checked. This is not a pass.",
+      "reason": "this control does not apply here: room.closed_from is False, which does not satisfy `exists`",
+      "evidence": [
+        {
+          "field": "room.closed_from",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:minihotel/getRooms"
+        },
+        {
+          "field": "room.closed_to",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:minihotel/getRooms"
+        },
+        {
+          "field": "reservation.arrival_date",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:minihotel/GetReservationKey"
+        },
+        {
+          "field": "stay.room_number",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:minihotel/GetReservationKey"
+        },
+        {
+          "field": "reservation.status",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:minihotel/GetReservationKey"
+        },
+        {
+          "field": "occupancy.reservation_id",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "risk": null,
+          "source": "pms:minihotel/RoomStatusInquiry"
+        },
+        {
+          "field": "room.number",
+          "known": true,
+          "value": "01",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:minihotel/getRooms"
+        },
+        {
+          "field": "occupancy.room_number",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "risk": null,
+          "source": "pms:minihotel/RoomStatusInquiry"
+        }
+      ]
+    },
+    {
+      "record_id": "101",
+      "outcome": "EXCLUDED",
+      "means": "The control does not apply to this record, so it has not been checked. This is not a pass.",
+      "reason": "this control does not apply here: room.closed_from is False, which does not satisfy `exists`",
+      "evidence": [
+        {
+          "field": "room.closed_from",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:minihotel/getRooms"
+        },
+        {
+          "field": "room.closed_to",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:minihotel/getRooms"
+        },
+        {
+          "field": "reservation.arrival_date",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:minihotel/GetReservationKey"
+        },
+        {
+          "field": "stay.room_number",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:minihotel/GetReservationKey"
+        },
+        {
+          "field": "reservation.status",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:minihotel/GetReservationKey"
+        },
+        {
+          "field": "occupancy.reservation_id",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "risk": null,
+          "source": "pms:minihotel/RoomStatusInquiry"
+        },
+        {
+          "field": "room.number",
+          "known": true,
+          "value": "101",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:minihotel/getRooms"
+        },
+        {
+          "field": "occupancy.room_number",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "risk": null,
+          "source": "pms:minihotel/RoomStatusInquiry"
+        }
+      ]
+    },
+    {
+      "record_id": "302",
+      "outcome": "EXCLUDED",
+      "means": "The control does not apply to this record, so it has not been checked. This is not a pass.",
+      "reason": "this control does not apply here: room.closed_from is False, which does not satisfy `exists`",
+      "evidence": [
+        {
+          "field": "room.closed_from",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:minihotel/getRooms"
+        },
+        {
+          "field": "room.closed_to",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:minihotel/getRooms"
+        },
+        {
+          "field": "reservation.arrival_date",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:minihotel/GetReservationKey"
+        },
+        {
+          "field": "stay.room_number",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:minihotel/GetReservationKey"
+        },
+        {
+          "field": "reservation.status",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:minihotel/GetReservationKey"
+        },
+        {
+          "field": "occupancy.reservation_id",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "risk": null,
+          "source": "pms:minihotel/RoomStatusInquiry"
+        },
+        {
+          "field": "room.number",
+          "known": true,
+          "value": "302",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:minihotel/getRooms"
+        },
+        {
+          "field": "occupancy.room_number",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "risk": null,
+          "source": "pms:minihotel/RoomStatusInquiry"
+        }
+      ]
+    },
+    {
+      "record_id": "606",
+      "outcome": "EXCLUDED",
+      "means": "The control does not apply to this record, so it has not been checked. This is not a pass.",
+      "reason": "this control does not apply here: room.closed_from is False, which does not satisfy `exists`",
+      "evidence": [
+        {
+          "field": "room.closed_from",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:minihotel/getRooms"
+        },
+        {
+          "field": "room.closed_to",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:minihotel/getRooms"
+        },
+        {
+          "field": "reservation.arrival_date",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:minihotel/GetReservationKey"
+        },
+        {
+          "field": "stay.room_number",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:minihotel/GetReservationKey"
+        },
+        {
+          "field": "reservation.status",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:minihotel/GetReservationKey"
+        },
+        {
+          "field": "occupancy.reservation_id",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "risk": null,
+          "source": "pms:minihotel/RoomStatusInquiry"
+        },
+        {
+          "field": "room.number",
+          "known": true,
+          "value": "606",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:minihotel/getRooms"
+        },
+        {
+          "field": "occupancy.room_number",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "risk": null,
+          "source": "pms:minihotel/RoomStatusInquiry"
+        }
+      ]
+    },
+    {
+      "record_id": "701",
+      "outcome": "EXCLUDED",
+      "means": "The control does not apply to this record, so it has not been checked. This is not a pass.",
+      "reason": "this control does not apply here: room.closed_from is False, which does not satisfy `exists`",
+      "evidence": [
+        {
+          "field": "room.closed_from",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:minihotel/getRooms"
+        },
+        {
+          "field": "room.closed_to",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:minihotel/getRooms"
+        },
+        {
+          "field": "reservation.arrival_date",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:minihotel/GetReservationKey"
+        },
+        {
+          "field": "stay.room_number",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:minihotel/GetReservationKey"
+        },
+        {
+          "field": "reservation.status",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:minihotel/GetReservationKey"
+        },
+        {
+          "field": "occupancy.reservation_id",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "risk": null,
+          "source": "pms:minihotel/RoomStatusInquiry"
+        },
+        {
+          "field": "room.number",
+          "known": true,
+          "value": "701",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:minihotel/getRooms"
+        },
+        {
+          "field": "occupancy.room_number",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "risk": null,
+          "source": "pms:minihotel/RoomStatusInquiry"
+        }
+      ]
+    },
+    {
+      "record_id": "02",
+      "outcome": "EXCLUDED",
+      "means": "The control does not apply to this record, so it has not been checked. This is not a pass.",
+      "reason": "this control does not apply here: room.closed_from is False, which does not satisfy `exists`",
+      "evidence": [
+        {
+          "field": "room.closed_from",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:minihotel/getRooms"
+        },
+        {
+          "field": "room.closed_to",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:minihotel/getRooms"
+        },
+        {
+          "field": "reservation.arrival_date",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:minihotel/GetReservationKey"
+        },
+        {
+          "field": "stay.room_number",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:minihotel/GetReservationKey"
+        },
+        {
+          "field": "reservation.status",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:minihotel/GetReservationKey"
+        },
+        {
+          "field": "occupancy.reservation_id",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "risk": null,
+          "source": "pms:minihotel/RoomStatusInquiry"
+        },
+        {
+          "field": "room.number",
+          "known": true,
+          "value": "02",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:minihotel/getRooms"
+        },
+        {
+          "field": "occupancy.room_number",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "risk": null,
+          "source": "pms:minihotel/RoomStatusInquiry"
+        }
+      ]
+    },
+    {
+      "record_id": "103",
+      "outcome": "EXCLUDED",
+      "means": "The control does not apply to this record, so it has not been checked. This is not a pass.",
+      "reason": "this control does not apply here: room.closed_from is False, which does not satisfy `exists`",
+      "evidence": [
+        {
+          "field": "room.closed_from",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:minihotel/getRooms"
+        },
+        {
+          "field": "room.closed_to",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:minihotel/getRooms"
+        },
+        {
+          "field": "reservation.arrival_date",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:minihotel/GetReservationKey"
+        },
+        {
+          "field": "stay.room_number",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:minihotel/GetReservationKey"
+        },
+        {
+          "field": "reservation.status",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:minihotel/GetReservationKey"
+        },
+        {
+          "field": "occupancy.reservation_id",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "risk": null,
+          "source": "pms:minihotel/RoomStatusInquiry"
+        },
+        {
+          "field": "room.number",
+          "known": true,
+          "value": "103",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:minihotel/getRooms"
+        },
+        {
+          "field": "occupancy.room_number",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "risk": null,
+          "source": "pms:minihotel/RoomStatusInquiry"
+        }
+      ]
+    },
+    {
+      "record_id": "303",
+      "outcome": "EXCLUDED",
+      "means": "The control does not apply to this record, so it has not been checked. This is not a pass.",
+      "reason": "this control does not apply here: room.closed_from is False, which does not satisfy `exists`",
+      "evidence": [
+        {
+          "field": "room.closed_from",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:minihotel/getRooms"
+        },
+        {
+          "field": "room.closed_to",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:minihotel/getRooms"
+        },
+        {
+          "field": "reservation.arrival_date",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:minihotel/GetReservationKey"
+        },
+        {
+          "field": "stay.room_number",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:minihotel/GetReservationKey"
+        },
+        {
+          "field": "reservation.status",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:minihotel/GetReservationKey"
+        },
+        {
+          "field": "occupancy.reservation_id",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "risk": null,
+          "source": "pms:minihotel/RoomStatusInquiry"
+        },
+        {
+          "field": "room.number",
+          "known": true,
+          "value": "303",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:minihotel/getRooms"
+        },
+        {
+          "field": "occupancy.room_number",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "risk": null,
+          "source": "pms:minihotel/RoomStatusInquiry"
+        }
+      ]
+    },
+    {
+      "record_id": "901",
+      "outcome": "EXCLUDED",
+      "means": "The control does not apply to this record, so it has not been checked. This is not a pass.",
+      "reason": "this control does not apply here: room.closed_from is False, which does not satisfy `exists`",
+      "evidence": [
+        {
+          "field": "room.closed_from",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:minihotel/getRooms"
+        },
+        {
+          "field": "room.closed_to",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:minihotel/getRooms"
+        },
+        {
+          "field": "reservation.arrival_date",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:minihotel/GetReservationKey"
+        },
+        {
+          "field": "stay.room_number",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:minihotel/GetReservationKey"
+        },
+        {
+          "field": "reservation.status",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:minihotel/GetReservationKey"
+        },
+        {
+          "field": "occupancy.reservation_id",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "risk": null,
+          "source": "pms:minihotel/RoomStatusInquiry"
+        },
+        {
+          "field": "room.number",
+          "known": true,
+          "value": "901",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:minihotel/getRooms"
+        },
+        {
+          "field": "occupancy.room_number",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "risk": null,
+          "source": "pms:minihotel/RoomStatusInquiry"
+        }
+      ]
+    },
+    {
+      "record_id": "Nemanja",
+      "outcome": "EXCLUDED",
+      "means": "The control does not apply to this record, so it has not been checked. This is not a pass.",
+      "reason": "this control does not apply here: room.closed_from is False, which does not satisfy `exists`",
+      "evidence": [
+        {
+          "field": "room.closed_from",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:minihotel/getRooms"
+        },
+        {
+          "field": "room.closed_to",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:minihotel/getRooms"
+        },
+        {
+          "field": "reservation.arrival_date",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:minihotel/GetReservationKey"
+        },
+        {
+          "field": "stay.room_number",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:minihotel/GetReservationKey"
+        },
+        {
+          "field": "reservation.status",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:minihotel/GetReservationKey"
+        },
+        {
+          "field": "occupancy.reservation_id",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "risk": null,
+          "source": "pms:minihotel/RoomStatusInquiry"
+        },
+        {
+          "field": "room.number",
+          "known": true,
+          "value": "Nemanja",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:minihotel/getRooms"
+        },
+        {
+          "field": "occupancy.room_number",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "risk": null,
+          "source": "pms:minihotel/RoomStatusInquiry"
+        }
+      ]
+    },
+    {
+      "record_id": "9900",
+      "outcome": "EXCLUDED",
+      "means": "The control does not apply to this record, so it has not been checked. This is not a pass.",
+      "reason": "this control does not apply here: room.closed_from is False, which does not satisfy `exists`",
+      "evidence": [
+        {
+          "field": "room.closed_from",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:minihotel/getRooms"
+        },
+        {
+          "field": "room.closed_to",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:minihotel/getRooms"
+        },
+        {
+          "field": "reservation.arrival_date",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:minihotel/GetReservationKey"
+        },
+        {
+          "field": "stay.room_number",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:minihotel/GetReservationKey"
+        },
+        {
+          "field": "reservation.status",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:minihotel/GetReservationKey"
+        },
+        {
+          "field": "occupancy.reservation_id",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "risk": null,
+          "source": "pms:minihotel/RoomStatusInquiry"
+        },
+        {
+          "field": "room.number",
+          "known": true,
+          "value": "9900",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:minihotel/getRooms"
+        },
+        {
+          "field": "occupancy.room_number",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "risk": null,
+          "source": "pms:minihotel/RoomStatusInquiry"
+        }
+      ]
+    },
+    {
+      "record_id": "104",
+      "outcome": "EXCLUDED",
+      "means": "The control does not apply to this record, so it has not been checked. This is not a pass.",
+      "reason": "this control does not apply here: room.closed_from is False, which does not satisfy `exists`",
+      "evidence": [
+        {
+          "field": "room.closed_from",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:minihotel/getRooms"
+        },
+        {
+          "field": "room.closed_to",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:minihotel/getRooms"
+        },
+        {
+          "field": "reservation.arrival_date",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:minihotel/GetReservationKey"
+        },
+        {
+          "field": "stay.room_number",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:minihotel/GetReservationKey"
+        },
+        {
+          "field": "reservation.status",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:minihotel/GetReservationKey"
+        },
+        {
+          "field": "occupancy.reservation_id",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "risk": null,
+          "source": "pms:minihotel/RoomStatusInquiry"
+        },
+        {
+          "field": "room.number",
+          "known": true,
+          "value": "104",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:minihotel/getRooms"
+        },
+        {
+          "field": "occupancy.room_number",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "risk": null,
+          "source": "pms:minihotel/RoomStatusInquiry"
+        }
+      ]
+    },
+    {
+      "record_id": "304",
+      "outcome": "EXCLUDED",
+      "means": "The control does not apply to this record, so it has not been checked. This is not a pass.",
+      "reason": "this control does not apply here: room.closed_from is False, which does not satisfy `exists`",
+      "evidence": [
+        {
+          "field": "room.closed_from",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:minihotel/getRooms"
+        },
+        {
+          "field": "room.closed_to",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:minihotel/getRooms"
+        },
+        {
+          "field": "reservation.arrival_date",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:minihotel/GetReservationKey"
+        },
+        {
+          "field": "stay.room_number",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:minihotel/GetReservationKey"
+        },
+        {
+          "field": "reservation.status",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:minihotel/GetReservationKey"
+        },
+        {
+          "field": "occupancy.reservation_id",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "risk": null,
+          "source": "pms:minihotel/RoomStatusInquiry"
+        },
+        {
+          "field": "room.number",
+          "known": true,
+          "value": "304",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:minihotel/getRooms"
+        },
+        {
+          "field": "occupancy.room_number",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "risk": null,
+          "source": "pms:minihotel/RoomStatusInquiry"
+        }
+      ]
+    },
+    {
+      "record_id": "902",
+      "outcome": "EXCLUDED",
+      "means": "The control does not apply to this record, so it has not been checked. This is not a pass.",
+      "reason": "this control does not apply here: room.closed_from is False, which does not satisfy `exists`",
+      "evidence": [
+        {
+          "field": "room.closed_from",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:minihotel/getRooms"
+        },
+        {
+          "field": "room.closed_to",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:minihotel/getRooms"
+        },
+        {
+          "field": "reservation.arrival_date",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:minihotel/GetReservationKey"
+        },
+        {
+          "field": "stay.room_number",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:minihotel/GetReservationKey"
+        },
+        {
+          "field": "reservation.status",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:minihotel/GetReservationKey"
+        },
+        {
+          "field": "occupancy.reservation_id",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "risk": null,
+          "source": "pms:minihotel/RoomStatusInquiry"
+        },
+        {
+          "field": "room.number",
+          "known": true,
+          "value": "902",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:minihotel/getRooms"
+        },
+        {
+          "field": "occupancy.room_number",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "risk": null,
+          "source": "pms:minihotel/RoomStatusInquiry"
+        }
+      ]
+    },
+    {
+      "record_id": "9901",
+      "outcome": "EXCLUDED",
+      "means": "The control does not apply to this record, so it has not been checked. This is not a pass.",
+      "reason": "this control does not apply here: room.closed_from is False, which does not satisfy `exists`",
+      "evidence": [
+        {
+          "field": "room.closed_from",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:minihotel/getRooms"
+        },
+        {
+          "field": "room.closed_to",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:minihotel/getRooms"
+        },
+        {
+          "field": "reservation.arrival_date",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:minihotel/GetReservationKey"
+        },
+        {
+          "field": "stay.room_number",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:minihotel/GetReservationKey"
+        },
+        {
+          "field": "reservation.status",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:minihotel/GetReservationKey"
+        },
+        {
+          "field": "occupancy.reservation_id",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "risk": null,
+          "source": "pms:minihotel/RoomStatusInquiry"
+        },
+        {
+          "field": "room.number",
+          "known": true,
+          "value": "9901",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:minihotel/getRooms"
+        },
+        {
+          "field": "occupancy.room_number",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "risk": null,
+          "source": "pms:minihotel/RoomStatusInquiry"
+        }
+      ]
+    },
+    {
+      "record_id": "102",
+      "outcome": "EXCLUDED",
+      "means": "The control does not apply to this record, so it has not been checked. This is not a pass.",
+      "reason": "this control does not apply here: room.closed_from is False, which does not satisfy `exists`",
+      "evidence": [
+        {
+          "field": "room.closed_from",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:minihotel/getRooms"
+        },
+        {
+          "field": "room.closed_to",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:minihotel/getRooms"
+        },
+        {
+          "field": "reservation.arrival_date",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:minihotel/GetReservationKey"
+        },
+        {
+          "field": "stay.room_number",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:minihotel/GetReservationKey"
+        },
+        {
+          "field": "reservation.status",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:minihotel/GetReservationKey"
+        },
+        {
+          "field": "occupancy.reservation_id",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "risk": null,
+          "source": "pms:minihotel/RoomStatusInquiry"
+        },
+        {
+          "field": "room.number",
+          "known": true,
+          "value": "102",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:minihotel/getRooms"
+        },
+        {
+          "field": "occupancy.room_number",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "risk": null,
+          "source": "pms:minihotel/RoomStatusInquiry"
+        }
+      ]
+    },
+    {
+      "record_id": "401",
+      "outcome": "EXCLUDED",
+      "means": "The control does not apply to this record, so it has not been checked. This is not a pass.",
+      "reason": "this control does not apply here: room.closed_from is False, which does not satisfy `exists`",
+      "evidence": [
+        {
+          "field": "room.closed_from",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:minihotel/getRooms"
+        },
+        {
+          "field": "room.closed_to",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:minihotel/getRooms"
+        },
+        {
+          "field": "reservation.arrival_date",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:minihotel/GetReservationKey"
+        },
+        {
+          "field": "stay.room_number",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:minihotel/GetReservationKey"
+        },
+        {
+          "field": "reservation.status",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:minihotel/GetReservationKey"
+        },
+        {
+          "field": "occupancy.reservation_id",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "risk": null,
+          "source": "pms:minihotel/RoomStatusInquiry"
+        },
+        {
+          "field": "room.number",
+          "known": true,
+          "value": "401",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:minihotel/getRooms"
+        },
+        {
+          "field": "occupancy.room_number",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "risk": null,
+          "source": "pms:minihotel/RoomStatusInquiry"
+        }
+      ]
+    },
+    {
+      "record_id": "903",
+      "outcome": "EXCLUDED",
+      "means": "The control does not apply to this record, so it has not been checked. This is not a pass.",
+      "reason": "this control does not apply here: room.closed_from is False, which does not satisfy `exists`",
+      "evidence": [
+        {
+          "field": "room.closed_from",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:minihotel/getRooms"
+        },
+        {
+          "field": "room.closed_to",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:minihotel/getRooms"
+        },
+        {
+          "field": "reservation.arrival_date",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:minihotel/GetReservationKey"
+        },
+        {
+          "field": "stay.room_number",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:minihotel/GetReservationKey"
+        },
+        {
+          "field": "reservation.status",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:minihotel/GetReservationKey"
+        },
+        {
+          "field": "occupancy.reservation_id",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "risk": null,
+          "source": "pms:minihotel/RoomStatusInquiry"
+        },
+        {
+          "field": "room.number",
+          "known": true,
+          "value": "903",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:minihotel/getRooms"
+        },
+        {
+          "field": "occupancy.room_number",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "risk": null,
+          "source": "pms:minihotel/RoomStatusInquiry"
+        }
+      ]
+    },
+    {
+      "record_id": "9902",
+      "outcome": "EXCLUDED",
+      "means": "The control does not apply to this record, so it has not been checked. This is not a pass.",
+      "reason": "this control does not apply here: room.closed_from is False, which does not satisfy `exists`",
+      "evidence": [
+        {
+          "field": "room.closed_from",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:minihotel/getRooms"
+        },
+        {
+          "field": "room.closed_to",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:minihotel/getRooms"
+        },
+        {
+          "field": "reservation.arrival_date",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:minihotel/GetReservationKey"
+        },
+        {
+          "field": "stay.room_number",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:minihotel/GetReservationKey"
+        },
+        {
+          "field": "reservation.status",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:minihotel/GetReservationKey"
+        },
+        {
+          "field": "occupancy.reservation_id",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "risk": null,
+          "source": "pms:minihotel/RoomStatusInquiry"
+        },
+        {
+          "field": "room.number",
+          "known": true,
+          "value": "9902",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:minihotel/getRooms"
+        },
+        {
+          "field": "occupancy.room_number",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "risk": null,
+          "source": "pms:minihotel/RoomStatusInquiry"
+        }
+      ]
+    },
+    {
+      "record_id": "904",
+      "outcome": "EXCLUDED",
+      "means": "The control does not apply to this record, so it has not been checked. This is not a pass.",
+      "reason": "this control does not apply here: room.closed_from is False, which does not satisfy `exists`",
+      "evidence": [
+        {
+          "field": "room.closed_from",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:minihotel/getRooms"
+        },
+        {
+          "field": "room.closed_to",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:minihotel/getRooms"
+        },
+        {
+          "field": "reservation.arrival_date",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:minihotel/GetReservationKey"
+        },
+        {
+          "field": "stay.room_number",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:minihotel/GetReservationKey"
+        },
+        {
+          "field": "reservation.status",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:minihotel/GetReservationKey"
+        },
+        {
+          "field": "occupancy.reservation_id",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "risk": null,
+          "source": "pms:minihotel/RoomStatusInquiry"
+        },
+        {
+          "field": "room.number",
+          "known": true,
+          "value": "904",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:minihotel/getRooms"
+        },
+        {
+          "field": "occupancy.room_number",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "risk": null,
+          "source": "pms:minihotel/RoomStatusInquiry"
+        }
+      ]
+    },
+    {
+      "record_id": "9903",
+      "outcome": "EXCLUDED",
+      "means": "The control does not apply to this record, so it has not been checked. This is not a pass.",
+      "reason": "this control does not apply here: room.closed_from is False, which does not satisfy `exists`",
+      "evidence": [
+        {
+          "field": "room.closed_from",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:minihotel/getRooms"
+        },
+        {
+          "field": "room.closed_to",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:minihotel/getRooms"
+        },
+        {
+          "field": "reservation.arrival_date",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:minihotel/GetReservationKey"
+        },
+        {
+          "field": "stay.room_number",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:minihotel/GetReservationKey"
+        },
+        {
+          "field": "reservation.status",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:minihotel/GetReservationKey"
+        },
+        {
+          "field": "occupancy.reservation_id",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "risk": null,
+          "source": "pms:minihotel/RoomStatusInquiry"
+        },
+        {
+          "field": "room.number",
+          "known": true,
+          "value": "9903",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:minihotel/getRooms"
+        },
+        {
+          "field": "occupancy.room_number",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "risk": null,
+          "source": "pms:minihotel/RoomStatusInquiry"
+        }
+      ]
+    },
+    {
+      "record_id": "501",
+      "outcome": "EXCLUDED",
+      "means": "The control does not apply to this record, so it has not been checked. This is not a pass.",
+      "reason": "this control does not apply here: room.closed_from is False, which does not satisfy `exists`",
+      "evidence": [
+        {
+          "field": "room.closed_from",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:minihotel/getRooms"
+        },
+        {
+          "field": "room.closed_to",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:minihotel/getRooms"
+        },
+        {
+          "field": "reservation.arrival_date",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:minihotel/GetReservationKey"
+        },
+        {
+          "field": "stay.room_number",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:minihotel/GetReservationKey"
+        },
+        {
+          "field": "reservation.status",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:minihotel/GetReservationKey"
+        },
+        {
+          "field": "occupancy.reservation_id",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "risk": null,
+          "source": "pms:minihotel/RoomStatusInquiry"
+        },
+        {
+          "field": "room.number",
+          "known": true,
+          "value": "501",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:minihotel/getRooms"
+        },
+        {
+          "field": "occupancy.room_number",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "risk": null,
+          "source": "pms:minihotel/RoomStatusInquiry"
+        }
+      ]
+    },
+    {
+      "record_id": "9904",
+      "outcome": "EXCLUDED",
+      "means": "The control does not apply to this record, so it has not been checked. This is not a pass.",
+      "reason": "this control does not apply here: room.closed_from is False, which does not satisfy `exists`",
+      "evidence": [
+        {
+          "field": "room.closed_from",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:minihotel/getRooms"
+        },
+        {
+          "field": "room.closed_to",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:minihotel/getRooms"
+        },
+        {
+          "field": "reservation.arrival_date",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:minihotel/GetReservationKey"
+        },
+        {
+          "field": "stay.room_number",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:minihotel/GetReservationKey"
+        },
+        {
+          "field": "reservation.status",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:minihotel/GetReservationKey"
+        },
+        {
+          "field": "occupancy.reservation_id",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "risk": null,
+          "source": "pms:minihotel/RoomStatusInquiry"
+        },
+        {
+          "field": "room.number",
+          "known": true,
+          "value": "9904",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:minihotel/getRooms"
+        },
+        {
+          "field": "occupancy.room_number",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "risk": null,
+          "source": "pms:minihotel/RoomStatusInquiry"
+        }
+      ]
+    },
+    {
+      "record_id": "605",
+      "outcome": "EXCLUDED",
+      "means": "The control does not apply to this record, so it has not been checked. This is not a pass.",
+      "reason": "this control does not apply here: room.closed_from is False, which does not satisfy `exists`",
+      "evidence": [
+        {
+          "field": "room.closed_from",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:minihotel/getRooms"
+        },
+        {
+          "field": "room.closed_to",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:minihotel/getRooms"
+        },
+        {
+          "field": "reservation.arrival_date",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:minihotel/GetReservationKey"
+        },
+        {
+          "field": "stay.room_number",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:minihotel/GetReservationKey"
+        },
+        {
+          "field": "reservation.status",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:minihotel/GetReservationKey"
+        },
+        {
+          "field": "occupancy.reservation_id",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "risk": null,
+          "source": "pms:minihotel/RoomStatusInquiry"
+        },
+        {
+          "field": "room.number",
+          "known": true,
+          "value": "605",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:minihotel/getRooms"
+        },
+        {
+          "field": "occupancy.room_number",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "risk": null,
+          "source": "pms:minihotel/RoomStatusInquiry"
+        }
+      ]
+    },
+    {
+      "record_id": "9905",
+      "outcome": "EXCLUDED",
+      "means": "The control does not apply to this record, so it has not been checked. This is not a pass.",
+      "reason": "this control does not apply here: room.closed_from is False, which does not satisfy `exists`",
+      "evidence": [
+        {
+          "field": "room.closed_from",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:minihotel/getRooms"
+        },
+        {
+          "field": "room.closed_to",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:minihotel/getRooms"
+        },
+        {
+          "field": "reservation.arrival_date",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:minihotel/GetReservationKey"
+        },
+        {
+          "field": "stay.room_number",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:minihotel/GetReservationKey"
+        },
+        {
+          "field": "reservation.status",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:minihotel/GetReservationKey"
+        },
+        {
+          "field": "occupancy.reservation_id",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "risk": null,
+          "source": "pms:minihotel/RoomStatusInquiry"
+        },
+        {
+          "field": "room.number",
+          "known": true,
+          "value": "9905",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:minihotel/getRooms"
+        },
+        {
+          "field": "occupancy.room_number",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "risk": null,
+          "source": "pms:minihotel/RoomStatusInquiry"
+        }
+      ]
+    },
+    {
+      "record_id": "301",
+      "outcome": "EXCLUDED",
+      "means": "The control does not apply to this record, so it has not been checked. This is not a pass.",
+      "reason": "this control does not apply here: room.closed_from is False, which does not satisfy `exists`",
+      "evidence": [
+        {
+          "field": "room.closed_from",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:minihotel/getRooms"
+        },
+        {
+          "field": "room.closed_to",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:minihotel/getRooms"
+        },
+        {
+          "field": "reservation.arrival_date",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:minihotel/GetReservationKey"
+        },
+        {
+          "field": "stay.room_number",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:minihotel/GetReservationKey"
+        },
+        {
+          "field": "reservation.status",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:minihotel/GetReservationKey"
+        },
+        {
+          "field": "occupancy.reservation_id",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "risk": null,
+          "source": "pms:minihotel/RoomStatusInquiry"
+        },
+        {
+          "field": "room.number",
+          "known": true,
+          "value": "301",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:minihotel/getRooms"
+        },
+        {
+          "field": "occupancy.room_number",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "risk": null,
+          "source": "pms:minihotel/RoomStatusInquiry"
+        }
+      ]
+    },
+    {
+      "record_id": "808",
+      "outcome": "EXCLUDED",
+      "means": "The control does not apply to this record, so it has not been checked. This is not a pass.",
+      "reason": "this control does not apply here: room.closed_from is False, which does not satisfy `exists`",
+      "evidence": [
+        {
+          "field": "room.closed_from",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:minihotel/getRooms"
+        },
+        {
+          "field": "room.closed_to",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:minihotel/getRooms"
+        },
+        {
+          "field": "reservation.arrival_date",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:minihotel/GetReservationKey"
+        },
+        {
+          "field": "stay.room_number",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:minihotel/GetReservationKey"
+        },
+        {
+          "field": "reservation.status",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:minihotel/GetReservationKey"
+        },
+        {
+          "field": "occupancy.reservation_id",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "risk": null,
+          "source": "pms:minihotel/RoomStatusInquiry"
+        },
+        {
+          "field": "room.number",
+          "known": true,
+          "value": "808",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:minihotel/getRooms"
+        },
+        {
+          "field": "occupancy.room_number",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "risk": null,
+          "source": "pms:minihotel/RoomStatusInquiry"
+        }
+      ]
+    },
+    {
+      "record_id": "809",
+      "outcome": "EXCLUDED",
+      "means": "The control does not apply to this record, so it has not been checked. This is not a pass.",
+      "reason": "this control does not apply here: room.closed_from is False, which does not satisfy `exists`",
+      "evidence": [
+        {
+          "field": "room.closed_from",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:minihotel/getRooms"
+        },
+        {
+          "field": "room.closed_to",
+          "known": true,
+          "value": "False",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:minihotel/getRooms"
+        },
+        {
+          "field": "reservation.arrival_date",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:minihotel/GetReservationKey"
+        },
+        {
+          "field": "stay.room_number",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:minihotel/GetReservationKey"
+        },
+        {
+          "field": "reservation.status",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "this evidence is not obtainable for a single record: its source answers for the whole property and this control declares no reference to join against",
+          "risk": "R1",
+          "source": "pms:minihotel/GetReservationKey"
+        },
+        {
+          "field": "occupancy.reservation_id",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "risk": null,
+          "source": "pms:minihotel/RoomStatusInquiry"
+        },
+        {
+          "field": "room.number",
+          "known": true,
+          "value": "809",
+          "unit": null,
+          "reason": null,
+          "risk": null,
+          "source": "pms:minihotel/getRooms"
+        },
+        {
+          "field": "occupancy.room_number",
+          "known": false,
+          "value": null,
+          "unit": null,
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "risk": null,
+          "source": "pms:minihotel/RoomStatusInquiry"
+        }
+      ]
+    }
+  ],
+  "counts": {
+    "PASS": 0,
+    "FAIL": 0,
+    "UNKNOWN": 0,
+    "EXCLUDED": 28,
+    "total": 28
+  },
+  "execution": {
+    "mode": "periodic",
+    "declared_mode": "periodic",
+    "fell_back": false,
+    "headline": "Runs periodic, due now. It is re-checked every 6 hours, because the state it watches can change with no event at all."
+  }
+}

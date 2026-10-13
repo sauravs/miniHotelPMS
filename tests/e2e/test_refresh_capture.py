@@ -34,6 +34,7 @@ from hotelcontrols.spec import TenantConfig, available
 ROOT = pathlib.Path(__file__).resolve().parents[2]
 AS_OF = "2026-07-08T09:00"
 REFRESH = {"sandbox": "sandbox2026refresh", "demo": "demo2026refresh"}
+COVER = {"sandbox": "sandbox2026cover", "demo": "demo2026cover"}           # issue #71
 BEFORE = {"sandbox": "sandbox2026", "demo": "demo2026"}
 ENDPOINT = {  # each provider's name for the same question
     "sandbox": {"rooms": "getRooms", "types": "getRoomTypes", "bookings": "GetReservationKey"},
@@ -56,8 +57,15 @@ def a_run(control_id, property_id="sandbox", capture=None):
 
 
 def records(property_id, capture, which, entity):
+    """Every record of the response this capture holds for an endpoint, asked by the question
+    it RECORDED: an empty request asks for everything the PMS has ever held, which replay
+    refuses rather than present one window as the whole (#71)."""
     _tenant, adapter = built(property_id, capture)
-    response = adapter.fetch(Request(ENDPOINT[property_id][which], {}))
+    endpoint = ENDPOINT[property_id][which]
+    provider_dir = "minihotel" if property_id == "sandbox" else "demopms"
+    entry = next(r for r in index(provider_dir)["responses"]
+                 if r["endpoint"] == endpoint and capture in r.get("captures", []))
+    response = adapter.fetch(Request(endpoint, entry["request"]))
     return adapter, adapter.records(response, entity)
 
 
@@ -151,8 +159,12 @@ class TestQuestion12RestatedOn20261010:
         """Open question 2.4: the out-of-service mechanism has still never been seen working,
         so both controls that read it still apply to no record - correctly."""
         assert a_run("ooo_room_protection", property_id).counts["EXCLUDED"] == 28
-        active = a_run("room_assignment_active_room", property_id).counts
-        assert active["EXCLUDED"] == active["total"] > 0
+        # Read off the refreshed rooms directly. room_assignment_active_room asks an ARRIVAL
+        # window, which this capture never recorded, so since #71 it is refused here rather
+        # than answered from the departure window's stays.
+        adapter, rooms = records(property_id, REFRESH[property_id], "rooms", "room")
+        assert len(rooms) == 28
+        assert all(adapter.resolve("room.closed_from", r).payload is False for r in rooms)
 
 
 # --------------------------------------------------------------------------- #49
@@ -175,25 +187,34 @@ class TestRateCodesArrive:
     def test_and_on_their_own_they_move_no_number(self, property_id):
         """The other half of #49. Control 15 needs the hotel's nominated rate codes too, and
         the sandbox's are NOT DECIDED (slice 21) - the vendor's test hotel has no policy anybody
-        could honestly state. Inventing one to move criterion 1 is an anti-criterion of v3."""
-        result = a_run("required_reservation_fields", property_id)
+        could honestly state. Inventing one to move criterion 1 is an anti-criterion of v3.
+
+        Run on the covering capture, which also carries rate codes and recorded the ARRIVAL
+        window this control asks; the refresh recorded departures only, so since #71 it refuses
+        this question. (What a decided list WOULD move there is pinned in
+        tests/integration/test_typed_parameters.py.)"""
+        result = a_run("required_reservation_fields", property_id, capture=COVER[property_id])
         assert not result.coverage.concluded
         assert any("nominated_rate_codes" in (v.reason or "") for v in result.verdicts)
 
 
 # --------------------------------------------------------------------------- criterion 1
 class TestCriterionOnePerCapture:
-    """prd.md criterion 1 asks 8 of 11. Reported PER CAPTURE: the refresh is a second
-    measurement beside sandbox2026's, never a replacement for it, and never rounded."""
+    """prd.md criterion 1 asks 8 of 11. Reported PER CAPTURE: each capture is a measurement
+    beside the others, never a replacement for one, and never rounded.
+
+    Issue #71 moved these. Seven controls ask an arrival or create window, and sandbox2026 and
+    the refresh each recorded a DEPARTURE window only: replay used to answer from it anyway,
+    and three of sandbox2026's five (four of the refresh's) concluded that way. They are now
+    refused there, and conclude on the covering capture, which recorded their questions."""
 
     CONCLUDING = {
-        "sandbox2026": {
+        "sandbox2026": {"checkout_money_owed", "checkout_unrefunded_credit"},
+        "sandbox2026refresh": {"resource_occupancy_consistency"},
+        "sandbox2026cover": {
             "checkout_money_owed", "checkout_unrefunded_credit",
             "duplicate_channel_reservation", "inactive_room_future_stay",
             "room_assignment_type_validity"},
-        "sandbox2026refresh": {
-            "duplicate_channel_reservation", "inactive_room_future_stay",
-            "resource_occupancy_consistency", "room_assignment_type_validity"},
     }
 
     @pytest.mark.parametrize("capture", sorted(CONCLUDING))

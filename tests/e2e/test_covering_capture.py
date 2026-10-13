@@ -14,7 +14,8 @@ Two read-only calls, each approved by the project owner at the time it was made 
   * 2026-10-13  GetReservationKey  CreateDate  2026-06-08..2026-07-08
 
 sent once each by `tools.probe --run` (the first needed #92 to be printed at all) and scrubbed
-before staging. `demo2026cover` is the DemoPMS transcode. The demo does not offer either.
+before staging. `demo2026cover` is the DemoPMS transcode. Since step B (the owner's "A+B",
+2026-10-13) the demo offers both beside the captures it had, and its default is unchanged.
 
 What this pins, so a change to any of it is noticed: the capture is what it says - two new
 responses dated the days they were obtained, everything else sandbox2026's own and nothing
@@ -24,6 +25,8 @@ import json
 import pathlib
 
 import pytest
+
+from hotelcontrols.providers import registry
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
 NEW = {
@@ -95,3 +98,26 @@ class TestTheCaptureIsWhatItSays:
         assert demo == before | set(NEW)
         meta = index("demopms")["captures"]["demo2026cover"]
         assert (meta["as_of"], meta["captured_at"]) == ("2026-07-08", "2026-10-13")
+
+
+class TestTheDemoOffersIt:
+    """Step B. Under step A alone no demo page held an UNKNOWN any more: the seven controls that
+    ask an arrival or create window are refused on sandbox2026, and the two that remain conclude.
+    A demo that cannot show the product's central answer is a demo of a different product, so
+    the owner approved offering the covering capture too - beside sandbox2026, not instead."""
+
+    @pytest.mark.parametrize("provider, cover, default", [
+        ("minihotel", "sandbox2026cover", "sandbox2026"),
+        ("demopms", "demo2026cover", "demo2026"),
+    ])
+    def test_offered_beside_the_default_which_does_not_move(self, provider, cover, default):
+        package = registry.load(provider)
+        assert cover in package.captures
+        assert package.default_capture == default, (
+            "a property that names no capture still gets the one it always got")
+
+    @pytest.mark.parametrize("provider, refresh", [
+        ("minihotel", "sandbox2026refresh"), ("demopms", "demo2026refresh")])
+    def test_the_refresh_capture_is_still_not_offered(self, provider, refresh):
+        """Offering sandbox2026refresh is deferred by the owner; B does not slip it in."""
+        assert refresh not in registry.load(provider).captures

@@ -101,12 +101,14 @@ class TestARunNamesItsPolicy:
         assert payload["policy_digest"] == load(CONTROL).digest
 
     def test_every_golden_run_names_the_locked_rule_that_judged_it(self):
-        """The 88 run goldens and 11 history goldens are the API a second client is built on.
-        Each names exactly the version and digest the lock holds for its control."""
+        """The 132 run goldens and 11 history goldens are the API a second client is built on.
+        Each names exactly the version and digest the lock holds for its control. 132 is 11
+        controls x 2 providers x 3 captures x 2 routes: the covering capture is the third since
+        issue #71's step B."""
         golden = SPEC.parent / "fixtures" / "api"
         locked = spec_lock.read_lock(SPEC)
         runs = sorted((golden / "run").glob("*.json")) + sorted((golden / "runs").glob("*.json"))
-        assert len(runs) == 88
+        assert len(runs) == 132
         for path in runs:
             payload = json.loads(path.read_text(encoding="utf-8"))
             assert (payload["policy_version"], payload["policy_digest"]) == locked[

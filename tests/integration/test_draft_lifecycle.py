@@ -34,8 +34,9 @@ from hotelcontrols.web import App
 from tools.proposers import StubProposer
 
 # The same logical hotel through two deliberately incompatible wire formats, at the instant
-# both captures describe.
-PROPERTIES = {"sandbox": "sandbox2026", "demo": "demo2026"}
+# both captures describe. The covering captures (issue #71): the draft's template asks an
+# ARRIVAL window, which sandbox2026 / demo2026 never recorded and now refuse to answer.
+PROPERTIES = {"sandbox": "sandbox2026cover", "demo": "demo2026cover"}
 AS_OF = "2026-07-08"
 
 # Prose a person would type. It is NOT one of the eleven, and the rule it becomes is not

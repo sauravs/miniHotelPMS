@@ -179,9 +179,10 @@ class TestCriterion3OnRealRuns:
 
     def test_an_unknown_names_the_field_it_could_not_establish(self, app):
         """The commercial value of an UNKNOWN, on screen: not "we don't know" but "connect
-        this and we will"."""
+        this and we will". Over the covering capture (#71): sandbox2026 refuses this control's
+        arrival question, so its page holds no verdict at all."""
         body = text_of(app.handle(
-            "/run/room_capacity_compliance?property=sandbox&evidence=sandbox2026").body)
+            "/run/room_capacity_compliance?property=sandbox&evidence=sandbox2026cover").body)
         assert "room.max_guests.adults" in body
 
 
@@ -370,11 +371,12 @@ class TestSliceFourteenAFirstTimeReaderCanLearnThePageFromThePage:
         assert "no counts are shown" in text_of(body).lower()
 
     def test_the_hundred_and_eleven_record_page_leads_with_what_needs_acting_on(self, app):
-        """The page that made this slice necessary. `inactive_room_future_stay` answers about
+        """The page that made this slice necessary. `inactive_room_future_stay` answered about
         111 stays, 71 of them NOT APPLICABLE because the reservation was cancelled - so in
-        population order the thirteen records that could not be answered were buried."""
+        population order the thirteen records that could not be answered were buried. Over the
+        covering capture (#71) it is 372 stays and 244 of them: the same page, larger."""
         body = app.handle(
-            "/run/inactive_room_future_stay?property=sandbox&evidence=sandbox2026").body
+            "/run/inactive_room_future_stay?property=sandbox&evidence=sandbox2026cover").body
         groups = re.findall(r'id="verdicts-(\w+)"', body)
         assert groups.index("UNKNOWN") < groups.index("EXCLUDED"), groups
         unknown = re.search(r'<details[^>]*id="verdicts-UNKNOWN"[^>]*>', body)
@@ -384,18 +386,21 @@ class TestSliceFourteenAFirstTimeReaderCanLearnThePageFromThePage:
 
     def test_collapsing_a_group_never_removes_a_record_from_the_page(self, app):
         """A `<details>` that is closed is still in the document, which is the entire reason it
-        is the right mechanism here: criterion 3's trail survives, and so does a text scrape."""
-        path = "/run/inactive_room_future_stay?property=sandbox&evidence=sandbox2026"
+        is the right mechanism here: criterion 3's trail survives, and so does a text scrape.
+        Over the covering capture (#71): on sandbox2026 this control is refused, and zero
+        verdicts on the page against zero in the payload would pass without testing anything."""
+        path = "/run/inactive_room_future_stay?property=sandbox&evidence=sandbox2026cover"
         body = app.handle(path).body
         payload = json.loads(app.handle("/api/run/inactive_room_future_stay"
-                                        "?property=sandbox&evidence=sandbox2026").body)
+                                        "?property=sandbox&evidence=sandbox2026cover").body)
+        assert len(payload["verdicts"]) == 372
         assert body.count('<article class="verdict') == len(payload["verdicts"])
         for verdict in payload["verdicts"]:
             assert verdict["record_id"] in body, verdict["record_id"]
 
     def test_the_four_answers_are_explained_in_prose_on_a_run_page(self, app):
-        text = text_of(app.handle(
-            "/run/inactive_room_future_stay?property=sandbox&evidence=sandbox2026").body).lower()
+        text = text_of(app.handle("/run/inactive_room_future_stay"
+                                  "?property=sandbox&evidence=sandbox2026cover").body).lower()
         assert "what the four answers mean" in text
         assert "not a pass and not a failure" in text
         assert "has not been checked" in text

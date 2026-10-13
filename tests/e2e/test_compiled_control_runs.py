@@ -42,7 +42,9 @@ SENTENCE = ('every reservation where reservation.status is not "cancelled" '
             'must have reservation.guest.email exists')
 
 AS_OF = "2026-07-08T09:00"
-CAPTURES = {"sandbox": "sandbox2026", "demo": "demo2026"}
+# The covering captures (issue #71): a compiled control borrows its template's ARRIVAL window,
+# which sandbox2026 / demo2026 never recorded and now refuse to answer.
+CAPTURES = {"sandbox": "sandbox2026cover", "demo": "demo2026cover"}
 
 
 @pytest.fixture(scope="module")

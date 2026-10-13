@@ -12,7 +12,10 @@ from .records import IDENTITY_FIELD, Record
 
 ADAPTER = DemoPmsAdapter
 FROZEN = DemoSource
-CAPTURES = ("demo2024", "demo2026")
+# demo2026cover is demo2026 plus the two questions it never recorded - an arrival and a create
+# window - which seven controls ask and which replay refuses on demo2026 since #71. Offered
+# beside it so the demo can still show an UNKNOWN; the default does not move.
+CAPTURES = ("demo2024", "demo2026", "demo2026cover")
 DEFAULT_CAPTURE = "demo2026"
 
 __all__ = ["ADAPTER", "CAPTURES", "DEFAULT_CAPTURE", "DemoPmsAdapter", "DemoSource", "FROZEN",

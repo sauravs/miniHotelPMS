@@ -17,7 +17,10 @@ from .records import IDENTITY_FIELD, Record
 ADAPTER = MiniHotelAdapter
 FROZEN = FrozenSource
 ENCODER = encode
-CAPTURES = ("sandbox2024", "sandbox2026")
+# sandbox2026cover is sandbox2026 plus the two questions it never recorded - an arrival and a create
+# window - which seven controls ask and which replay refuses on sandbox2026 since #71. Offered
+# beside it so the demo can still show an UNKNOWN; the default does not move.
+CAPTURES = ("sandbox2024", "sandbox2026", "sandbox2026cover")
 DEFAULT_CAPTURE = "sandbox2026"
 
 __all__ = ["ADAPTER", "CAPTURES", "DEFAULT_CAPTURE", "ENCODER", "FROZEN",

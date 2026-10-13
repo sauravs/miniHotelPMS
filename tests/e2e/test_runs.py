@@ -18,9 +18,22 @@ from hotelcontrols.runner import run
 from hotelcontrols.spec import TenantConfig, available
 from hotelcontrols.store import RunStore
 
-CAPTURES = {"sandbox2026": "2026-07-08T09:00", "sandbox2024": "2024-09-01T09:00"}
+CAPTURES = {"sandbox2026": "2026-07-08T09:00", "sandbox2024": "2024-09-01T09:00",
+            "sandbox2026cover": "2026-07-08T09:00"}
 
-# Measured, not aspirational. These reach a PASS or a FAIL on the 2026 capture.
+# Issue #71: the capture that recorded the questions the controls ask. sandbox2026 recorded one
+# DEPARTURE window, and seven controls ask an arrival or create window - answered from it until
+# replay was fixed, refused since. Criterion 1 is measured here, beside sandbox2026's own figure.
+COVER = "sandbox2026cover"
+
+# The seven, and what sandbox2026 still concludes without them.
+ASKS_ANOTHER_WINDOW = {
+    "duplicate_channel_reservation", "inactive_room_future_stay", "rate_room_category_consistency",
+    "required_reservation_fields", "room_assignment_active_room", "room_assignment_type_validity",
+    "room_capacity_compliance"}
+CONCLUDING_ON_SANDBOX2026 = {"checkout_money_owed", "checkout_unrefunded_credit"}
+
+# Measured, not aspirational. These reach a PASS or a FAIL on the covering capture.
 CONCLUDING = {
     "checkout_money_owed", "checkout_unrefunded_credit", "duplicate_channel_reservation",
     "inactive_room_future_stay", "room_assignment_type_validity",
@@ -62,7 +75,7 @@ CANNOT_CONCLUDE = {
 }
 
 
-def a_run(control_id, capture="sandbox2026"):
+def a_run(control_id, capture=COVER):
     tenant = TenantConfig.load("sandbox")
     adapter = MiniHotelAdapter(tenant, FrozenSource(capture))
     return run(control_id, tenant, adapter,
@@ -101,10 +114,11 @@ class TestTheWholeMatrix:
 class TestSuccessCriterionOne:
     """`prd.md` asks that at least 8 of the 11 controls reach a PASS or a FAIL.
 
-    THE MEASURED NUMBER IS 6. The criterion is NOT MET, and it is recorded as unmet rather than
-    quietly relaxed - the five that cannot conclude are blocked by facts about this sandbox and
-    this provider, not by anything the engine does wrong. See CANNOT_CONCLUDE above and the
-    definition-of-done table in docs/plan.md.
+    THE MEASURED NUMBER IS 5, on the covering capture. The criterion is NOT MET, and it is
+    recorded as unmet rather than quietly relaxed - the six that cannot conclude are blocked by
+    facts about this sandbox and this provider, not by anything the engine does wrong. See
+    CANNOT_CONCLUDE and BLOCKED above and the definition-of-done table in docs/plan.md. On
+    sandbox2026 itself it is 2 (issue #71), asserted separately below.
     """
 
     def test_five_controls_reach_a_conclusion(self):
@@ -118,6 +132,20 @@ class TestSuccessCriterionOne:
         assert len(concluding) == 5
         assert len(concluding) < 8, (
             "criterion 1 now passes - update docs/plan.md, which currently records it as unmet")
+
+    def test_on_sandbox2026_only_the_checkout_controls_conclude_and_seven_are_refused(self):
+        """Issue #71. sandbox2026 recorded a departure window. The checkout controls ask a
+        departure window and conclude; the seven asking arrivals or creations are refused with
+        a sentence naming the window the capture DID record, instead of three PASSes drawn
+        from the part of an arrival population that happened to depart that month."""
+        results = {c: a_run(c, "sandbox2026") for c in available()}
+        assert {c for c, r in results.items() if r.coverage.concluded} == \
+            CONCLUDING_ON_SANDBOX2026
+        for control_id in ASKS_ANOTHER_WINDOW:
+            result = results[control_id]
+            assert result.is_blocked, control_id
+            assert "selected by DepartureDate 2026-07-01..2026-08-09" in result.blocked
+            assert result.counts["total"] == 0
 
     @pytest.mark.parametrize("control_id", sorted(BLOCKED))
     def test_a_control_this_evidence_cannot_answer_is_blocked_with_a_sentence(self, control_id):
@@ -161,10 +189,10 @@ class TestFindingF5:
         assert result.counts["FAIL"] == 1
 
     def test_excluded_is_never_folded_into_passed(self):
-        """A run over 111 records where 71 were out of scope must not report '71 passed'."""
+        """A run over 372 stays where 244 were out of scope must not report '244 passed'."""
         result = a_run("room_assignment_type_validity")
-        assert result.counts["EXCLUDED"] == 71
-        assert result.counts["PASS"] == 27
+        assert result.counts["EXCLUDED"] == 244
+        assert result.counts["PASS"] == 87
 
 
 class TestHistoryAndReReading:

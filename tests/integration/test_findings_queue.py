@@ -126,7 +126,9 @@ class TestTheOneRealFailBecomesOneRecord:
 # ---------------------------------------------------------------------------------------
 @pytest.fixture(scope="module")
 def matrix():
-    """Every control x property x capture through ONE app, then each property's queue."""
+    """Every control x property x capture through ONE app, then each property's queue. The
+    covering captures are among them (issue #71): sandbox2026 now refuses the seven arrival and
+    create questions, and a matrix of refusals alone would hold almost no verdicts."""
     app = App()
     verdicts = {}
     for control_id in available():

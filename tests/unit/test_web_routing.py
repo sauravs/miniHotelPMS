@@ -580,9 +580,9 @@ class TestThePageExplainsItself:
     def test_the_run_page_explains_all_four_outcomes_in_one_place(self):
         """The four words on screen are PASS, VIOLATION, NO ANSWER and NOT APPLICABLE, and the
         two that a reader will get wrong are the last two. So the page says, in prose, that one
-        is not a failure and the other is not a pass."""
+        is not a failure and the other is not a pass. Over the covering capture (#71)."""
         text = text_of(handle("/run/inactive_room_future_stay"
-                              "?property=sandbox&evidence=sandbox2026").body).lower()
+                              "?property=sandbox&evidence=sandbox2026cover").body).lower()
         assert "what the four answers mean" in text
         for badge in ("pass", "violation", "no answer", "not applicable"):
             assert badge in text, badge

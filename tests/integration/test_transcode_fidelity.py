@@ -34,7 +34,22 @@ ROOT = pathlib.Path(__file__).resolve().parents[2]
 DEMO = ROOT / "fixtures" / "demopms"
 
 # The same body of evidence, named on each side. Both are the 2026 probe of one hotel.
-PAIRS = (("sandbox2026", "demo2026"), ("sandbox2024", "demo2024"))
+PAIRS = (("sandbox2026", "demo2026"), ("sandbox2024", "demo2024"),
+         ("sandbox2026cover", "demo2026cover"))                          # issue #71
+
+
+def questions(adapter, endpoint):
+    """Every question this adapter's capture RECORDED for an endpoint, in index order - which
+    is how a test reads whole responses. An empty request asks for every record the PMS ever
+    held, and replay refuses that rather than present one window as the whole (#71)."""
+    source = adapter.source
+    return [Request(endpoint, r["request"]) for r in source.index["responses"]
+            if r["endpoint"] == endpoint and source.capture in r.get("captures", [])]
+
+
+def recorded(adapter, endpoint):
+    """The first recorded question for an endpoint - the only one, on all but the cover."""
+    return questions(adapter, endpoint)[0]
 
 
 def adapters(source_capture, demo_capture):
@@ -89,6 +104,28 @@ class TestARebuildChangesNothing:
         assert transcode.main(["--check"]) == 0
 
 
+class TestEachFileHoldsItsWholeSource:
+    """Issue #71, found by its own fix. The tool READS each source response by replaying its
+    recorded question through the frozen source - and that source answered with the first
+    reservation response of a capture whatever was asked. So demo2026cover's arrival and
+    create files were the departure response, narrowed: 108 bookings of 385, 40 of 150. A
+    rebuild reproduced the same wrong bytes, so "identical to a rebuild" passed.
+
+    Hence a check that goes around the replay entirely: each committed demo bookings file holds
+    exactly the reservations of the source FILE it names, read from both files directly.
+    """
+
+    @pytest.mark.parametrize("entry", [
+        r for r in json.loads((DEMO / "index.json").read_text("utf-8"))["responses"]
+        if r["endpoint"] == "bookings"], ids=lambda r: r["file"])
+    def test_the_same_reservations_as_the_source_file(self, entry):
+        import re
+        source = (ROOT / "fixtures" / "minihotel" / entry["transcoded_from"]).read_text("utf-8")
+        wanted = re.findall(r'Minihotel_reservation_id="([^"]*)"', source)
+        demo = json.loads((DEMO / entry["file"]).read_text("utf-8"))
+        assert [b["booking_ref"] for b in demo["bookings"]] == wanted
+
+
 class TestTheRecordsAreTheSameRecords:
     @pytest.mark.parametrize("source_capture,demo_capture", PAIRS)
     def test_the_same_reservations_with_the_same_statuses_and_totals(
@@ -97,8 +134,11 @@ class TestTheRecordsAreTheSameRecords:
         fields = ("reservation.id", "reservation.status", "reservation.arrival_date",
                   "reservation.departure_date", "reservation.channel_confirmation_id",
                   "reservation.total_amount", "reservation.currency")
-        assert canonical(source, Request("GetReservationKey", {}), "reservation", fields) == \
-            canonical(demo, Request("bookings", {}), "reservation", fields)
+        asked = list(zip(questions(source, "GetReservationKey"), questions(demo, "bookings")))
+        assert asked, "a capture with no reservation question compares nothing"
+        for source_question, demo_question in asked:
+            assert canonical(source, source_question, "reservation", fields) == \
+                canonical(demo, demo_question, "reservation", fields), source_question
 
     def test_the_same_rooms_with_the_same_types_and_capacities(self):
         source, demo = adapters("sandbox2026", "demo2026")
@@ -118,8 +158,8 @@ class TestTheRecordsAreTheSameRecords:
         source, demo = adapters("sandbox2026", "demo2026")
         fields = ("occupancy.room_number", "occupancy.reservation_id", "occupancy.from",
                   "occupancy.to", "occupancy.status")
-        assert canonical(source, Request("RoomStatusInquiry", {}), "occupancy", fields) == \
-            canonical(demo, Request("occupancy", {}), "occupancy", fields)
+        assert canonical(source, recorded(source, "RoomStatusInquiry"), "occupancy", fields) == \
+            canonical(demo, recorded(demo, "occupancy"), "occupancy", fields)
 
     # Which capture holds which folio. Two were taken during the original 2024 probe and three
     # during the 2026 checkout probe; a folio costs one call per reservation on somebody else's
@@ -161,8 +201,8 @@ class TestTheGapsAreTheSameGaps:
         them here would be inventing knowledge about a hotel."""
         source, demo = adapters("sandbox2026", "demo2026")
         counts = []
-        for adapter, request in ((source, Request("GetReservationKey", {})),
-                                 (demo, Request("bookings", {}))):
+        for adapter, request in ((source, recorded(source, "GetReservationKey")),
+                                 (demo, recorded(demo, "bookings"))):
             records = adapter.records(adapter.fetch(request), "reservation")
             counts.append(sum(1 for r in records
                               if not adapter.resolve("reservation.status", r).is_known))

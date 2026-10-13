@@ -6,7 +6,8 @@
       "provider": "demopms",
       "captures": [
         "demo2024",
-        "demo2026"
+        "demo2026",
+        "demo2026cover"
       ],
       "default_capture": "demo2026"
     },
@@ -16,7 +17,8 @@
       "provider": "minihotel",
       "captures": [
         "sandbox2024",
-        "sandbox2026"
+        "sandbox2026",
+        "sandbox2026cover"
       ],
       "default_capture": "sandbox2026"
     }

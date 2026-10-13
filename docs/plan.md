@@ -631,7 +631,7 @@ something.
 
 | # | Criterion | State |
 | --- | --- | --- |
-| 1 | ≥8 of 11 controls reach PASS or FAIL; the rest name their blocker | **NOT MET — 5 of 11 on `sandbox2026`; 4 of 11 on the 2026-10-10 refresh (v3 slice 23).** The second half IS met: every non-concluding control names its blocker. See the assessment below |
+| 1 | ≥8 of 11 controls reach PASS or FAIL; the rest name their blocker | **NOT MET on every capture.** Since issue #71's fix (2026-10-13): **5 of 11 on the covering capture `sandbox2026cover`**, which recorded the questions the controls ask; **2 of 11 on `sandbox2026`**; **1 of 11 on the 2026-10-10 refresh**. Before #71 those last two read 5 and 4, three of them from part of a population. The second half IS met: every non-concluding control names its blocker. See the assessment below |
 | 2 | All four outcomes from captured evidence; UNKNOWN distinct from FAIL | **Met** — all four reached from captured evidence since slice 4, and the distinction is asserted three ways: wording with every tag stripped, border style, and hue |
 | 3 | Every verdict traces to its fields | **Met** — structurally; a `Verdict` cannot be built without evidence |
 | 4 | Call count is `1 + R + N`, asserted | **Met** — counted invocations, slice 3 and again end to end |
@@ -646,12 +646,19 @@ something.
 
 ### Criterion 1, assessed: 5 of 11, and where the other six went
 
+*Since issue #71's fix (2026-10-13) this is the figure on the covering capture,
+`sandbox2026cover`: the hotel as of 2026-07-08, with the arrival and create windows the controls
+ask recorded. On `sandbox2026` itself only the two checkout controls conclude. See
+[per capture](#criterion-1-measured-again-per-capture-2026-10-10-v3-slice-23) below.*
+
 The number is measured by `tests/e2e/test_runs.py`, which holds the sets by name so a change in
 any of them turns a test red rather than passing quietly. It is asserted as **not met**, and the
 test says so in its own name.
 
-**Five conclude** on the 2026 capture: `checkout_money_owed`, `checkout_unrefunded_credit`,
+**Five conclude** on the covering capture: `checkout_money_owed`, `checkout_unrefunded_credit`,
 `duplicate_channel_reservation`, `inactive_room_future_stay`, `room_assignment_type_validity`.
+Until #71 the same five were reported on `sandbox2026`, and three of them were answered from its
+departure window rather than the arrival or create window they ask.
 
 **One is blocked** — `resource_occupancy_consistency`. Its only occupancy capture covers
 2024-08-14..2024-08-21, and a run asking about any other week is refused rather than answered from
@@ -666,7 +673,7 @@ than a gap in the engine:
 | control | why it cannot answer |
 | --- | --- |
 | `ooo_room_protection` | no room in this property has ever had a closed-date window set, so the control correctly applies to none of the 28 (open question 2.4) |
-| `room_assignment_active_room` | the same closed-date window, from the reservation side — 111 stays, all excluded |
+| `room_assignment_active_room` | the same closed-date window, from the reservation side — 372 stays on the covering capture, all excluded |
 | `room_capacity_compliance` | 23 of 28 rooms report adult capacity `0`, meaning *unconfigured* (R12). Reading those as real zeroes would be a wall of false FAILs |
 | `rate_room_category_consistency` | a rate code and the price-list code are different key spaces (R13), so no endpoint resolves the mapping at all (open question 1.6) |
 | `required_reservation_fields` | this property has nominated no rate codes, so the control applies to no reservation (open question 1.4) |
@@ -692,10 +699,14 @@ blocker, on screen and in the API, and a run that concluded nothing shows no cou
 The evidence refresh is a **second measurement beside the first, not a replacement for it**. Both
 are asserted by name in `tests/e2e/test_refresh_capture.py`, through both providers, unrounded:
 
-| capture | concludes | which |
+| capture | concluded, as measured then | which |
 | --- | --- | --- |
-| `sandbox2026` (captured 2026-09-08) | **5 of 11** | the five above, unchanged |
-| `sandbox2026refresh` (captured 2026-10-10) | **4 of 11** | `duplicate_channel_reservation`, `inactive_room_future_stay`, `resource_occupancy_consistency`, `room_assignment_type_validity` |
+| `sandbox2026` (captured 2026-09-08) | ~~**5 of 11**~~ | the five above, unchanged |
+| `sandbox2026refresh` (captured 2026-10-10) | ~~**4 of 11**~~ | `duplicate_channel_reservation`, `inactive_room_future_stay`, `resource_occupancy_consistency`, `room_assignment_type_validity` |
+
+**Corrected 2026-10-13 by issue #71; the measurement that replaces this table is
+[below](#criterion-1-per-capture-after-issue-71-2026-10-13).** Three of the five, and three of the
+four, were answered from part of a population.
 
 **What the refresh gains:** `resource_occupancy_consistency` concludes (31 PASS, 4 UNKNOWN), because
 2026 occupancy was captured for the first time. **What it loses:** the two checkout controls, which
@@ -706,11 +717,34 @@ before. `required_reservation_fields` now sees rate codes on 126 of 136 stays an
 nothing, because the sandbox's nominated codes are *not decided*. #49's capture half is done, and its
 hotel half cannot be done honestly for a vendor's test property.
 
-**A caveat that applies to both rows: issue #71.** Three of the controls concluding on both captures
-(`duplicate_channel_reservation`, `inactive_room_future_stay`, `room_assignment_type_validity`)
-ask an arrival or create window and are answered from the capture's departure window, which the
-replay guard does not compare. Their populations are therefore partial, without saying so. Fixing it
-changes existing answers, so when to do it is the owner's call; until then both figures carry it.
+### Criterion 1, per capture, after issue #71: 2026-10-13
+
+Seven controls ask an **arrival** or a **create** window. `sandbox2026` and the refresh each recorded
+a **departure** window only, and replay compared windows only by name, so those questions were
+answered from the departure response. That made three populations partial without saying so: on
+both captures, `duplicate_channel_reservation`, `inactive_room_future_stay` and
+`room_assignment_type_validity` concluded about part of what they ask. Since the fix (PR #95) a
+frozen source answers only from the response whose recorded question covers the ask, and otherwise
+refuses with the question it does hold. Two live calls, each approved by the owner (2026-10-11
+arrivals 2026-07-08..10-06 with room prices, 385 bookings; 2026-10-13 created 2026-06-08..07-08,
+150), recorded those questions as the covering capture `sandbox2026cover` (PR #94). The demo offers
+it beside `sandbox2026`, which stays the default.
+
+Asserted by name in `tests/e2e/test_refresh_capture.py` and `tests/e2e/test_runs.py`. Both
+providers agree on every row: criterion 7 holds DemoPMS to the same verdicts on each capture
+(`tests/e2e/test_two_providers.py`, and the refresh's own criterion-7 tests).
+
+| capture | before #71 | after #71 | which |
+| --- | --- | --- | --- |
+| `sandbox2026` (captured 2026-09-08) | 5 of 11 | **2 of 11** | `checkout_money_owed`, `checkout_unrefunded_credit`. The seven that ask another window are refused |
+| `sandbox2026refresh` (captured 2026-10-10) | 4 of 11 | **1 of 11** | `resource_occupancy_consistency` |
+| `sandbox2026cover` (captured 2026-10-13) | 5 of 11, wrong evidence | **5 of 11** | the five [above](#criterion-1-assessed-5-of-11-and-where-the-other-six-went), now from the questions they ask |
+
+**NOT MET on every capture.** The covering capture's five are the only figure measured from the
+right evidence. Its larger population changes the counts, not the set: `inactive_room_future_stay`
+judges 372 stays (87 PASS, 41 UNKNOWN, 244 EXCLUDED), and `duplicate_channel_reservation` judges
+150 bookings (8 PASS, 28 UNKNOWN, 114 EXCLUDED). The 48 run goldens whose answer moved are declared,
+with the reason, in `tests/integration/test_v1_no_answer_changed.py`.
 
 ---
 

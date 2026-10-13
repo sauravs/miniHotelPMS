@@ -14,7 +14,7 @@
   "run_id": "57b270d6834371d7",
   "policy_version": 2,
   "policy_digest": "sha256:22cfe672cf4ad9842c99ff78ea82ab179a0dab079a89d60851e559105eb3475c",
-  "blocked": null,
+  "blocked": "This control needs evidence this body of responses does not hold: this capture cannot answer that question: the run asks for departure 2024-08-31..2024-09-01, and these records were selected by arrival 2024-08-01..2024-08-31 - a population replayed from them would be the answer to a different question, and would look exactly as complete as the right one",
   "coverage": {
     "evaluated": 0,
     "total": 0,
@@ -27,12 +27,5 @@
     "headline": "This evidence was captured 730 days AFTER the instant this run asks about, so it may describe a later state than the question."
   },
   "readiness": [],
-  "verdicts": [],
-  "counts": {
-    "PASS": 0,
-    "FAIL": 0,
-    "UNKNOWN": 0,
-    "EXCLUDED": 0,
-    "total": 0
-  }
+  "verdicts": []
 }

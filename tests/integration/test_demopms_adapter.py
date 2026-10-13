@@ -30,6 +30,18 @@ def adapter(capture="demo2026"):
     return DemoPmsAdapter(TenantConfig.load("demo"), DemoSource(capture))
 
 
+def recorded(a, endpoint):
+    """The question this capture RECORDED for an endpoint - how a test reads a whole response.
+
+    An empty request asks for every record the PMS has ever held, and a capture of one window
+    cannot answer that: replay refuses it rather than present the window as the whole (#71).
+    """
+    source = a.source
+    entry = next(r for r in source.index["responses"]
+                 if r["endpoint"] == endpoint and source.capture in r.get("captures", []))
+    return Request(endpoint, entry["request"])
+
+
 @pytest.fixture(scope="module")
 def provider_map():
     return json.loads((SPEC / "providers" / "demopms.json").read_text(encoding="utf-8"))
@@ -59,7 +71,7 @@ class TestEveryMappingResolves:
 
     def test_a_field_never_comes_back_as_none(self, provider_map):
         a = adapter()
-        record = a.records(a.fetch(Request("bookings", {})), "reservation")[0]
+        record = a.records(a.fetch(recorded(a, "bookings")), "reservation")[0]
         for mapping in provider_map["mappings"]:
             if mapping["endpoint"] != "bookings":
                 continue
@@ -78,7 +90,7 @@ class TestTheCurrencySplitSurvivesTheTranscode:
 
     def test_a_booking_and_its_own_ledger_are_in_different_currencies(self):
         a = adapter("demo2024")
-        bookings = a.records(a.fetch(Request("bookings", {})), "reservation")
+        bookings = a.records(a.fetch(recorded(a, "bookings")), "reservation")
         booking = next(b for b in bookings
                        if a.resolve("reservation.id", b).payload == "007003199")
         assert a.resolve("reservation.currency", booking).payload == "USD"
@@ -90,7 +102,7 @@ class TestTheCurrencySplitSurvivesTheTranscode:
 
     def test_the_two_amounts_refuse_to_compare(self):
         a = adapter("demo2024")
-        bookings = a.records(a.fetch(Request("bookings", {})), "reservation")
+        bookings = a.records(a.fetch(recorded(a, "bookings")), "reservation")
         booking = next(b for b in bookings
                        if a.resolve("reservation.id", b).payload == "007003199")
         total = a.resolve("reservation.total_amount", booking)
@@ -150,7 +162,7 @@ class TestOccupancyIsNestedRatherThanSibling:
 
     def test_a_segment_reads_its_room_number_from_the_room_containing_it(self):
         a = adapter()
-        segments = a.records(a.fetch(Request("occupancy", {})), "occupancy")
+        segments = a.records(a.fetch(recorded(a, "occupancy")), "occupancy")
         assert segments
         for segment in segments:
             assert a.resolve("occupancy.room_number", segment).payload == "303"
@@ -166,7 +178,7 @@ class TestOccupancyIsNestedRatherThanSibling:
         """Reservation 007003204 holds room 303 twice - 10-11 and 15-16 August. v1 read that
         repetition as the reason occupancy could not be cut into records at all."""
         a = adapter()
-        segments = a.records(a.fetch(Request("occupancy", {})), "occupancy")
+        segments = a.records(a.fetch(recorded(a, "occupancy")), "occupancy")
         assert len(segments) == 2
         assert {a.resolve("occupancy.reservation_id", s).payload for s in segments} == \
             {"007003204"}
@@ -179,7 +191,7 @@ class TestRecordIsolation:
 
     def test_a_stay_reads_the_booking_that_contains_it_and_not_the_next_one(self):
         a = adapter()
-        response = a.fetch(Request("bookings", {}))
+        response = a.fetch(recorded(a, "bookings"))
         bookings = a.records(response, "reservation")
         stays = a.records(response, "stay")
 
@@ -193,7 +205,7 @@ class TestRecordIsolation:
 
     def test_a_direct_booking_does_not_borrow_a_channel_confirmation(self):
         a = adapter()
-        bookings = a.records(a.fetch(Request("bookings", {})), "reservation")
+        bookings = a.records(a.fetch(recorded(a, "bookings")), "reservation")
         resolved = [a.resolve("reservation.channel_confirmation_id", b) for b in bookings]
         direct = [v for v in resolved if v.payload is NOT_APPLICABLE]
         assert direct, "no direct bookings in this evidence, so the guard is untested"
@@ -206,7 +218,7 @@ class TestAbsenceAndEmptiness:
         """This provider writes null where the other writes an empty element. For a field whose
         absence is its own signal, both must give known(False) - control 15 depends on it."""
         a = adapter()
-        bookings = a.records(a.fetch(Request("bookings", {})), "reservation")
+        bookings = a.records(a.fetch(recorded(a, "bookings")), "reservation")
         answers = [a.resolve("reservation.guest.id_number", b) for b in bookings]
         assert all(v.is_known for v in answers)
         assert any(v.payload is False for v in answers)
@@ -227,7 +239,7 @@ class TestStatusVocabulary:
 
     def test_the_unnameable_statuses_are_the_same_reservations(self):
         a = adapter()
-        bookings = a.records(a.fetch(Request("bookings", {})), "reservation")
+        bookings = a.records(a.fetch(recorded(a, "bookings")), "reservation")
         unknown = [b for b in bookings if not a.resolve("reservation.status", b).is_known]
         assert len(unknown) == 21, (
             "15 PROV4 and 6 HOLD - the transcodings of the 15 OK4 and 6 WL the vendor returned "
@@ -236,7 +248,7 @@ class TestStatusVocabulary:
 
     def test_a_mapped_status_reaches_the_canonical_vocabulary(self):
         a = adapter()
-        bookings = a.records(a.fetch(Request("bookings", {})), "reservation")
+        bookings = a.records(a.fetch(recorded(a, "bookings")), "reservation")
         statuses = {a.resolve("reservation.status", b).payload for b in bookings}
         assert {"checked_out", "cancelled", "checked_in", "confirmed"} & statuses
 
@@ -244,9 +256,11 @@ class TestStatusVocabulary:
 class TestReplayHonesty:
     def test_a_state_filter_narrows_the_population(self):
         a = adapter()
-        everyone = a.records(a.fetch(Request("bookings", {})), "reservation")
+        everyone = a.records(a.fetch(recorded(a, "bookings")), "reservation")
+        # Within the recorded window: a state filter alone asks every booking there is (#71).
+        window = recorded(a, "bookings").params
         departed = a.records(
-            a.fetch(Request("bookings", {"state": "DEPARTED"})), "reservation")
+            a.fetch(Request("bookings", dict(window, state="DEPARTED"))), "reservation")
         assert 0 < len(departed) < len(everyone)
         for booking in departed:
             assert a.resolve("reservation.status", booking).payload == "checked_out"
@@ -280,7 +294,7 @@ class TestReplayHonesty:
     def test_every_call_is_recorded_so_a_test_can_count_them(self):
         source = DemoSource("demo2026")
         a = DemoPmsAdapter(TenantConfig.load("demo"), source)
-        a.fetch(Request("bookings", {}))
+        a.fetch(recorded(a, "bookings"))
         a.fetch(Request("rooms", {}))
         assert len(source.calls) == 2
 
@@ -303,7 +317,7 @@ class TestRefusals:
         a = adapter()
         a.mappings["reservation.status"] = dict(a.mappings["reservation.status"],
                                                 transform="no_such_transform")
-        record = a.records(a.fetch(Request("bookings", {})), "reservation")[0]
+        record = a.records(a.fetch(recorded(a, "bookings")), "reservation")[0]
         with pytest.raises(SpecError):
             a.resolve("reservation.status", record)
 

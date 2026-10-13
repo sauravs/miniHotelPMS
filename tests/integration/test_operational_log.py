@@ -102,9 +102,11 @@ class TestOneRunCanBeTracedFromRequestToDispatch:
 
     def test_every_run_says_what_it_cost_and_whether_it_concluded(self, full_run):
         """What ran, for whom, what it cost: calls, counts, coverage and a duration."""
-        _app, lines = full_run
+        app, lines = full_run
         runs = records(lines, "run")
-        cells = len(available()) * sum(1 for _ in available_tenants()) * 2
+        # Every capture each property offers - three since the covering one is offered (#71) -
+        # rather than a hard-coded count.
+        cells = len(available()) * sum(len(app.captures_for(p)) for p in available_tenants())
         assert len(runs) == cells
         for run in runs:
             assert run["run_id"] and run["control_id"] and run["tenant_id"]

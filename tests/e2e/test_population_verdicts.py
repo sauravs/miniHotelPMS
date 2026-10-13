@@ -6,19 +6,24 @@ Two controls in the shipped set ask questions about a GROUP: duplicate channel r
 (control 14) and resource occupancy consistency (control 20). v1 answered neither - it declared
 the operators and implemented none of them (finding F2).
 
-THE PAIR THIS FILE EXISTS FOR
------------------------------
-The 2024 capture contains a confirmed instance of R7: portal id `test0000000N1` is shared by
-reservation 007003206 (status CL, cancelled) and 007003207 (status OK4). v1 documented this by
-hand as the cancel-and-recreate pattern an OTA modification produces.
+THE PAIRS THIS FILE EXISTS FOR
+------------------------------
+R7, the cancel-and-recreate pattern an OTA modification produces. v1 documented one instance by
+hand in the 2024 capture: portal id `test0000000N1` shared by 007003206 (CL, cancelled) and
+007003207 (OK4). Issue #71 retired that evidence - the duplicate control asks a CREATE window,
+the 2024 capture recorded only an arrival window, and replay now refuses rather than answer
+from it. The covering capture's 2026 arrival window holds SEVEN such pairs (TESTAIRBN1 and six
+more, all created 2026-04-18, each a CL half and an OK4 half), so the guards are exercised on
+those, asked by arrival - a question that capture did record. The control's own 30-day create
+window holds no shared portal id at all, which is also stated below rather than hidden.
 
 The engine's answer is EXCLUDED for the cancelled half and UNKNOWN for the other - because
-`OK4` appears on 32 reservations and is documented nowhere, so nobody can say whether it means
-active. That is open question 1.3, and it resolves on one sentence from the vendor (question
+`OK4` is documented nowhere, so nobody can say whether it means active. That is open question 1.3, and it resolves on one sentence from the vendor (question
 2.1). What the engine must NOT do is guess, in either direction: calling it a duplicate accuses
 a hotel of a defect that is probably just a modification, and calling it clean asserts something
 about a status code we cannot read.
 """
+import copy
 from collections import Counter
 
 import pytest
@@ -28,14 +33,35 @@ from hotelcontrols.evidence import CallBudget, gather
 from hotelcontrols.kernel import FixedClock, Outcome
 from hotelcontrols.providers.base import ResponseUnavailable
 from hotelcontrols.providers.minihotel import FrozenSource, MiniHotelAdapter
-from hotelcontrols.spec import TenantConfig, available, load
+from hotelcontrols.spec import ControlIR, TenantConfig, available, load
 
 
-def run(control_id, capture="sandbox2026", as_of="2026-07-08T09:00"):
+# Issue #71: the capture that recorded the questions these controls ask. sandbox2026 holds one
+# departure window and now refuses an arrival or create question rather than answer from it.
+COVER = "sandbox2026cover"
+
+# The seven cancel-and-recreate pairs in the covering capture's arrival window: (CL, OK4).
+PAIRS = [("007003917", "007003918"), ("007003919", "007003920"), ("007003921", "007003922"),
+         ("007003923", "007003924"), ("007003925", "007003926"), ("007003927", "007003928"),
+         ("007003929", "007003930")]
+
+
+def by_arrival(control_id):
+    """The control's own rule over a population asked by ARRIVAL - the window six controls ask
+    and the covering capture recorded - instead of its own window. Only the population query
+    changes; scope, exceptions and assertion are the shipped rule's."""
+    raw = copy.deepcopy(load(control_id).raw)
+    raw["population"]["provider_query"]["minihotel"]["filters"] = copy.deepcopy(
+        load("room_assignment_type_validity").raw["population"]["provider_query"]["minihotel"]
+        ["filters"])
+    return ControlIR(raw)
+
+
+def run(control_id, capture=COVER, as_of="2026-07-08T09:00"):
     tenant = TenantConfig.load("sandbox")
     source = FrozenSource(capture)
     adapter = MiniHotelAdapter(tenant, source)
-    ir = load(control_id)
+    ir = control_id if isinstance(control_id, ControlIR) else load(control_id)
     evidence = gather(ir, adapter, tenant, FixedClock.at(as_of, tenant.timezone),
                       CallBudget(400))
     return evaluate_population(ir, evidence.bundles, tenant.settings), evidence, source
@@ -55,38 +81,50 @@ ASKABLE = {"duplicate_channel_reservation": {},
            "resource_occupancy_consistency": OCCUPANCY_WINDOW}
 
 
-class TestTheKnownDuplicatePair:
+class TestTheKnownDuplicatePairs:
     def test_the_cancelled_half_is_excluded_not_reported(self):
         """R7. An OTA modification is a cancel plus a recreate reusing the same portal id.
         Counting the cancelled half would report every modified booking in the property."""
-        verdicts, _, _ = run("duplicate_channel_reservation", capture="sandbox2024",
-                             as_of="2024-09-01T09:00")
-        cancelled = next(v for v in verdicts if v.record_id == "007003206")
-        assert cancelled.outcome is Outcome.EXCLUDED
-        assert "cancelled" in cancelled.reason
+        verdicts, _, _ = run(by_arrival("duplicate_channel_reservation"))
+        found = {v.record_id: v for v in verdicts}
+        for cancelled, _survivor in PAIRS:
+            assert found[cancelled].outcome is Outcome.EXCLUDED, cancelled
+            assert "cancelled" in found[cancelled].reason
 
     def test_the_surviving_half_is_unknown_because_nobody_can_read_its_status(self):
         """Open questions 1.3 and 2.1, arriving as a verdict.
 
-        `OK4` appears on 32 reservations across the captures and is documented nowhere. Whether
-        this reservation is active decides whether the pair is a duplicate at all - so the
-        engine says it cannot tell, and names the code it could not read.
+        `OK4` is documented nowhere. Whether the surviving half is active decides whether the
+        pair is a duplicate at all - so the engine says it cannot tell, and names the code.
         """
-        verdicts, _, _ = run("duplicate_channel_reservation", capture="sandbox2024",
-                             as_of="2024-09-01T09:00")
-        survivor = next(v for v in verdicts if v.record_id == "007003207")
-        assert survivor.outcome is Outcome.UNKNOWN
-        assert "OK4" in survivor.reason
+        verdicts, _, _ = run(by_arrival("duplicate_channel_reservation"))
+        found = {v.record_id: v for v in verdicts}
+        for _cancelled, survivor in PAIRS:
+            assert found[survivor].outcome is Outcome.UNKNOWN, survivor
+            assert "OK4" in found[survivor].reason
 
     def test_the_engine_never_guesses_in_either_direction(self):
         """Calling it a duplicate accuses a hotel of a defect that is probably a modification.
         Calling it clean asserts something about a status code we cannot read."""
-        verdicts, _, _ = run("duplicate_channel_reservation", capture="sandbox2024",
-                             as_of="2024-09-01T09:00")
-        pair = [v for v in verdicts if v.record_id in ("007003206", "007003207")]
-        assert len(pair) == 2
-        assert not any(v.outcome is Outcome.FAIL for v in pair)
-        assert not any(v.outcome is Outcome.PASS for v in pair)
+        verdicts, _, _ = run(by_arrival("duplicate_channel_reservation"))
+        pairs = {record for pair in PAIRS for record in pair}
+        judged = [v for v in verdicts if v.record_id in pairs]
+        assert len(judged) == 14
+        assert not any(v.outcome in (Outcome.FAIL, Outcome.PASS) for v in judged)
+
+    def test_the_controls_own_window_holds_no_pair_at_all(self):
+        """Stated rather than hidden: asked its own question - created in the 30 days to
+        2026-07-08 - the covering capture holds no shared portal id, which is why the pairs
+        above are asked by arrival."""
+        verdicts, _, _ = run("duplicate_channel_reservation")
+        assert not {v.record_id for v in verdicts} & {r for pair in PAIRS for r in pair}
+
+    def test_the_2024_capture_no_longer_answers_a_create_window_from_an_arrival_one(self):
+        """Issue #71. The 2024 pair used to be judged from a capture that recorded an arrival
+        window; the control asks a create window, so that answer was a different question's."""
+        with pytest.raises(ResponseUnavailable, match="selected by ArrivalDate"):
+            run("duplicate_channel_reservation", capture="sandbox2024",
+                as_of="2024-09-01T09:00")
 
 
 class TestAggregateControlsNowAnswer:
@@ -147,10 +185,9 @@ class TestTheDirectBookingGuard:
         """R7's other half. 7 of 11 sandbox bookings are direct and carry no portal id at all.
         Grouping them on a shared absence would produce one enormous false group in which every
         direct booking is a duplicate of every other."""
-        verdicts, _, _ = run("duplicate_channel_reservation", capture="sandbox2024",
-                             as_of="2024-09-01T09:00")
+        verdicts, _, _ = run("duplicate_channel_reservation")
         direct = [v for v in verdicts if "not applicable" in v.reason]
-        assert len(direct) == 5, "the 2024 capture holds five direct bookings"
+        assert len(direct) == 29, "the covering capture's create window holds 29 direct bookings"
         for verdict in direct:
             assert verdict.outcome is Outcome.EXCLUDED
 
@@ -163,9 +200,9 @@ class TestTheDirectBookingGuard:
                    for v in direct)
 
     def test_no_group_ever_forms_around_a_missing_key(self):
-        for capture, as_of in (("sandbox2024", "2024-09-01T09:00"),
-                               ("sandbox2026", "2026-07-08T09:00")):
-            verdicts, _, _ = run("duplicate_channel_reservation", capture, as_of)
+        for control in ("duplicate_channel_reservation",
+                        by_arrival("duplicate_channel_reservation")):
+            verdicts, _, _ = run(control)
             for verdict in verdicts:
                 if verdict.outcome is Outcome.FAIL:
                     assert "not applicable" not in verdict.reason

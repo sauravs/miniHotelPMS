@@ -10,6 +10,9 @@
  *   criterion 8   a run that concluded nothing says so and shows NO tiles - even though its
  *                 payload carries `counts` (trap 1).
  *   EXCLUDED      is its own tile and its own group, never folded into PASS.
+ *
+ * The concluded run and the UNKNOWN come from the covering capture, sandbox2026cover (#71):
+ * sandbox2026 recorded a departure window, and replay now refuses the arrival question they ask.
  */
 import { cleanup, render, screen, within } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
@@ -50,7 +53,7 @@ describe("criterion 8 - a run that concluded nothing says so, and shows no count
   });
 
   it("a run that did conclude shows its four tiles, EXCLUDED its own", () => {
-    const payload = run("inactive_room_future_stay.sandbox.sandbox2026.json");
+    const payload = run("inactive_room_future_stay.sandbox.sandbox2026cover.json");
     expect(payload.coverage.concluded).toBe(true);
     render(<RunView run={payload} outcomes={outcomes} />);
     const items = within(tiles()!).getAllByRole("listitem");
@@ -73,7 +76,7 @@ describe("criterion 3 - a verdict traces to its fields", () => {
   });
 
   it("an UNKNOWN names the field it could not establish and why", () => {
-    const payload = run("room_capacity_compliance.sandbox.sandbox2026.json");
+    const payload = run("room_capacity_compliance.sandbox.sandbox2026cover.json");
     const { container } = render(<RunView run={payload} outcomes={outcomes} />);
     const unknown = container.querySelector('[data-outcome="UNKNOWN"]')!;
     const gap = payload.verdicts.find((v) => v.outcome === "UNKNOWN")!.evidence.find((l) => !l.known)!;
@@ -119,7 +122,7 @@ describe("criterion 2 - the four answers differ in WORDS, with all styling strip
 
   it("the glossary is the engine's wording, every badge and every meaning", () => {
     const { container } = render(
-      <RunView run={run("inactive_room_future_stay.sandbox.sandbox2026.json")} outcomes={outcomes} />,
+      <RunView run={run("inactive_room_future_stay.sandbox.sandbox2026cover.json")} outcomes={outcomes} />,
     );
     const glossary = textOf(container.querySelector("details.glossary")!);
     for (const { badge, means } of outcomes.outcomes) {
@@ -130,7 +133,7 @@ describe("criterion 2 - the four answers differ in WORDS, with all styling strip
 
   it("no help is hidden in a title attribute - invisible to touch, stripped from text", () => {
     const { container } = render(
-      <RunView run={run("inactive_room_future_stay.sandbox.sandbox2026.json")} outcomes={outcomes} />,
+      <RunView run={run("inactive_room_future_stay.sandbox.sandbox2026cover.json")} outcomes={outcomes} />,
     );
     expect(container.querySelectorAll("[title]")).toHaveLength(0);
   });
@@ -138,7 +141,7 @@ describe("criterion 2 - the four answers differ in WORDS, with all styling strip
 
 describe("grouping - a work queue that hides nothing", () => {
   it("groups read violations, gaps, passes, then not-applicable; the first two open", () => {
-    const payload = run("inactive_room_future_stay.sandbox.sandbox2026.json");
+    const payload = run("inactive_room_future_stay.sandbox.sandbox2026cover.json");
     const { container } = render(<RunView run={payload} outcomes={outcomes} />);
     const groups = [...container.querySelectorAll("details.group")];
     const present = outcomes.group_order.filter((o) => payload.verdicts.some((v) => v.outcome === o));
