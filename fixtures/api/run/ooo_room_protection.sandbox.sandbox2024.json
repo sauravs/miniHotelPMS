@@ -12,8 +12,8 @@
   "created_at": "2024-09-01T00:00:00+03:00",
   "calls": 2,
   "run_id": "b92123bf3b9c654b",
-  "policy_version": 3,
-  "policy_digest": "sha256:ad512f42e1249dfbc8248b62d5f849753620fc3907cdf30545dc09a3ffe2c999",
+  "policy_version": 4,
+  "policy_digest": "sha256:994868665692cf9b1644e56cfca511157602448c678e59843171f438cf9950af",
   "blocked": null,
   "coverage": {
     "evaluated": 0,
@@ -124,7 +124,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: DateRange was captured for 2024-08-14..2024-08-21 and the run asks for 2024-09-01..2024-09-08. An empty population here would look exactly like 'no violations found', and a population from the WRONG window would look like an answer, so it is refused instead",
           "risk": null,
           "source": "pms:minihotel/RoomStatusInquiry"
         },
@@ -133,7 +133,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: DateRange was captured for 2024-08-14..2024-08-21 and the run asks for 2024-09-01..2024-09-08. An empty population here would look exactly like 'no violations found', and a population from the WRONG window would look like an answer, so it is refused instead",
           "risk": null,
           "source": "pms:minihotel/RoomStatusInquiry"
         },
@@ -142,7 +142,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: DateRange was captured for 2024-08-14..2024-08-21 and the run asks for 2024-09-01..2024-09-08. An empty population here would look exactly like 'no violations found', and a population from the WRONG window would look like an answer, so it is refused instead",
           "risk": null,
           "source": "pms:minihotel/RoomStatusInquiry"
         },
@@ -160,7 +160,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: DateRange was captured for 2024-08-14..2024-08-21 and the run asks for 2024-09-01..2024-09-08. An empty population here would look exactly like 'no violations found', and a population from the WRONG window would look like an answer, so it is refused instead",
           "risk": null,
           "source": "pms:minihotel/RoomStatusInquiry"
         }
@@ -222,7 +222,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: DateRange was captured for 2024-08-14..2024-08-21 and the run asks for 2024-09-01..2024-09-08. An empty population here would look exactly like 'no violations found', and a population from the WRONG window would look like an answer, so it is refused instead",
           "risk": null,
           "source": "pms:minihotel/RoomStatusInquiry"
         },
@@ -231,7 +231,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: DateRange was captured for 2024-08-14..2024-08-21 and the run asks for 2024-09-01..2024-09-08. An empty population here would look exactly like 'no violations found', and a population from the WRONG window would look like an answer, so it is refused instead",
           "risk": null,
           "source": "pms:minihotel/RoomStatusInquiry"
         },
@@ -240,7 +240,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: DateRange was captured for 2024-08-14..2024-08-21 and the run asks for 2024-09-01..2024-09-08. An empty population here would look exactly like 'no violations found', and a population from the WRONG window would look like an answer, so it is refused instead",
           "risk": null,
           "source": "pms:minihotel/RoomStatusInquiry"
         },
@@ -258,7 +258,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: DateRange was captured for 2024-08-14..2024-08-21 and the run asks for 2024-09-01..2024-09-08. An empty population here would look exactly like 'no violations found', and a population from the WRONG window would look like an answer, so it is refused instead",
           "risk": null,
           "source": "pms:minihotel/RoomStatusInquiry"
         }
@@ -320,7 +320,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: DateRange was captured for 2024-08-14..2024-08-21 and the run asks for 2024-09-01..2024-09-08. An empty population here would look exactly like 'no violations found', and a population from the WRONG window would look like an answer, so it is refused instead",
           "risk": null,
           "source": "pms:minihotel/RoomStatusInquiry"
         },
@@ -329,7 +329,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: DateRange was captured for 2024-08-14..2024-08-21 and the run asks for 2024-09-01..2024-09-08. An empty population here would look exactly like 'no violations found', and a population from the WRONG window would look like an answer, so it is refused instead",
           "risk": null,
           "source": "pms:minihotel/RoomStatusInquiry"
         },
@@ -338,7 +338,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: DateRange was captured for 2024-08-14..2024-08-21 and the run asks for 2024-09-01..2024-09-08. An empty population here would look exactly like 'no violations found', and a population from the WRONG window would look like an answer, so it is refused instead",
           "risk": null,
           "source": "pms:minihotel/RoomStatusInquiry"
         },
@@ -356,7 +356,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: DateRange was captured for 2024-08-14..2024-08-21 and the run asks for 2024-09-01..2024-09-08. An empty population here would look exactly like 'no violations found', and a population from the WRONG window would look like an answer, so it is refused instead",
           "risk": null,
           "source": "pms:minihotel/RoomStatusInquiry"
         }
@@ -418,7 +418,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: DateRange was captured for 2024-08-14..2024-08-21 and the run asks for 2024-09-01..2024-09-08. An empty population here would look exactly like 'no violations found', and a population from the WRONG window would look like an answer, so it is refused instead",
           "risk": null,
           "source": "pms:minihotel/RoomStatusInquiry"
         },
@@ -427,7 +427,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: DateRange was captured for 2024-08-14..2024-08-21 and the run asks for 2024-09-01..2024-09-08. An empty population here would look exactly like 'no violations found', and a population from the WRONG window would look like an answer, so it is refused instead",
           "risk": null,
           "source": "pms:minihotel/RoomStatusInquiry"
         },
@@ -436,7 +436,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: DateRange was captured for 2024-08-14..2024-08-21 and the run asks for 2024-09-01..2024-09-08. An empty population here would look exactly like 'no violations found', and a population from the WRONG window would look like an answer, so it is refused instead",
           "risk": null,
           "source": "pms:minihotel/RoomStatusInquiry"
         },
@@ -454,7 +454,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: DateRange was captured for 2024-08-14..2024-08-21 and the run asks for 2024-09-01..2024-09-08. An empty population here would look exactly like 'no violations found', and a population from the WRONG window would look like an answer, so it is refused instead",
           "risk": null,
           "source": "pms:minihotel/RoomStatusInquiry"
         }
@@ -516,7 +516,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: DateRange was captured for 2024-08-14..2024-08-21 and the run asks for 2024-09-01..2024-09-08. An empty population here would look exactly like 'no violations found', and a population from the WRONG window would look like an answer, so it is refused instead",
           "risk": null,
           "source": "pms:minihotel/RoomStatusInquiry"
         },
@@ -525,7 +525,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: DateRange was captured for 2024-08-14..2024-08-21 and the run asks for 2024-09-01..2024-09-08. An empty population here would look exactly like 'no violations found', and a population from the WRONG window would look like an answer, so it is refused instead",
           "risk": null,
           "source": "pms:minihotel/RoomStatusInquiry"
         },
@@ -534,7 +534,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: DateRange was captured for 2024-08-14..2024-08-21 and the run asks for 2024-09-01..2024-09-08. An empty population here would look exactly like 'no violations found', and a population from the WRONG window would look like an answer, so it is refused instead",
           "risk": null,
           "source": "pms:minihotel/RoomStatusInquiry"
         },
@@ -552,7 +552,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: DateRange was captured for 2024-08-14..2024-08-21 and the run asks for 2024-09-01..2024-09-08. An empty population here would look exactly like 'no violations found', and a population from the WRONG window would look like an answer, so it is refused instead",
           "risk": null,
           "source": "pms:minihotel/RoomStatusInquiry"
         }
@@ -614,7 +614,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: DateRange was captured for 2024-08-14..2024-08-21 and the run asks for 2024-09-01..2024-09-08. An empty population here would look exactly like 'no violations found', and a population from the WRONG window would look like an answer, so it is refused instead",
           "risk": null,
           "source": "pms:minihotel/RoomStatusInquiry"
         },
@@ -623,7 +623,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: DateRange was captured for 2024-08-14..2024-08-21 and the run asks for 2024-09-01..2024-09-08. An empty population here would look exactly like 'no violations found', and a population from the WRONG window would look like an answer, so it is refused instead",
           "risk": null,
           "source": "pms:minihotel/RoomStatusInquiry"
         },
@@ -632,7 +632,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: DateRange was captured for 2024-08-14..2024-08-21 and the run asks for 2024-09-01..2024-09-08. An empty population here would look exactly like 'no violations found', and a population from the WRONG window would look like an answer, so it is refused instead",
           "risk": null,
           "source": "pms:minihotel/RoomStatusInquiry"
         },
@@ -650,7 +650,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: DateRange was captured for 2024-08-14..2024-08-21 and the run asks for 2024-09-01..2024-09-08. An empty population here would look exactly like 'no violations found', and a population from the WRONG window would look like an answer, so it is refused instead",
           "risk": null,
           "source": "pms:minihotel/RoomStatusInquiry"
         }
@@ -712,7 +712,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: DateRange was captured for 2024-08-14..2024-08-21 and the run asks for 2024-09-01..2024-09-08. An empty population here would look exactly like 'no violations found', and a population from the WRONG window would look like an answer, so it is refused instead",
           "risk": null,
           "source": "pms:minihotel/RoomStatusInquiry"
         },
@@ -721,7 +721,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: DateRange was captured for 2024-08-14..2024-08-21 and the run asks for 2024-09-01..2024-09-08. An empty population here would look exactly like 'no violations found', and a population from the WRONG window would look like an answer, so it is refused instead",
           "risk": null,
           "source": "pms:minihotel/RoomStatusInquiry"
         },
@@ -730,7 +730,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: DateRange was captured for 2024-08-14..2024-08-21 and the run asks for 2024-09-01..2024-09-08. An empty population here would look exactly like 'no violations found', and a population from the WRONG window would look like an answer, so it is refused instead",
           "risk": null,
           "source": "pms:minihotel/RoomStatusInquiry"
         },
@@ -748,7 +748,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: DateRange was captured for 2024-08-14..2024-08-21 and the run asks for 2024-09-01..2024-09-08. An empty population here would look exactly like 'no violations found', and a population from the WRONG window would look like an answer, so it is refused instead",
           "risk": null,
           "source": "pms:minihotel/RoomStatusInquiry"
         }
@@ -810,7 +810,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: DateRange was captured for 2024-08-14..2024-08-21 and the run asks for 2024-09-01..2024-09-08. An empty population here would look exactly like 'no violations found', and a population from the WRONG window would look like an answer, so it is refused instead",
           "risk": null,
           "source": "pms:minihotel/RoomStatusInquiry"
         },
@@ -819,7 +819,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: DateRange was captured for 2024-08-14..2024-08-21 and the run asks for 2024-09-01..2024-09-08. An empty population here would look exactly like 'no violations found', and a population from the WRONG window would look like an answer, so it is refused instead",
           "risk": null,
           "source": "pms:minihotel/RoomStatusInquiry"
         },
@@ -828,7 +828,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: DateRange was captured for 2024-08-14..2024-08-21 and the run asks for 2024-09-01..2024-09-08. An empty population here would look exactly like 'no violations found', and a population from the WRONG window would look like an answer, so it is refused instead",
           "risk": null,
           "source": "pms:minihotel/RoomStatusInquiry"
         },
@@ -846,7 +846,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: DateRange was captured for 2024-08-14..2024-08-21 and the run asks for 2024-09-01..2024-09-08. An empty population here would look exactly like 'no violations found', and a population from the WRONG window would look like an answer, so it is refused instead",
           "risk": null,
           "source": "pms:minihotel/RoomStatusInquiry"
         }
@@ -908,7 +908,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: DateRange was captured for 2024-08-14..2024-08-21 and the run asks for 2024-09-01..2024-09-08. An empty population here would look exactly like 'no violations found', and a population from the WRONG window would look like an answer, so it is refused instead",
           "risk": null,
           "source": "pms:minihotel/RoomStatusInquiry"
         },
@@ -917,7 +917,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: DateRange was captured for 2024-08-14..2024-08-21 and the run asks for 2024-09-01..2024-09-08. An empty population here would look exactly like 'no violations found', and a population from the WRONG window would look like an answer, so it is refused instead",
           "risk": null,
           "source": "pms:minihotel/RoomStatusInquiry"
         },
@@ -926,7 +926,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: DateRange was captured for 2024-08-14..2024-08-21 and the run asks for 2024-09-01..2024-09-08. An empty population here would look exactly like 'no violations found', and a population from the WRONG window would look like an answer, so it is refused instead",
           "risk": null,
           "source": "pms:minihotel/RoomStatusInquiry"
         },
@@ -944,7 +944,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: DateRange was captured for 2024-08-14..2024-08-21 and the run asks for 2024-09-01..2024-09-08. An empty population here would look exactly like 'no violations found', and a population from the WRONG window would look like an answer, so it is refused instead",
           "risk": null,
           "source": "pms:minihotel/RoomStatusInquiry"
         }
@@ -1006,7 +1006,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: DateRange was captured for 2024-08-14..2024-08-21 and the run asks for 2024-09-01..2024-09-08. An empty population here would look exactly like 'no violations found', and a population from the WRONG window would look like an answer, so it is refused instead",
           "risk": null,
           "source": "pms:minihotel/RoomStatusInquiry"
         },
@@ -1015,7 +1015,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: DateRange was captured for 2024-08-14..2024-08-21 and the run asks for 2024-09-01..2024-09-08. An empty population here would look exactly like 'no violations found', and a population from the WRONG window would look like an answer, so it is refused instead",
           "risk": null,
           "source": "pms:minihotel/RoomStatusInquiry"
         },
@@ -1024,7 +1024,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: DateRange was captured for 2024-08-14..2024-08-21 and the run asks for 2024-09-01..2024-09-08. An empty population here would look exactly like 'no violations found', and a population from the WRONG window would look like an answer, so it is refused instead",
           "risk": null,
           "source": "pms:minihotel/RoomStatusInquiry"
         },
@@ -1042,7 +1042,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: DateRange was captured for 2024-08-14..2024-08-21 and the run asks for 2024-09-01..2024-09-08. An empty population here would look exactly like 'no violations found', and a population from the WRONG window would look like an answer, so it is refused instead",
           "risk": null,
           "source": "pms:minihotel/RoomStatusInquiry"
         }
@@ -1104,7 +1104,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: DateRange was captured for 2024-08-14..2024-08-21 and the run asks for 2024-09-01..2024-09-08. An empty population here would look exactly like 'no violations found', and a population from the WRONG window would look like an answer, so it is refused instead",
           "risk": null,
           "source": "pms:minihotel/RoomStatusInquiry"
         },
@@ -1113,7 +1113,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: DateRange was captured for 2024-08-14..2024-08-21 and the run asks for 2024-09-01..2024-09-08. An empty population here would look exactly like 'no violations found', and a population from the WRONG window would look like an answer, so it is refused instead",
           "risk": null,
           "source": "pms:minihotel/RoomStatusInquiry"
         },
@@ -1122,7 +1122,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: DateRange was captured for 2024-08-14..2024-08-21 and the run asks for 2024-09-01..2024-09-08. An empty population here would look exactly like 'no violations found', and a population from the WRONG window would look like an answer, so it is refused instead",
           "risk": null,
           "source": "pms:minihotel/RoomStatusInquiry"
         },
@@ -1140,7 +1140,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: DateRange was captured for 2024-08-14..2024-08-21 and the run asks for 2024-09-01..2024-09-08. An empty population here would look exactly like 'no violations found', and a population from the WRONG window would look like an answer, so it is refused instead",
           "risk": null,
           "source": "pms:minihotel/RoomStatusInquiry"
         }
@@ -1202,7 +1202,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: DateRange was captured for 2024-08-14..2024-08-21 and the run asks for 2024-09-01..2024-09-08. An empty population here would look exactly like 'no violations found', and a population from the WRONG window would look like an answer, so it is refused instead",
           "risk": null,
           "source": "pms:minihotel/RoomStatusInquiry"
         },
@@ -1211,7 +1211,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: DateRange was captured for 2024-08-14..2024-08-21 and the run asks for 2024-09-01..2024-09-08. An empty population here would look exactly like 'no violations found', and a population from the WRONG window would look like an answer, so it is refused instead",
           "risk": null,
           "source": "pms:minihotel/RoomStatusInquiry"
         },
@@ -1220,7 +1220,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: DateRange was captured for 2024-08-14..2024-08-21 and the run asks for 2024-09-01..2024-09-08. An empty population here would look exactly like 'no violations found', and a population from the WRONG window would look like an answer, so it is refused instead",
           "risk": null,
           "source": "pms:minihotel/RoomStatusInquiry"
         },
@@ -1238,7 +1238,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: DateRange was captured for 2024-08-14..2024-08-21 and the run asks for 2024-09-01..2024-09-08. An empty population here would look exactly like 'no violations found', and a population from the WRONG window would look like an answer, so it is refused instead",
           "risk": null,
           "source": "pms:minihotel/RoomStatusInquiry"
         }
@@ -1300,7 +1300,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: DateRange was captured for 2024-08-14..2024-08-21 and the run asks for 2024-09-01..2024-09-08. An empty population here would look exactly like 'no violations found', and a population from the WRONG window would look like an answer, so it is refused instead",
           "risk": null,
           "source": "pms:minihotel/RoomStatusInquiry"
         },
@@ -1309,7 +1309,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: DateRange was captured for 2024-08-14..2024-08-21 and the run asks for 2024-09-01..2024-09-08. An empty population here would look exactly like 'no violations found', and a population from the WRONG window would look like an answer, so it is refused instead",
           "risk": null,
           "source": "pms:minihotel/RoomStatusInquiry"
         },
@@ -1318,7 +1318,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: DateRange was captured for 2024-08-14..2024-08-21 and the run asks for 2024-09-01..2024-09-08. An empty population here would look exactly like 'no violations found', and a population from the WRONG window would look like an answer, so it is refused instead",
           "risk": null,
           "source": "pms:minihotel/RoomStatusInquiry"
         },
@@ -1336,7 +1336,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: DateRange was captured for 2024-08-14..2024-08-21 and the run asks for 2024-09-01..2024-09-08. An empty population here would look exactly like 'no violations found', and a population from the WRONG window would look like an answer, so it is refused instead",
           "risk": null,
           "source": "pms:minihotel/RoomStatusInquiry"
         }
@@ -1398,7 +1398,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: DateRange was captured for 2024-08-14..2024-08-21 and the run asks for 2024-09-01..2024-09-08. An empty population here would look exactly like 'no violations found', and a population from the WRONG window would look like an answer, so it is refused instead",
           "risk": null,
           "source": "pms:minihotel/RoomStatusInquiry"
         },
@@ -1407,7 +1407,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: DateRange was captured for 2024-08-14..2024-08-21 and the run asks for 2024-09-01..2024-09-08. An empty population here would look exactly like 'no violations found', and a population from the WRONG window would look like an answer, so it is refused instead",
           "risk": null,
           "source": "pms:minihotel/RoomStatusInquiry"
         },
@@ -1416,7 +1416,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: DateRange was captured for 2024-08-14..2024-08-21 and the run asks for 2024-09-01..2024-09-08. An empty population here would look exactly like 'no violations found', and a population from the WRONG window would look like an answer, so it is refused instead",
           "risk": null,
           "source": "pms:minihotel/RoomStatusInquiry"
         },
@@ -1434,7 +1434,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: DateRange was captured for 2024-08-14..2024-08-21 and the run asks for 2024-09-01..2024-09-08. An empty population here would look exactly like 'no violations found', and a population from the WRONG window would look like an answer, so it is refused instead",
           "risk": null,
           "source": "pms:minihotel/RoomStatusInquiry"
         }
@@ -1496,7 +1496,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: DateRange was captured for 2024-08-14..2024-08-21 and the run asks for 2024-09-01..2024-09-08. An empty population here would look exactly like 'no violations found', and a population from the WRONG window would look like an answer, so it is refused instead",
           "risk": null,
           "source": "pms:minihotel/RoomStatusInquiry"
         },
@@ -1505,7 +1505,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: DateRange was captured for 2024-08-14..2024-08-21 and the run asks for 2024-09-01..2024-09-08. An empty population here would look exactly like 'no violations found', and a population from the WRONG window would look like an answer, so it is refused instead",
           "risk": null,
           "source": "pms:minihotel/RoomStatusInquiry"
         },
@@ -1514,7 +1514,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: DateRange was captured for 2024-08-14..2024-08-21 and the run asks for 2024-09-01..2024-09-08. An empty population here would look exactly like 'no violations found', and a population from the WRONG window would look like an answer, so it is refused instead",
           "risk": null,
           "source": "pms:minihotel/RoomStatusInquiry"
         },
@@ -1532,7 +1532,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: DateRange was captured for 2024-08-14..2024-08-21 and the run asks for 2024-09-01..2024-09-08. An empty population here would look exactly like 'no violations found', and a population from the WRONG window would look like an answer, so it is refused instead",
           "risk": null,
           "source": "pms:minihotel/RoomStatusInquiry"
         }
@@ -1594,7 +1594,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: DateRange was captured for 2024-08-14..2024-08-21 and the run asks for 2024-09-01..2024-09-08. An empty population here would look exactly like 'no violations found', and a population from the WRONG window would look like an answer, so it is refused instead",
           "risk": null,
           "source": "pms:minihotel/RoomStatusInquiry"
         },
@@ -1603,7 +1603,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: DateRange was captured for 2024-08-14..2024-08-21 and the run asks for 2024-09-01..2024-09-08. An empty population here would look exactly like 'no violations found', and a population from the WRONG window would look like an answer, so it is refused instead",
           "risk": null,
           "source": "pms:minihotel/RoomStatusInquiry"
         },
@@ -1612,7 +1612,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: DateRange was captured for 2024-08-14..2024-08-21 and the run asks for 2024-09-01..2024-09-08. An empty population here would look exactly like 'no violations found', and a population from the WRONG window would look like an answer, so it is refused instead",
           "risk": null,
           "source": "pms:minihotel/RoomStatusInquiry"
         },
@@ -1630,7 +1630,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: DateRange was captured for 2024-08-14..2024-08-21 and the run asks for 2024-09-01..2024-09-08. An empty population here would look exactly like 'no violations found', and a population from the WRONG window would look like an answer, so it is refused instead",
           "risk": null,
           "source": "pms:minihotel/RoomStatusInquiry"
         }
@@ -1692,7 +1692,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: DateRange was captured for 2024-08-14..2024-08-21 and the run asks for 2024-09-01..2024-09-08. An empty population here would look exactly like 'no violations found', and a population from the WRONG window would look like an answer, so it is refused instead",
           "risk": null,
           "source": "pms:minihotel/RoomStatusInquiry"
         },
@@ -1701,7 +1701,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: DateRange was captured for 2024-08-14..2024-08-21 and the run asks for 2024-09-01..2024-09-08. An empty population here would look exactly like 'no violations found', and a population from the WRONG window would look like an answer, so it is refused instead",
           "risk": null,
           "source": "pms:minihotel/RoomStatusInquiry"
         },
@@ -1710,7 +1710,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: DateRange was captured for 2024-08-14..2024-08-21 and the run asks for 2024-09-01..2024-09-08. An empty population here would look exactly like 'no violations found', and a population from the WRONG window would look like an answer, so it is refused instead",
           "risk": null,
           "source": "pms:minihotel/RoomStatusInquiry"
         },
@@ -1728,7 +1728,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: DateRange was captured for 2024-08-14..2024-08-21 and the run asks for 2024-09-01..2024-09-08. An empty population here would look exactly like 'no violations found', and a population from the WRONG window would look like an answer, so it is refused instead",
           "risk": null,
           "source": "pms:minihotel/RoomStatusInquiry"
         }
@@ -1790,7 +1790,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: DateRange was captured for 2024-08-14..2024-08-21 and the run asks for 2024-09-01..2024-09-08. An empty population here would look exactly like 'no violations found', and a population from the WRONG window would look like an answer, so it is refused instead",
           "risk": null,
           "source": "pms:minihotel/RoomStatusInquiry"
         },
@@ -1799,7 +1799,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: DateRange was captured for 2024-08-14..2024-08-21 and the run asks for 2024-09-01..2024-09-08. An empty population here would look exactly like 'no violations found', and a population from the WRONG window would look like an answer, so it is refused instead",
           "risk": null,
           "source": "pms:minihotel/RoomStatusInquiry"
         },
@@ -1808,7 +1808,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: DateRange was captured for 2024-08-14..2024-08-21 and the run asks for 2024-09-01..2024-09-08. An empty population here would look exactly like 'no violations found', and a population from the WRONG window would look like an answer, so it is refused instead",
           "risk": null,
           "source": "pms:minihotel/RoomStatusInquiry"
         },
@@ -1826,7 +1826,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: DateRange was captured for 2024-08-14..2024-08-21 and the run asks for 2024-09-01..2024-09-08. An empty population here would look exactly like 'no violations found', and a population from the WRONG window would look like an answer, so it is refused instead",
           "risk": null,
           "source": "pms:minihotel/RoomStatusInquiry"
         }
@@ -1888,7 +1888,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: DateRange was captured for 2024-08-14..2024-08-21 and the run asks for 2024-09-01..2024-09-08. An empty population here would look exactly like 'no violations found', and a population from the WRONG window would look like an answer, so it is refused instead",
           "risk": null,
           "source": "pms:minihotel/RoomStatusInquiry"
         },
@@ -1897,7 +1897,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: DateRange was captured for 2024-08-14..2024-08-21 and the run asks for 2024-09-01..2024-09-08. An empty population here would look exactly like 'no violations found', and a population from the WRONG window would look like an answer, so it is refused instead",
           "risk": null,
           "source": "pms:minihotel/RoomStatusInquiry"
         },
@@ -1906,7 +1906,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: DateRange was captured for 2024-08-14..2024-08-21 and the run asks for 2024-09-01..2024-09-08. An empty population here would look exactly like 'no violations found', and a population from the WRONG window would look like an answer, so it is refused instead",
           "risk": null,
           "source": "pms:minihotel/RoomStatusInquiry"
         },
@@ -1924,7 +1924,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: DateRange was captured for 2024-08-14..2024-08-21 and the run asks for 2024-09-01..2024-09-08. An empty population here would look exactly like 'no violations found', and a population from the WRONG window would look like an answer, so it is refused instead",
           "risk": null,
           "source": "pms:minihotel/RoomStatusInquiry"
         }
@@ -1986,7 +1986,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: DateRange was captured for 2024-08-14..2024-08-21 and the run asks for 2024-09-01..2024-09-08. An empty population here would look exactly like 'no violations found', and a population from the WRONG window would look like an answer, so it is refused instead",
           "risk": null,
           "source": "pms:minihotel/RoomStatusInquiry"
         },
@@ -1995,7 +1995,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: DateRange was captured for 2024-08-14..2024-08-21 and the run asks for 2024-09-01..2024-09-08. An empty population here would look exactly like 'no violations found', and a population from the WRONG window would look like an answer, so it is refused instead",
           "risk": null,
           "source": "pms:minihotel/RoomStatusInquiry"
         },
@@ -2004,7 +2004,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: DateRange was captured for 2024-08-14..2024-08-21 and the run asks for 2024-09-01..2024-09-08. An empty population here would look exactly like 'no violations found', and a population from the WRONG window would look like an answer, so it is refused instead",
           "risk": null,
           "source": "pms:minihotel/RoomStatusInquiry"
         },
@@ -2022,7 +2022,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: DateRange was captured for 2024-08-14..2024-08-21 and the run asks for 2024-09-01..2024-09-08. An empty population here would look exactly like 'no violations found', and a population from the WRONG window would look like an answer, so it is refused instead",
           "risk": null,
           "source": "pms:minihotel/RoomStatusInquiry"
         }
@@ -2084,7 +2084,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: DateRange was captured for 2024-08-14..2024-08-21 and the run asks for 2024-09-01..2024-09-08. An empty population here would look exactly like 'no violations found', and a population from the WRONG window would look like an answer, so it is refused instead",
           "risk": null,
           "source": "pms:minihotel/RoomStatusInquiry"
         },
@@ -2093,7 +2093,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: DateRange was captured for 2024-08-14..2024-08-21 and the run asks for 2024-09-01..2024-09-08. An empty population here would look exactly like 'no violations found', and a population from the WRONG window would look like an answer, so it is refused instead",
           "risk": null,
           "source": "pms:minihotel/RoomStatusInquiry"
         },
@@ -2102,7 +2102,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: DateRange was captured for 2024-08-14..2024-08-21 and the run asks for 2024-09-01..2024-09-08. An empty population here would look exactly like 'no violations found', and a population from the WRONG window would look like an answer, so it is refused instead",
           "risk": null,
           "source": "pms:minihotel/RoomStatusInquiry"
         },
@@ -2120,7 +2120,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: DateRange was captured for 2024-08-14..2024-08-21 and the run asks for 2024-09-01..2024-09-08. An empty population here would look exactly like 'no violations found', and a population from the WRONG window would look like an answer, so it is refused instead",
           "risk": null,
           "source": "pms:minihotel/RoomStatusInquiry"
         }
@@ -2182,7 +2182,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: DateRange was captured for 2024-08-14..2024-08-21 and the run asks for 2024-09-01..2024-09-08. An empty population here would look exactly like 'no violations found', and a population from the WRONG window would look like an answer, so it is refused instead",
           "risk": null,
           "source": "pms:minihotel/RoomStatusInquiry"
         },
@@ -2191,7 +2191,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: DateRange was captured for 2024-08-14..2024-08-21 and the run asks for 2024-09-01..2024-09-08. An empty population here would look exactly like 'no violations found', and a population from the WRONG window would look like an answer, so it is refused instead",
           "risk": null,
           "source": "pms:minihotel/RoomStatusInquiry"
         },
@@ -2200,7 +2200,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: DateRange was captured for 2024-08-14..2024-08-21 and the run asks for 2024-09-01..2024-09-08. An empty population here would look exactly like 'no violations found', and a population from the WRONG window would look like an answer, so it is refused instead",
           "risk": null,
           "source": "pms:minihotel/RoomStatusInquiry"
         },
@@ -2218,7 +2218,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: DateRange was captured for 2024-08-14..2024-08-21 and the run asks for 2024-09-01..2024-09-08. An empty population here would look exactly like 'no violations found', and a population from the WRONG window would look like an answer, so it is refused instead",
           "risk": null,
           "source": "pms:minihotel/RoomStatusInquiry"
         }
@@ -2280,7 +2280,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: DateRange was captured for 2024-08-14..2024-08-21 and the run asks for 2024-09-01..2024-09-08. An empty population here would look exactly like 'no violations found', and a population from the WRONG window would look like an answer, so it is refused instead",
           "risk": null,
           "source": "pms:minihotel/RoomStatusInquiry"
         },
@@ -2289,7 +2289,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: DateRange was captured for 2024-08-14..2024-08-21 and the run asks for 2024-09-01..2024-09-08. An empty population here would look exactly like 'no violations found', and a population from the WRONG window would look like an answer, so it is refused instead",
           "risk": null,
           "source": "pms:minihotel/RoomStatusInquiry"
         },
@@ -2298,7 +2298,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: DateRange was captured for 2024-08-14..2024-08-21 and the run asks for 2024-09-01..2024-09-08. An empty population here would look exactly like 'no violations found', and a population from the WRONG window would look like an answer, so it is refused instead",
           "risk": null,
           "source": "pms:minihotel/RoomStatusInquiry"
         },
@@ -2316,7 +2316,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: DateRange was captured for 2024-08-14..2024-08-21 and the run asks for 2024-09-01..2024-09-08. An empty population here would look exactly like 'no violations found', and a population from the WRONG window would look like an answer, so it is refused instead",
           "risk": null,
           "source": "pms:minihotel/RoomStatusInquiry"
         }
@@ -2378,7 +2378,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: DateRange was captured for 2024-08-14..2024-08-21 and the run asks for 2024-09-01..2024-09-08. An empty population here would look exactly like 'no violations found', and a population from the WRONG window would look like an answer, so it is refused instead",
           "risk": null,
           "source": "pms:minihotel/RoomStatusInquiry"
         },
@@ -2387,7 +2387,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: DateRange was captured for 2024-08-14..2024-08-21 and the run asks for 2024-09-01..2024-09-08. An empty population here would look exactly like 'no violations found', and a population from the WRONG window would look like an answer, so it is refused instead",
           "risk": null,
           "source": "pms:minihotel/RoomStatusInquiry"
         },
@@ -2396,7 +2396,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: DateRange was captured for 2024-08-14..2024-08-21 and the run asks for 2024-09-01..2024-09-08. An empty population here would look exactly like 'no violations found', and a population from the WRONG window would look like an answer, so it is refused instead",
           "risk": null,
           "source": "pms:minihotel/RoomStatusInquiry"
         },
@@ -2414,7 +2414,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: DateRange was captured for 2024-08-14..2024-08-21 and the run asks for 2024-09-01..2024-09-08. An empty population here would look exactly like 'no violations found', and a population from the WRONG window would look like an answer, so it is refused instead",
           "risk": null,
           "source": "pms:minihotel/RoomStatusInquiry"
         }
@@ -2476,7 +2476,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: DateRange was captured for 2024-08-14..2024-08-21 and the run asks for 2024-09-01..2024-09-08. An empty population here would look exactly like 'no violations found', and a population from the WRONG window would look like an answer, so it is refused instead",
           "risk": null,
           "source": "pms:minihotel/RoomStatusInquiry"
         },
@@ -2485,7 +2485,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: DateRange was captured for 2024-08-14..2024-08-21 and the run asks for 2024-09-01..2024-09-08. An empty population here would look exactly like 'no violations found', and a population from the WRONG window would look like an answer, so it is refused instead",
           "risk": null,
           "source": "pms:minihotel/RoomStatusInquiry"
         },
@@ -2494,7 +2494,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: DateRange was captured for 2024-08-14..2024-08-21 and the run asks for 2024-09-01..2024-09-08. An empty population here would look exactly like 'no violations found', and a population from the WRONG window would look like an answer, so it is refused instead",
           "risk": null,
           "source": "pms:minihotel/RoomStatusInquiry"
         },
@@ -2512,7 +2512,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: DateRange was captured for 2024-08-14..2024-08-21 and the run asks for 2024-09-01..2024-09-08. An empty population here would look exactly like 'no violations found', and a population from the WRONG window would look like an answer, so it is refused instead",
           "risk": null,
           "source": "pms:minihotel/RoomStatusInquiry"
         }
@@ -2574,7 +2574,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: DateRange was captured for 2024-08-14..2024-08-21 and the run asks for 2024-09-01..2024-09-08. An empty population here would look exactly like 'no violations found', and a population from the WRONG window would look like an answer, so it is refused instead",
           "risk": null,
           "source": "pms:minihotel/RoomStatusInquiry"
         },
@@ -2583,7 +2583,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: DateRange was captured for 2024-08-14..2024-08-21 and the run asks for 2024-09-01..2024-09-08. An empty population here would look exactly like 'no violations found', and a population from the WRONG window would look like an answer, so it is refused instead",
           "risk": null,
           "source": "pms:minihotel/RoomStatusInquiry"
         },
@@ -2592,7 +2592,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: DateRange was captured for 2024-08-14..2024-08-21 and the run asks for 2024-09-01..2024-09-08. An empty population here would look exactly like 'no violations found', and a population from the WRONG window would look like an answer, so it is refused instead",
           "risk": null,
           "source": "pms:minihotel/RoomStatusInquiry"
         },
@@ -2610,7 +2610,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: DateRange was captured for 2024-08-14..2024-08-21 and the run asks for 2024-09-01..2024-09-08. An empty population here would look exactly like 'no violations found', and a population from the WRONG window would look like an answer, so it is refused instead",
           "risk": null,
           "source": "pms:minihotel/RoomStatusInquiry"
         }
@@ -2672,7 +2672,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: DateRange was captured for 2024-08-14..2024-08-21 and the run asks for 2024-09-01..2024-09-08. An empty population here would look exactly like 'no violations found', and a population from the WRONG window would look like an answer, so it is refused instead",
           "risk": null,
           "source": "pms:minihotel/RoomStatusInquiry"
         },
@@ -2681,7 +2681,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: DateRange was captured for 2024-08-14..2024-08-21 and the run asks for 2024-09-01..2024-09-08. An empty population here would look exactly like 'no violations found', and a population from the WRONG window would look like an answer, so it is refused instead",
           "risk": null,
           "source": "pms:minihotel/RoomStatusInquiry"
         },
@@ -2690,7 +2690,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: DateRange was captured for 2024-08-14..2024-08-21 and the run asks for 2024-09-01..2024-09-08. An empty population here would look exactly like 'no violations found', and a population from the WRONG window would look like an answer, so it is refused instead",
           "risk": null,
           "source": "pms:minihotel/RoomStatusInquiry"
         },
@@ -2708,7 +2708,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: DateRange was captured for 2024-08-14..2024-08-21 and the run asks for 2024-09-01..2024-09-08. An empty population here would look exactly like 'no violations found', and a population from the WRONG window would look like an answer, so it is refused instead",
           "risk": null,
           "source": "pms:minihotel/RoomStatusInquiry"
         }
@@ -2770,7 +2770,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: DateRange was captured for 2024-08-14..2024-08-21 and the run asks for 2024-09-01..2024-09-08. An empty population here would look exactly like 'no violations found', and a population from the WRONG window would look like an answer, so it is refused instead",
           "risk": null,
           "source": "pms:minihotel/RoomStatusInquiry"
         },
@@ -2779,7 +2779,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: DateRange was captured for 2024-08-14..2024-08-21 and the run asks for 2024-09-01..2024-09-08. An empty population here would look exactly like 'no violations found', and a population from the WRONG window would look like an answer, so it is refused instead",
           "risk": null,
           "source": "pms:minihotel/RoomStatusInquiry"
         },
@@ -2788,7 +2788,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: DateRange was captured for 2024-08-14..2024-08-21 and the run asks for 2024-09-01..2024-09-08. An empty population here would look exactly like 'no violations found', and a population from the WRONG window would look like an answer, so it is refused instead",
           "risk": null,
           "source": "pms:minihotel/RoomStatusInquiry"
         },
@@ -2806,7 +2806,7 @@
           "known": false,
           "value": null,
           "unit": null,
-          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: these records were also selected by DateRange, which the run does not ask, so they are a part of its population presented as the whole",
+          "reason": "the occupancy reference could not be fetched: this capture cannot answer that question: DateRange was captured for 2024-08-14..2024-08-21 and the run asks for 2024-09-01..2024-09-08. An empty population here would look exactly like 'no violations found', and a population from the WRONG window would look like an answer, so it is refused instead",
           "risk": null,
           "source": "pms:minihotel/RoomStatusInquiry"
         }

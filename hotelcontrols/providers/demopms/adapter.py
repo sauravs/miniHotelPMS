@@ -62,6 +62,11 @@ REFERENCE_REQUEST = {
     "occupancy": Request("occupancy", {}),
 }
 
+# The filter that bounds a reference's request to a window of dates (issue #109, P2), per entity:
+# this provider's `window`, the same one its occupancy population asks. A master list has no
+# dates, so a window for one is refused rather than dropped.
+REFERENCE_WINDOW = {"occupancy": "window"}
+
 
 # The webhooks this PMS publishes, in canonical names - and DELIBERATELY a smaller set than the
 # real one's. It emits reservation events and nothing else: no room-occupancy event, so
@@ -169,9 +174,18 @@ class DemoPmsAdapter:
             return None
         return Request(self.source_key(field_name), {parameter: record_id})
 
-    def reference_request(self, entity: str) -> Request | None:
-        """The call fetching the whole property's records of an entity, for a join."""
-        return REFERENCE_REQUEST.get(entity)
+    def reference_request(self, entity: str,
+                          window: dict[str, str] | None = None) -> Request | None:
+        """The call fetching the whole property's records of an entity, for a join - bounded
+        to `window` ({"from": ISO date, "to": ISO date}) when the rule declares one."""
+        request = REFERENCE_REQUEST.get(entity)
+        if request is None or window is None:
+            return request
+        parameter = REFERENCE_WINDOW.get(entity)
+        if parameter is None:
+            return None
+        return Request(request.endpoint, {parameter: {"from": window["from"],
+                                                      "to": window["to"]}})
 
     def events(self) -> tuple[str, ...]:
         """The events this PMS publishes, in canonical names."""

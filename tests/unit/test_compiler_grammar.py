@@ -698,3 +698,36 @@ class TestOneOfNeedsACollection:
                    'must have reservation.guest.email exists',
                    registry, deployment, tenant)
         assert ir["scope"][0]["tenant_setting"] == "nominated_rate_codes"
+
+
+# ---------------------------------------------------------------------------------------
+class TestWhatAnAbsenceAnswers:
+    """Issue #109, P4 - the owner's choice of an explicit `absent` key (2026-10-13). Scope
+    clauses AND together and the grammar has no OR, so "closed_to is absent or on/after today"
+    needed a way to be said. The rule says it, in the sentence, so it is visible beside the
+    verdict - never a default buried in an operator."""
+
+    def test_or_absent_means_an_absence_satisfies_the_clause(self, registry, deployment):
+        ir = ir_of('every room where room.closed_to at least "today" or absent '
+                   'must have room.number exists', registry, deployment)
+        assert ir["scope"] == [{"field": "room.closed_to", "operator": "gte",
+                                "value": "today", "absent": True}]
+
+    def test_if_present_means_an_absence_does_not(self, registry, deployment):
+        ir = ir_of('every room unless room.closed_to less than "today" if present '
+                   'must have room.number exists', registry, deployment)
+        assert ir["exceptions"] == [{"field": "room.closed_to", "operator": "lt",
+                                     "value": "today", "absent": False}]
+
+    def test_a_condition_says_nothing_about_absence_unless_asked(self, registry, deployment):
+        ir = ir_of('every room where room.closed_to at least "today" '
+                   'must have room.number exists', registry, deployment)
+        assert "absent" not in ir["scope"][0]
+
+    def test_or_followed_by_anything_else_is_refused(self, registry, deployment):
+        """No general OR: one reading per sentence."""
+        result = compiled('every room where room.closed_to at least "today" or '
+                          'room.closed_from exists must have room.number exists',
+                          registry, deployment)
+        assert not result.ok
+        assert any("absent" in str(p) for p in result.problems), result.problems

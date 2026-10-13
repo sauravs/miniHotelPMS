@@ -96,8 +96,13 @@ class Provider(Protocol):
         """The call that fetches `field_name` for ONE record, or None if this field's source
         answers for the whole property and cannot be asked about a single record."""
 
-    def reference_request(self, entity: str) -> Request | None:
-        """The call that fetches the whole property's records of `entity`, for a join."""
+    def reference_request(self, entity: str,
+                          window: dict[str, str] | None = None) -> Request | None:
+        """The call that fetches the whole property's records of `entity`, for a join.
+
+        With a `window` - two ISO dates, `{"from", "to"}`, from the rule's
+        `population.reference_windows` (#109) - the call asks only for records touching it,
+        in this provider's own filter, and None if this provider cannot bound that entity."""
 
     def provenance(self, field_name: str) -> str:
         """Where a field's evidence comes from, as it should read in an audit trail."""

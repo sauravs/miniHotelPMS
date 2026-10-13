@@ -29,20 +29,28 @@ reader deciding whether to act on it needs to know which. So a Run records WHEN 
 obtained, and `freshness` compares that against what the control asked for. Evidence whose age
 cannot be established is stale, never assumed current.
 
+A RULE'S RELATIVE DATES ARE RESOLVED HERE (issue #109, P4). `room.closed_to at least "today"`
+means the PROPERTY'S today, so the runner - which holds the clock - resolves `today` and
+`today+Nd` in a predicate's value before the evaluator sees the rule, and the evaluator stays a
+pure function of rule and evidence. The rule on disk, its version and its digest are untouched:
+a run records the rule as written, not as resolved on one day.
+
 EVERY INSTANT ON A RUN COMES FROM THE INJECTED CLOCK. `created_at` used to come from
 `datetime.now()`, which is a machine's opinion about what time it is at a hotel - the same
 mistake F11 is about, one field further along.
 """
 from __future__ import annotations
 
+import copy
 from dataclasses import dataclass, field
 from datetime import date, datetime, time
 
 from ..evaluator import evaluate_population
 from ..evidence import BudgetExceeded, CallBudget, gather
 from ..kernel import Clock, Outcome, Verdict
+from ..kernel.dates import is_relative_date, resolve_relative_date
 from ..providers.base import ProviderError
-from ..spec import SpecError, TenantConfig, load
+from ..spec import ControlIR, SpecError, TenantConfig, load
 from .coverage import Coverage, coverage_of
 from .scheduling import Freshness, freshness_of
 
@@ -127,7 +135,8 @@ def run(control_id: str, tenant: TenantConfig, adapter, clock: Clock,
     verdicts: tuple[Verdict, ...] = ()
     try:
         evidence = gather(ir, adapter, tenant, clock, budget)
-        verdicts = tuple(evaluate_population(ir, evidence.bundles, tenant.settings))
+        verdicts = tuple(evaluate_population(with_dates_resolved(ir, clock),
+                                             evidence.bundles, tenant.settings))
     except BudgetExceeded as exc:
         # R1/R8 - the budget stops the run. Saying so is the point; a stack trace is not.
         blocked = "This run was stopped by its call budget: %s" % exc
@@ -159,6 +168,24 @@ def run(control_id: str, tenant: TenantConfig, adapter, clock: Clock,
         # edited without its bump, the digest says so even when the version does not.
         policy_version=ir.version,
         policy_digest=ir.digest)
+
+
+def with_dates_resolved(ir: ControlIR, clock: Clock) -> ControlIR:
+    """A copy of the rule with every relative date in a predicate's value resolved through
+    the property clock - `today` on 2026-07-08 in the hotel's timezone is "2026-07-08".
+
+    A copy, so the loaded rule (and the digest a run records from it) is the rule as written.
+    Only an exact token is resolved; the validator refuses a malformed one (check 11), and the
+    evaluator refuses one that reaches it unresolved.
+    """
+    raw = copy.deepcopy(ir.raw)
+    today = clock.today()
+    clauses = [raw.get("scope", []), raw.get("exceptions", []), raw["assertion"]["predicates"]]
+    for predicates in clauses:
+        for predicate in predicates:
+            if is_relative_date(predicate.get("value")):
+                predicate["value"] = resolve_relative_date(predicate["value"], today)
+    return ControlIR(raw)
 
 
 def _observed(source, clock: Clock) -> datetime | None:

@@ -535,11 +535,35 @@ class _Parser:
                     "the hotel supplies - this grammar has no inline list."
                     % (field, operand["value"]))
             predicate.update(operand)
+            absent = self._absence()
+            if absent is not None:
+                predicate["absent"] = absent
         elif kind == "interval":
             start = self._field()
             self.expect("to", "to close the interval this record is measured against")
             predicate["interval"] = {"start": start, "end": self._field()}
         return predicate
+
+    def _absence(self) -> bool | None:
+        """`or absent` / `if present` - what this clause answers when its field is absent.
+
+        Issue #109, P4 (the owner's choice, 2026-10-13). Clauses AND together and there is no
+        general OR, so "room.closed_to at least "today" or absent" is how a rule keeps an
+        open-ended closure in scope. It is said in the sentence, so it is on screen beside the
+        verdict; the validator decides where it may stand (check 9).
+        """
+        if self.word() == "or":
+            if self.word(1) != "absent":
+                raise _ParseError(
+                    "'or' is allowed only as 'or absent', saying what this clause answers when "
+                    "its field is absent - this grammar has no general OR, so every sentence "
+                    "keeps one reading. Found: %r" % self.rest())
+            self.at += 2
+            return True
+        if self.word() == "if" and self.word(1) == "present":
+            self.at += 2
+            return False
+        return None
 
     def _operator_phrase(self):
         """Longest match wins, so 'one of' is never read as a stray 'one'."""

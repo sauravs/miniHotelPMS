@@ -26,13 +26,14 @@ from .budget import BudgetExceeded, CallBudget
 from .cache import ResponseCache
 from .gather import Bundle, EvidenceSet, gather
 from .population import build_request, population
-from .reference import ReferenceIndex, build_references
+from .reference import FetchedWindow, ReferenceIndex, build_references
 
 __all__ = [
     "Bundle",
     "BudgetExceeded",
     "CallBudget",
     "EvidenceSet",
+    "FetchedWindow",
     "ReferenceIndex",
     "ResponseCache",
     "build_references",

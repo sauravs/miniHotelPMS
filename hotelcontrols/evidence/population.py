@@ -24,14 +24,11 @@ obviously empty.
 """
 from __future__ import annotations
 
-import re
-from datetime import timedelta
 from typing import Any
 
 from ..kernel import Clock
+from ..kernel.dates import resolve_relative_date
 from ..providers.base import Request
-
-_RELATIVE_DATE = re.compile(r"^today(?:([+-])(\d+)d)?$")
 
 
 def build_request(ir, provider_name: str, clock: Clock) -> Request:
@@ -46,22 +43,21 @@ def build_request(ir, provider_name: str, clock: Clock) -> Request:
         raise KeyError("%s declares no population query for provider %r"
                        % (ir.get("control_id", "this control"), provider_name))
     query = queries[provider_name]
-    return Request(query["endpoint"], _resolve_dates(query.get("filters", {}), clock))
+    return Request(query["endpoint"], resolve_dates(query.get("filters", {}), clock))
 
 
-def _resolve_dates(value: Any, clock: Clock) -> Any:
+def resolve_dates(value: Any, clock: Clock) -> Any:
+    """Every relative date inside a query's filters, resolved through the property clock."""
     if isinstance(value, dict):
-        return {key: _resolve_dates(item, clock) for key, item in value.items()}
+        return {key: resolve_dates(item, clock) for key, item in value.items()}
     if isinstance(value, str) and value.startswith("today"):
-        match = _RELATIVE_DATE.match(value)
-        if not match:
+        try:
+            return resolve_relative_date(value, clock.today())
+        except ValueError:
             raise ValueError(
                 "unrecognised relative date %r in a population query - passing a token we do "
                 "not understand to the provider would make the population silently wrong "
-                "rather than obviously empty" % (value,))
-        sign, days = match.groups()
-        offset = timedelta(days=int(days or 0) * (-1 if sign == "-" else 1))
-        return (clock.today() + offset).strftime("%Y-%m-%d")
+                "rather than obviously empty" % (value,)) from None
     return value
 
 

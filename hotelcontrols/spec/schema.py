@@ -133,9 +133,17 @@ def _properties(value, schema, root, path, out):
 
 
 def _additional_properties(value, schema, root, path, out):
-    if not isinstance(value, dict) or schema["additionalProperties"] is not False:
+    allowed = schema["additionalProperties"]
+    if not isinstance(value, dict) or allowed is True:
         return
     declared = set(schema.get("properties", {}))
+    if isinstance(allowed, dict):
+        # A schema every undeclared property must meet - a map keyed by name, like
+        # `population.reference_windows` (issue #109). Skipping it would nod the map through.
+        for name in value:
+            if name not in declared:
+                _check(value[name], allowed, root, "%s.%s" % (path, name), out)
+        return
     for name in value:
         if name not in declared:
             # Strictness here is what stops a typo becoming a silently ignored clause: an IR

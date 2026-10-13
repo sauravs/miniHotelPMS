@@ -20,6 +20,7 @@ first time it is useful is not the first time a password leaves the machine.
 """
 import pytest
 
+from hotelcontrols.providers.base import Request
 from hotelcontrols.spec import available, available_tenants
 from tools import probe
 
@@ -261,12 +262,25 @@ class TestRunSendsWhatThePlanPrinted:
         assert [request.endpoint for request in requests] == ["GetReservationKey"]
 
     def test_a_plan_holding_a_request_the_encoder_refuses_sends_nothing_at_all(self):
-        """R8. `ooo_room_protection` joins occupancy with NO window, which the live form refuses
-        as the wide query the vendor asked us not to send. Sending the rest would be a
-        different plan from the one printed, so none of it is sent."""
+        """R8. An occupancy question with NO window is refused by the live form as the wide
+        query the vendor asked us not to send. Sending the rest would be a different plan from
+        the one printed, so none of it is sent. (`ooo_room_protection` asked exactly that until
+        #109 gave its reference a window; the unbounded ask is put back here by hand.)"""
         prepared = probe.prepare(["--property", "sandbox", "--control", "ooo_room_protection"])
+        [stage] = [s for section in prepared.sections for s in section.stages
+                   if s.name == "references"]
+        stage.requests = [Request("RoomStatusInquiry", {}), *stage.requests]
         with pytest.raises(probe.Refused, match="RoomStatusInquiry"):
             probe.sendable(prepared.sections, prepared.package.encoder)
+
+    def test_the_occupancy_reference_is_printed_with_its_window_and_can_be_sent(self):
+        """Issue #109, P2. The rule's reference window, resolved by the property clock, is
+        what the plan prints and what the run sends: one 7-day occupancy call (R8)."""
+        prepared = probe.prepare(["--property", "sandbox", "--control", "ooo_room_protection"])
+        requests = probe.sendable(prepared.sections, prepared.package.encoder)
+        [occupancy] = [r for r in requests if r.endpoint == "RoomStatusInquiry"]
+        window = occupancy.params["DateRange"]
+        assert window["from"] < window["to"]
 
     def test_run_through_main_sends_what_it_printed_once_each_and_dates_the_recording(
             self, capsys, monkeypatch):

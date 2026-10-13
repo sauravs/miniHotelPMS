@@ -1,19 +1,19 @@
 {
   "control_id": "ooo_room_protection",
-  "version": 3,
+  "version": 4,
   "source_control": "2",
   "name": "Out-of-Service Room Protection",
   "natural_language": "A room with an active out-of-service period must not have an arriving reservation.",
-  "restricted_language": "every room collecting occupancy by room.number to occupancy.room_number where room.closed_from exists must not have occupancy.from within room.closed_from to room.closed_to and room.closed_from within occupancy.from to occupancy.to showing occupancy.reservation_id and reservation.arrival_date and stay.room_number and reservation.status",
+  "restricted_language": "every room collecting occupancy by room.number to occupancy.room_number where room.closed_from exists and room.closed_to at least \"today\" or absent must not have occupancy.from within room.closed_from to room.closed_to and room.closed_from within occupancy.from to occupancy.to showing occupancy.reservation_id and reservation.arrival_date and stay.room_number and reservation.status",
   "entity": "room",
   "population": {
-    "description": "Rooms that currently have a closed window set; then reservations arriving inside that window.",
+    "description": "Rooms that currently have a closed window set; then every occupancy segment touching the next seven days, in one call, which is the horizon a PASS can speak for.",
     "provider_query": {
       "minihotel": {
         "endpoint": "getRooms",
         "filters": {},
         "then": [
-          "GetReservationKey with ArrivalDate spanning the union of closed windows"
+          "RoomStatusInquiry with DateRange today..today+7d (the occupancy reference, 1 call)"
         ],
         "call_cost": "O(1) - starts from the room side, which is the smaller set"
       },
@@ -21,9 +21,15 @@
         "endpoint": "rooms",
         "filters": {},
         "then": [
-          "occupancy (1 call)"
+          "occupancy with window today..today+7d (the occupancy reference, 1 call)"
         ],
         "call_cost": "O(1) - two bulk calls. This provider nests each occupancy segment inside its room, but it still takes a second call to get them: the room master carries configuration, the occupancy call carries a window"
+      }
+    },
+    "reference_windows": {
+      "occupancy": {
+        "from": "today",
+        "to": "today+7d"
       }
     }
   },
@@ -33,13 +39,20 @@
       "kind": "collection",
       "local_field": "room.number",
       "remote_field": "occupancy.room_number",
-      "note": "Every occupancy segment on this room. A collection, not a lookup: one room has many segments, and this control starts from the room side."
+      "note": "Every occupancy segment on this room touching the reference window (population.reference_windows). A collection, not a lookup: one room has many segments, and this control starts from the room side. Each segment is judged on its own (#109), and a PASS needs the closure, from today onward, to lie inside the window the segments were fetched for."
     }
   ],
   "scope": [
     {
       "field": "room.closed_from",
       "operator": "exists"
+    },
+    {
+      "field": "room.closed_to",
+      "operator": "gte",
+      "value": "today",
+      "absent": true,
+      "note": "A closure that ENDED before today is EXCLUDED - not PASS, nothing was checked; not UNKNOWN, nothing is unknown (#109, P4). An absent end is an open-ended closure, still active, so it stays in scope: the rule says so with `absent`, because clauses AND together and an ordering has no answer of its own for an absence. `today` is resolved through the property clock by the runner."
     }
   ],
   "exceptions": [],
@@ -53,7 +66,7 @@
           "start": "room.closed_from",
           "end": "room.closed_to"
         },
-        "note": "A segment that begins inside the closed window. Version 2 placed occupancy.reservation_id here - a reservation id between two dates, which compared as strings put every real id outside every window, so the room PASSed (issue #87). Mode none: the room FAILs if EITHER predicate holds, which together is 'a segment overlaps the window', boundaries inclusive."
+        "note": "A segment that begins inside the closed window. Version 2 placed occupancy.reservation_id here - a reservation id between two dates, which compared as strings put every real id outside every window, so the room PASSed (issue #87). Mode none: the room FAILs if EITHER predicate holds for ANY segment, which together is 'a segment overlaps the window', boundaries inclusive."
       },
       {
         "field": "room.closed_from",
@@ -62,7 +75,7 @@
           "start": "occupancy.from",
           "end": "occupancy.to"
         },
-        "note": "A window that begins during a segment - a guest already in the room when it closes, which the first predicate misses. Both read occupancy, a collection, and the evaluator does not yet judge every record of one (#87's option 2), so until it does a room in scope is UNKNOWN, never a PASS read from its first segment."
+        "note": "A window that begins during a segment - a guest already in the room when it closes, which the first predicate misses. Both read occupancy, a collection: each segment is judged on its own (#109), and the room FAILs naming the segment that overlaps."
       }
     ]
   },
@@ -141,8 +154,17 @@
   },
   "unknown_conditions": [
     {
-      "when": "a room in scope - one with a closed window",
-      "reason": "the assertion reads the room's occupancy segments, a collection, and the evaluator does not yet judge every record of a collection (issue #87, option 2). Until it does, every room with a closed window is UNKNOWN rather than judged by its first segment"
+      "when": "a room's closure runs, from today onward, past the occupancy window (today..today+7d), or has no end date",
+      "reason": "the segments were fetched for seven days (R8), so no overlap seen there is not the same as none at all. The room is UNKNOWN naming the dates nobody looked at; an overlap seen inside the window is still a FAIL. A wider horizon is a version bump after MiniHotel agrees limits (open question 2.6)",
+      "risk": "R8"
+    },
+    {
+      "when": "the occupancy reference cannot be fetched, or a room's number cannot be read",
+      "reason": "an empty collection would read as 'no guests', which is a widened PASS (#109). Every replayed capture but the refresh holds no occupancy for the window asked, so there the reference is refused"
+    },
+    {
+      "when": "a segment whose room number is unreadable falls inside a room's closed window",
+      "reason": "it may be that room's guest, so the room cannot be shown clear (#75, #109)"
     },
     {
       "when": "a room is blocked through a mechanism other than rm_clsdt1/rm_clsdt2",
