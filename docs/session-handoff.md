@@ -5,11 +5,10 @@ session, exactly as written.** The longer block after it is the STATE block the 
 session to read. Do not paste that one. Everything either references is in the repository;
 nothing depends on the previous conversation.
 
-**Last updated:** 2026-10-13, after **#109 merged** (PR #112, `46413b4`).
-**The owner's list (4, 1, #87's guard, 3, 2, 5) is DONE, and so is #109** (#87's option 2,
-design P1-P6 approved as written, built end to end). **The owner then approved one item (2026-10-13): a
-documentation refresh** - docs/project-explainer/ (untouched since 2026-10-09, before v3) and any
-doc in docs/ not yet current. The next session does that, and only that.
+**Last updated:** 2026-10-13, after **the documentation refresh merged** (issue #115, PRs #116 and
+#117, `43d24d5`). **The owner's list (4, 1, #87's guard, 3, 2, 5), #109 and the docs refresh are
+all DONE. Nothing further is approved.** The next session reports the state and asks the owner what
+is next. It starts no work on its own.
 **v2 (slices 0–15) and v3 (slices 16–24) are both COMPLETE.** Criteria V1–V12 are all met
 (`docs/plan-v3.md` §7); `prd.md` criterion 1 stays NOT MET on every capture (`sandbox2026` 2 of
 11, refresh 1, covering capture 5). **No issue is open.** An item marked DONE has merged.
@@ -22,11 +21,11 @@ call is approved.**
 
 ## The starting prompt — paste exactly this
 
-v3 is complete, every follow-up and #109 are DONE. The owner approved ONE item on 2026-10-13: a
-documentation refresh. This session does that, and only that.
+v3 is complete, every follow-up, #109 and the documentation refresh are DONE. Nothing is approved
+next: this session reports and asks.
 
 ```
-Continue miniHotelPMS after v3 and #109. Working directory: /Users/sauravs/Desktop/Work/miniHotelPMS
+Continue miniHotelPMS after v3, #109 and the docs refresh. Working directory: /Users/sauravs/Desktop/Work/miniHotelPMS
 
 Start-up, before anything else:
   git status && git branch --no-merged main     # LOCAL list: empty
@@ -34,91 +33,55 @@ Start-up, before anything else:
   PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -m tools.validate_spec        # PASSED - all 1098 checks
   PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -m tools.dump_api_fixtures --check   # 228 files
   PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -m tools.transcode_demopms --check   # 17 files
-  .venv/bin/python -m coverage run -m pytest && .venv/bin/python -m coverage report   # 97%
+  .venv/bin/python -m coverage run -m pytest && .venv/bin/python -m coverage report --precision=2   # 97.56%
   cd ui && npm ci && npm run typecheck && npm test && npm run e2e          # 249 Vitest, 26 Playwright
   gh issue list --state open                     # none
-Those are main's numbers (c89d39f or a docs-only commit after it). Any that differs is a reason
-to stop and find out why. Then read CLAUDE.md, docs/session-handoff.md (the STATE block - it is
-the record of everything since 2026-10-09), docs/plan-v3.md (status table, §7).
+Those are main's numbers (43d24d5 or a docs-only commit after it). Any that differs is a reason
+to stop and find out why. (Without --precision=2 the coverage report rounds 97.56% to 98%; the
+docs say 97% or 97.6%. That is rounding, not drift.) Then read CLAUDE.md,
+docs/project-explainer/README.md (the measured table), docs/session-handoff.md (the STATE block),
+docs/plan-v3.md (status table, §7), docs/open-questions.md.
 
-GO-AHEAD (owner, 2026-10-13), in the owner's words: "update all docs inside project-explainer
-folder based on recent phase updates and changes, also if required all docs inside docs folder
-if it hasnt been not already updated to recent addition of requirement".
+WORKING AGREEMENT (owner): every item is a bug-workflow fix or a small PR of its own - a GitHub
+issue first (what, reproduction, which gate, severity), then fix/NN-..., a failing test, the
+fix, a PR "Fixes #NN", CI green on test (3.11) and test (3.13), squash-merge. After each item
+ends end to end, REPORT and WAIT for the owner's go-ahead. Before starting anything new, write
+the next session's starting prompt into docs/session-handoff.md as a docs-only PR. Recommend one
+option at every decision.
 
-WHAT IS STALE, as found on 2026-10-13 (verify each - this list is a starting point, not the
-answer):
-  docs/project-explainer/ - ALL FIVE FILES were last changed 2026-10-09 (PR #46), BEFORE v3's
-    slices 16-24 and every follow-up. Not one mentions v3. README.md's "What is true as of this
-    writing" says 1956 tests / 1,080 checks / 11 of 12 criteria; 01 and 02 say 1,956 tests.
-    Nothing describes: policy versioning (16), the tenant-scoped store (17), the findings queue
-    (18), email notification (19), the operational log (20), typed parameters / "not decided"
-    (21), guest services and LATE_CHECKOUT (22), the evidence refresh capture (23), host auth and
-    per-property credentials (24); #71 (replay answers only the question a response was recorded
-    for; the covering capture sandbox2026cover in the demo); #84-#87 (absent keys, the `within`
-    guard); #100 guest goldens; #103 tools.serve --log; #109 (a collection judged per record,
-    population.reference_windows, the `absent` key, ooo_room_protection v4).
-  README.md (root) - says "1956 tests, 96% coverage and 1080 spec checks"; no v3.
-  docs/context.md - last changed 2026-10-10; its "what did not change" sections stop at v3
-    planning; check whether v3's decisions as built, #71's A+B and #109's P4 belong in it.
-  docs/prd.md - last changed 2026-10-09; check that criterion 1's figures (sandbox2026 2 of 11,
-    refresh 1, sandbox2026cover 5 - NOT MET on each, since #71) are what it says, and any number
-    or claim v3 moved.
-  ui/README.md - check only (last changed 2026-10-11).
-  ALREADY CURRENT (updated with #109 on 2026-10-13) - VERIFY ONLY, do not rewrite:
-    CLAUDE.md, docs/architecture.md, docs/open-questions.md, docs/plan-v3.md, docs/plan.md,
-    docs/session-handoff.md.
-  DO NOT EDIT: docs/QA.md (append-only, written only by /qa-log); docs/old-codebase-improve.md
-    (the v1 review, a historical record); docs/stayOps_Cotrols_Rule_Engine_V2.md and
-    docs/stayops-gap-analysis.md (they describe the StayOps documents' INTENT and say on purpose
-    that they do not track what is built - read their headers). docs/poc-comparison-brief.md says
-    "delete this once the report it describes is merged": find out whether it was, and ASK the
-    owner before deleting it - recommend one answer.
+GO-AHEAD: NONE. Report the start-up numbers to the owner and ask what is next. Do not start an
+item, open an issue for new work, or make a live call without the owner's explicit yes.
+Candidates the owner may choose from (none approved; recommend one when asked):
+  - two leftovers the docs refresh found and left alone, because they were outside its
+    docs-only scope (both listed on #115): four test docstrings and spec/tenants/sandbox.json's
+    known_unmapped_statuses_note still say "44 of the 217" (it is 77 of 526 since the 2026-10
+    captures; prose only, no assertion reads it); and ui/README.md's tests table has no row for
+    slice 24's sign-in tests (test/auth.test.ts, test/login.test.tsx, e2e/login.spec.tsx);
+  - the deferred items below;
+  - a wider occupancy horizon for ooo_room_protection - needs MiniHotel's agreed limits first
+    (open question 2.6), then a version bump; NOT before;
+  - the comparison docs/poc-comparison-brief.md describes - never started; the owner chose on
+    2026-10-13 to KEEP the brief, which is not a go-ahead to do the comparison;
+  - criterion 1 stays NOT MET; anything aimed at it is the owner's call.
 
-HOW (the rules that make this worth doing):
-  - MEASURED, NOT QUOTED. Every number in a doc comes from running a command in this session, and
-    the explainer README's "as of" line names the date it was measured. Counts that drift (tests,
-    checks, goldens, captures, controls, criteria) are stated once where possible and referenced.
-  - 04-edge-cases.md Part B traces ONE real reservation from raw XML to the screen ("evaluated 2
-    of 2, concluded"). Since #71, replay REFUSES a question its capture did not record, so that
-    run may now be refused on sandbox2026 or answer differently. Re-run the traced control and
-    re-check every value in the trace. If it moved, retrace it on the capture where it now
-    answers (likely sandbox2026cover) and say why in the text. The same for every example output,
-    command and file path in all four documents: run it, do not trust it.
-  - 02-file-structure.md lists every file. Diff that list against `git ls-files` (engine, tools,
-    spec, tests, ui) - new since 2026-10-09 include hotelcontrols/store, actions, ops, guest,
-    web/auth.py, evaluator/collections.py, kernel/dates.py, spec/parameters.json, spec/guest/,
-    the cover and refresh captures, fixtures/api/guest/. Update the mermaid diagrams in 02 and 03
-    to match. The README's "Where these fit among the existing docs" map lists eight docs; docs/
-    now holds more - list them, each with one line.
-  - Keep each document's voice and purpose (01 needs no code to read; 04 Part A is the API facts).
-    Add what v3 and the fixes changed; do not rewrite what is still true.
-  - DOCS ONLY. No change under hotelcontrols/, tools/, spec/, fixtures/, tests/ or ui/. If a doc
-    and the code disagree and the CODE is wrong, file a GitHub issue (what, reproduction, gate,
-    severity), do not fix it, and report it. Never widen a verdict in prose either: an UNKNOWN is
-    described as UNKNOWN, and criterion 1 stays NOT MET.
-  - Some tests read docs (e.g. tests/integration/test_drafts_readme.py, test_ui_hygiene.py, the
-    canonical-boundary grep). Run the full suite and validate_spec before the PR.
-
-WORKFLOW: one GitHub issue first, listing every stale fact found (doc, line, what it says, what
-is true, the command that shows it); branch docs/NN-explainer-refresh; the edits; a PR "Fixes
-#NN" whose body tables each change; CI green on test (3.11) and test (3.13); squash-merge. If it
-grows past one reviewable PR, split it (explainer first, then docs/), each its own PR.
-
-WORKING AGREEMENT (owner): after the item ends end to end, REPORT and WAIT for the owner's
-go-ahead. Before starting anything new, write the next session's starting prompt into
-docs/session-handoff.md as a docs-only PR. Recommend one option at every decision.
+DONE, for the record: follow-ups 4, 1, #87-guard, 3, 2, 5 and #109 (see the STATE block), and the
+documentation refresh (issue #115, 2026-10-13): PR #116 brought all five docs/project-explainer/
+files up to v3 and #109, re-measured (the counts live once, in its README's table, with their
+commands; Part B re-run - it still holds on sandbox2026 and now says why since #71, adds the rule
+version and step 9, the task); PR #117 did the root README, context.md (timeline, passes 4-5,
+every decision since v3 planning), prd.md §9 (v3 built), and factual fixes in CLAUDE.md,
+architecture.md (evaluator/logic.py never existed), open-questions.md, plan.md, plan-v3.md.
 
 Deferred - do NOT start these without the owner's explicit say-so: emailing guest tasks; a React
-guest view; offering the refresh capture (sandbox2026refresh) in the demo; a wider occupancy
-horizon (needs MiniHotel's agreed limits, open question 2.6).
+guest view; offering the refresh capture (sandbox2026refresh) in the demo.
 
-Live calls: none needed or approved. Never print, paste or commit a credential.
+Live calls: none approved. If one ever is, it needs the owner's yes to that exact call, printed
+first with tools.probe --plan (credentials in the git-ignored .env as
+HOTELCONTROLS_SANDBOX_MINIHOTEL_*). Never print, paste or commit a credential.
 
 Rules that outrank everything: never widen a verdict; never edit a fixture to pass a test;
 never hit the live API without the owner's yes to that call; no credential or third-party
 personal data in a committed file.
-
-When the docs refresh has merged, REPORT TO THE OWNER AND STOP. Nothing after it is approved.
 ```
 
 ## The STATE block — read by the session, not pasted
@@ -148,7 +111,20 @@ fix #106 (#107); and fix #109 (#112), #87's option 2. Baseline on main at 46413b
 / 3 skipped (the v3 scope guard always skips: no slice/16-* .. slice/24-* branch remains), 1098
 spec checks, 228 API goldens identical to a rebuild, 17 DemoPMS files identical to a rebuild,
 spec lock current, 97% coverage. The React UI has 249 Vitest and 26 Playwright tests.
-No issue is open. One item is approved (2026-10-13): the documentation refresh in the prompt.
+No issue is open. Nothing is approved: the documentation refresh (2026-10-13) is done, below.
+
+THE DOCUMENTATION REFRESH IS DONE (2026-10-13, issue #115, PRs #116 and #117; main 43d24d5). The
+explainer predated v3. All five files now describe v3 and #109, measured that day: the numbers
+that drift live ONCE, in docs/project-explainer/README.md's table, each beside its command, and
+the rest point there. Part B (04) was re-run: checkout_unrefunded_credit on sandbox2026 still
+answers FAIL 007004348 / PASS 007004351 in 3 calls, because sandbox2026 recorded the departures
+window it asks; step 7 now shows policy_version 2 + digest and maximum_age 24h (it said 1h); a new
+step 9 shows the one task. Found and fixed in docs: the A5 figure is 77 of 526 reservations (OK4
+50, WL 27) over every capture, not 44 of 217 (true before the 2026-10 captures); architecture.md
+listed an evaluator/logic.py that never existed; plan-v3's #71-step-B row still read "in
+progress". Left as found (outside docs-only scope, listed on #115): four test docstrings and
+spec/tenants/sandbox.json's note still say 44 of 217; ui/README.md has no row for the sign-in
+tests. docs/poc-comparison-brief.md is KEPT (owner): the comparison was never written.
 
 #109 IS DONE (2026-10-13, PR #112) - #87's option 2, design P1-P6 approved as written before any
 code. evaluator/collections.py: under mode `none` a predicate reading a `collection` is judged
@@ -649,7 +625,7 @@ public, which was defensible and made the habit dangerous.
 | ~~any time~~ | ~~Issue #87: how to fix `ooo_room_protection`~~ — **decided 2026-10-13 at the owner's delegation: the type guard on `within` first, after #71; merged, PR #98. Option 2 (judge every record of a `collection`) stays open** |
 | any time | Ask MiniHotel what `<CreditCard Number="****" ExpirationDate="202101"/>` means (question 2.8, #48). It is the only thing that can unblock G4 |
 | ~~any time~~ | ~~**The cheapest open win:** nominated rate codes for control 15 (1.4).~~ **Corrected (#49):** a list alone changes nothing, because `stay.rate_code` is absent from every capture. It needs slice 23's capture **and** a real property's list |
-| any time | Ask MiniHotel what `OK4` and `WL` mean (question 2.1). They cover 44 of the 217 reservations ever seen, and they are why the known duplicate pair resolves to UNKNOWN rather than to an answer |
+| any time | Ask MiniHotel what `OK4` and `WL` mean (question 2.1). They cover 77 of the 526 reservations ever seen (44 of 217 before the 2026-10 captures), and they are why the known duplicate pair resolves to UNKNOWN rather than to an answer |
 
 ### Things that will look like bugs and are not
 
@@ -702,7 +678,8 @@ two. The local backend is held to it as well: localhost is still a socket.
 vocabulary to make the refusal go away; a field no provider can supply is a fact about the
 vocabulary, not a bug.
 
-- `ooo_room_protection` excludes all 28 rooms, and `room_assignment_active_room` all 111 stays.
+- `ooo_room_protection` excludes all 28 rooms, and `room_assignment_active_room` all 372 stays of
+  the covering capture (on `sandbox2026` it is refused: it asks an arrivals window, #71).
   No room in this property has ever had a closed-date window set (open question 2.4). The
   coverage verdict reports this rather than showing a reassuring zero.
 - `room_capacity_compliance` answers for nobody: 23 of 28 rooms report adult capacity `0`,
@@ -710,8 +687,9 @@ vocabulary, not a bug.
   canonical answer is the same UNKNOWN.
 - `rate_room_category_consistency` is UNKNOWN everywhere on both providers. A reservation's rate
   code and a price-list code are different key spaces (R13) — structurally unresolvable.
-- `resource_occupancy_consistency` is **blocked** on both standard evidence sets, and concludes
-  perfectly well asked on 14 August 2024. See issue #9 above.
+- `resource_occupancy_consistency` is **blocked** on `sandbox2026` and the covering capture,
+  whose only occupancy is a week of August 2024. It concludes asked on 14 August 2024, and on the
+  2026-10-10 refresh (31 PASS, 4 UNKNOWN). See issue #9 above.
 - Neither aggregate control reaches FAIL. The property genuinely has no active duplicate and no
   double-booked room. **Do not manufacture one.**
 - The two providers **disagree about scheduling, on purpose**: `resource_occupancy_consistency`
