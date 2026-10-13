@@ -2,10 +2,11 @@
 """
 FROZEN SOURCE - captured responses, replayed as if the server had answered.
 
-No network, ever. `fixtures/minihotel/` holds fourteen real responses, pseudonymised, and they
-are the test evidence and the ground truth. MiniHotel asks integrators not to query wide date
-ranges without agreement (R8), and a suite that needs someone else's server to be up is not a
-suite.
+No network, ever. `fixtures/minihotel/` holds real responses, pseudonymised, listed with the
+captures they belong to in its `index.json` - the list, rather than a count in prose that goes
+stale with the next capture (#106). They are the test evidence and the ground truth. MiniHotel
+asks integrators not to query wide date ranges without agreement (R8), and a suite that needs
+someone else's server to be up is not a suite.
 
 TWO THINGS THIS DOES THAT v1's DID NOT
 --------------------------------------
