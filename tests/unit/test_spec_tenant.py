@@ -13,9 +13,10 @@ its timezone (F11), its call budget, the rate codes it has nominated for control
 rate-plan-to-room-type mapping MiniHotel cannot resolve (R13, open question 1.6).
 
 The rule the whole file exists to protect: A CODE THAT IS NOT IN THE MAP RESOLVES TO UNKNOWN.
-Never a guess. Across every capture, 44 of 217 distinct reservations - one in five - carry a
-status code documented nowhere (`OK4`, `WL`). Silently mapping one of those would include or
-exclude reservations from a control's scope invisibly.
+Never a guess. Across every capture, 77 of 526 distinct reservations - about one in seven - carry
+a status code documented nowhere (`OK4`, `WL`; 44 of 217 before the 2026-10 captures, #119).
+Silently mapping one of those would include or exclude reservations from a control's scope
+invisibly.
 """
 import pytest
 

@@ -18,7 +18,7 @@
   "status_map_note": "The same four canonical statuses the sandbox property has established, in this provider's spelling. A5 is a fact about hotels rather than about either API: every PMS in this class lets a property customise its codes, so the map belongs to the property on both.",
 
   "known_unmapped_statuses": ["PROV4", "HOLD", "NOPAY"],
-  "known_unmapped_statuses_note": "The transcodings of OK4, WL and LWP. They stay unmapped here for exactly the reason they are unmapped on sandbox: nobody has told us what they mean, and they cover one in five of every reservation this hotel has. Mapping them here to make the demo look better would be inventing knowledge about a hotel, which is the one thing this repository does not do - and it would break criterion 7 by making the two providers disagree.",
+  "known_unmapped_statuses_note": "The transcodings of OK4, WL and LWP. They stay unmapped here for exactly the reason they are unmapped on sandbox: nobody has told us what they mean, and they cover about one in seven of every reservation this hotel has (77 of 526 across every capture; one in five before the 2026-10 captures, #119). Mapping them here to make the demo look better would be inventing knowledge about a hotel, which is the one thing this repository does not do - and it would break criterion 7 by making the two providers disagree.",
 
   "department_map": {},
   "department_map_note": "Ships EMPTY, as sandbox does. There is no provider-wide vocabulary for posting categories on any PMS, so every folio department is UNKNOWN until a hotel supplies its own. That drives 'connect your finance mapping to enable this control' rather than a wrong verdict, identically on both providers.",

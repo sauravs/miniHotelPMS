@@ -71,7 +71,8 @@ With `HOTELCONTROLS_AUTH_SECRET` unset there is no sign-in and the UI is the dem
 | Components | `test/*.test.tsx` (Vitest) | Criteria 2 (wording, styles stripped), 3, 8, glossary, grouping |
 | Parity | `test/parity.test.tsx` | Every golden, live and stored. No record is dropped, duplicated or mis-grouped, every evidence line appears verbatim, and tiles appear exactly when the run concluded. |
 | Queue | `test/queue.test.tsx` | The one real task (007004348) in the engine's words on both properties, two moves as forms, a closed task with no move, every control's latest conclusion, and an empty queue that says it is not an all-clear |
-| Real browser | `e2e/` (Playwright) | Four computed border styles and four hues, keyboard reachability, and axe on each run state and on the queue. The page is rendered from goldens with `setContent`, with no server. |
+| Sign-in (slice 24) | `test/auth.test.ts`, `test/login.test.tsx` | The signer produces the engine's exact string for a shared vector (`test/fixtures/auth-vector.json`). A forged, tampered or expired session signs nobody in. The engine is asked about the session's property even when a page names another. The page says it is a development stand-in in every state |
+| Real browser | `e2e/` (Playwright) | Four computed border styles and four hues, keyboard reachability, and axe on each run state, on the queue and on the sign-in page. The page is rendered from goldens with `setContent`, with no server. |
 | Required Python | `../tests/unit/test_ui_hygiene.py`, `test_canonical_boundary.py` | No parsing of money, no PMS identifier, no injected HTML, one requesting module, exact pins |
 
 ```bash

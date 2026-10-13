@@ -158,8 +158,9 @@ class TestTenantMaps:
         assert t.tenant_status_map("OUT", mapping=self.MAP).payload == "checked_out"
 
     def test_an_undocumented_code_is_unknown_never_a_guess(self):
-        """OK4 appears on 32 reservations and WL on 12 - together 44 of the 217 distinct
-        reservations we have ever seen, one in five - and neither is documented anywhere. A
+        """OK4 appears on 50 reservations and WL on 27 - together 77 of the 526 distinct
+        reservations we have ever seen, about one in seven (44 of 217, one in five, before the
+        2026-10 captures, #119) - and neither is documented anywhere. A
         waitlist guess would be plausible and might be wrong, and a status decides whether a
         control applies at all."""
         for code in ("OK4", "WL", "LWP"):

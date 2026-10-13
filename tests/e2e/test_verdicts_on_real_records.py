@@ -198,8 +198,9 @@ class TestHonestyOfTheAnswers:
         assert any("property" in v.reason for v in unknown)
 
     def test_an_unnameable_status_never_decides_whether_a_control_applies(self):
-        """A5. 44 of the 217 distinct reservations we have ever seen carry a status documented
-        nowhere. Those must reach UNKNOWN rather than being quietly included or excluded."""
+        """A5. 77 of the 526 distinct reservations we have ever seen carry a status documented
+        nowhere (44 of 217 before the 2026-10 captures, #119). Those must reach UNKNOWN rather
+        than being quietly included or excluded."""
         verdicts, _, _ = run("required_reservation_fields")
         assert outcomes(verdicts)[Outcome.UNKNOWN] > 0
 
