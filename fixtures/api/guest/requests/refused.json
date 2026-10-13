@@ -1,0 +1,4 @@
+{
+  "status": 400,
+  "error": "requested_time is required, written HH:MM (24-hour) on the property's own clock, e.g. 15:00"
+}

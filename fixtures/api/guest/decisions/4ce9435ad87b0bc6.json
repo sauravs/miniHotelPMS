@@ -1,0 +1,76 @@
+{
+  "decision_id": "4ce9435ad87b0bc6",
+  "property": "test_d2_49",
+  "template": "LATE_CHECKOUT",
+  "template_version": 1,
+  "template_digest": "sha256:36310ed91a9f03b5c5afe3ce47cabd60bd3832c8b188d3a74d023e03db2c86c5",
+  "parameters_digest": "sha256:f2d2f25672939061c7f1cc18eafddeb39b6a808d93f1735e689338f8c41499cb",
+  "reservation_id": "999999999",
+  "requested_time": "15:00",
+  "received_at": "2026-07-08T00:00:00+03:00",
+  "received_on": "2026-07-08",
+  "decision": "STAFF_REVIEW",
+  "label": "STAFF REVIEW",
+  "rule": "LC1-gaps",
+  "reason": "A person must decide: reservation 999999999 was not found among the reservations departing 2026-07-07 to 2026-07-09 in this body of evidence.",
+  "fee": null,
+  "gaps": [
+    {
+      "name": "reservation",
+      "kind": "evidence",
+      "reason": "reservation 999999999 was not found among the reservations departing 2026-07-07 to 2026-07-09 in this body of evidence"
+    }
+  ],
+  "evidence": [
+    {
+      "field": "reservation.status",
+      "known": false,
+      "value": null,
+      "unit": null,
+      "reason": "reservation 999999999 was not found among the reservations departing 2026-07-07 to 2026-07-09 in this body of evidence",
+      "risk": null,
+      "source": null
+    },
+    {
+      "field": "reservation.departure_date",
+      "known": false,
+      "value": null,
+      "unit": null,
+      "reason": "reservation 999999999 was not found among the reservations departing 2026-07-07 to 2026-07-09 in this body of evidence",
+      "risk": null,
+      "source": null
+    }
+  ],
+  "provider": "minihotel",
+  "evidence_label": "sandbox2026",
+  "severity": "medium",
+  "audience": "front_office_manager",
+  "action_id": "4e9130c3ab0d9f6b",
+  "task": {
+    "action_id": "4e9130c3ab0d9f6b",
+    "property": "test_d2_49",
+    "control_id": "LATE_CHECKOUT",
+    "control_name": "Late checkout request",
+    "record_id": "4ce9435ad87b0bc6",
+    "severity": "medium",
+    "audience": "front_office_manager",
+    "type": "guest_request",
+    "reason": "Late checkout at 15:00 for reservation 999999999 on 2026-07-08: a person must decide. A person must decide: reservation 999999999 was not found among the reservations departing 2026-07-07 to 2026-07-09 in this body of evidence.",
+    "policy_version": 1,
+    "policy_digest": "sha256:36310ed91a9f03b5c5afe3ce47cabd60bd3832c8b188d3a74d023e03db2c86c5",
+    "state": "pending",
+    "state_changed_at": null,
+    "state_changed_by": null,
+    "raised": {
+      "decision_id": "4ce9435ad87b0bc6",
+      "at": "2026-07-08T00:00:00+03:00",
+      "as_of": "2026-07-08",
+      "provider": "minihotel",
+      "evidence": "sandbox2026"
+    },
+    "last_failing": null,
+    "cleared": null,
+    "annotation": null
+  },
+  "advisory": "Advisory. This engine writes nothing to the PMS and posts no fee: a person carries out the task. An approval applies the hotel's stated policy and does not check whether the room is needed for an arrival - no evidence can establish that."
+}

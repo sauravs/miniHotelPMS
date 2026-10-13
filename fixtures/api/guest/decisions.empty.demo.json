@@ -1,0 +1,28 @@
+{
+  "property": "demo",
+  "policy": {
+    "template": "LATE_CHECKOUT",
+    "version": 1,
+    "digest": "sha256:36310ed91a9f03b5c5afe3ce47cabd60bd3832c8b188d3a74d023e03db2c86c5",
+    "parameters": {
+      "free_until": null,
+      "charge_from": null,
+      "approval_required_after": null,
+      "maximum_time": null,
+      "fee_per_hour": null,
+      "hour_rounding": null
+    },
+    "undecided": [
+      "free_until",
+      "charge_from",
+      "approval_required_after",
+      "maximum_time",
+      "fee_per_hour",
+      "hour_rounding"
+    ]
+  },
+  "persistent": false,
+  "persistence": "This queue is held in memory and is lost on restart, with the run history. Start the server with --store PATH to keep both in a file.",
+  "pending": 0,
+  "decisions": []
+}

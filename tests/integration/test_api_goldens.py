@@ -206,3 +206,112 @@ class TestLayer2TheShapeEveryComponentDependsOn:
     def test_the_drafts_golden_is_the_unwired_state(self):
         """Drafts are a reader's working state. The golden is the absence, stated."""
         assert golden("drafts.json") == {"wired": False, "drafts": []}
+
+
+# ---------------------------------------------------------------------------------------
+GUEST = GOLDEN / "guest"
+SHIPPED = ("demo", "sandbox")
+TEST_PROPERTIES = {"test_d2_49": "minihotel", "test_d2_49_demo": "demopms"}
+DECISIONS = {"APPROVED", "APPROVED_WITH_FEE", "STAFF_REVIEW", "DENIED"}
+
+
+def guest_golden(name: str):
+    return json.loads((GUEST / name).read_text(encoding="utf-8"))
+
+
+def answers(property_id: str) -> dict[str, dict]:
+    """Every request answer for one property, by its file name."""
+    return {p.name: json.loads(p.read_text(encoding="utf-8"))
+            for p in sorted((GUEST / "requests").glob("%s.*.json" % property_id))}
+
+
+class TestTheGuestRoutes:
+    """Issue #100 (follow-up 3): slice 22's routes, in the contract a second client is built on.
+
+    POST /api/guest/requests, GET /api/guest/decisions and GET /api/guest/decisions/<id>. The
+    shipped properties have decided no late-checkout policy, so over them every request is
+    STAFF_REVIEW (V10) - true, and kept. A client built on that alone would never see the other
+    three decisions, which is #71's step-A trap again; so TEST properties, named as such and
+    built in a throwaway copy of spec/ with D2 §49's policy as the Python suite does, carry them.
+    No policy is invented for a shipped property (the anti-criterion)."""
+
+    def test_every_decision_kind_has_a_golden(self):
+        seen = {a["decision"] for p in TEST_PROPERTIES for a in answers(p).values()}
+        assert seen == DECISIONS
+
+    @pytest.mark.parametrize("property_id", SHIPPED)
+    def test_a_shipped_property_is_staff_review_naming_what_it_has_not_decided(
+            self, property_id):
+        found = answers(property_id)
+        assert found, property_id
+        for name, answer in found.items():
+            assert (answer["decision"], answer["rule"]) == ("STAFF_REVIEW", "LC1-gaps"), name
+            assert {g["kind"] for g in answer["gaps"]} == {"parameter"}, name
+        listing = guest_golden("decisions.%s.json" % property_id)
+        assert listing["policy"]["undecided"] and not any(
+            listing["policy"]["parameters"].values()), "a shipped property decided a policy"
+
+    def test_a_test_property_says_it_is_one(self):
+        """Its id is the label a reader sees on every payload - and no shipped tenant is one."""
+        for property_id in TEST_PROPERTIES:
+            assert property_id.startswith("test_")
+            assert answers(property_id)
+            assert all(a["property"] == property_id for a in answers(property_id).values())
+        assert not any(p.startswith("test_") for p in available_tenants())
+
+    def test_both_providers_decide_alike(self):
+        """Criterion 7 on a decision: the same hotel through MiniHotel and DemoPMS."""
+        mini, demo = (answers(p) for p in TEST_PROPERTIES)
+        assert len(mini) == len(demo) >= 9
+        for name, one in mini.items():
+            other = demo[name.replace("test_d2_49.", "test_d2_49_demo.", 1)]
+            assert one["provider"] != other["provider"]
+            for key in ("decision", "rule", "fee", "received_on", "reservation_id"):
+                assert one[key] == other[key], (name, key)
+
+    @pytest.mark.parametrize("property_id", SHIPPED + tuple(TEST_PROPERTIES))
+    def test_every_listed_decision_resolves_and_says_what_its_request_said(self, property_id):
+        """The same promise as a history row's run id: every id a listing names is a file, and
+        the decision re-read is the decision first answered."""
+        listing = guest_golden("decisions.%s.json" % property_id)
+        assert listing["property"] == property_id
+        posted = {a["decision_id"]: a for a in answers(property_id).values()}
+        assert {d["decision_id"] for d in listing["decisions"]} == set(posted)
+        for entry in listing["decisions"]:
+            assert guest_golden("decisions/%s.json" % entry["decision_id"]) == entry
+            assert entry == posted[entry["decision_id"]]
+
+    @pytest.mark.parametrize("property_id", SHIPPED + tuple(TEST_PROPERTIES))
+    def test_an_untouched_store_lists_no_decision_and_still_states_its_policy(self, property_id):
+        empty = guest_golden("decisions.empty.%s.json" % property_id)
+        assert (empty["property"], empty["decisions"], empty["pending"]) == (property_id, [], 0)
+        assert empty["policy"]["template"] == "LATE_CHECKOUT"
+
+    def test_a_denial_raises_no_task_and_everything_else_raises_one(self):
+        for property_id in TEST_PROPERTIES:
+            found = answers(property_id)
+            assert any(a["decision"] == "DENIED" for a in found.values()), property_id
+            for name, answer in found.items():
+                assert (answer["task"] is None) == (answer["decision"] == "DENIED"), name
+
+    def test_a_refused_request_is_the_error_body(self):
+        refused = guest_golden("requests/refused.json")
+        assert refused["status"] == 400 and "requested_time" in refused["error"]
+
+    def test_no_guest_detail_reaches_a_guest_golden(self):
+        """A decision is about a guest, and these files are committed: no name, email or
+        phone from either covering capture may be in them (no third-party personal data in a
+        committed file). Measured against every detail the captures hold, not a list."""
+        from tests import guest_details
+        details = guest_details.collect()
+        assert details
+        files = sorted(GUEST.rglob("*.json"))
+        assert len(files) >= 40, "the guest goldens are missing - nothing would be checked"
+        text = "\n".join(p.read_text(encoding="utf-8") for p in files)
+        assert guest_details.leaks(text, details) == []
+
+    def test_building_them_writes_nothing_into_spec(self):
+        """The test properties live in a throwaway copy; spec/tenants holds the shipped two."""
+        dump_api_fixtures.build()
+        from hotelcontrols.spec.registry import SPEC_DIR
+        assert sorted(p.stem for p in (SPEC_DIR / "tenants").glob("*.json")) == sorted(SHIPPED)

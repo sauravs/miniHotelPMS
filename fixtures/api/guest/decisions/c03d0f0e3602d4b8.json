@@ -1,0 +1,70 @@
+{
+  "decision_id": "c03d0f0e3602d4b8",
+  "property": "test_d2_49_demo",
+  "template": "LATE_CHECKOUT",
+  "template_version": 1,
+  "template_digest": "sha256:36310ed91a9f03b5c5afe3ce47cabd60bd3832c8b188d3a74d023e03db2c86c5",
+  "parameters_digest": "sha256:f2d2f25672939061c7f1cc18eafddeb39b6a808d93f1735e689338f8c41499cb",
+  "reservation_id": "007004338",
+  "requested_time": "15:00",
+  "received_at": "2026-07-08T00:00:00+03:00",
+  "received_on": "2026-07-08",
+  "decision": "STAFF_REVIEW",
+  "label": "STAFF REVIEW",
+  "rule": "LC6-not-today",
+  "reason": "This reservation departs on 2026-07-09, not today (2026-07-08): a request ahead of the day is for a person to decide.",
+  "fee": null,
+  "gaps": [],
+  "evidence": [
+    {
+      "field": "reservation.status",
+      "known": true,
+      "value": "checked_in",
+      "unit": null,
+      "reason": null,
+      "risk": null,
+      "source": "pms:demopms/bookings"
+    },
+    {
+      "field": "reservation.departure_date",
+      "known": true,
+      "value": "2026-07-09",
+      "unit": "date",
+      "reason": null,
+      "risk": null,
+      "source": "pms:demopms/bookings"
+    }
+  ],
+  "provider": "demopms",
+  "evidence_label": "demo2026",
+  "severity": "medium",
+  "audience": "front_office_manager",
+  "action_id": "b927417e138d76d6",
+  "task": {
+    "action_id": "b927417e138d76d6",
+    "property": "test_d2_49_demo",
+    "control_id": "LATE_CHECKOUT",
+    "control_name": "Late checkout request",
+    "record_id": "c03d0f0e3602d4b8",
+    "severity": "medium",
+    "audience": "front_office_manager",
+    "type": "guest_request",
+    "reason": "Late checkout at 15:00 for reservation 007004338 on 2026-07-08: a person must decide. This reservation departs on 2026-07-09, not today (2026-07-08): a request ahead of the day is for a person to decide.",
+    "policy_version": 1,
+    "policy_digest": "sha256:36310ed91a9f03b5c5afe3ce47cabd60bd3832c8b188d3a74d023e03db2c86c5",
+    "state": "pending",
+    "state_changed_at": null,
+    "state_changed_by": null,
+    "raised": {
+      "decision_id": "c03d0f0e3602d4b8",
+      "at": "2026-07-08T00:00:00+03:00",
+      "as_of": "2026-07-08",
+      "provider": "demopms",
+      "evidence": "demo2026"
+    },
+    "last_failing": null,
+    "cleared": null,
+    "annotation": null
+  },
+  "advisory": "Advisory. This engine writes nothing to the PMS and posts no fee: a person carries out the task. An approval applies the hotel's stated policy and does not check whether the room is needed for an arrival - no evidence can establish that."
+}

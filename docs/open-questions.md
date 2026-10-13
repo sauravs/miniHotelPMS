@@ -505,6 +505,10 @@ whether a guest task should be **emailed** like a violation's (slice 19's `dispa
 a run's FAILs, so today it is not), and whether the guest routes should get **golden payloads and
 a React view** - both need `tools/dump_api_fixtures.py`, which was outside slice 22's may-change
 line, so today the routes are proven by the Python suite and served by the engine's own page.
+**Golden payloads: done (issue #100, 2026-10-13)** - `fixtures/api/guest/`, over the shipped
+properties (every request STAFF_REVIEW, naming the undecided parameters) and two TEST properties
+carrying D2 §49's policy, so every decision kind is in the contract. The React view and emailing
+a guest task stay deferred.
 
 ### 1.11 Which of the nine disagreements between the three StayOps documents stand?
 
