@@ -5,18 +5,18 @@ session, exactly as written.** The longer block after it is the STATE block the 
 session to read. Do not paste that one. Everything either references is in the repository;
 nothing depends on the previous conversation.
 
-**Last updated:** 2026-10-13, after follow-up 2 (#103), on `main` at `7f8afcc`.
+**Last updated:** 2026-10-13, after the last approved follow-up (5, #106), on `main` at `1923d7f`.
 **The owner's order (2026-10-11, amended 2026-10-13): follow-ups 4, 1, then #87's guard, then 3,
 2, 5 - one at a time, reporting after each.** Follow-ups 4, 1, #87's guard, 3 and 2 are DONE: 4
 as fixes #84, #85, #86; 1 as fix #71 (PR #95, after #92 and the covering capture #94), under the
 owner's choice **A+B**; the guard as fix #87 (PR #98); 3 as fix #100 (PR #101); 2 as fix #103
-(PR #104). **The next item is 5, the last one approved.**
+(PR #104); 5 as fix #106 (PR #107). **Every approved follow-up is DONE. Nothing is approved
+next:** a session starts by reporting and asking the owner, never by picking a deferred item.
 **v2 (slices 0–15) and v3 (slices 16–24) are both COMPLETE.** Criteria V1–V12 are all met
 (`docs/plan-v3.md` §7); `prd.md` criterion 1 stays NOT MET on every capture (since #71:
 `sandbox2026` 2 of 11, refresh 1, covering capture 5). **No issue is open.** #87's option 2
 (judge every record of a collection) is recorded in `docs/open-questions.md` §3 and is deferred.
-There is no planned slice left - only the follow-ups in the prompt below. An item
-marked DONE has merged.
+There is no planned slice left and no approved follow-up. An item marked DONE has merged.
 
 **The live probe** is a runbook now: [The probe](#the-probe--done-2026-10-10-v3-slice-23-kept-as-the-runbook-for-the-next-one).
 Since slice 24 its credentials are per property: `HOTELCONTROLS_SANDBOX_MINIHOTEL_*`. **No live
@@ -26,8 +26,8 @@ call is needed for anything left below.**
 
 ## The starting prompt — paste exactly this
 
-v3 is complete; this prompt is for the follow-ups. The `GO-AHEAD` line holds the owner's order.
-Each finished item is marked DONE; the session starts at the first item not marked.
+v3 is complete and every approved follow-up is DONE. This prompt has the session verify main,
+report, and ASK the owner what is next - it approves nothing by itself.
 
 ```
 Continue miniHotelPMS after v3. Working directory: /Users/sauravs/Desktop/Work/miniHotelPMS
@@ -45,7 +45,7 @@ Those are main's numbers. Any that differs is a reason to stop and find out why.
 CLAUDE.md, docs/session-handoff.md (the STATE block), docs/plan-v3.md (status table, §7),
 docs/open-questions.md (§3 for #87's option 2).
 
-Where things stand: v2 and v3 are complete; main is at 7f8afcc or a docs-only commit after it.
+Where things stand: v2 and v3 are complete; main is at 1923d7f or a docs-only commit after it.
 Every item below is a bug-workflow fix or a small PR of its own: a GitHub issue first (what,
 reproduction, which gate, severity), then fix/NN-..., a failing test, the fix, a PR "Fixes #NN",
 CI green on test (3.11) and test (3.13), squash-merge.
@@ -54,9 +54,9 @@ WORKING AGREEMENT (owner): after each item ends end to end, REPORT to me and WAI
 before the next. Before starting anything new, write the next session's starting prompt into
 docs/session-handoff.md as a docs-only PR. Recommend one option at every decision.
 
-GO-AHEAD (which items, in which order): 4, 1, #87-guard, 3, 2, 5 - the owner, 2026-10-11, with
-#87's guard placed after 1 on 2026-10-13 (decided at the owner's delegation). One at a time:
-start at the first item not marked DONE, finish it end to end, then REPORT and WAIT.
+GO-AHEAD: NONE OUTSTANDING. The owner's list (4, 1, #87-guard, 3, 2, 5 - 2026-10-11, #87's guard
+placed after 1 on 2026-10-13) is all DONE. Do not start anything until the owner names it. When
+asking, offer the deferred items below with one recommendation, and anything found on start-up.
 
 THE FOLLOW-UPS:
 4. DONE (2026-10-11). The audit of #75's 16 fields is on #75; fixes #84 (PR #88), #85 (PR #89),
@@ -81,9 +81,9 @@ THE FOLLOW-UPS:
    all four decisions are in the contract. No guest detail in any file (a test measures it).
 2. DONE (2026-10-13), fix #103 (PR #104). tools.serve takes the server's --log PATH|-|off, same
    default (stderr), attached through the server's own configure_log.
-5. NEXT. Two stale comments, one issue: hotelcontrols/evaluator/predicates.py:145-147 ("has not
-   supplied" also means "not decided" since slice 21) and
-   hotelcontrols/providers/minihotel/fixtures.py:5 ("fourteen" responses; there are now twenty).
+5. DONE (2026-10-13), fix #106 (PR #107). predicates.py's tenant_setting branch now says it is
+   the normal path for a setting declared null (not decided), not an unreachable one;
+   minihotel/fixtures.py's "fourteen" count is dropped for index.json, the list. Comments only.
 
 Deferred - do NOT start these without my explicit say-so: emailing guest tasks; a React guest
 view; offering the refresh capture (sandbox2026refresh) in the demo; #87's option 2.
@@ -96,7 +96,7 @@ Rules that outrank everything: never widen a verdict; never edit a fixture to pa
 never hit the live API without my yes to that call; no credential or third-party personal data
 in a committed file.
 
-When done with the approved items, REPORT TO ME AND STOP.
+After the start-up checks, REPORT TO ME AND STOP: say main matches, and ask what is next.
 ```
 
 ## The STATE block — read by the session, not pasted
@@ -121,8 +121,8 @@ slice 19 (#62), slice 20 (#63), slice 21 (#65), slice 22 (#68), fix #70 (#72), f
 fix #75 (#76), slice 23 (the evidence refresh, #77), slice 24 (host auth + per-property
 credentials, closing #22 and v3); after v3, follow-up 4's fixes #84 (#88), #85 (#89) and #86
 (#90); for follow-up 1, fix #92 (#93), the covering capture (#94) and fix #71 (#95); fix #87
-(#98); for follow-up 3, fix #100 (#101); for follow-up 2, fix #103 (#104). Baseline on main at
-7f8afcc: 3268 passed / 3 skipped (the v3 scope guard always skips: no slice/16-* .. slice/24-*
+(#98); for follow-up 3, fix #100 (#101); for follow-up 2, fix #103 (#104); for follow-up 5,
+fix #106 (#107) - every approved follow-up. Baseline on main at 1923d7f: 3268 passed / 3 skipped (the v3 scope guard always skips: no slice/16-* .. slice/24-*
 branch remains), 1096 spec checks, 228 API goldens identical to a rebuild, 17 DemoPMS files identical to a rebuild, spec lock current,
 97% coverage. The React UI has 249 Vitest and 26 Playwright tests.
 No issue is open.
