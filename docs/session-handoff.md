@@ -7,8 +7,9 @@ nothing depends on the previous conversation.
 
 **Last updated:** 2026-10-13, after **#109 merged** (PR #112, `46413b4`).
 **The owner's list (4, 1, #87's guard, 3, 2, 5) is DONE, and so is #109** (#87's option 2,
-design P1-P6 approved as written, built end to end). **Nothing further is approved.** The next
-session reports the state and asks the owner what is next - it starts no work on its own.
+design P1-P6 approved as written, built end to end). **The owner then approved one item (2026-10-13): a
+documentation refresh** - docs/project-explainer/ (untouched since 2026-10-09, before v3) and any
+doc in docs/ not yet current. The next session does that, and only that.
 **v2 (slices 0–15) and v3 (slices 16–24) are both COMPLETE.** Criteria V1–V12 are all met
 (`docs/plan-v3.md` §7); `prd.md` criterion 1 stays NOT MET on every capture (`sandbox2026` 2 of
 11, refresh 1, covering capture 5). **No issue is open.** An item marked DONE has merged.
@@ -21,8 +22,8 @@ call is approved.**
 
 ## The starting prompt — paste exactly this
 
-v3 is complete, every follow-up on the owner's list is DONE, and #109 is DONE. Nothing is
-approved next: this session reports and asks.
+v3 is complete, every follow-up and #109 are DONE. The owner approved ONE item on 2026-10-13: a
+documentation refresh. This session does that, and only that.
 
 ```
 Continue miniHotelPMS after v3 and #109. Working directory: /Users/sauravs/Desktop/Work/miniHotelPMS
@@ -36,42 +37,88 @@ Start-up, before anything else:
   .venv/bin/python -m coverage run -m pytest && .venv/bin/python -m coverage report   # 97%
   cd ui && npm ci && npm run typecheck && npm test && npm run e2e          # 249 Vitest, 26 Playwright
   gh issue list --state open                     # none
-Those are main's numbers (46413b4 or a docs-only commit after it). Any that differs is a reason
-to stop and find out why. Then read CLAUDE.md, docs/session-handoff.md (the STATE block),
-docs/plan-v3.md (status table, §7), docs/open-questions.md.
+Those are main's numbers (c89d39f or a docs-only commit after it). Any that differs is a reason
+to stop and find out why. Then read CLAUDE.md, docs/session-handoff.md (the STATE block - it is
+the record of everything since 2026-10-09), docs/plan-v3.md (status table, §7).
 
-WORKING AGREEMENT (owner): every item is a bug-workflow fix or a small PR of its own - a GitHub
-issue first (what, reproduction, which gate, severity), then fix/NN-..., a failing test, the
-fix, a PR "Fixes #NN", CI green on test (3.11) and test (3.13), squash-merge. After each item
-ends end to end, REPORT and WAIT for the owner's go-ahead. Before starting anything new, write
-the next session's starting prompt into docs/session-handoff.md as a docs-only PR. Recommend one
-option at every decision.
+GO-AHEAD (owner, 2026-10-13), in the owner's words: "update all docs inside project-explainer
+folder based on recent phase updates and changes, also if required all docs inside docs folder
+if it hasnt been not already updated to recent addition of requirement".
 
-GO-AHEAD: NONE. Report the start-up numbers to the owner and ask what is next. Do not start an
-item, open an issue for new work, or make a live call without the owner's explicit yes.
-Candidates the owner may choose from (none approved; recommend one when asked):
-  - the deferred items below;
-  - a wider occupancy horizon for ooo_room_protection - needs MiniHotel's agreed limits first
-    (open question 2.6), then a version bump; NOT before;
-  - criterion 1 stays NOT MET; anything aimed at it is the owner's call.
+WHAT IS STALE, as found on 2026-10-13 (verify each - this list is a starting point, not the
+answer):
+  docs/project-explainer/ - ALL FIVE FILES were last changed 2026-10-09 (PR #46), BEFORE v3's
+    slices 16-24 and every follow-up. Not one mentions v3. README.md's "What is true as of this
+    writing" says 1956 tests / 1,080 checks / 11 of 12 criteria; 01 and 02 say 1,956 tests.
+    Nothing describes: policy versioning (16), the tenant-scoped store (17), the findings queue
+    (18), email notification (19), the operational log (20), typed parameters / "not decided"
+    (21), guest services and LATE_CHECKOUT (22), the evidence refresh capture (23), host auth and
+    per-property credentials (24); #71 (replay answers only the question a response was recorded
+    for; the covering capture sandbox2026cover in the demo); #84-#87 (absent keys, the `within`
+    guard); #100 guest goldens; #103 tools.serve --log; #109 (a collection judged per record,
+    population.reference_windows, the `absent` key, ooo_room_protection v4).
+  README.md (root) - says "1956 tests, 96% coverage and 1080 spec checks"; no v3.
+  docs/context.md - last changed 2026-10-10; its "what did not change" sections stop at v3
+    planning; check whether v3's decisions as built, #71's A+B and #109's P4 belong in it.
+  docs/prd.md - last changed 2026-10-09; check that criterion 1's figures (sandbox2026 2 of 11,
+    refresh 1, sandbox2026cover 5 - NOT MET on each, since #71) are what it says, and any number
+    or claim v3 moved.
+  ui/README.md - check only (last changed 2026-10-11).
+  ALREADY CURRENT (updated with #109 on 2026-10-13) - VERIFY ONLY, do not rewrite:
+    CLAUDE.md, docs/architecture.md, docs/open-questions.md, docs/plan-v3.md, docs/plan.md,
+    docs/session-handoff.md.
+  DO NOT EDIT: docs/QA.md (append-only, written only by /qa-log); docs/old-codebase-improve.md
+    (the v1 review, a historical record); docs/stayOps_Cotrols_Rule_Engine_V2.md and
+    docs/stayops-gap-analysis.md (they describe the StayOps documents' INTENT and say on purpose
+    that they do not track what is built - read their headers). docs/poc-comparison-brief.md says
+    "delete this once the report it describes is merged": find out whether it was, and ASK the
+    owner before deleting it - recommend one answer.
 
-DONE, for the record: follow-ups 4, 1, #87-guard, 3, 2, 5 (see the STATE block), and #109
-(PR #112, 2026-10-13): #87's option 2. Under mode `none` a collection is judged per record (FAIL
-naming the record; else UNKNOWN if one could not be judged; else PASS only if the collection is
-complete); population.reference_windows bounds the occupancy reference to today..today+7d; the
-owner chose an explicit `absent` key for P4 (`room.closed_to at least "today" or absent`);
-ooo_room_protection is version 4, still EXCLUDED 28 on every capture; 16 goldens declared.
+HOW (the rules that make this worth doing):
+  - MEASURED, NOT QUOTED. Every number in a doc comes from running a command in this session, and
+    the explainer README's "as of" line names the date it was measured. Counts that drift (tests,
+    checks, goldens, captures, controls, criteria) are stated once where possible and referenced.
+  - 04-edge-cases.md Part B traces ONE real reservation from raw XML to the screen ("evaluated 2
+    of 2, concluded"). Since #71, replay REFUSES a question its capture did not record, so that
+    run may now be refused on sandbox2026 or answer differently. Re-run the traced control and
+    re-check every value in the trace. If it moved, retrace it on the capture where it now
+    answers (likely sandbox2026cover) and say why in the text. The same for every example output,
+    command and file path in all four documents: run it, do not trust it.
+  - 02-file-structure.md lists every file. Diff that list against `git ls-files` (engine, tools,
+    spec, tests, ui) - new since 2026-10-09 include hotelcontrols/store, actions, ops, guest,
+    web/auth.py, evaluator/collections.py, kernel/dates.py, spec/parameters.json, spec/guest/,
+    the cover and refresh captures, fixtures/api/guest/. Update the mermaid diagrams in 02 and 03
+    to match. The README's "Where these fit among the existing docs" map lists eight docs; docs/
+    now holds more - list them, each with one line.
+  - Keep each document's voice and purpose (01 needs no code to read; 04 Part A is the API facts).
+    Add what v3 and the fixes changed; do not rewrite what is still true.
+  - DOCS ONLY. No change under hotelcontrols/, tools/, spec/, fixtures/, tests/ or ui/. If a doc
+    and the code disagree and the CODE is wrong, file a GitHub issue (what, reproduction, gate,
+    severity), do not fix it, and report it. Never widen a verdict in prose either: an UNKNOWN is
+    described as UNKNOWN, and criterion 1 stays NOT MET.
+  - Some tests read docs (e.g. tests/integration/test_drafts_readme.py, test_ui_hygiene.py, the
+    canonical-boundary grep). Run the full suite and validate_spec before the PR.
+
+WORKFLOW: one GitHub issue first, listing every stale fact found (doc, line, what it says, what
+is true, the command that shows it); branch docs/NN-explainer-refresh; the edits; a PR "Fixes
+#NN" whose body tables each change; CI green on test (3.11) and test (3.13); squash-merge. If it
+grows past one reviewable PR, split it (explainer first, then docs/), each its own PR.
+
+WORKING AGREEMENT (owner): after the item ends end to end, REPORT and WAIT for the owner's
+go-ahead. Before starting anything new, write the next session's starting prompt into
+docs/session-handoff.md as a docs-only PR. Recommend one option at every decision.
 
 Deferred - do NOT start these without the owner's explicit say-so: emailing guest tasks; a React
-guest view; offering the refresh capture (sandbox2026refresh) in the demo.
+guest view; offering the refresh capture (sandbox2026refresh) in the demo; a wider occupancy
+horizon (needs MiniHotel's agreed limits, open question 2.6).
 
-Live calls: none approved. If one ever is, it needs the owner's yes to that exact call, printed
-first with tools.probe --plan (credentials in the git-ignored .env as
-HOTELCONTROLS_SANDBOX_MINIHOTEL_*). Never print, paste or commit a credential.
+Live calls: none needed or approved. Never print, paste or commit a credential.
 
 Rules that outrank everything: never widen a verdict; never edit a fixture to pass a test;
 never hit the live API without the owner's yes to that call; no credential or third-party
 personal data in a committed file.
+
+When the docs refresh has merged, REPORT TO THE OWNER AND STOP. Nothing after it is approved.
 ```
 
 ## The STATE block — read by the session, not pasted
@@ -101,7 +148,7 @@ fix #106 (#107); and fix #109 (#112), #87's option 2. Baseline on main at 46413b
 / 3 skipped (the v3 scope guard always skips: no slice/16-* .. slice/24-* branch remains), 1098
 spec checks, 228 API goldens identical to a rebuild, 17 DemoPMS files identical to a rebuild,
 spec lock current, 97% coverage. The React UI has 249 Vitest and 26 Playwright tests.
-No issue is open. Nothing further is approved.
+No issue is open. One item is approved (2026-10-13): the documentation refresh in the prompt.
 
 #109 IS DONE (2026-10-13, PR #112) - #87's option 2, design P1-P6 approved as written before any
 code. evaluator/collections.py: under mode `none` a predicate reading a `collection` is judged
