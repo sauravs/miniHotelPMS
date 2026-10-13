@@ -216,3 +216,10 @@ What stays out, unchanged: **Mews**, **writing to a PMS** (read-only, permanentl
 the owner's 1.10 decision), **a scheduler daemon**, **webhook ingestion**, **free text as
 evidence**, and **a model in the verdict path**. v3 extends that last one to guest decisions: no
 model reads a guest's request.
+
+**Status (2026-10-13): v3 is built.** Slices 16–24 merged between 2026-10-09 and 2026-10-11, and
+**V1–V12 are all met**; `docs/plan-v3.md` §7 says where each is proven. This contract's twelve
+criteria are unchanged, and so is their state. Eleven are met. **Criterion 1 is NOT MET on every
+capture.** Since issue #71 it is measured per capture: 5 of 11 on the covering capture
+`sandbox2026cover`, 2 on `sandbox2026`, 1 on the 2026-10-10 refresh. Both providers agree on every
+capture (criterion 7). The arithmetic is in `docs/plan.md`.

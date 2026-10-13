@@ -660,9 +660,10 @@ test says so in its own name.
 Until #71 the same five were reported on `sandbox2026`, and three of them were answered from its
 departure window rather than the arrival or create window they ask.
 
-**One is blocked** — `resource_occupancy_consistency`. Its only occupancy capture covers
-2024-08-14..2024-08-21, and a run asking about any other week is refused rather than answered from
-the wrong one. Asked on 14 August 2024 it concludes perfectly well (2 PASS), which is asserted
+**One is blocked** — `resource_occupancy_consistency`. The covering capture's only occupancy
+response covers 2024-08-14..2024-08-21, and a run asking about any other week is refused rather than
+answered from the wrong one. (The 2026-10-10 refresh holds 2026-07-08..15 occupancy, and there it
+concludes: 31 PASS, 4 UNKNOWN. See below.) Asked on 14 August 2024 it concludes perfectly well (2 PASS), which is asserted
 separately. **It counted towards criterion 1 until issue #9 was fixed**: it had been reaching two
 PASSes about July 2026 from segments captured in August 2024. The number went down and the guard
 stayed, which is the whole point of the project.
@@ -687,8 +688,8 @@ reservation, because the captures were not taken with room prices. Both controls
 counts with and without the hotel's data, stopping at *"stay.rate_code is absent"* before the
 hotel's data is read. They need a capture taken with room prices (v3 slice 23 took it on
 2026-10-10: rate codes on 126 of 136 stays) **and** the hotel's answer from a real property. Nobody can honestly nominate codes for the vendor's test hotel. One
-sentence from the vendor about what `OK4` and `WL` mean still resolves 44 of the 217 reservations
-this project has ever seen. The other three are the property being what it is — and reporting
+sentence from the vendor about what `OK4` and `WL` mean still resolves 77 of the 526 reservations
+this project has ever seen (44 of 217 when this was written; recounted 2026-10-13). The other three are the property being what it is — and reporting
 "compliant" about a mechanism nobody has ever seen working is exactly what v1 did.
 
 **The second half of criterion 1 IS met**: every control that does not conclude names its specific

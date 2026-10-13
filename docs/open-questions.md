@@ -44,7 +44,7 @@ in any code that could be written this week, and only the project owner can supp
 | | What is needed | What it changes |
 | --- | --- | --- |
 | **[1.4](#14-which-rate-codes-has-the-property-nominated)** | Which rate codes a **real** property has **nominated** | `required_reservation_fields` answers nobody. **Corrected 2026-10-09 (issue #49): one list is not enough.** `stay.rate_code` is absent from every captured reservation, so the control also needs a capture taken with room prices (v3 slice 23). And the sandbox is the vendor's test property: nobody can honestly nominate its codes. **Since #71 (2026-10-13) a list moves answers** on the covering capture (example `Tourist-BB`: 15 PASS, 56 FAIL), which is why it must be a real property's |
-| **[2.1](#2-questions-for-minihotel)** | Ask MiniHotel what **`OK4`** and **`WL`** mean | **44 of the 217 distinct reservations this project has ever seen — one in five — carry one of those two codes**, and neither is documented anywhere. Each resolves to UNKNOWN, because a status nobody can name must not decide whether a control applies (A5). One sentence from the vendor resolves all 44, and it also settles [1.3](#13-is-the-cancel-and-recreate-pair-a-duplicate-or-the-expected-pattern) |
+| **[2.1](#2-questions-for-minihotel)** | Ask MiniHotel what **`OK4`** and **`WL`** mean | **77 of the 526 distinct reservations this project has ever seen — about one in seven — carry one of those two codes** (counted 2026-10-13 over every capture; 44 of 217 before the 2026-10 captures), and neither is documented anywhere. Each resolves to UNKNOWN, because a status nobody can name must not decide whether a control applies (A5). One sentence from the vendor resolves all 77, and it also settles [1.3](#13-is-the-cancel-and-recreate-pair-a-duplicate-or-the-expected-pattern) |
 
 Neither is a gap in the engine. Both are facts about a property and a vendor that the engine has
 correctly refused to guess at — which is the whole design working, and also the reason it is stuck.
@@ -572,7 +572,7 @@ reproduce the mock, because reproducing the mock is what following the spec look
    documents require that an unmapped provider value must never be guessed at and must resolve to
    UNKNOWN — and then define `ReservationStatus` as a closed set of six values with no UNKNOWN
    member, so **the rule cannot be implemented in the type they specify.** Here that is not
-   theoretical: `OK4` and `WL` are one in five of every reservation this project has ever seen
+   theoretical: `OK4` and `WL` are about one in seven of every reservation this project has ever seen
    ([2.1](#2-questions-for-minihotel)), and the specified enum cannot represent any of them.
 
 **2026-10-09: the owner's position is yes, and the owner will carry all three to the manager.** The
@@ -585,10 +585,11 @@ verdicts.
 
 ## 2. Questions for MiniHotel
 
-1. **Is there a published list of reservation status codes?** `OK4` (32 reservations) and `WL` (12)
-   appear in live data and in no documentation we have — **44 of the 217 distinct reservations we
-   have ever seen, one in five.** We refuse to guess (A5), so every one of them makes a control
-   unable to answer. A single sentence would resolve all 44, and it would also settle question 1.3.
+1. **Is there a published list of reservation status codes?** `OK4` (50 reservations) and `WL` (27)
+   appear in live data and in no documentation we have — **77 of the 526 distinct reservations we
+   have ever seen, about one in seven** (44 of 217 before the 2026-10 captures). We refuse to guess
+   (A5), so every one of them makes a control unable to answer. A single sentence would resolve all
+   77, and it would also settle question 1.3.
 2. **What does a negative `TotalDebit` mean officially** — an overpayment, a pending refund, or an
    accounting artefact? Decision D8 was taken on inference; this would settle it on fact.
 3. **Is there any bulk folio or journal endpoint?** `GetReservationBalance` takes one reservation per

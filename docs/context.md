@@ -22,6 +22,11 @@ design see `architecture.md`; for the build order see `plan.md`. For what v1 tau
 | 2026-10-09 | **Slice 14 — the server-rendered surface explains itself.** Every page gets a visible explanation bar, verdicts grouped as a work queue, and an outcome glossary built from the engine's one source of wording |
 | 2026-10-09 | **Slice 15 — a React UI, added without touching the engine.** The owner signs off on two surfaces (decision D11). `ui/` is a Next.js client of the JSON API; a test fails any slice-15 branch that changes an engine file. It found and fixed issue #35 on the engine's own history page along the way |
 | 2026-10-09 | **v3 planned** (`docs/plan-v3.md`). Every claim in the StayOps gap analysis re-verified on `main`; every gap given a disposition; slices 16–24 sequenced; decisions D12–D16. Verification overturned the plan's intended first slice: the card-on-file data behind gap G4 is a **placeholder on all 228 captured cards** (issue #48), and the rate codes two controls wait on are **absent from every capture** (issue #49) |
+| 2026-10-09 → 10-10 | **v3 built, slices 16–22.** Policy versioning (16), a tenant-scoped store (17), the findings queue (18), email behind two locks (19), the operational log (20), typed hotel parameters with *not decided* (21), and guest services' `LATE_CHECKOUT` (22). v2's answers held, guarded by a new regression test against `7f384c4`; the only declared change was slice 21's, reasons only |
+| 2026-10-10 | **Slice 23, the evidence refresh.** Four live calls, each approved by the owner at the time, captured as `sandbox2026refresh`. R11 and R12 still true; still no closed-date window; occupancy for July 2026 for the first time. Preparing and running it found #70, #71, #73 and #75 |
+| 2026-10-11 | **Slice 24 closes v3.** The host authenticates and the engine verifies an HMAC-signed tenant context; credentials per property (#22). V1–V12 all met. The same day, follow-up 4 audited every field that read an absence as a known `False`, and fixed three keys (#84, #85, #86) |
+| 2026-10-11 → 10-13 | **Issue #71 fixed.** Replay had answered arrival and creation questions from a departures capture. Two more owner-approved calls recorded the right questions (`sandbox2026cover`), and replay now answers only what a capture recorded. Criterion 1, per capture: `sandbox2026` 5 → 2, the refresh 4 → 1, the covering capture 5. NOT MET on each |
+| 2026-10-13 | **The last follow-ups.** #87's guard (`within` reads only a date), guest goldens (#100), `tools.serve --log` (#103), two stale comments (#106), then **#109**: a collection judged record by record over a bounded window, and an explicit `absent`. `ooo_room_protection` is at version 4 and still excludes all 28 rooms. Every approved follow-up done |
 
 ## The two source documents
 
@@ -68,6 +73,18 @@ checked-out folio can be negative.
 The lesson is now a rule: **if the documentation and a captured response disagree, the response
 wins**, and a spec validator exists so that a claim cannot sit unchecked.
 
+**Pass 4 — the evidence refresh (2026-10-10, v3 slice 23).** Four calls, each first printed by
+`tools.probe --plan` and approved by the owner at the time: the room master, the room-type master,
+a 7-day occupancy window, and the July reservations again with room prices. It found that the 2024
+room findings still held, and that rate codes appear when room prices are asked for.
+
+**Pass 5 — the covering capture (2026-10-11 and 2026-10-13, issue #71).** Two more calls, approved
+the same way: the arrival window and the creation window that seven controls ask about. No earlier
+capture had recorded either.
+
+Every call in passes 4 and 5 was printed by `tools.probe --plan` before it was sent, approved as
+printed, and sent once.
+
 ## The findings that shape the design
 
 Each was found by calling the API, not by reading about it. Risk ids are carried forward from v1 so
@@ -85,7 +102,9 @@ the comments, the tests and the workbook all still cite the same identifiers.
 | **R11** | Rooms `9900`/`9901`/`9902` carry a type the room-type master does not define | A real latent defect in live data, found by running control 1. The engine reports it rather than crashing |
 | **A5** | Reservation status codes and folio departments are **customisable per property** | Tenant configuration, not provider configuration. Unmapped codes resolve to UNKNOWN |
 | — | A checked-out folio can be **negative**: `007004348` left at `−490.75 ILS`. The guest overpaid | Split into two controls — see the decisions below |
-| — | **44 of 217 distinct reservations (one in five) carry a status this engine refuses to name** — `OK4` (32) and `WL` (12), neither documented anywhere | The honest cost of not guessing, and the cheapest open win available |
+| — | **44 of 217 distinct reservations (one in five) carry a status this engine refuses to name** — `OK4` (32) and `WL` (12), neither documented anywhere. Recounted 2026-10-13 over every capture since: **77 of 526** (`OK4` 50, `WL` 27), about one in seven | The honest cost of not guessing, and the cheapest open win available |
+| — | **A capture can answer a question it was never asked** (issue #71). Seven controls ask about arrivals or creations; the July capture recorded departures, and replay matched windows by parameter name | Replay answers only from the response whose recorded question covers the ask. Criterion 1 is measured per capture |
+| — | **An absence read as `False` is a value, and two of them match** (issues #75, #84–#86). Two room-less bookings "clashed" in a room called False | An absent identity or join key is `unknown`, never indexed and never matched |
 | — | VIP status and an approval exist only as **Hebrew free text** in `NonPrintedRemarks` — *"VIP policy is met. Approved by the manager on Telegram."* | The hotel is already writing control outcomes by hand, in prose. Whether that text is evidence is open question 3 |
 
 ## Decisions taken for v2, with reasons
@@ -117,6 +136,22 @@ recorded here as decided.
 | 2026-10-09 | **D14** — authentication and credentials | **The host authenticates; the engine verifies an HMAC-signed context.** Credentials per property in the environment; encryption deferred | Keeps D2 (stdlib only) and keeps security-sensitive session code out of the package whose job is honest verdicts |
 | 2026-10-09 | **D15** — guest decisions and parameter names (1.11 #1, #2) | **Five outcomes, `STAFF_REVIEW`; D2 §31's names, snake_case**, fee as Money, rounding with no default | Three of four mentions agree on the set; snake_case matches every key in `spec/`. Missing evidence is always `STAFF_REVIEW` |
 | 2026-10-09 | **D16** — an evidence refresh in v3? | **Yes, as a slice gated on per-call approval at the time** | Three planned read-only calls, plus one with room prices, are what several blocked items are waiting on |
+
+### Decided while v3 and its follow-ups were built
+
+Each was a checkpoint in `docs/plan-v3.md`'s status table. Where the owner delegated the call, the
+record says so.
+
+| When | Decision | Chosen | Why |
+| --- | --- | --- | --- |
+| 2026-10-09 | Slice 21: should the sandbox's rate-code settings become *not decided*? | **Yes** — `[]` / `{}` → `null`. Delegated to the implementer, after a dry run was shown | No count or outcome moved; 24 reasons per 2026 capture now name the missing decision instead of reading as "none" |
+| by 2026-10-10 | Slice 22: the `LATE_CHECKOUT` decision table | **Approved before any code**, with the implementer's recommendation on all five points. Two of them fixed the draft: only `checked_in` reaches the time rules, and checked in after the departure date is `STAFF_REVIEW` | The table is where hotel policy becomes behaviour, so it is a file the owner approved, and the engine refuses one that differs |
+| 2026-10-10 | Slice 23: offer the refresh capture in the demo? | **No (choice A)**: the capture lists were outside the slice. Its tests build it directly | Kept the slice's scope; offering it is a deferred item still |
+| 2026-10-11 | Slice 24: every open point, including whether the React UI's development sign-in is acceptable | **Delegated** (*"pls u decide as an expert"*). Yes, as a labelled stand-in, on four conditions | The engine verifies regardless; the stand-in says what it is on its own page |
+| 2026-10-13 | #71: how to fix replay, and what the demo offers | **A+B**: fix both providers, and offer the covering capture beside `sandbox2026`, whose default is unchanged | The right evidence for criterion 1, without hiding the capture whose answer fell |
+| 2026-10-13 | #87: how to fix `ooo_room_protection` | **Option 1 first** (a type guard on `within`, delegated), **then option 2 as #109** (judge every record of a collection), its design P1–P6 approved before any code | The guard stopped the false PASS at once; option 2 makes the control able to answer |
+| 2026-10-13 | #109 P4: how a rule says "or the closure has no end" | **An explicit `absent` key** (grammar `or absent` / `if present`), on orderings of a field whose absence is a fact | The grammar has no OR, and an ordering on an absent value had been a `TypeError` |
+| 2026-10-13 | Keep `docs/poc-comparison-brief.md`? | **Keep** | The report it describes was never written, so its own deletion condition never occurred |
 
 ## Scope decisions inherited from the project owner
 
@@ -189,6 +224,21 @@ hotel's settings replaced in memory, which is how criterion 6 has always been te
 regression wall in `docs/plan-v3.md` §1 is therefore the same tree that the last v2 merge left.
 What *did* change is what the documents claim. Two claims that had read as the cheapest wins in
 the project were measured, and neither held (issues #48 and #49).
+
+## What v3 and its follow-ups did not change
+
+- **No v2 answer moved without being named.** `tests/integration/test_v1_no_answer_changed.py`
+  compares the verdicts, counts and coverage of every run golden with `7f384c4`, v2's close. Four
+  changes are declared, each with its PR: slice 21 (control 15's reasons name the undecided
+  setting, no count moved), #71 (48 run goldens whose answer was corrected), #87 and #109
+  (`ooo_room_protection`'s version, digest and evidence lines; no outcome moved, still EXCLUDED 28).
+- **The engine is still standard-library only and read-only.** The email backend joined the model
+  backends outside it, in `tools/notifiers/`, injected. No PMS write is mapped. The AST guards
+  passed unedited.
+- **Criterion 1 is still NOT MET.** v3 was never going to move it by itself. It is now measured per
+  capture, and the honest figure on the demo's default capture went **down**.
+- **No policy was invented for the vendor's test hotel.** Its rate codes and its late-checkout
+  policy are *not decided*, and say so.
 
 ## What carries over from v1 unchanged
 
