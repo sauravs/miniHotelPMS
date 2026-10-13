@@ -176,6 +176,52 @@ class TestPredicateShape:
         assert any("does not use an interval" in p for p in found), found
 
 
+
+class TestAnIntervalPlacesADate:
+    """Issue #87. `within` / `not_within` ask whether a DATE falls inside a window of dates.
+    `ooo_room_protection` (version 2) asked it of `occupancy.reservation_id`, a string, and
+    "007000001" < "2026-07-01" because '0' < '2': every real id landed outside every window and
+    the room PASSed. The validator refuses a left operand whose canonical type is not a date."""
+
+    def _asking(self, valid_ir, field, operator="within"):
+        valid_ir["assertion"]["predicates"] = [
+            {"field": field, "operator": operator,
+             "interval": {"start": "reservation.arrival_date",
+                          "end": "reservation.departure_date"}}]
+        valid_ir["required_evidence"].extend(
+            {"field": name, "source": "pms", "resolvable": True}
+            for name in (field, "reservation.arrival_date", "reservation.departure_date"))
+        return valid_ir
+
+    @pytest.mark.parametrize("operator", ["within", "not_within"])
+    @pytest.mark.parametrize("field, kind", [
+        ("reservation.id", "string"), ("folio.balance_due", "money"),
+        ("reservation.guest_count.adults", "integer")])
+    def test_a_left_operand_that_is_not_a_date_is_refused_naming_its_type(
+            self, valid_ir, registry, ir_schema, operator, field, kind):
+        assert registry.field(field).type == kind
+        found = problems(self._asking(valid_ir, field, operator), registry, ir_schema)
+        assert any(field in p and "not a date" in p and repr(kind) in p for p in found), found
+
+    @pytest.mark.parametrize("field", ["reservation.arrival_date", "reservation.created_at"])
+    def test_a_date_or_a_datetime_is_accepted(self, valid_ir, registry, ir_schema, field):
+        assert registry.field(field).type in ("date", "datetime")
+        found = problems(self._asking(valid_ir, field), registry, ir_schema)
+        assert not any("not a date" in p for p in found), found
+        assert found == [], found
+
+    def test_ooo_room_protection_version_2_would_now_be_refused(self, registry, ir_schema):
+        """The shipped rule as it stood: the same refusal, about the field the issue names."""
+        raw = copy.deepcopy(load("ooo_room_protection").raw)
+        raw["assertion"]["predicates"] = [
+            {"field": "occupancy.reservation_id", "operator": "within",
+             "interval": {"start": "room.closed_from", "end": "room.closed_to"}}]
+        if not any(e["field"] == "occupancy.reservation_id" for e in raw["required_evidence"]):
+            raw["required_evidence"].append(
+                {"field": "occupancy.reservation_id", "source": "pms", "resolvable": True})
+        found = problems(raw, registry, ir_schema)
+        assert any("occupancy.reservation_id" in p and "not a date" in p for p in found), found
+
 class TestAggregateShape:
     """v1 shipped two aggregate assertions with no grouping key at all, which is why duplicate
     detection could never be evaluated: the rule never said what a duplicate was OF (F2)."""

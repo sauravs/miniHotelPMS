@@ -147,6 +147,37 @@ class TestAbsenceIsAnAnswerAndTheRegistrySaysWhich:
                     assert spec.absent_means in ("false", "unknown"), field
 
 
+
+DATES = ("date", "datetime")
+
+
+class TestADateArrivesAsADate:
+    """Issue #87. `within` asks where a DATE lies, and the evaluator knows a value is a date by
+    its unit: it cannot see the registry, and must not compare a string as one ("007000001" <
+    "2026-07-01"). So every known value of a date or datetime field carries a date unit, on
+    every provider - or the evaluator would refuse a real date as "not a date". Absence that
+    the registry reads as False (an unset closed window) is not a date and is not one here."""
+
+    def _dates(self, bundles):
+        for control, bundle in bundles:
+            records = [bundle.fields] + [r for rs in bundle.related.values() for r in rs]
+            for fields in records:
+                for name, value in fields.items():
+                    if not REGISTRY.has(name) or REGISTRY.field(name).type not in DATES:
+                        continue
+                    if not value.is_known or value.payload in (False, NOT_APPLICABLE):
+                        continue
+                    yield control, bundle.record_id, name, value
+
+    def test_every_known_date_carries_a_date_unit(self, bundles):
+        offenders = [(c, r, n, repr(v)) for c, r, n, v in self._dates(bundles)
+                     if v.unit not in DATES]
+        assert not offenders, offenders[:5]
+
+    def test_a_date_field_reaches_a_real_date_somewhere(self, bundles):
+        """A guard on the test above, which an adapter resolving no date at all would pass."""
+        assert any(True for _ in self._dates(bundles))
+
 class TestMoneyIsNeverABareNumber:
     """Slice 7 gate: money always carries a currency, on both (R9)."""
 

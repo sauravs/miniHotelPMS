@@ -28,6 +28,9 @@ from .intervals import within as _within
 # Operators that ask a question about a GROUP of records. Reaching one here means the IR is
 # being evaluated the wrong way round; saying so beats answering about a single record.
 AGGREGATE_OPERATORS = frozenset({"count_lte", "no_overlap"})
+# The units an adapter stamps on a date it has parsed (R2). A value without one is not a date,
+# whatever it looks like - see `_interval`.
+DATE_UNITS = frozenset({"date", "datetime"})
 
 
 @dataclass(frozen=True, slots=True)
@@ -62,6 +65,10 @@ def evaluate_predicate(predicate: dict[str, Any], bundle: Bundle,
         return PredicateResult(
             None, "%r asks a question about a group of records and cannot be answered about "
                   "one" % operator, tuple(fields))
+
+    collection = _from_a_collection(predicate, bundle)
+    if collection is not None:
+        return PredicateResult(None, collection, tuple(fields))
 
     left = bundle.fields.get(name)
     if left is None:
@@ -144,6 +151,31 @@ def _right_hand_side(predicate, bundle, settings, fields):
     return predicate.get("value"), repr(predicate.get("value")), None
 
 
+# --------------------------------------------------------------------------- collections
+def _from_a_collection(predicate, bundle) -> str | None:
+    """Why this predicate cannot be judged, if it reads a field of a `collection` reference.
+
+    Issue #87. A collection joins MANY records to this one - a room's occupancy segments - and
+    the evidence layer fills each of their fields with the FIRST match. A predicate over that
+    value speaks for one segment and would be reported as speaking for the room: a room whose
+    first segment was clean PASSed with a guest inside its closed window. Judging every record
+    of a collection, with Kleene logic across them, is #87's option 2 and does not exist yet,
+    so until it does the answer is "cannot tell", naming how many records it would have to be.
+    """
+    named = [predicate["field"], predicate.get("compare_to"),
+             *(predicate.get("interval") or {}).values()]
+    for name in named:
+        if not name:
+            continue
+        entity = name.split(".")[0]
+        if entity in bundle.related:
+            return ("%s belongs to a collection - this %s has %d %s records - and this engine "
+                    "does not yet judge every record of a collection, so one of them cannot "
+                    "speak for the rest" % (name, bundle.entity, len(bundle.related[entity]),
+                                            entity))
+    return None
+
+
 # --------------------------------------------------------------------------- special operators
 def _reference(operator, name, bundle, fields):
     """Did this record's join actually match?
@@ -177,6 +209,18 @@ def _interval(predicate, operator, name, left, bundle, fields):
         return PredicateResult(
             None, "the window bounding this test is not among this record's evidence",
             tuple(fields))
+
+    if left.is_known and left.unit not in DATE_UNITS:
+        # Issue #87. The interval layer compares ISO dates as strings, which is only a date
+        # comparison when both sides ARE dates: "007000001" < "2026-07-01" because '0' < '2',
+        # so a reservation id landed "outside" every window and its room PASSed. A value is a
+        # date when the adapter parsed it as one and said so; the validator refuses such a
+        # rule before it runs (check 7), and this is the same refusal for one that was not
+        # validated.
+        return PredicateResult(
+            None, "%s is %s, which is not a date, so where it falls in the window %s..%s "
+                  "cannot be established" % (name, describe(left), describe(start),
+                                             describe(end)), tuple(fields))
 
     inside = _within(left, start, end)
     if inside is None:

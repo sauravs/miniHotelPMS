@@ -333,11 +333,23 @@ class TestReferencesAreDeclarative:
         """Control 2 starts from the room side and wants every segment booked into it, which
         is the reverse of a lookup and a different word in the grammar for that reason."""
         ir = ir_of('every room collecting occupancy by room.number to occupancy.room_number '
-                   'must not have occupancy.reservation_id within room.closed_from '
+                   'must not have occupancy.from within room.closed_from '
                    'to room.closed_to', registry, deployment)
         assert ir["references"] == [{"entity": "occupancy", "kind": "collection",
                                      "local_field": "room.number",
                                      "remote_field": "occupancy.room_number"}]
+
+    def test_a_reservation_id_within_two_dates_is_refused_naming_its_type(
+            self, registry, deployment):
+        """Issue #87: control 2's version-2 sentence, which compiled and PASSed a room with a
+        guest inside its closed window. The compiler's output passes through the same
+        validation as a hand-written rule, so it is refused here too, by name."""
+        result = compiled('every room collecting occupancy by room.number to '
+                          'occupancy.room_number must not have occupancy.reservation_id within '
+                          'room.closed_from to room.closed_to', registry, deployment)
+        assert result.ir is None
+        assert any("occupancy.reservation_id" in str(p) and "not a date" in str(p)
+                   for p in result.problems), [str(p) for p in result.problems]
 
     def test_a_set_reference_collects_one_fields_values_across_the_response(
             self, registry, deployment):

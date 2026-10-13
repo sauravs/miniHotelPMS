@@ -1,10 +1,10 @@
 {
   "control_id": "ooo_room_protection",
-  "version": 2,
+  "version": 3,
   "source_control": "2",
   "name": "Out-of-Service Room Protection",
   "natural_language": "A room with an active out-of-service period must not have an arriving reservation.",
-  "restricted_language": "every room collecting occupancy by room.number to occupancy.room_number where room.closed_from exists must not have occupancy.reservation_id within room.closed_from to room.closed_to showing reservation.arrival_date and stay.room_number and reservation.status",
+  "restricted_language": "every room collecting occupancy by room.number to occupancy.room_number where room.closed_from exists must not have occupancy.from within room.closed_from to room.closed_to and room.closed_from within occupancy.from to occupancy.to showing occupancy.reservation_id and reservation.arrival_date and stay.room_number and reservation.status",
   "entity": "room",
   "population": {
     "description": "Rooms that currently have a closed window set; then reservations arriving inside that window.",
@@ -47,13 +47,22 @@
     "mode": "none",
     "predicates": [
       {
-        "field": "occupancy.reservation_id",
+        "field": "occupancy.from",
         "operator": "within",
         "interval": {
           "start": "room.closed_from",
           "end": "room.closed_to"
         },
-        "note": "Violation when any non-cancelled reservation occupies the room inside its closed window."
+        "note": "A segment that begins inside the closed window. Version 2 placed occupancy.reservation_id here - a reservation id between two dates, which compared as strings put every real id outside every window, so the room PASSed (issue #87). Mode none: the room FAILs if EITHER predicate holds, which together is 'a segment overlaps the window', boundaries inclusive."
+      },
+      {
+        "field": "room.closed_from",
+        "operator": "within",
+        "interval": {
+          "start": "occupancy.from",
+          "end": "occupancy.to"
+        },
+        "note": "A window that begins during a segment - a guest already in the room when it closes, which the first predicate misses. Both read occupancy, a collection, and the evaluator does not yet judge every record of one (#87's option 2), so until it does a room in scope is UNKNOWN, never a PASS read from its first segment."
       }
     ]
   },
@@ -87,7 +96,19 @@
       "field": "occupancy.reservation_id",
       "source": "pms",
       "resolvable": true,
-      "note": "the assertion tests whether any reservation occupies the closed window"
+      "note": "shown beside the verdict: which reservation the segment belongs to"
+    },
+    {
+      "field": "occupancy.from",
+      "source": "pms",
+      "resolvable": true,
+      "note": "the segment's first night, against the closed window"
+    },
+    {
+      "field": "occupancy.to",
+      "source": "pms",
+      "resolvable": true,
+      "note": "the segment's end, so a window opening during a stay is seen too"
     },
     {
       "field": "room.number",
@@ -119,6 +140,10 @@
     "rationale": "Same guest-facing urgency as 1d; the doc rates OOO conflicts high-urgency."
   },
   "unknown_conditions": [
+    {
+      "when": "a room in scope - one with a closed window",
+      "reason": "the assertion reads the room's occupancy segments, a collection, and the evaluator does not yet judge every record of a collection (issue #87, option 2). Until it does, every room with a closed window is UNKNOWN rather than judged by its first segment"
+    },
     {
       "when": "a room is blocked through a mechanism other than rm_clsdt1/rm_clsdt2",
       "reason": "MiniHotel also defines a reservation status 'CLOSE' (Closed Room); it is unconfirmed which mechanism a property actually uses"

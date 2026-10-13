@@ -244,6 +244,80 @@ class TestIntervals:
             b).holds is False
 
 
+    @pytest.mark.parametrize("operator", ["within", "not_within"])
+    def test_a_value_that_is_not_a_date_cannot_be_placed_in_a_window(self, operator):
+        """Issue #87, the defect itself: "007000001" < "2026-07-01" as strings, so a reservation
+        id landed "outside" every window and the room PASSed. A value arrives as a date only
+        with a date unit, which the adapter stamps from the canonical type; anything else is
+        not a date, and where a date lies cannot be established from it."""
+        b = bundle({"occupancy.reservation_id": Value.known("007000001"),
+                    "room.closed_from": Value.known("2026-07-01", unit="date"),
+                    "room.closed_to": Value.known("2026-07-31", unit="date")})
+        result = evaluate_predicate(
+            {"field": "occupancy.reservation_id", "operator": operator,
+             "interval": {"start": "room.closed_from", "end": "room.closed_to"}}, b)
+        assert result.holds is None
+        assert "not a date" in result.reason and "occupancy.reservation_id" in result.reason
+
+    def test_a_datetime_is_a_date_for_this_purpose(self):
+        b = bundle({"reservation.created_at": Value.known("2026-07-15", unit="datetime"),
+                    "room.closed_from": Value.known("2026-07-01", unit="date"),
+                    "room.closed_to": Value.known("2026-07-31", unit="date")})
+        assert evaluate_predicate(
+            {"field": "reservation.created_at", "operator": "within",
+             "interval": {"start": "room.closed_from", "end": "room.closed_to"}},
+            b).holds is True
+
+
+class TestACollectionIsNotJudgedByItsFirstRecord:
+    """Issue #87. A `collection` reference joins MANY records to this one - a room's occupancy
+    segments - and the evidence layer fills each of their fields with the FIRST match. A
+    predicate over that value speaks for one segment and would be reported as speaking for the
+    room: a room whose first segment is clean PASSed with a guest inside its closed window.
+    Until the evaluator judges every record of a collection (#87's option 2), it refuses."""
+
+    SEGMENTS = (
+        {"occupancy.from": Value.known("2026-07-08", unit="date"),
+         "occupancy.to": Value.known("2026-07-09", unit="date")},
+        {"occupancy.from": Value.known("2026-07-10", unit="date"),
+         "occupancy.to": Value.known("2026-07-14", unit="date")},
+    )
+
+    def room(self):
+        first = self.SEGMENTS[0]
+        return Bundle("room", "303", {
+            "room.closed_from": Value.known("2026-07-10", unit="date"),
+            "room.closed_to": Value.known("2026-07-20", unit="date"),
+            "occupancy.from": first["occupancy.from"], "occupancy.to": first["occupancy.to"]},
+            {"occupancy": self.SEGMENTS}, {"occupancy": Value.known(True)})
+
+    def test_a_field_of_the_collection_is_refused_rather_than_read_from_its_first_record(self):
+        result = evaluate_predicate(
+            {"field": "occupancy.from", "operator": "within",
+             "interval": {"start": "room.closed_from", "end": "room.closed_to"}}, self.room())
+        assert result.holds is None, "the first segment is outside; the second is not"
+        assert "occupancy" in result.reason and "2 " in result.reason, result.reason
+
+    def test_a_collection_field_as_an_interval_bound_is_refused_too(self):
+        result = evaluate_predicate(
+            {"field": "room.closed_from", "operator": "within",
+             "interval": {"start": "occupancy.from", "end": "occupancy.to"}}, self.room())
+        assert result.holds is None
+        assert "occupancy" in result.reason
+
+    def test_a_collection_field_compared_to_is_refused_too(self):
+        """`room.closed_from equals occupancy.from` is True of the second segment and False of
+        the first, which is the one the evidence layer filled in."""
+        result = evaluate_predicate(
+            {"field": "room.closed_from", "operator": "equals", "compare_to": "occupancy.from"},
+            self.room())
+        assert result.holds is None
+        assert "occupancy" in result.reason
+
+    def test_the_records_own_fields_are_unaffected(self):
+        assert evaluate_predicate(
+            {"field": "room.closed_from", "operator": "exists"}, self.room()).holds is True
+
 class TestReferenceExistence:
     def test_reference_exists_when_the_join_matched(self):
         b = bundle({"room.number": Value.known("303")}, joins={"room": Value.known(True)})

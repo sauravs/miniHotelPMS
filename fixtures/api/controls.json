@@ -181,15 +181,15 @@
       "readiness": [
         {
           "provider": "demopms",
-          "available": 8,
-          "total": 8,
+          "available": 10,
+          "total": 10,
           "executable": true,
-          "headline": "demopms: 8 of 8 fields available",
+          "headline": "demopms: 10 of 10 fields available",
           "sources": [
             {
               "name": "pms",
-              "available": 8,
-              "total": 8,
+              "available": 10,
+              "total": 10,
               "missing": []
             }
           ],
@@ -198,15 +198,15 @@
         },
         {
           "provider": "minihotel",
-          "available": 8,
-          "total": 8,
+          "available": 10,
+          "total": 10,
           "executable": true,
-          "headline": "minihotel: 8 of 8 fields available",
+          "headline": "minihotel: 10 of 10 fields available",
           "sources": [
             {
               "name": "pms",
-              "available": 8,
-              "total": 8,
+              "available": 10,
+              "total": 10,
               "missing": []
             }
           ],
