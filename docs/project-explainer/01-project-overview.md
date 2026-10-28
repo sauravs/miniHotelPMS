@@ -696,6 +696,7 @@ The fixes matter for the day one does.
 | Run, test or change the React UI | [`ui/README.md`](../../ui/README.md) |
 | See the layers, the flow and the logic as diagrams | [03-code-architecture.md](03-code-architecture.md) |
 | Understand the traps in the real API, and see one record traced end-to-end | [04-edge-cases.md](04-edge-cases.md) |
+| See which StayOps features the POC and this engine each cover, and why not where not | [05-stayops-poc-comparison.md](05-stayops-poc-comparison.md) |
 | Read the falsifiable contract | [`docs/prd.md`](../prd.md) |
 | Read v3's plan, every slice's record and criteria V1–V12 | [`docs/plan-v3.md`](../plan-v3.md) |
 | Know what changed most recently, and what is approved next | [`docs/session-handoff.md`](../session-handoff.md) |
