@@ -5,27 +5,28 @@ session, exactly as written.** The longer block after it is the STATE block the 
 session to read. Do not paste that one. Everything either references is in the repository;
 nothing depends on the previous conversation.
 
-**Last updated:** 2026-10-21, after **#119 merged** (PR #120) and its handoff (PR #121, `3882c0d`).
-**The owner approved one item on 2026-10-21: a three-way comparison document** in
-`docs/project-explainer/` — the StayOps design documents, the `ruleEngineAnishLegacy` POC, and this
-codebase. The next session writes it, and only it. Nothing else is approved.
+**Last updated:** 2026-10-28, after **the three-way comparison merged** (issue #123, PR #124,
+`e6f382b`): `docs/project-explainer/05-stayops-poc-comparison.md` compares the StayOps documents,
+the `ruleEngineAnishLegacy` POC and this codebase, and `docs/poc-comparison-brief.md` is deleted.
+**Nothing further is approved.** The next session reports the state and asks the owner what is
+next. It starts no work on its own.
 **v2 (slices 0–15) and v3 (slices 16–24) are both COMPLETE.** Criteria V1–V12 are all met
 (`docs/plan-v3.md` §7); `prd.md` criterion 1 stays NOT MET on every capture (`sandbox2026` 2 of
 11, refresh 1, covering capture 5). **No issue is open.** An item marked DONE has merged.
 
 **The live probe** is a runbook now: [The probe](#the-probe--done-2026-10-10-v3-slice-23-kept-as-the-runbook-for-the-next-one).
 Since slice 24 its credentials are per property: `HOTELCONTROLS_SANDBOX_MINIHOTEL_*`. **No live
-call is approved, and this item needs none.**
+call is approved.**
 
 ---
 
 ## The starting prompt — paste exactly this
 
-One item is approved (2026-10-21): a three-way comparison document. This session writes it, and
-only it. It is a document, not code: nothing in the engine, the POC or the UI is built or changed.
+v3 is complete; every follow-up, #109, the documentation refresh, #119 and the three-way comparison
+(#123) are DONE. Nothing is approved next: this session reports and asks.
 
 ```
-Continue miniHotelPMS: the three-way comparison document. Working directory: /Users/sauravs/Desktop/Work/miniHotelPMS
+Continue miniHotelPMS after v3 and the three-way comparison. Working directory: /Users/sauravs/Desktop/Work/miniHotelPMS
 
 Start-up, before anything else:
   git status && git branch --no-merged main     # LOCAL list: empty
@@ -33,120 +34,60 @@ Start-up, before anything else:
   PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -m tools.validate_spec        # PASSED - all 1098 checks
   PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -m tools.dump_api_fixtures --check   # 228 files
   PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -m tools.transcode_demopms --check   # 17 files
+  .venv/bin/python -m coverage run -m pytest && .venv/bin/python -m coverage report --precision=2   # 97.56%
+  cd ui && npm ci && npm run typecheck && npm test && npm run e2e          # 249 Vitest, 26 Playwright
   gh issue list --state open                     # none
-Those are main's numbers (3882c0d or a docs-only commit after it). Any that differs is a reason
-to stop and find out why. Then read CLAUDE.md, docs/project-explainer/README.md (the measured
-table and the docs map), docs/plan-v3.md (§4, every StayOps gap's disposition and its reason;
-the status table), docs/stayops-gap-analysis.md, docs/open-questions.md (§1.10-1.12, D12-D16),
-and docs/poc-comparison-brief.md (an OLDER, two-way brief for this task - see below).
+Those are main's numbers (e6f382b or a docs-only commit after it). Any that differs is a reason
+to stop and find out why. (Without --precision=2 the coverage report rounds 97.56% to 98%; the
+docs say 97% or 97.6%. That is rounding, not drift.) Then read CLAUDE.md,
+docs/project-explainer/README.md (the measured table), docs/session-handoff.md (the STATE block),
+docs/plan-v3.md (status table, §7), docs/open-questions.md, and
+docs/project-explainer/05-stayops-poc-comparison.md (StayOps vs the POC vs us, feature by feature).
 
-GO-AHEAD (owner, 2026-10-21), in the owner's words: "Pls compare "ruleEngineAnishLegacy" features
-with features described inside "miniHotelLegacy/StayOps Control Rule Engine" and with our current
-implemented codebase features and prepare a comparison doc inside docs/project-explainer. So it
-should have comparison between the mentioned three which feature covered, which are not, reason
-behind not implementation etc. Do not guess, if any doubt or question, ask first for
-clarification."
+WORKING AGREEMENT (owner): every item is a bug-workflow fix or a small PR of its own - a GitHub
+issue first (what, reproduction, which gate, severity), then fix/NN-..., a failing test, the
+fix, a PR "Fixes #NN", CI green on test (3.11) and test (3.13), squash-merge. After each item
+ends end to end, REPORT and WAIT for the owner's go-ahead. Before starting anything new, write
+the next session's starting prompt into docs/session-handoff.md as a docs-only PR. Recommend one
+option at every decision. If in doubt, ask first (the owner, 2026-10-21).
 
-THE OWNER'S ANSWERS (2026-10-21) - settled, do not re-ask:
-  1. The StayOps column comes from READING THE THREE .docx DIRECTLY. docs/stayops-gap-analysis.md
-     is a cross-check only: its "what we have" side was measured 2026-09-28, before v3.
-  2. COMPARISON ONLY. For each StayOps feature: what StayOps requires, whether the POC covers it,
-     whether we cover it, and the reason where either does not. NO harvest plan, no roadmap, no
-     "what to build next" - that stays the owner's call.
-  3. docs/poc-comparison-brief.md is DELETED in the same PR as the new document (its own
-     condition, "delete once the report is merged", is then met). git keeps it at 391b31f.
-  4. The POC's author is NOT available. Where the POC's code or README does not say why a
-     feature is missing or partial, the document says "reason not stated - UNVERIFIED". Never
-     infer an author's intent.
+GO-AHEAD: NONE. Report the start-up numbers to the owner and ask what is next. Do not start an
+item, open an issue for new work, or make a live call without the owner's explicit yes.
+Candidates the owner may choose from (none approved; recommend one when asked):
+  - the deferred items below;
+  - a wider occupancy horizon for ooo_room_protection - needs MiniHotel's agreed limits first
+    (open question 2.6), then a version bump; NOT before;
+  - anything the comparison surfaces. It is a comparison, NOT a plan (the owner's answer of
+    2026-10-21): what, if anything, to take from the POC, or to build for a StayOps row we do not
+    cover, is the owner's call. Do not propose a harvest unless asked;
+  - criterion 1 stays NOT MET; anything aimed at it is the owner's call.
 
-THE THREE SOURCES (checked 2026-10-21; re-check, do not trust):
-  A. StayOps - miniHotelLegacy/StayOps Controls Rule Engine/, three .docx (git-ignored):
-       01  Product, Architecture & Implementation Design, v1.0   (~4,360 words)
-       02  Technical Design & Coding Specification, v1.1         (~2,900 words)
-       03  Developer Implementation Package, v1.0                 (~3,670 words)
-     md5-identical to ruleEngineAnishLegacy/initial-req/*.docx, so both projects built from the
-     same requirements. Extract with `pandoc -t gfm <file>` (pandoc is at /opt/homebrew/bin; it is
-     a tool on this machine, not a repo dependency; python-docx is NOT installed). Keep extractions
-     in the session scratchpad, never in the repository.
-  B. The POC - ruleEngineAnishLegacy/ (git-ignored): backend/src/index.js, backend/poc.db,
-     frontend/src/main.jsx, frontend/src/styles.css, frontend/index.html, two READMEs, two
-     package.json. 665 lines of js/jsx/css/html. READ-ONLY (the owner's 2026-10-02 decision,
-     still in force): no npm install, no node, no listening port, no network; open poc.db with
-     sqlite3.connect("file:ruleEngineAnishLegacy/backend/poc.db?mode=ro", uri=True). A behaviour
-     you cannot establish by reading is UNVERIFIED.
-  C. This codebase - main as it stands. Reasons for what we did not build come from WRITTEN
-     decisions only: plan-v3 §4 (built / narrowed / deferred / blocked / rejected, each with its
-     reason), §8, D1-D16 in open-questions.md, prd.md §6. Cite the one you use. If no document
-     gives a reason, say so - do not supply one.
-
-THE DOCUMENT:
-  - One file: docs/project-explainer/05-stayops-poc-comparison.md (adjust the name only if there is
-    a reason, and say it). Keep the explainer's voice: plain, for a newcomer, quoting rather than
-    pointing, because both sources are git-ignored and no reader can open them.
-  - The centrepiece is ONE table, a row per StayOps feature: feature (with its StayOps document
-    number and section heading, and a short quote) | StayOps requires | POC | ours | why not, where
-    not. Where a row matches a G-id in stayops-gap-analysis.md / plan-v3 §4, carry the G-id so the
-    documents compose.
-  - Coverage words, defined once at the top and used exactly: Covered · Partial (say what is
-    missing) · Not covered · Rejected on purpose · Blocked (say on what) · Deferred (by whom) ·
-    UNVERIFIED. "Ours: Covered" needs a file or test that proves it; "POC: Covered" needs the
-    function, route or table, quoted.
-  - Then short sections: where the POC goes further than us; where we go further than the POC;
-    where neither covers a StayOps feature (a finding about the specification as much as about
-    either build); where the three StayOps documents disagree with each other (open question 1.11)
-    and how the POC and we each chose.
-  - Also link it: the explainer README's reading path and docs map, 01's "where to go next", the
-    root README's documentation table - and remove poc-comparison-brief.md from every map that
-    lists it.
-  - Length: if it runs past ~600 lines, something is being restated instead of referenced.
-
-TRAPS (the old brief, docs/poc-comparison-brief.md, was written 2026-10-02 - BEFORE v3):
-  - Its "what we have" claims are stale. Since then v3 built: tenant-scoped store (17), host
-    authentication verifying a signed context (24), guest services LATE_CHECKOUT (22), typed
-    parameters with "not decided" (21), policy versioning (16), the findings queue (18), email
-    (19), the operational log (20). Its findings about the POC (header-trusted tenant id, no
-    EXCLUDED, keyword matching, EXTRA_TOWELS -> EXTRA_ITEM_REQUEST, five-outcome set, camelCase
-    names) are a starting point to RE-VERIFY by reading, never to copy.
-  - Do not score line counts, file layouts or test counts as quality: a POC on mock data and an
-    engine on real captures made different bets. Compare responsibilities and guarantees.
-  - Mock data means the POC never met the seven API facts in CLAUDE.md. Say that as the cost of
-    mocking, not as negligence.
-  - Never widen in prose: an UNKNOWN stays UNKNOWN, criterion 1 stays NOT MET, and a feature we
-    built narrowed (e.g. one guest template of five) is Partial, not Covered.
-  - Quote nothing sensitive. The POC's data was checked mock on 2026-10-02 (synthetic names,
-    reserved-range phones, no credentials in source) - re-check anything you quote. No third-party
-    personal data from our own captures either.
-
-IF IN DOUBT, ASK - the owner said so explicitly. Typical moments: a StayOps requirement that maps
-to two of our features or none; a POC behaviour you cannot settle by reading; a disagreement among
-the three .docx. Ask with AskUserQuestion, recommend one answer, and do not write the row until it
-is answered.
-
-WORKFLOW: a GitHub issue first (what the document will compare, its sources, the four answers
-above); branch docs/NN-stayops-poc-comparison; the document, the links, and the deletion of
-docs/poc-comparison-brief.md; full suite + validate_spec; a PR "Fixes #NN" whose body lists each
-source read and how; CI green on test (3.11) and test (3.13); squash-merge.
-
-DOCS ONLY. No change under hotelcontrols/, tools/, spec/, fixtures/, tests/ or ui/. Nothing under
-ruleEngineAnishLegacy/ or miniHotelLegacy/ is modified, run, installed or committed - both stay
-git-ignored.
-
-WORKING AGREEMENT (owner): after the item ends end to end, REPORT and WAIT. Before starting
-anything new, write the next session's starting prompt into docs/session-handoff.md as a
-docs-only PR. Recommend one option at every decision.
+DONE, for the record: follow-ups 4, 1, #87-guard, 3, 2, 5, #109, the documentation refresh
+(#115, PRs #116 and #117) and #119 (PR #120) - see the STATE block. Then the three-way comparison
+(issue #123, PR #124, 2026-10-21..28): docs/project-explainer/05-stayops-poc-comparison.md, ~70
+rows, one per StayOps feature (StayOps requires | POC | ours | why not, where not), G-ids carried,
+then where the POC goes further, where we go further, what neither covers, and how each build
+chose on the documents' nine disagreements (1.11). Sources: the three StayOps .docx read directly
+(pandoc, scratchpad only); the POC read-only (no install, no run, poc.db ?mode=ro); ours from
+written decisions only. Two owner answers given while writing it: a control built and tested but
+concluding on no capture is "Covered" with its real per-capture answer beside it; StayOps control
+2 -> ooo_room_protection (room_assignment_active_room its reservation-side sibling), control 5 ->
+inactive_room_future_stay. docs/poc-comparison-brief.md deleted (git keeps it at 391b31f). One
+thing it recorded about OUR code without changing it: plan-v3 slice 22 allowed guest/ to reuse
+evaluator/'s predicates by import; as built it imports nothing from evaluator/, and no document
+says why.
 
 Deferred - do NOT start these without the owner's explicit say-so: emailing guest tasks; a React
-guest view; offering the refresh capture (sandbox2026refresh) in the demo; a wider occupancy
-horizon (needs MiniHotel's agreed limits, open question 2.6); anything the comparison suggests
-building.
+guest view; offering the refresh capture (sandbox2026refresh) in the demo; anything the
+comparison suggests building.
 
-Live calls: none needed or approved. Never print, paste or commit a credential.
+Live calls: none approved. If one ever is, it needs the owner's yes to that exact call, printed
+first with tools.probe --plan (credentials in the git-ignored .env as
+HOTELCONTROLS_SANDBOX_MINIHOTEL_*). Never print, paste or commit a credential.
 
 Rules that outrank everything: never widen a verdict; never edit a fixture to pass a test;
 never hit the live API without the owner's yes to that call; no credential or third-party
 personal data in a committed file.
-
-When the comparison document has merged, REPORT TO THE OWNER AND STOP.
 ```
 
 ## The STATE block — read by the session, not pasted
@@ -176,8 +117,18 @@ fix #106 (#107); and fix #109 (#112), #87's option 2. Baseline on main at 46413b
 / 3 skipped (the v3 scope guard always skips: no slice/16-* .. slice/24-* branch remains), 1098
 spec checks, 228 API goldens identical to a rebuild, 17 DemoPMS files identical to a rebuild,
 spec lock current, 97% coverage. The React UI has 249 Vitest and 26 Playwright tests.
-No issue is open. One item is approved (2026-10-21): the three-way comparison document in the
-starting prompt. The documentation refresh (2026-10-13) is done, below.
+No issue is open. Nothing is approved. Since then: the three-way comparison (issue #123, PR #124,
+main e6f382b, docs only - every count above unchanged), below; the documentation refresh
+(2026-10-13) is done, below.
+
+THE THREE-WAY COMPARISON IS DONE (2026-10-21..28, issue #123, PR #124). The owner's go-ahead of
+2026-10-21: compare ruleEngineAnishLegacy, the StayOps documents and this codebase.
+docs/project-explainer/05-stayops-poc-comparison.md, linked from the explainer README, 01 §12 and
+the root README; docs/poc-comparison-brief.md deleted. Comparison only, no plan. Findings about the
+POC, by reading (it was never run): an unknown guarantee status FAILs and an unmapped room status
+PASSes; out-of-scope records are PASS (no EXCLUDED); late checkout reads no reservation and reads a
+request with no time as 15:00; undecided parameters take catalogue defaults; hotel time zones are
+stored and never read; broadcast() sends every tenant's events to every WebSocket client.
 
 THE DOCUMENTATION REFRESH IS DONE (2026-10-13, issue #115, PRs #116 and #117; main 43d24d5). The
 explainer predated v3. All five files now describe v3 and #109, measured that day: the numbers
@@ -190,7 +141,8 @@ step 9 shows the one task. Found and fixed in docs: the A5 figure is 77 of 526 r
 listed an evaluator/logic.py that never existed; plan-v3's #71-step-B row still read "in
 progress". The two things left as found (outside docs-only scope) were fixed next, as #119 (PR #120):
 the figure in three comments, both tenant notes and four test docstrings, and ui/README.md's
-sign-in tests row. docs/poc-comparison-brief.md is KEPT (owner): the comparison was never written.
+sign-in tests row. docs/poc-comparison-brief.md was KEPT (owner) until the comparison was written;
+it was deleted with it (#123, PR #124).
 
 #109 IS DONE (2026-10-13, PR #112) - #87's option 2, design P1-P6 approved as written before any
 code. evaluator/collections.py: under mode `none` a predicate reading a `collection` is judged
