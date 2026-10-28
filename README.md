@@ -132,6 +132,7 @@ Start with **[`docs/plan-v3.md`](docs/plan-v3.md)** for where the build is, or
 | --- | --- |
 | [`CLAUDE.md`](CLAUDE.md) | Orientation, conventions, and the seven facts that will bite you |
 | [`docs/project-explainer/`](docs/project-explainer/) | Business case → code, for a newcomer: overview, file map, architecture diagrams, and one record traced end to end. Its README holds the measured numbers |
+| [`docs/project-explainer/05-stayops-poc-comparison.md`](docs/project-explainer/05-stayops-poc-comparison.md) | StayOps' requirements, the second implementation in `ruleEngineAnishLegacy/`, and this engine, compared feature by feature |
 | [`docs/prd.md`](docs/prd.md) | What we are building and the twelve criteria that decide whether we did |
 | [`docs/architecture.md`](docs/architecture.md) | Eight layers, their interfaces, what each hides |
 | [`docs/plan.md`](docs/plan.md) | The v2 build log: every TDD slice with its test gates, slices 0 to 15, and criterion 1's arithmetic |
@@ -141,7 +142,6 @@ Start with **[`docs/plan-v3.md`](docs/plan-v3.md)** for where the build is, or
 | [`docs/session-handoff.md`](docs/session-handoff.md) | The starting prompt for the next coding session, and the state since 2026-10-09 |
 | [`docs/old-codebase-improve.md`](docs/old-codebase-improve.md) | The v1 review |
 | [`docs/stayOps_Cotrols_Rule_Engine_V2.md`](docs/stayOps_Cotrols_Rule_Engine_V2.md) · [`docs/stayops-gap-analysis.md`](docs/stayops-gap-analysis.md) | The wider StayOps product's intent, and its requirements against what existed on 2026-09-28: v3's input |
-| [`docs/poc-comparison-brief.md`](docs/poc-comparison-brief.md) | A brief for a comparison with a second implementation, never started |
 | [`docs/QA.md`](docs/QA.md) | Running Q&A transcript |
 | [`ui/README.md`](ui/README.md) | The React UI: how it is built, how it is tested, and why each dependency is there |
 

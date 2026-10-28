@@ -2,6 +2,8 @@
 
 Four documents that take you from *"what is this company selling?"* to *"which line of code
 decides that?"* in about an hour, without needing to read the twelve documents in `docs/` first.
+A fifth compares this engine, feature by feature, with the StayOps requirements and with a second
+implementation of them.
 
 They are **standalone**. Everything you need is here; links point outward only when you want the
 long version.
@@ -14,6 +16,7 @@ long version.
 | 2 | [02-file-structure.md](02-file-structure.md) | Every folder and every file: what it is, why it exists, who imports it, and what breaks if it is wrong. | ~10 min |
 | 3 | [03-code-architecture.md](03-code-architecture.md) | The eight layers, the request lifecycle, the control flow, the data shapes, and the decision logic — as diagrams. | ~20 min |
 | 4 | [04-edge-cases.md](04-edge-cases.md) | **Part A:** the seven facts about the real API that shaped the whole design. **Part B:** one real reservation traced field-by-field from raw XML to the pixel on screen. | ~15 min |
+| 5 | [05-stayops-poc-comparison.md](05-stayops-poc-comparison.md) | The three StayOps requirement documents, the POC in `ruleEngineAnishLegacy/` and this engine, one row per StayOps feature: who covers it, who does not, and the written reason. A comparison, not a plan. | ~20 min |
 
 Composing a control from prose — the chat window, and why the model drafts a *sentence* rather than
 a rule — is [01-project-overview.md §10](01-project-overview.md). The decision behind it is **D10**
@@ -70,7 +73,7 @@ README.md                    ← the pitch
 ui/README.md                 ← the React UI: how it is built and tested, and every dependency justified
 spec/drafts/README.md        ← how a composed draft is promoted to a shipped control
 docs/
-  project-explainer/         ← YOU ARE HERE. Business → code, for a newcomer
+  project-explainer/         ← YOU ARE HERE. Business → code, for a newcomer; 05 compares StayOps, the POC and us
   prd.md                     ← the contract: what we build, 12 falsifiable criteria
   context.md                 ← the history: how we got here, every decision + why
   architecture.md            ← the design: 8 layers, interfaces, what each hides
@@ -82,5 +85,4 @@ docs/
   QA.md                      ← running transcript with the project owner, append-only
   stayOps_Cotrols_Rule_Engine_V2.md  ← the StayOps documents' intent, in plain language. Not a status report
   stayops-gap-analysis.md    ← StayOps' requirements against what existed on 2026-09-28. The input to v3
-  poc-comparison-brief.md    ← a brief for a comparison with a second implementation. Never started
 ```
